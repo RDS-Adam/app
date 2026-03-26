@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur pour Stores - Rue du Store</title>
+    <style>
+        /* Couleurs Rue du Store : Vert canard dominant (#33757e) */
+        body { 
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f6f9; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(51, 117, 126, 0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #33757e; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .tabs { 
+            display: flex; 
+            margin-bottom: 25px; 
+            cursor: pointer; 
+            border-bottom: 2px solid #33757e;
+        }
+        .tab { 
+            flex: 1; 
+            text-align: center; 
+            padding: 12px; 
+            background: #f8f9fa; 
+            color: #666;
+            font-weight: bold; 
+            border-radius: 6px 6px 0 0; 
+            transition: all 0.3s ease;
+        }
+        .tab:hover { background: #e9ecef; }
+        .tab.active { 
+            background: #33757e; 
+            color: white; 
+        }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .input-group { margin-bottom: 18px; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #2c3e50;
+        }
+        input[type="number"], select { 
+            width: 100%; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            border: 1px solid #ccd1d9; 
+            border-radius: 4px; 
+            font-family: inherit;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        input[type="number"]:focus, select:focus {
+            border-color: #33757e;
+            outline: none;
+        }
+        button.action-btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #33757e; 
+            color: white; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: bold;
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-bottom: 10px; 
+            transition: background 0.3s;
+        }
+        button.action-btn:hover { background: #265a61; } 
+        
+        button.export-btn { 
+            width: 100%; 
+            padding: 12px; 
+            background: #e67e22; 
+            color: white; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: bold;
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            display: none; 
+            transition: background 0.3s;
+        }
+        button.export-btn:hover { background: #d35400; }
+
+        button.toggle-btn {
+            width: 100%; 
+            padding: 12px; 
+            background: transparent; 
+            color: #33757e; 
+            border: 2px solid #33757e; 
+            font-size: 16px; 
+            font-weight: bold;
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-top: 30px; 
+            transition: all 0.3s;
+        }
+        button.toggle-btn:hover {
+            background: #33757e;
+            color: white;
+        }
+        
+        .result { 
+            margin-top: 25px; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            border-left: 5px solid #33757e; 
+            border-radius: 0 4px 4px 0;
+        }
+        .alert { color: #c0392b; font-weight: bold; margin-top: 10px;}
+        .success { color: #27ae60; font-weight: bold; margin-top: 10px;}
+        
+        #schema-container { 
+            text-align: center; 
+            margin-top: 30px; 
+            display: none; 
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        #schema-container h3 { color: #33757e; margin-bottom: 15px;}
+        
+        .visu-selector {
+            margin-bottom: 15px;
+            background: #eaf3f4;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #c1dce0;
+        }
+        .visu-selector label {
+            display: inline;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #33757e;
+        }
+        
+        canvas { 
+            border: 1px solid #ccd1d9; 
+            background-color: white; 
+            border-radius: 4px; 
+            max-width: 100%; 
+            height: auto; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        #restrictions-tables {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ccd1d9;
+            display: none; 
+        }
+        #restrictions-tables h3 {
+            color: #33757e;
+            margin-top: 0;
+            border-bottom: 2px solid #33757e;
+            padding-bottom: 10px;
+        }
+        #restrictions-tables h4 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccd1d9;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #33757e;
+            color: white;
+        }
+        tr:nth-child(even) { background-color: #f2f7f8; }
+        td[rowspan] { vertical-align: middle; font-weight: bold; background-color: #eaf3f4; color: #33757e; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calculateur Stores Inclinés</h1>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('trapeze', this)">Store TRAPÈZE</div>
+        <div class="tab" onclick="switchTab('triangle', this)">Store TRIANGLE</div>
+    </div>
+
+    <div id="trapeze" class="form-section active">
+        <div class="input-group">
+            <label>Position de la Grande Hauteur :</label>
+            <select id="trap_orientation">
+                <option value="gauche">À gauche</option>
+                <option value="droite">À droite</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Grande Hauteur (en cm) :</label>
+            <input type="number" id="trap_H" value="200" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Petite Hauteur (en cm) :</label>
+            <input type="number" id="trap_h" value="118" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Base / Largeur (en cm) :</label>
+            <input type="number" id="trap_B" value="180" step="0.1">
+        </div>
+        <button class="action-btn" onclick="calculerTrapeze()">Calculer & Dessiner Trapèze</button>
+        <div id="result_trapeze" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="triangle" class="form-section">
+        <div class="input-group">
+            <label>Position de la Hauteur :</label>
+            <select id="tri_orientation">
+                <option value="gauche">À gauche</option>
+                <option value="droite">À droite</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Hauteur du triangle (en cm) :</label>
+            <input type="number" id="tri_H" value="110" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Base / Largeur (en cm) :</label>
+            <input type="number" id="tri_B" value="163.5" step="0.1">
+        </div>
+        <button class="action-btn" onclick="calculerTriangle()">Calculer & Dessiner Triangle</button>
+        <div id="result_triangle" class="result" style="display:none;"></div>
+    </div>
+
+    <div id="schema-container">
+        <h3>Schéma de fabrication</h3>
+        
+        <div id="visu-selector" class="visu-selector">
+            <span style="font-size: 14px; color: #666; margin-right:10px;">Type de store :</span>
+            <label><input type="radio" name="store_visu" value="plisse" checked onchange="calculerTrapeze()"> Plissé</label>
+            <label><input type="radio" name="store_visu" value="californien" onchange="calculerTrapeze()"> Californien</label>
+        </div>
+
+        <canvas id="schemaCanvas" width="600" height="400"></canvas>
+        <button id="btnExport" class="export-btn" onclick="exporterImage()">Télécharger le schéma (PNG)</button>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleRestrictions()">Afficher / Masquer les limites de fabrication</button>
+    
+    <div id="restrictions-tables">
+        <h3>Abaques de limites de fabrication</h3>
+        
+        <h4>Store Californien (Trapèze)</h4>
+        <table>
+            <tr>
+                <th>Angle</th>
+                <th>Largeur Maxi</th>
+                <th>Largeur Mini</th>
+                <th>Hauteur Maxi</th>
+                <th>Hauteur Mini</th>
+                <th>Surface Maxi</th>
+            </tr>
+            <tr>
+                <td>0° à 20°</td>
+                <td>500 cm</td>
+                <td rowspan="4">40 cm</td>
+                <td>400 cm</td>
+                <td rowspan="4">15 cm</td>
+                <td>15 m²</td>
+            </tr>
+            <tr>
+                <td>20° à 30°</td>
+                <td>450 cm</td>
+                <td>300 cm</td>
+                <td>10 m²</td>
+            </tr>
+            <tr>
+                <td>30° à 40°</td>
+                <td>350 cm</td>
+                <td>275 cm</td>
+                <td>6 m²</td>
+            </tr>
+            <tr>
+                <td>40° à 45°</td>
+                <td>250 cm</td>
+                <td>250 cm</td>
+                <td>3 m²</td>
+            </tr>
+        </table>
+        
+        <h4>Store Plissé (Trapèze)</h4>
+        <table>
+            <tr>
+                <th>Angle Maxi</th>
+                <th>Hypoténuse Maxi</th>
+                <th>Hauteur Maxi</th>
+            </tr>
+            <tr><td>30°</td><td>180 cm</td><td>300 cm</td></tr>
+        </table>
+
+        <h4>Store Plissé (Triangle)</h4>
+        <table>
+            <tr>
+                <th>Angle Maxi</th>
+                <th>Hypoténuse Maxi</th>
+                <th>Hauteur Maxi</th>
+            </tr>
+            <tr><td>60°</td><td>210 cm</td><td>200 cm</td></tr>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        el.classList.add('active');
+        document.getElementById('schema-container').style.display = 'none';
+    }
+
+    function toggleRestrictions() {
+        let div = document.getElementById("restrictions-tables");
+        if (div.style.display === "none" || div.style.display === "") {
+            div.style.display = "block";
+            div.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            div.style.display = "none";
+        }
+    }
+
+    function calculerTrapeze() {
+        let H = parseFloat(document.getElementById('trap_H').value);
+        let h = parseFloat(document.getElementById('trap_h').value);
+        let B = parseFloat(document.getElementById('trap_B').value);
+        let orientation = document.getElementById('trap_orientation').value;
+        let visuType = document.querySelector('input[name="store_visu"]:checked').value;
+        
+        if (isNaN(H) || isNaN(h) || isNaN(B)) return alert("Veuillez remplir tous les champs.");
+
+        let diff = Math.abs(H - h);
+        let angleDeg = Math.atan(diff / B) * (180 / Math.PI);
+        let hypo = Math.sqrt(diff*diff + B*B);
+        let surfaceM2 = ((H + h) / 2) * B / 10000;
+
+        let messages = [];
+        let calif_ok = true;
+        
+        if (angleDeg > 45) { 
+            calif_ok = false; 
+            messages.push("Californien: Angle > 45° (Maximum 45°)"); 
+        } else {
+            if (B < 40) { calif_ok = false; messages.push("Californien: Largeur < 40 cm"); }
+            if (h < 15) { calif_ok = false; messages.push("Californien: Petite Hauteur < 15 cm"); }
+
+            if (angleDeg <= 20) {
+                if (B > 500 || H > 400 || surfaceM2 > 15) {
+                    calif_ok = false; messages.push("Californien (0-20°): Dépassement des limites max (L>500, H>400 ou S>15m²)");
+                }
+            } else if (angleDeg <= 30) {
+                if (B > 450 || H > 300 || surfaceM2 > 10) {
+                    calif_ok = false; messages.push("Californien (20-30°): Dépassement des limites max (L>450, H>300 ou S>10m²)");
+                }
+            } else if (angleDeg <= 40) {
+                if (B > 350 || H > 275 || surfaceM2 > 6) {
+                    calif_ok = false; messages.push("Californien (30-40°): Dépassement des limites max (L>350, H>275 ou S>6m²)");
+                }
+            } else if (angleDeg <= 45) {
+                if (B > 250 || H > 250 || surfaceM2 > 3) {
+                    calif_ok = false; messages.push("Californien (40-45°): Dépassement des limites max (L>250, H>250 ou S>3m²)");
+                }
+            }
+        }
+
+        let plisse_ok = true;
+        if (angleDeg > 30) { plisse_ok = false; messages.push("Plissé: Angle > 30°"); }
+        if (hypo > 180) { plisse_ok = false; messages.push("Plissé: Hypoténuse > 180 cm"); }
+        if (H > 300) { plisse_ok = false; messages.push("Plissé: Hauteur > 300 cm"); }
+
+        afficherResultat("result_trapeze", angleDeg, hypo, surfaceM2, calif_ok, plisse_ok, messages);
+        document.getElementById('visu-selector').style.display = 'inline-block';
+        
+        dessinerSchema('trapeze', H, h, B, hypo, orientation, visuType, angleDeg);
+    }
+
+    function calculerTriangle() {
+        let H = parseFloat(document.getElementById('tri_H').value);
+        let B = parseFloat(document.getElementById('tri_B').value);
+        let orientation = document.getElementById('tri_orientation').value;
+
+        if (isNaN(H) || isNaN(B)) return alert("Veuillez remplir tous les champs.");
+
+        let angleDeg = Math.atan(H / B) * (180 / Math.PI);
+        let hypo = Math.sqrt(H*H + B*B);
+        let surfaceM2 = (H * B / 2) / 10000;
+
+        let messages = [];
+        let plisse_ok = true;
+
+        if (angleDeg > 60) { plisse_ok = false; messages.push("Plissé Triangle: Angle > 60°"); }
+        if (hypo > 210) { plisse_ok = false; messages.push("Plissé Triangle: Hypoténuse > 210 cm"); }
+        if (H > 200) { plisse_ok = false; messages.push("Plissé Triangle: Hauteur > 200 cm"); }
+
+        let divResult = document.getElementById('result_triangle');
+        divResult.style.display = 'block';
+        divResult.innerHTML = `
+            <p><strong>Inclinaison :</strong> ${angleDeg.toFixed(2)} °</p>
+            <p><strong>Hypoténuse :</strong> ${hypo.toFixed(2)} cm</p>
+            <p><strong>Surface :</strong> ${surfaceM2.toFixed(2)} m²</p>
+            <hr>
+            <h3>Faisabilité (Store Plissé Triangle) :</h3>
+            ${plisse_ok ? '<div class="success">✓ Réalisable selon le tableau</div>' : '<div class="alert">✗ Non réalisable :<br>- ' + messages.join('<br>- ') + '</div>'}
+        `;
+
+        document.getElementById('visu-selector').style.display = 'none';
+        
+        dessinerSchema('triangle', H, 0, B, hypo, orientation, 'plisse', angleDeg);
+    }
+
+    function afficherResultat(divId, angle, hypo, surface, calif_ok, plisse_ok, messages) {
+        let divResult = document.getElementById(divId);
+        divResult.style.display = 'block';
+        let html = `
+            <p><strong>Inclinaison :</strong> ${angle.toFixed(2)} °</p>
+            <p><strong>Hypoténuse :</strong> ${hypo.toFixed(2)} cm</p>
+            <p><strong>Surface :</strong> ${surface.toFixed(2)} m²</p>
+            <hr>
+            <h3>Faisabilité :</h3>
+            <p><strong>Store Californien :</strong> ${calif_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p>
+            <p><strong>Store Plissé :</strong> ${plisse_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p>
+        `;
+        if(messages.length > 0) { html += `<div class="alert"><small>Raisons du blocage :<br>- ${messages.join('<br>- ')}</small></div>`; }
+        divResult.innerHTML = html;
+    }
+
+    function dessinerSchema(type, H, h, B, hypo, orientation, visuType, angleDeg) {
+        let canvas = document.getElementById('schemaCanvas');
+        let ctx = canvas.getContext('2d');
+        
+        document.getElementById('schema-container').style.display = 'block';
+        document.getElementById('btnExport').style.display = 'block';
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let marginX = 100; 
+        let marginY = 95; 
+        
+        let drawWidth = canvas.width - (marginX * 2);
+        let drawHeight = canvas.height - (marginY * 2);
+
+        let maxH = Math.max(H, h);
+        let scaleX = drawWidth / B;
+        let scaleY = drawHeight / maxH;
+        let scale = Math.min(scaleX, scaleY); 
+
+        let x_left = marginX + (drawWidth - (B * scale)) / 2;
+        let y_bottom = canvas.height - marginY + 20;
+
+        let px_B = B * scale;
+        let hauteur_gauche = (orientation === 'gauche') ? H : h;
+        let hauteur_droite = (orientation === 'gauche') ? h : H;
+        let px_h_gauche = hauteur_gauche * scale;
+        let px_h_droite = hauteur_droite * scale;
+
+        let pt_bl = { x: x_left, y: y_bottom };
+        let pt_br = { x: x_left + px_B, y: y_bottom };
+        let pt_tr = { x: x_left + px_B, y: y_bottom - px_h_droite };
+        let pt_tl = { x: x_left, y: y_bottom - px_h_gauche };
+
+        let region = new Path2D();
+        region.moveTo(pt_bl.x, pt_bl.y);
+        region.lineTo(pt_br.x, pt_br.y);
+        region.lineTo(pt_tr.x, pt_tr.y);
+        region.lineTo(pt_tl.x, pt_tl.y);
+        region.closePath();
+
+        ctx.fillStyle = "#f0f8f9"; 
+        ctx.fill(region);
+
+        ctx.save();
+        ctx.clip(region); 
+
+        let railEpaisseur = 12;
+
+        if (visuType === 'plisse') {
+            ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
+            ctx.lineWidth = 1.5;
+            let step = 8;
+            let topY = Math.min(pt_tl.y, pt_tr.y);
+            for (let y = pt_bl.y; y >= topY; y -= step) {
+                ctx.beginPath();
+                ctx.moveTo(pt_bl.x, y);
+                ctx.lineTo(pt_br.x, y);
+                ctx.stroke();
+            }
+        } else if (visuType === 'californien') {
+            let largeurLamelle = 16;
+            ctx.fillStyle = "rgba(234, 243, 244, 0.8)"; 
+            ctx.strokeStyle = "rgba(51, 117, 126, 0.5)"; 
+            ctx.lineWidth = 1;
+
+            for (let x = pt_bl.x; x < pt_br.x; x += largeurLamelle) {
+                ctx.beginPath();
+                ctx.rect(x, Math.min(pt_tl.y, pt_tr.y) - 20, largeurLamelle - 1, pt_bl.y - Math.min(pt_tl.y, pt_tr.y) + 20);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        // --- DESSIN DES RAILS MÉTALLIQUES RECTANGULAIRES ---
+        ctx.fillStyle = "#33757e";
+        ctx.beginPath();
+        let dx = pt_tr.x - pt_tl.x;
+        let dy = pt_tr.y - pt_tl.y;
+        let epaisseurRailHaut = (visuType === 'californien') ? railEpaisseur + 5 : railEpaisseur;
+        let coupeDecalage = 10; // On raccourcit le rail de 10px pour faire une vraie coupe droite
+
+        if (hauteur_gauche > 0 && hauteur_droite === 0) { // Triangle pointe droite
+            let cutX = pt_tr.x - coupeDecalage; 
+            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+            ctx.moveTo(pt_tl.x, pt_tl.y);
+            ctx.lineTo(cutX, cutY);
+            ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
+            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+        } else if (hauteur_droite > 0 && hauteur_gauche === 0) { // Triangle pointe gauche
+            let cutX = pt_tl.x + coupeDecalage;
+            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+            ctx.moveTo(cutX, cutY);
+            ctx.lineTo(pt_tr.x, pt_tr.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+            ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
+        } else { // Trapeze normal
+            ctx.moveTo(pt_tl.x, pt_tl.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+        }
+        ctx.fill();
+
+        if (visuType === 'plisse') {
+            // Rail du bas (bien distinct)
+            ctx.fillStyle = "#33757e";
+            ctx.fillRect(pt_bl.x, pt_bl.y - railEpaisseur, px_B, railEpaisseur);
+
+            // Ligne de séparation blanche pour détacher complètement les 2 profilés
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1.5;
+            
+            // Ligne horizontale au sommet du rail du bas
+            ctx.beginPath();
+            ctx.moveTo(pt_bl.x, pt_bl.y - railEpaisseur);
+            ctx.lineTo(pt_br.x, pt_br.y - railEpaisseur);
+            ctx.stroke();
+
+            // Ligne verticale pour marquer la coupe du rail du haut
+            if (hauteur_gauche > 0 && hauteur_droite === 0) {
+                let cutX = pt_tr.x - coupeDecalage;
+                ctx.beginPath();
+                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                ctx.stroke();
+            } else if (hauteur_droite > 0 && hauteur_gauche === 0) {
+                let cutX = pt_tl.x + coupeDecalage;
+                ctx.beginPath();
+                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                ctx.stroke();
+            }
+        }
+
+        ctx.restore(); 
+
+        ctx.fillStyle = "#33757e";
+        ctx.font = "bold 15px sans-serif";
+        ctx.textBaseline = "middle";
+
+        ctx.textAlign = "center";
+        ctx.fillText(`${B} cm`, x_left + (px_B / 2), y_bottom + 25);
+
+        if (hauteur_gauche > 0) {
+            ctx.textAlign = "right";
+            ctx.fillText(`${hauteur_gauche} cm`, x_left - 15, y_bottom - (px_h_gauche / 2));
+        }
+        if (hauteur_droite > 0) {
+            ctx.textAlign = "left";
+            ctx.fillText(`${hauteur_droite} cm`, pt_br.x + 15, y_bottom - (px_h_droite / 2));
+        }
+
+        let mid_x = (pt_tl.x + pt_tr.x) / 2;
+        let mid_y = (pt_tl.y + pt_tr.y) / 2;
+        
+        ctx.textAlign = "center";
+        ctx.fillText(`Hypoténuse : ${hypo.toFixed(2)} cm`, mid_x, mid_y - 75);
+        ctx.fillText(`Inclinaison : ${angleDeg.toFixed(2)} °`, mid_x, mid_y - 55);
+    }
+
+    function exporterImage() {
+        let canvas = document.getElementById('schemaCanvas');
+        let imageURL = canvas.toDataURL("image/png");
+        let lien = document.createElement('a');
+        lien.href = imageURL;
+        lien.download = 'schema_store.png';
+        document.body.appendChild(lien);
+        lien.click();
+        document.body.removeChild(lien);
+    }
+</script>
+
+</body>
+</html>

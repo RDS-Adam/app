@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Expertise Thermique - Rapport Client</title>
+    <style>
+        /* Styles pour l'écran */
+        body { font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 20px auto; background-color: #f8f9fa; color: #333; line-height: 1.5; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #eef2f7; padding: 15px; border-radius: 10px; }
+        .btn-calc { width: 100%; padding: 18px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-print { width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; margin-top: 10px; display: none; }
+        
+        #resultat { margin-top: 25px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
+        .temp-display { display: flex; justify-content: space-around; margin-bottom: 20px; text-align: center; }
+        .temp-card { padding: 10px; border-radius: 10px; width: 45%; }
+        .temp-old { background: #fee2e2; color: #991b1b; }
+        .temp-new { background: #dcfce7; color: #166534; }
+        .temp-val { font-size: 1.8em; font-weight: bold; display: block; }
+        .gain-badge { text-align: center; background: #d93025; color: white; padding: 5px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2em; margin: 10px auto; width: fit-content; }
+        
+        details { background: #f1f3f4; border-radius: 8px; padding: 10px; margin-top: 15px; cursor: pointer; font-size: 0.85em; }
+        summary { font-weight: bold; color: #1a73e8; outline: none; }
+        .calc-box { margin-top: 10px; border-left: 3px solid #1a73e8; padding-left: 10px; color: #555; }
+
+        .lexique { margin-top: 20px; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; font-size: 0.9em; }
+        .clause-technique { margin-top: 20px; font-size: 0.75em; color: #7f8c8d; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .card { box-shadow: none; border: none; width: 100%; max-width: 100%; }
+            .btn-calc, .btn-print, .input-group, .grid-3, label, h2 { display: none !important; }
+            #resultat { display: block !important; border-top: none; }
+            .print-header { display: block !important; text-align: center; border-bottom: 2px solid #1a73e8; margin-bottom: 20px; padding-bottom: 10px; }
+            .print-info { display: block !important; margin-bottom: 20px; font-size: 1.1em; }
+            details { display: block !important; background: none; border: 1px solid #ddd; }
+            details summary { list-style: none; border-bottom: 1px solid #ddd; margin-bottom: 5px; padding-bottom: 5px; }
+        }
+        .print-header, .print-info { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="print-header">
+        <h1>Rapport d'Expertise Thermique <br> Rue du Store</h1>
+    </div>
+
+    <h2>Simulateur de Confort</h2>
+
+    <div class="input-group">
+        <label>Référence de la toile</label>
+        <input type="text" id="refToile" placeholder="Ex: Thermo-métal Snow 87501 ">
+    </div>
+
+    <div class="input-group">
+        <label>Température extérieure prévue (°C)</label>
+        <input type="number" id="tempExt" value="30">
+    </div>
+
+    <div class="input-group">
+        <label>Type de Vitrage</label>
+        <select id="glassType">
+            <option value="">--- Choisir le vitrage ---</option>
+            <option value="0.85">Simple vitrage</option>
+            <option value="0.75">Double vitrage standard</option>
+            <option value="0.60">Double vitrage ITR</option>
+            <option value="0.50">Triple vitrage</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>Position du Store</label>
+        <select id="position">
+            <option value="">--- Choisir la position ---</option>
+            <option value="exterior">Pose EXTÉRIEURE</option>
+            <option value="interior">Pose INTÉRIEURE</option>
+        </select>
+    </div>
+
+    <label>Données de la Toile (%)</label>
+    <div class="grid-3">
+        <div><label>Trans. (Ts)</label><input type="number" id="ts" value="3"></div>
+        <div><label>Réfl. (Rs)</label><input type="number" id="rs" value="82"></div>
+        <div><label>Abs. (As)</label><input type="number" id="as" value="15"></div>
+    </div>
+
+    <button class="btn-calc" onclick="calculerPerformance()">Actualiser le calcul</button>
+    <button id="btnPrint" class="btn-print" onclick="window.print()">Imprimer le rapport PDF</button>
+
+    <div id="resultat">
+        <div class="print-info">
+            <strong>Référence :</strong> <span id="pRef"></span><br>
+            <strong>Données Toile :</strong> Ts: <span id="repTs"></span>% | Rs: <span id="repRs"></span>% | As: <span id="repAs"></span>%<br>
+            <strong>Conditions :</strong> Extérieur <span id="pExt"></span>°C | Vitrage : <span id="pVit"></span>
+        </div>
+
+        <div class="temp-display">
+            <div class="temp-card temp-old">
+                <span style="font-size: 0.8em; font-weight: bold;">SANS STORE</span>
+                <span class="temp-val" id="resSans">--°C</span>
+            </div>
+            <div class="temp-card temp-new">
+                <span style="font-size: 0.8em; font-weight: bold;">AVEC STORE</span>
+                <span class="temp-val" id="resAvec">--°C</span>
+            </div>
+        </div>
+
+        <div class="gain-badge" id="gainDegres">Gain : -0.0 °C</div>
+        
+        <details id="detailsCalcul">
+            <summary>Détail du calcul thermique</summary>
+            <div class="calc-box">
+                <strong>Situation SANS Store :</strong><br>
+                Temp. Extérieure (<span id="cExt1"></span>°C) + (Facteur Vitre <span id="cVit"></span> x Apport Solaire 12°C) = <span id="cSans"></span>°C.
+                <br><br>
+                <strong>Situation AVEC Store :</strong><br>
+                Temp. Extérieure (<span id="cExt2"></span>°C) + (Efficacité Globale $g_{tot}$ <span id="cGtot"></span> x Apport Solaire 12°C) = <span id="cAvec"></span>°C.
+            </div>
+        </details>
+
+        <p style="text-align: center; font-size: 0.9em;">Chaleur totale rejetée par ce complexe : <strong id="rejetPC">0</strong>%</p>
+
+        <div class="lexique">
+            <div style="margin-bottom: 15px;"><strong>Transmission (<span id="lexTs"></span>%) :</strong> C'est la chaleur qui traverse la toile. Plus elle est basse, plus vous éliminez la sensation de brûlure du soleil sur la peau et protégez vos intérieurs de la décoloration.</div>
+            <div style="margin-bottom: 15px;"><strong>Réflexion (<span id="lexRs"></span>%) :</strong> C'est votre bouclier miroir. Ce chiffre indique la part d'énergie renvoyée directement vers l'extérieur. Une réflexion élevée est la clé pour empêcher la pièce de chauffer.</div>
+            <div><strong>Absorption (<span id="lexAs"></span>%) :</strong> C'est la chaleur stockée par le tissu. En extérieur : elle est évacuée par l'air avant d'entrer. En intérieur : elle transforme le store en radiateur, d'où l'importance d'avoir une réflexion (Rs) forte.<span id="expliqueAs"></span></div>
+        </div>
+
+        <div class="clause-technique">
+            <strong>Note technique :</strong> Les calculs sont basés sur la norme <strong>NF EN 13363-1</strong>. Ces chiffres sont des estimations théoriques reflétant la capacité de protection de la toile. Le résultat réel dépend de l'isolation globale du bâtiment.
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculerPerformance() {
+        const glassTypeVal = document.getElementById('glassType').value;
+        const positionVal = document.getElementById('position').value;
+
+        if (glassTypeVal === "" || positionVal === "") {
+            alert("Veuillez sélectionner le type de vitrage et la position du store.");
+            return;
+        }
+
+        const ref = document.getElementById('refToile').value || "Non spécifiée";
+        const tExt = parseFloat(document.getElementById('tempExt').value) || 0;
+        const selGlass = document.getElementById('glassType');
+        const g_verre = parseFloat(glassTypeVal);
+        const valTs = document.getElementById('ts').value;
+        const valRs = document.getElementById('rs').value;
+        const valAs = document.getElementById('as').value;
+        
+        const ts = (parseFloat(valTs) || 0) / 100;
+        const rs = (parseFloat(valRs) || 0) / 100;
+        const as = (parseFloat(valAs) || 0) / 100;
+
+        if (Math.abs((rs + ts + as) - 1) > 0.02) {
+            alert("Erreur : La somme Ts + Rs + As doit être égale à 100%.");
+            return;
+        }
+
+        let gtot = (positionVal === "exterior") ? (ts * g_verre + (as * 0.04) + (rs * 0.02)) : (g_verre * (1 - g_verre * rs - (0.25 * as)));
+        
+        const tempSans = tExt + (g_verre * 12); 
+        const tempAvec = tExt + (gtot * 12);
+        const gain = tempSans - tempAvec;
+
+        document.getElementById('resultat').style.display = "block";
+        document.getElementById('btnPrint').style.display = "block";
+        document.getElementById('resSans').innerText = tempSans.toFixed(1) + "°C";
+        document.getElementById('resAvec').innerText = tempAvec.toFixed(1) + "°C";
+        document.getElementById('gainDegres').innerText = "Gain : -" + gain.toFixed(1) + " °C";
+        document.getElementById('rejetPC').innerText = ((1 - gtot) * 100).toFixed(0);
+
+        document.getElementById('cExt1').innerText = tExt;
+        document.getElementById('cExt2').innerText = tExt;
+        document.getElementById('cVit').innerText = g_verre.toFixed(2);
+        document.getElementById('cGtot').innerText = gtot.toFixed(2);
+        document.getElementById('cSans').innerText = tempSans.toFixed(1);
+        document.getElementById('cAvec').innerText = tempAvec.toFixed(1);
+
+        document.getElementById('pRef').innerText = ref;
+        document.getElementById('pExt').innerText = tExt;
+        document.getElementById('pVit').innerText = selGlass.options[selGlass.selectedIndex].text;
+        document.getElementById('repTs').innerText = valTs;
+        document.getElementById('repRs').innerText = valRs;
+        document.getElementById('repAs').innerText = valAs;
+        document.getElementById('lexTs').innerText = (ts * 100).toFixed(0);
+        document.getElementById('lexRs').innerText = (rs * 100).toFixed(0);
+        document.getElementById('lexAs').innerText = (as * 100).toFixed(0);
+
+        document.getElementById('expliqueAs').innerHTML = (positionVal === "exterior") 
+            ? "En extérieur, cette chaleur est évacuée naturellement par l'air." 
+            : "En intérieur, le tissu agit comme un radiateur ; une forte réflexion est alors essentielle.";
+            
+        window.onbeforeprint = function() {
+            document.getElementById('detailsCalcul').open = true;
+        };
+    }
+</script>
+</body>
+</html>

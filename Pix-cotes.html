@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pix'Côtes - Éditeur PC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --primary: #0077b6;
+            --secondary: #023e8a; 
+            --accent: #f77f00;
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --text: #1d1d1b;
+            --border: #cbd5e1;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { background-color: var(--secondary); padding: 15px 20px; text-align: left; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; display: flex; justify-content: space-between; align-items: center;}
+        h1 { margin: 0; font-size: 1.2rem; }
+        
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-actions { display: flex; gap: 10px; }
+
+        .app-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* PANNEAU LATÉRAL */
+        .sidebar { width: 320px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #f8fafc; transition: 0.2s; margin-bottom: 20px;}
+        .upload-area:hover { border-color: var(--primary); background: #f0f8ff; }
+        .upload-area input { display: none; }
+        
+        .photo-list-title { font-size: 0.9rem; font-weight: bold; color: var(--secondary); margin-bottom: 10px; text-transform: uppercase; }
+        
+        /* VIGNETTES */
+        .thumbnail { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: grab; transition: 0.2s; background: white;}
+        .thumbnail:active { cursor: grabbing; }
+        .thumbnail:hover { border-color: var(--primary); }
+        .thumbnail.active { border-color: var(--primary); background: #eff6ff; box-shadow: 0 2px 5px rgba(0,119,182,0.2); }
+        .thumbnail img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; pointer-events: none;}
+        .thumbnail-info { flex: 1; overflow: hidden; pointer-events: none;}
+        .thumbnail-name { font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .delete-photo-btn { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 5;}
+        .delete-photo-btn:hover { background: #dc2626; transform: scale(1.1);}
+        .thumbnail:hover .delete-photo-btn { display: flex; }
+
+        /* ZONE PRINCIPALE */
+        .main-editor { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow: hidden; }
+        
+        .toolbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; gap: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; }
+        
+        .form-group { flex: 1; margin-bottom: 0; }
+        .form-label-title { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.85rem; color: var(--secondary); text-transform: uppercase; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
+        
+        .mode-switch { display: flex; background: #e2e8f0; border-radius: 6px; overflow: hidden; height: 40px; }
+        .mode-btn { padding: 0 15px; border: none; background: transparent; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; color: #64748b; }
+        .mode-btn.active { background: var(--primary); color: white; }
+
+        .color-picker-wrapper { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        input[type="color"] { width: 40px; height: 40px; padding: 0; border: none; border-radius: 6px; cursor: pointer; background: none; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border); border-radius: 6px; }
+
+        .editor-actions { display: flex; gap: 10px; }
+        .btn { padding: 10px 15px; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn:hover { background-color: var(--secondary); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border); color: #475569; }
+        .btn-outline:hover { background-color: #f1f5f9; color: #1e293b; }
+        .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
+        .btn-danger { background-color: #ef4444; }
+        .btn-danger:hover { background-color: #dc2626; }
+        
+        .canvas-container { position: relative; background: #e2e8f0; border-radius: 8px; flex: 1; overflow: auto; display: flex; }
+        .canvas-inner { margin: auto; position: relative; } 
+        canvas { display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: crosshair; background-color: white; transform-origin: top left;}
+
+        .empty-state { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #64748b; font-weight: bold; font-size: 1.1rem; text-align: center; }
+        .zoom-hint { position: absolute; bottom: 10px; right: 20px; color: #64748b; font-size: 0.8rem; font-weight: bold; pointer-events: none; z-index: 10; background: rgba(255,255,255,0.8); padding: 4px 8px; border-radius: 4px;}
+
+        /* LOUPE */
+        #loupe { position: fixed; width: 140px; height: 140px; border: 3px solid #333; border-radius: 50%; background-color: #fff; display: none; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 100; overflow: hidden; }
+        #loupe canvas { display: block; width: 100%; height: 100%; border-radius: 0; box-shadow: none; object-fit: fill;}
+        .loupe-crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); }
+        .loupe-crosshair::before { content: ''; position: absolute; top: 9px; left: 0; width: 20px; height: 2px; background: rgba(0,0,0,0.8); }
+        .loupe-crosshair::after { content: ''; position: absolute; top: 0; left: 9px; width: 2px; height: 20px; background: rgba(0,0,0,0.8); }
+
+        /* Modal Texte */
+        #textModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .text-modal-content { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .text-modal-title { margin-top: 0; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; color: var(--secondary); }
+        .text-modal-content textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; resize: vertical; min-height: 80px;}
+        
+        .size-selector { display: flex; background: #e2e8f0; border-radius: 8px; overflow: hidden; margin-top: 10px; }
+        .size-btn { flex: 1; padding: 10px; border: none; background: transparent; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; color: #64748b; }
+        .size-btn.active { background: var(--accent); color: white; }
+
+        .text-modal-actions { display: flex; gap: 10px; margin-top: 25px; }
+        .text-modal-actions button { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 1rem; }
+        .btn-modal-cancel { background: #f1f1f1; color: #333; }
+        .btn-modal-validate { background: var(--primary); color: white; }
+        .btn-modal-danger { background: #fee2e2; color: #dc2626; display: none; }
+        .btn-modal-danger:hover { background: #fca5a5; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <h1>📐 Pix'Côtes</h1>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3);" onclick="saveProject()">💾 Sauvegarder Projet</button>
+            <button class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3);" onclick="document.getElementById('loadProjectInput').click()">📂 Ouvrir Projet</button>
+            <input type="file" id="loadProjectInput" accept=".json" style="display: none;" onchange="loadProject(event)">
+        </div>
+    </div>
+    
+    <div class="header-actions">
+        <input type="text" id="nomClient" placeholder="Nom du Client / Devis" style="width: 250px;">
+        <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.3);" id="exportJpgBtn">🖼️ JPG Actuel</button>
+        <button class="btn" style="background: #10b981;" id="exportZipBtn">🗂️ ZIP (Toutes)</button>
+        <button class="btn" style="background: #f77f00;" id="exportPdfBtn">📄 PDF Complet</button>
+    </div>
+</header>
+
+<div class="app-container">
+    <div class="sidebar">
+        <label class="upload-area" id="uploadDropzone">
+            <span style="font-size: 2rem;">📂</span>
+            <p style="margin: 10px 0 0 0; font-weight: bold; color: var(--secondary);">Charger des photos</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #64748b;">(Glissez ou cliquez)</p>
+            <input type="file" id="fileInput" multiple accept="image/*">
+        </label>
+
+        <div class="photo-list-title" id="photoCount">0 photo chargée</div>
+        <div id="photoList"></div>
+    </div>
+
+    <div class="main-editor">
+        <div class="toolbar" id="toolbar" style="opacity: 0.5; pointer-events: none;">
+            <div class="form-group" style="max-width: 250px;">
+                <label class="form-label-title">Nom de cette fenêtre</label>
+                <input type="text" id="photoNameInput" placeholder="Ex: Baie vitrée Salon">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label class="form-label-title">Outil</label>
+                <div class="mode-switch">
+                    <button class="mode-btn active" id="modeMeasureBtn" onclick="setMode('measure')">↗️ Flèches</button>
+                    <button class="mode-btn" id="modeNoteBtn" onclick="setMode('note')">📝 Note</button>
+                </div>
+            </div>
+
+            <div class="color-picker-wrapper">
+                <label class="form-label-title">Couleur de l'outil</label>
+                <input type="color" id="arrowColor" value="#d62828" title="Changer la couleur par défaut">
+            </div>
+
+            <div class="editor-actions">
+                <button class="btn btn-outline" id="undoBtn" title="Annuler le dernier tracé">↩️ Annuler</button>
+                <button class="btn btn-outline btn-danger" id="clearCanvasBtn" title="Tout effacer sur cette photo">🗑️ Effacer tout</button>
+            </div>
+        </div>
+
+        <div class="canvas-container" id="canvasScrollArea">
+            <div class="empty-state" id="emptyState">Sélectionnez ou chargez une photo depuis le panneau de gauche.</div>
+            <div class="zoom-hint" id="zoomHint" style="display:none;">💡 Maintenez CTRL + Molette pour zoomer</div>
+            <div class="canvas-inner">
+                <canvas id="photoCanvas" style="display: none;"></canvas>
+            </div>
+            
+            <div id="loupe">
+                <canvas id="loupeCanvas" width="140" height="140"></canvas>
+                <div class="loupe-crosshair"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="textModal">
+    <div class="text-modal-content">
+        <p class="text-modal-title" id="textModalTitle">Modifier l'élément</p>
+        <textarea id="textModalInput" placeholder="Saisissez la remarque ou l'instruction..."></textarea>
+        
+        <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <div style="flex: 1;">
+                <label class="form-label-title" id="textModalSizeTitle">Épaisseur / Taille</label>
+                <div class="size-selector" id="textModalSizeSelector">
+                    <button class="size-btn" id="sizePetit" onclick="setModalSize('petit')">Fin/Petit</button>
+                    <button class="size-btn active" id="sizeMoyen" onclick="setModalSize('moyen')">Normal</button>
+                    <button class="size-btn" id="sizeGrand" onclick="setModalSize('grand')">Épais/Grand</button>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <label class="form-label-title">Couleur</label>
+                <input type="color" id="modalColorPicker" value="#d62828" title="Modifier la couleur">
+            </div>
+        </div>
+
+        <div class="text-modal-actions">
+            <button class="btn-modal-danger" id="btnModalDelete" onclick="deleteModalDrawing()">🗑️ Supprimer</button>
+            <button class="btn-modal-cancel" onclick="cancelTextModal()">Annuler</button>
+            <button class="btn-modal-validate" onclick="confirmTextModal()">Valider</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let photos = []; 
+    let currentPhotoIndex = -1;
+    
+    const canvas = document.getElementById('photoCanvas');
+    const ctx = canvas.getContext('2d');
+    const canvasScaleFactor = 2; 
+    let cssCanvasWidth = 0;
+    let cssCanvasHeight = 0;
+    let zoomLevel = 1; 
+    
+    const loupe = document.getElementById('loupe');
+    const loupeCtx = document.getElementById('loupeCanvas').getContext('2d');
+    const canvasScrollArea = document.getElementById('canvasScrollArea');
+    
+    let baseImg = new Image();
+    let currentDrawings = [];
+    let currentMode = 'measure'; 
+    let drawingIdCounter = 0;
+
+    let drawingStep = 0, tempX, tempY, startX, startY, endX, endY;
+    let draggingElementId = null; 
+    let dragHandle = null; 
+    let startX_in_canvas, startY_in_canvas; 
+    let dragStartCoords = {}; 
+    let hasDragged = false; 
+
+    const fileInput = document.getElementById('fileInput');
+    const photoList = document.getElementById('photoList');
+    const toolbar = document.getElementById('toolbar');
+    const emptyState = document.getElementById('emptyState');
+    const photoNameInput = document.getElementById('photoNameInput');
+    const colorPicker = document.getElementById('arrowColor');
+    
+    let textModalCallback = null;
+    let selectedModalSize = 'moyen'; 
+    let currentEditingId = null; 
+
+    // ==========================================
+    // SAUVEGARDE ET CHARGEMENT JSON
+    // ==========================================
+    window.saveProject = function() {
+        if (photos.length === 0) return alert("Il n'y a aucune photo à sauvegarder.");
+        updatePhotoState();
+        
+        const clientName = document.getElementById('nomClient').value.trim() || "Nouveau_Projet";
+        const projectData = { version: "1.0", client: clientName, photos: photos };
+        const jsonString = JSON.stringify(projectData);
+        const blob = new Blob([jsonString], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${clientName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_PixCotes.json`;
+        document.body.appendChild(a); a.click();
+        
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
+    };
+
+    window.loadProject = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const projectData = JSON.parse(e.target.result);
+                if (projectData.photos && Array.isArray(projectData.photos)) {
+                    photos = projectData.photos;
+                    document.getElementById('nomClient').value = projectData.client || "";
+                    
+                    drawingIdCounter = 0;
+                    photos.forEach(p => { p.drawings.forEach(d => { if (d.id > drawingIdCounter) drawingIdCounter = d.id; }); });
+                    renderPhotoList();
+                    if (photos.length > 0) selectPhoto(0);
+                    else resetEditorUI();
+                } else alert("Ce fichier ne semble pas être un projet Pix'Côtes valide.");
+            } catch (err) { alert("Erreur lors de la lecture du fichier de projet."); }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    };
+
+    // ==========================================
+    // GESTION DES FICHIERS & DRAG N DROP
+    // ==========================================
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    function handleFileSelect(e) {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const newPhoto = {
+                        id: Date.now() + Math.random(), fileUrl: event.target.result, name: file.name.split('.')[0],
+                        drawings: [], originalWidth: img.width, originalHeight: img.height
+                    };
+                    photos.push(newPhoto);
+                    renderPhotoList();
+                    if (photos.length === 1 && currentPhotoIndex === -1) selectPhoto(0);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        fileInput.value = '';
+    }
+
+    window.deletePhoto = function(event, index) {
+        event.stopPropagation(); 
+        if(!confirm("Êtes-vous sûr de vouloir retirer cette photo du projet ?")) return;
+        
+        if (currentPhotoIndex === index) {
+            photos.splice(index, 1);
+            currentPhotoIndex = -1;
+            currentDrawings = []; 
+            if(photos.length > 0) selectPhoto(Math.max(0, index - 1));
+            else resetEditorUI();
+        } else {
+            photos.splice(index, 1);
+            if (currentPhotoIndex > index) currentPhotoIndex--;
+        }
+        renderPhotoList();
+    };
+
+    function resetEditorUI() {
+        currentPhotoIndex = -1;
+        currentDrawings = [];
+        emptyState.style.display = 'block';
+        document.getElementById('zoomHint').style.display = 'none';
+        canvas.style.display = 'none';
+        toolbar.style.opacity = '0.5';
+        toolbar.style.pointerEvents = 'none';
+        baseImg = new Image();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function renderPhotoList() {
+        document.getElementById('photoCount').innerText = `${photos.length} photo${photos.length > 1 ? 's' : ''} chargée${photos.length > 1 ? 's' : ''}`;
+        photoList.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const div = document.createElement('div');
+            div.className = `thumbnail ${index === currentPhotoIndex ? 'active' : ''}`;
+            div.onclick = () => selectPhoto(index);
+            
+            div.draggable = true;
+            div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); div.style.opacity = '0.5'; };
+            div.ondragend = (e) => { div.style.opacity = '1'; };
+            div.ondragover = (e) => { e.preventDefault(); div.style.borderTop = "3px solid var(--primary)"; };
+            div.ondragleave = (e) => { div.style.borderTop = ""; };
+            div.ondrop = (e) => {
+                e.preventDefault(); div.style.borderTop = "";
+                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIndex = index;
+                if (fromIndex !== toIndex && !isNaN(fromIndex)) {
+                    updatePhotoState(); 
+                    const item = photos.splice(fromIndex, 1)[0];
+                    photos.splice(toIndex, 0, item);
+                    if (currentPhotoIndex === fromIndex) currentPhotoIndex = toIndex;
+                    else if (fromIndex < currentPhotoIndex && toIndex >= currentPhotoIndex) currentPhotoIndex--;
+                    else if (fromIndex > currentPhotoIndex && toIndex <= currentPhotoIndex) currentPhotoIndex++;
+                    renderPhotoList();
+                }
+            };
+
+            div.innerHTML = `
+                <img src="${photo.fileUrl}" alt="thumbnail">
+                <div class="thumbnail-info">
+                    <div class="thumbnail-name" title="${photo.name}">${photo.name}</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">${photo.drawings.length} annotations</div>
+                </div>
+                <button class="delete-photo-btn" onclick="deletePhoto(event, ${index})" title="Supprimer">✖</button>
+            `;
+            photoList.appendChild(div);
+        });
+    }
+
+    function selectPhoto(index) {
+        if (currentPhotoIndex !== -1 && photos[currentPhotoIndex]) {
+            photos[currentPhotoIndex].drawings = currentDrawings.map(d => ({...d})); // Deep copy
+            photos[currentPhotoIndex].name = photoNameInput.value;
+        }
+
+        currentPhotoIndex = index;
+        const photo = photos[index];
+        currentDrawings = photo.drawings.map(d => ({...d})); // Deep copy
+        photoNameInput.value = photo.name;
+        zoomLevel = 1; 
+
+        renderPhotoList();
+        toolbar.style.opacity = '1'; toolbar.style.pointerEvents = 'all';
+        emptyState.style.display = 'none'; 
+        document.getElementById('zoomHint').style.display = 'block';
+        canvas.style.display = 'block';
+
+        baseImg.onload = function() { setupCanvasSize(); redrawCanvas(); };
+        baseImg.src = photo.fileUrl;
+        resetDrawingState();
+    }
+
+    photoNameInput.addEventListener('input', () => {
+        if (currentPhotoIndex !== -1) { photos[currentPhotoIndex].name = photoNameInput.value; renderPhotoList(); }
+    });
+
+    // ==========================================
+    // CANVAS & ZOOM LOGIC (CORRIGÉ POUR PDF)
+    // ==========================================
+    function setupCanvasSize() {
+        const padding = 40;
+        const availableWidth = canvasScrollArea.clientWidth - padding;
+        const availableHeight = canvasScrollArea.clientHeight - padding;
+        const ratio = Math.min(availableWidth / baseImg.width, availableHeight / baseImg.height);
+        
+        const newWidth = baseImg.width * ratio;
+        const newHeight = baseImg.height * ratio;
+
+        const activePhoto = photos[currentPhotoIndex];
+        
+        // Si l'écran a été redimensionné, on ajuste les coordonnées existantes pour éviter le décalage !
+        if (activePhoto && activePhoto.refWidth && Math.abs(activePhoto.refWidth - newWidth) > 0.1) {
+            const ratioX = newWidth / activePhoto.refWidth;
+            const ratioY = newHeight / activePhoto.refHeight;
+
+            currentDrawings.forEach(d => {
+                if (d.x !== undefined) d.x *= ratioX;
+                if (d.y !== undefined) d.y *= ratioY;
+                if (d.x1 !== undefined) d.x1 *= ratioX;
+                if (d.y1 !== undefined) d.y1 *= ratioY;
+                if (d.x2 !== undefined) d.x2 *= ratioX;
+                if (d.y2 !== undefined) d.y2 *= ratioY;
+                if (d.textOffsetX !== undefined) d.textOffsetX *= ratioX;
+                if (d.textOffsetY !== undefined) d.textOffsetY *= ratioY;
+            });
+        }
+
+        cssCanvasWidth = newWidth;
+        cssCanvasHeight = newHeight;
+
+        if (activePhoto) {
+            activePhoto.refWidth = cssCanvasWidth;
+            activePhoto.refHeight = cssCanvasHeight;
+            activePhoto.drawings = currentDrawings.map(d => ({...d}));
+        }
+
+        canvas.width = cssCanvasWidth * canvasScaleFactor; 
+        canvas.height = cssCanvasHeight * canvasScaleFactor;
+        
+        applyZoom();
+    }
+
+    function applyZoom() {
+        canvas.style.width = (cssCanvasWidth * zoomLevel) + 'px';
+        canvas.style.height = (cssCanvasHeight * zoomLevel) + 'px';
+    }
+
+    canvasScrollArea.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1; 
+            zoomLevel *= zoomDelta;
+            zoomLevel = Math.max(0.5, Math.min(zoomLevel, 5)); 
+            applyZoom();
+        }
+    }, {passive: false});
+
+    window.addEventListener('resize', () => { if (currentPhotoIndex !== -1 && baseImg.src) { setupCanvasSize(); redrawCanvas(); } });
+
+    window.setMode = function(mode) {
+        currentMode = mode;
+        document.getElementById('modeMeasureBtn').classList.remove('active');
+        document.getElementById('modeNoteBtn').classList.remove('active');
+        if(mode === 'measure') document.getElementById('modeMeasureBtn').classList.add('active');
+        else document.getElementById('modeNoteBtn').classList.add('active');
+        resetDrawingState();
+    }
+
+    function getPointerPos(e) {
+        const rect = canvas.getBoundingClientRect(); 
+        const scaleX = cssCanvasWidth / rect.width; 
+        const scaleY = cssCanvasHeight / rect.height;
+        return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+    }
+
+    function findClickedElement(clickX, clickY) {
+        for (let i = currentDrawings.length - 1; i >= 0; i--) {
+            const d = currentDrawings[i];
+            
+            if (d.type === 'measure') {
+                if (Math.hypot(d.x1 - clickX, d.y1 - clickY) < 15) return { el: d, part: 'start' };
+                if (Math.hypot(d.x2 - clickX, d.y2 - clickY) < 15) return { el: d, part: 'end' };
+
+                if (d.text) {
+                    ctx.font = "bold 16px Arial";
+                    const lines = d.text.split('\n');
+                    const midX = (d.x1 + d.x2) / 2 + (d.textOffsetX || 0); 
+                    const midY = (d.y1 + d.y2) / 2 + (d.textOffsetY || 0);
+                    let maxW = 0; lines.forEach(l => { let w = ctx.measureText(l).width; if(w>maxW) maxW=w; });
+                    const boxW = maxW + 16; const boxH = (lines.length * 20) + 8;
+                    if (clickX >= midX - boxW/2 && clickX <= midX + boxW/2 && clickY >= midY - boxH/2 && clickY <= midY + boxH/2) return { el: d, part: 'text' };
+                }
+                
+                const distLine = Math.abs((d.y2 - d.y1)*clickX - (d.x2 - d.x1)*clickY + d.x2*d.y1 - d.y2*d.x1) / Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
+                const dot = (clickX - d.x1)*(d.x2 - d.x1) + (clickY - d.y1)*(d.y2 - d.y1);
+                const lenSq = Math.pow(d.x2 - d.x1, 2) + Math.pow(d.y2 - d.y1, 2);
+                if (distLine < 15 && dot >= 0 && dot <= lenSq) return { el: d, part: 'body' };
+            } 
+            else if (d.type === 'note') {
+                const lines = d.text.split('\n');
+                const { padding, lineH } = getSizeParams(d.size || 'moyen');
+                let maxW = 0; lines.forEach(l => { let w = ctx.measureText(l).width; if(w>maxW) maxW=w; });
+                const boxW = maxW + (padding[0] * 2); const boxH = (lines.length * lineH) + (padding[1] * 2);
+                
+                const textOffsetX = d.textOffsetX || 0;
+                const textOffsetY = d.textOffsetY || 0;
+                const boxX = d.x + textOffsetX; 
+                const boxY = d.y - boxH - 10 + textOffsetY;
+                
+                if (Math.hypot(d.x - clickX, d.y - clickY) < 15) return { el: d, part: 'anchor' };
+                if (clickX >= boxX && clickX <= boxX + boxW && clickY >= boxY && clickY <= boxY + boxH) return { el: d, part: 'text' };
+            }
+        }
+        return null; 
+    }
+
+    function updateLoupe(mouseX, mouseY, canvasX, canvasY) {
+        loupe.style.display = 'block';
+        let loupeX = mouseX + 25; let loupeY = mouseY - 160; 
+        if (loupeY < 0) loupeY = mouseY + 25; 
+        loupe.style.left = loupeX + 'px'; loupe.style.top = loupeY + 'px';
+        loupeCtx.clearRect(0, 0, 140, 140);
+        const captureSize = 40 * canvasScaleFactor; 
+        const sourceX = (canvasX * canvasScaleFactor) - (captureSize / 2);
+        const sourceY = (canvasY * canvasScaleFactor) - (captureSize / 2);
+        loupeCtx.drawImage(canvas, sourceX, sourceY, captureSize, captureSize, 0, 0, 140, 140);
+    }
+
+    // --- SOURIS EVENTS ---
+    canvas.addEventListener('mousedown', (e) => {
+        if (!baseImg.src) return;
+        const pos = getPointerPos(e);
+
+        if (e.button === 2) { 
+            if (drawingStep > 0) { resetDrawingState(); redrawCanvas(); }
+            else {
+                const clicked = findClickedElement(pos.x, pos.y);
+                if (clicked) { currentDrawings = currentDrawings.filter(d => d.id !== clicked.el.id); updatePhotoState(); redrawCanvas(); }
+            }
+            return;
+        }
+
+        if (e.button !== 0) return; 
+
+        if (drawingStep === 0) {
+            const clickedElement = findClickedElement(pos.x, pos.y);
+            if (clickedElement !== null) {
+                draggingElementId = clickedElement.el.id; dragHandle = clickedElement.part;
+                startX_in_canvas = pos.x; startY_in_canvas = pos.y; hasDragged = false; 
+                
+                if (clickedElement.el.type === 'note') {
+                    dragStartCoords = { 
+                        x: clickedElement.el.x, y: clickedElement.el.y,
+                        textOffsetX: clickedElement.el.textOffsetX || 0,
+                        textOffsetY: clickedElement.el.textOffsetY || 0
+                    };
+                } else {
+                    dragStartCoords = { 
+                        x1: clickedElement.el.x1, y1: clickedElement.el.y1, 
+                        x2: clickedElement.el.x2, y2: clickedElement.el.y2,
+                        textOffsetX: clickedElement.el.textOffsetX || 0,
+                        textOffsetY: clickedElement.el.textOffsetY || 0
+                    };
+                }
+                return; 
+            }
+        }
+
+        if (currentMode === 'measure') {
+            if (drawingStep === 0) {
+                drawingStep = 1; tempX = pos.x; tempY = pos.y;
+                redrawCanvas(); updateLoupe(e.clientX, e.clientY, tempX, tempY);
+            } 
+            else if (drawingStep === 2) {
+                drawingStep = 3; tempX = pos.x; tempY = pos.y;
+                redrawCanvas(); updateLoupe(e.clientX, e.clientY, tempX, tempY);
+            }
+        } else if (currentMode === 'note') {
+            tempX = pos.x; tempY = pos.y;
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!baseImg.src) return;
+        const pos = getPointerPos(e);
+
+        if (drawingStep === 0 && draggingElementId === null) {
+            const hovered = findClickedElement(pos.x, pos.y);
+            if (hovered) {
+                if (hovered.part === 'start' || hovered.part === 'end' || hovered.part === 'text' || hovered.part === 'anchor') canvas.style.cursor = 'move';
+                else canvas.style.cursor = 'pointer'; 
+            } else canvas.style.cursor = 'crosshair';
+        }
+
+        if (draggingElementId !== null && e.buttons === 1) {
+            const dx = pos.x - startX_in_canvas; const dy = pos.y - startY_in_canvas;
+            if (!hasDragged && Math.hypot(dx, dy) > 3) hasDragged = true;
+
+            const el = currentDrawings.find(d => d.id === draggingElementId);
+            if (el) {
+                if (el.type === 'note') { 
+                    if (dragHandle === 'text') { el.textOffsetX = dragStartCoords.textOffsetX + dx; el.textOffsetY = dragStartCoords.textOffsetY + dy; } 
+                    else if (dragHandle === 'anchor') { el.x = dragStartCoords.x + dx; el.y = dragStartCoords.y + dy; }
+                } 
+                else { 
+                    if (dragHandle === 'start') { el.x1 = pos.x; el.y1 = pos.y; redrawCanvas(); updateLoupe(e.clientX, e.clientY, el.x1, el.y1); return; } 
+                    else if (dragHandle === 'end') { el.x2 = pos.x; el.y2 = pos.y; redrawCanvas(); updateLoupe(e.clientX, e.clientY, el.x2, el.y2); return; } 
+                    else if (dragHandle === 'text') { el.textOffsetX = dragStartCoords.textOffsetX + dx; el.textOffsetY = dragStartCoords.textOffsetY + dy; }
+                    else { el.x1 = dragStartCoords.x1 + dx; el.y1 = dragStartCoords.y1 + dy; el.x2 = dragStartCoords.x2 + dx; el.y2 = dragStartCoords.y2 + dy; }
+                }
+                redrawCanvas(); 
+            }
+            return; 
+        }
+
+        if (currentMode === 'note') return;
+        
+        if (drawingStep === 1) {
+            tempX = pos.x; tempY = pos.y;
+            redrawCanvas(); updateLoupe(e.clientX, e.clientY, tempX, tempY);
+        } 
+        else if (drawingStep === 2) {
+            endX = pos.x; endY = pos.y;
+            redrawCanvas(); updateLoupe(e.clientX, e.clientY, endX, endY);
+        }
+        else if (drawingStep === 3) {
+            tempX = pos.x; tempY = pos.y;
+            redrawCanvas(); updateLoupe(e.clientX, e.clientY, tempX, tempY);
+        }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (e.button !== 0) return;
+        
+        if (draggingElementId !== null) {
+            loupe.style.display = 'none';
+            if (!hasDragged) editDrawing(draggingElementId); 
+            else updatePhotoState(); 
+            draggingElementId = null; dragHandle = null; redrawCanvas(); return;
+        }
+
+        if (currentMode === 'measure') {
+            if (drawingStep === 1) {
+                startX = tempX; startY = tempY; drawingStep = 2; 
+            } 
+            else if (drawingStep === 3) {
+                loupe.style.display = 'none'; endX = tempX; endY = tempY;
+                
+                openTextModal("Indication (optionnelle)", "", null, colorPicker.value, false, (mesure, size, color) => {
+                    drawingIdCounter++; 
+                    currentDrawings.push({ 
+                        id: drawingIdCounter, type: 'measure', x1: startX, y1: startY, x2: endX, y2: endY, 
+                        text: mesure ? mesure.trim() : "", color: color || colorPicker.value, thickness: size || 'moyen', 
+                        textOffsetX: 0, textOffsetY: 0
+                    }); 
+                    resetDrawingState(); redrawCanvas(); updatePhotoState();
+                });
+            }
+        } else if (currentMode === 'note') {
+            openTextModal("Saisissez l'instruction", "", 'moyen', colorPicker.value, false, (noteText, noteSize, noteColor) => {
+                if (noteText && noteText.trim() !== "") {
+                    drawingIdCounter++;
+                    currentDrawings.push({ 
+                        id: drawingIdCounter, type: 'note', x: tempX, y: tempY, 
+                        text: noteText.trim(), size: noteSize, color: noteColor, textOffsetX: 0, textOffsetY: 0 
+                    });
+                    updatePhotoState();
+                }
+                resetDrawingState(); redrawCanvas();
+            });
+        }
+    });
+    
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+    function resetDrawingState() { drawingStep = 0; hasDragged = false; endX = undefined; endY = undefined; loupe.style.display = 'none'; }
+    
+    function updatePhotoState() {
+        if (currentPhotoIndex !== -1) { photos[currentPhotoIndex].drawings = currentDrawings.map(d => ({...d})); renderPhotoList(); }
+    }
+
+    // ==========================================
+    // FONCTIONS DE DESSIN CENTRALISÉES
+    // ==========================================
+    function redrawCanvas() {
+        if(!baseImg.src) return;
+        ctx.save();
+        ctx.scale(canvasScaleFactor, canvasScaleFactor);
+        ctx.clearRect(0, 0, cssCanvasWidth, cssCanvasHeight); 
+        ctx.drawImage(baseImg, 0, 0, cssCanvasWidth, cssCanvasHeight);
+        
+        currentDrawings.forEach(d => { if(d.type === 'measure') drawArrow(ctx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
+        currentDrawings.forEach(d => { if(d.type === 'note') drawNoteBlock(ctx, d.x, d.y, d.text, d.size || 'moyen', d.textOffsetX, d.textOffsetY, d.color); });
+        
+        if (currentMode === 'measure') {
+            if (drawingStep === 1) { drawTarget(ctx, tempX, tempY, colorPicker.value); }
+            else if (drawingStep === 2) { drawTarget(ctx, startX, startY, colorPicker.value); drawTarget(ctx, endX, endY, colorPicker.value); drawArrow(ctx, startX, startY, endX, endY, "", colorPicker.value); }
+            else if (drawingStep === 3) { drawTarget(ctx, startX, startY, colorPicker.value); drawTarget(ctx, tempX, tempY, colorPicker.value); drawArrow(ctx, startX, startY, tempX, tempY, "", colorPicker.value); }
+        }
+
+        ctx.restore();
+    }
+
+    function drawTarget(context, x, y, color) { 
+        context.beginPath(); context.arc(x, y, 3, 0, 2 * Math.PI); context.fillStyle = color || "var(--draw-color)"; 
+        context.fill(); context.lineWidth = 1.5; context.strokeStyle = "white"; context.stroke(); 
+    }
+
+    function drawArrow(context, fromx, fromy, tox, toy, text, colorCode, textOffsetX = 0, textOffsetY = 0, thickness = 'moyen') {
+        let lw = 4, headlen = 15;
+        if (thickness === 'petit') { lw = 2; headlen = 10; }
+        else if (thickness === 'grand') { lw = 6; headlen = 22; }
+
+        const angle = Math.atan2(toy - fromy, tox - fromx); 
+        const color = colorCode || "var(--draw-color)";
+        context.strokeStyle = color; context.lineWidth = lw; context.fillStyle = color;
+        
+        context.beginPath(); context.moveTo(fromx, fromy); context.lineTo(tox, toy); context.stroke();
+        context.beginPath(); context.moveTo(fromx, fromy); context.lineTo(fromx + headlen * Math.cos(angle + Math.PI / 6), fromy + headlen * Math.sin(angle + Math.PI / 6)); context.lineTo(fromx + headlen * Math.cos(angle - Math.PI / 6), fromy + headlen * Math.sin(angle - Math.PI / 6)); context.fill();
+        context.beginPath(); context.moveTo(tox, toy); context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6)); context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6)); context.fill();
+        
+        if (text) {
+            const trueMidX = (fromx + tox) / 2; const trueMidY = (fromy + toy) / 2; 
+            const midX = trueMidX + textOffsetX; const midY = trueMidY + textOffsetY; 
+
+            if (Math.hypot(textOffsetX, textOffsetY) > 20) {
+                context.beginPath(); context.moveTo(trueMidX, trueMidY); context.lineTo(midX, midY);
+                context.lineWidth = 1.5; context.setLineDash([4, 4]); context.stroke(); context.setLineDash([]);
+            }
+
+            const lines = text.split('\n'); context.font = "bold 16px Arial"; 
+            let maxW = 0; lines.forEach(l => { let w = context.measureText(l).width; if(w>maxW) maxW=w; });
+            const lineHeight = 20; const boxW = maxW + 16; const boxH = (lines.length * lineHeight) + 8;
+            const boxX = midX - boxW/2; const boxY = midY - boxH/2;
+
+            context.fillStyle = "rgba(255, 255, 255, 0.95)"; context.fillRect(boxX, boxY, boxW, boxH);
+            context.strokeStyle = color; context.lineWidth = 2; context.strokeRect(boxX, boxY, boxW, boxH);
+            context.fillStyle = "#023e8a"; context.textAlign = "center"; context.textBaseline = "middle";
+            lines.forEach((line, index) => { context.fillText(line, midX, boxY + 4 + (index * lineHeight) + (lineHeight / 2)); });
+        }
+    }
+
+    function getSizeParams(size) {
+        const map = { petit: { font: "bold 12px Arial", padding: [8, 6], lineH: 16 }, moyen: { font: "bold 15px Arial", padding: [12, 10], lineH: 20 }, grand: { font: "bold 18px Arial", padding: [15, 12], lineH: 24 } };
+        return map[size] || map.moyen;
+    }
+
+    function drawNoteBlock(context, x, y, text, size = 'moyen', textOffsetX = 0, textOffsetY = 0, colorCode) {
+        const lines = text.split('\n'); const { font, padding, lineH } = getSizeParams(size); context.font = font;
+        let maxW = 0; lines.forEach(l => { let w = context.measureText(l).width; if(w>maxW) maxW=w; });
+        const boxWidth = maxW + (padding[0] * 2); const boxHeight = (lines.length * lineH) + (padding[1] * 2);
+        
+        const boxX = x + textOffsetX; const boxY = y - boxHeight - 10 + textOffsetY;
+        const color = colorCode || "#d62828";
+
+        context.shadowColor = "rgba(0, 0, 0, 0.2)"; context.shadowBlur = 8; context.shadowOffsetX = 3; context.shadowOffsetY = 3;
+        context.fillStyle = "#fef08a"; context.fillRect(boxX, boxY, boxWidth, boxHeight);
+        context.shadowColor = "transparent"; context.lineWidth = 1; context.strokeStyle = "#eab308"; context.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+        context.beginPath(); 
+        context.moveTo(boxX + boxWidth / 2, boxY + boxHeight); 
+        context.lineTo(x, y); 
+        context.strokeStyle = "#ca8a04"; 
+        context.lineWidth = 2; 
+        if (Math.hypot(textOffsetX, textOffsetY) > 20) { context.setLineDash([4, 4]); }
+        context.stroke(); context.setLineDash([]);
+
+        context.beginPath(); context.arc(x, y, 5, 0, 2 * Math.PI); context.fillStyle = color; context.fill();
+        context.fillStyle = "#1e293b"; context.textAlign = "left"; context.textBaseline = "middle";
+        lines.forEach((line, index) => { context.fillText(line, boxX + padding[0], boxY + padding[1] + (index * lineH) + (lineH / 2)); });
+    }
+
+    // --- MODALS ---
+    function openTextModal(title, defaultText, currentSize, currentColor, isEditing, callback) {
+        document.getElementById('textModalTitle').innerText = title; 
+        document.getElementById('textModalInput').value = defaultText || "";
+        document.getElementById('modalColorPicker').value = currentColor || "#d62828";
+        
+        if (currentSize) { setModalSize(currentSize); } 
+        else { setModalSize('moyen'); }
+
+        document.getElementById('btnModalDelete').style.display = isEditing ? 'block' : 'none';
+        document.getElementById('textModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('textModalInput').focus(), 100);
+        textModalCallback = callback;
+    }
+
+    window.setModalSize = function(size) {
+        selectedModalSize = size;
+        document.querySelectorAll('.size-selector .size-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('size' + size.charAt(0).toUpperCase() + size.slice(1)).classList.add('active');
+    }
+
+    window.cancelTextModal = function() { document.getElementById('textModal').style.display = 'none'; textModalCallback = null; currentEditingId = null; redrawCanvas(); }
+    
+    window.confirmTextModal = function() {
+        const val = document.getElementById('textModalInput').value;
+        const col = document.getElementById('modalColorPicker').value;
+        if (textModalCallback) textModalCallback(val, selectedModalSize, col); 
+        document.getElementById('textModal').style.display = 'none';
+        currentEditingId = null;
+    }
+
+    window.deleteModalDrawing = function() {
+        if (currentEditingId !== null) {
+            currentDrawings = currentDrawings.filter(d => d.id !== currentEditingId);
+            updatePhotoState(); redrawCanvas(); document.getElementById('textModal').style.display = 'none'; currentEditingId = null;
+        }
+    }
+
+    window.editDrawing = function(id) {
+        const drawing = currentDrawings.find(item => item.id === id);
+        if (drawing) {
+            currentEditingId = id; 
+            const title = drawing.type === 'note' ? "Modifier la note" : "Modifier l'indication";
+            const currentSize = drawing.type === 'note' ? (drawing.size || 'moyen') : (drawing.thickness || 'moyen');
+            
+            openTextModal(title, drawing.text, currentSize, drawing.color, true, (newText, newSize, newColor) => {
+                drawing.text = newText.trim();
+                drawing.color = newColor;
+                if (drawing.type === 'note') drawing.size = newSize; 
+                else drawing.thickness = newSize;
+                
+                redrawCanvas(); updatePhotoState();
+            });
+        }
+    }
+
+    // --- ACTIONS GLOBALES ---
+    document.getElementById('undoBtn').addEventListener('click', () => {
+        if (drawingStep > 0) { resetDrawingState(); redrawCanvas(); }
+        else if (currentDrawings.length > 0) { currentDrawings.pop(); updatePhotoState(); redrawCanvas(); }
+    });
+
+    document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+        if (confirm("Effacer toutes les annotations sur cette photo ?")) { currentDrawings = []; resetDrawingState(); updatePhotoState(); redrawCanvas(); }
+    });
+
+    document.getElementById('exportJpgBtn').addEventListener('click', () => {
+        if (currentPhotoIndex === -1) return alert("Veuillez sélectionner une photo.");
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+        const link = document.createElement("a"); link.download = `${photoNameInput.value || 'Pix_Cotes'}.jpg`; link.href = dataUrl; link.click();
+    });
+
+    // Générateur d'image annotée (CORRIGÉ POUR PDF & ZIP)
+    async function generateAnnotatedCanvas(photo) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = img.width; tempCanvas.height = img.height;
+                tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); tempCtx.drawImage(img, 0, 0);
+
+                // UTILISE LA VALEUR DE REFERENCE ENREGISTREE (Garantit une échelle parfaite)
+                const refWidth = photo.refWidth || img.width;
+                const refHeight = photo.refHeight || img.height;
+
+                const scaleX = img.width / refWidth; 
+                const scaleY = img.height / refHeight;
+                tempCtx.save(); tempCtx.scale(scaleX, scaleY);
+                
+                photo.drawings.forEach(d => { if(d.type === 'measure') drawArrow(tempCtx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
+                photo.drawings.forEach(d => { if(d.type === 'note') drawNoteBlock(tempCtx, d.x, d.y, d.text, d.size || 'moyen', d.textOffsetX, d.textOffsetY, d.color); });
+                
+                tempCtx.restore();
+                resolve(tempCanvas);
+            };
+            img.src = photo.fileUrl;
+        });
+    }
+
+    document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+        if (photos.length === 0) return alert("Veuillez ajouter au moins une photo.");
+        updatePhotoState();
+
+        const nomClient = document.getElementById('nomClient').value || "Client";
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4'); 
+        const pdfWidth = pdf.internal.pageSize.getWidth(); const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        for (let index = 0; index < photos.length; index++) {
+            if (index > 0) pdf.addPage();
+            pdf.setFontSize(16); pdf.setTextColor(0, 119, 182); pdf.text(`Pix'Côtes - ${nomClient}`, 10, 15);
+            pdf.setFontSize(12); pdf.setTextColor(2, 62, 138); pdf.text(`Photo ${index + 1}/${photos.length} : ${photos[index].name || "Vue " + (index+1)}`, 10, 23);
+
+            const tempCanvas = await generateAnnotatedCanvas(photos[index]);
+            const finalImgData = tempCanvas.toDataURL('image/jpeg', 0.9); 
+            const ratio = tempCanvas.width / tempCanvas.height;
+            let finalWidth = pdfWidth - 20; let finalHeight = finalWidth / ratio;
+            if (finalHeight > (pdfHeight - 40)) { finalHeight = pdfHeight - 40; finalWidth = finalHeight * ratio; }
+            pdf.addImage(finalImgData, 'JPEG', (pdfWidth - finalWidth) / 2, 30, finalWidth, finalHeight);
+        }
+
+        const safeName = nomClient.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        pdf.save(`Pix_Cotes_${safeName}.pdf`);
+    });
+
+    document.getElementById('exportZipBtn').addEventListener('click', async () => {
+        if (photos.length === 0) return alert("Veuillez ajouter au moins une photo.");
+        updatePhotoState();
+
+        const nomClient = document.getElementById('nomClient').value || "Client";
+        const zip = new JSZip();
+
+        for (let index = 0; index < photos.length; index++) {
+            const photo = photos[index];
+            const tempCanvas = await generateAnnotatedCanvas(photo);
+            const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.95);
+            
+            const base64Data = dataUrl.replace(/^data:image\/(png|jpeg);base64,/, "");
+            const safeName = (photo.name || `Vue_${index+1}`).replace(/[^a-z0-9]/gi, '_');
+            
+            zip.file(`${index+1}_${safeName}.jpg`, base64Data, {base64: true});
+        }
+
+        zip.generateAsync({type:"blob"}).then(function(content) {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(content);
+            a.download = `Pix_Cotes_${nomClient.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.zip`;
+            a.click();
+        });
+    });
+
+</script>
+
+</body>
+</html>
