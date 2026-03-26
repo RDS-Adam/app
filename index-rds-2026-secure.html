@@ -1,192 +1,211 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boite à Outils Adam</title>
-    <meta name="robots" content="noindex, nofollow">.
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #33757e; /* Vert canard original */
-            --accent: #f2711c;  /* Orange Panachage */
-            --bg: #f4f7f6;
-            --text: #2c3e50;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.5rem;
-            letter-spacing: 1px;
-        }
-
-        header p {
-            margin-top: 10px;
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            border: 1px solid #e1e8e7;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(51, 117, 126, 0.15);
-            border-color: var(--primary);
-        }
-
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .card h2 {
-            margin: 0 0 15px 0;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.4rem;
-            color: var(--primary);
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #636e72;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            transition: background 0.3s;
-        }
-
-        .card:hover .btn {
-            background-color: var(--accent);
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px;
-            font-size: 0.9rem;
-            color: #95a5a6;
-        }
-
-        @media (max-width: 600px) {
-            header h1 { font-size: 1.8rem; }
-            .grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>Boîte à Outils Adam</h1>
-    <p>Applications de support technique & commercial Rue du Store</p>
-</header>
-
-<div class="container">
-    <div class="grid">
+<div class="rds-expert-force-fullwidth">
+    <div class="rds-cards-content-centered">
+        <div class="rds-expert-header">
+            <h2>Boîte à Outils Adam</h2>
+        </div>
         
-        <a href="Pix-cotes.html" class="card">
-            <div>
-                <span class="icon">📐</span>
-                <h2>Pix'Côtes</h2>
-                <p>Annotez des photos de chantiers avec des flèches et des notes. Exportez en PDF ou ZIP pour la fabrication.</p>
-            </div>
-            <span class="btn">Lancer l'éditeur</span>
-        </a>
+        <div class="rds-cards-grid">
+            <a href="https://www.ruedustore.fr/blog/prix-cotes/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">📐</span>
+                    <strong>Pix'Côtes</strong>
+                    <span>Éditeur de côtes et annotations sur photos</span>
+                </div>
+                <div class="rds-card-footer">Démarrer →</div>
+            </a>
 
-        <a href="Pose-V4.2.html" class="card">
-            <div>
-                <span class="icon">🛠️</span>
-                <h2>Calculateur Pose</h2>
-                <p>Simulateur complet pour les devis de pose (Bannes, VR, Moustiquaires). Gère les zones IDF/Province et les marges.</p>
-            </div>
-            <span class="btn">Calculer un devis</span>
-        </a>
+            <a href="https://www.ruedustore.fr/blog/pose-v4/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">🛠️</span>
+                    <strong>Calculateur Pose</strong>
+                    <span>Simulateur de devis, zones et marges</span>
+                </div>
+                <div class="rds-card-footer">Calculer →</div>
+            </a>
 
-        <a href="Panachage.html" class="card">
-            <div>
-                <span class="icon">🎨</span>
-                <h2>Panachage SBV</h2>
-                <p>Configurez le rythme des couleurs pour les stores à bandes verticales. Aperçu temps réel et bon de fabrication.</p>
-            </div>
-            <span class="btn">Créer un motif</span>
-        </a>
+            <a href="https://www.ruedustore.fr/blog/panachage/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">🎨</span>
+                    <strong>Panachage SBV</strong>
+                    <span>Configuration de motifs pour bandes verticales</span>
+                </div>
+                <div class="rds-card-footer">Personnaliser →</div>
+            </a>
 
-        <a href="Calcul-trapeze-triangle.html" class="card">
-            <div>
-                <span class="icon">📐</span>
-                <h2>Stores Inclinés</h2>
-                <p>Vérifiez la faisabilité des stores trapèzes et triangles (angles, hypoténuse) et visualisez le schéma technique.</p>
-            </div>
-            <span class="btn">Vérifier la forme</span>
-        </a>
+            <a href="https://www.ruedustore.fr/blog/calcul-trapeze-triangle/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">📐</span>
+                    <strong>Stores Inclinés</strong>
+                    <span>Calcul de faisabilité trapèzes et triangles</span>
+                </div>
+                <div class="rds-card-footer">Vérifier →</div>
+            </a>
 
-        <a href="Calcul-gain-de-temperature.html" class="card">
-            <div>
-                <span class="icon">🌡️</span>
-                <h2>Expertise Thermique</h2>
-                <p>Simulez le gain de température avec un store selon le vitrage et la toile. Idéal pour convaincre sur le confort été.</p>
-            </div>
-            <span class="btn">Simuler le confort</span>
-        </a>
+            <a href="https://www.ruedustore.fr/blog/triangles/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">📐</span>
+                    <strong>Calcul Triangles</strong>
+                    <span>Dimensions et faisabilité des stores triangulaires</span>
+                </div>
+                <div class="rds-card-footer">Calculer →</div>
+            </a>
 
+            <a href="https://www.ruedustore.fr/blog/calcul-gain-de-temperature/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">🌡️</span>
+                    <strong>Expertise Thermique</strong>
+                    <span>Simulateur de rejet de chaleur et confort</span>
+                </div>
+                <div class="rds-card-footer">Simuler →</div>
+            </a>
+
+            <a href="https://www.ruedustore.fr/blog/calculer-le-diametre-denroulement-dune-toile/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <div class="rds-card-main">
+                    <span class="rds-card-icon">🔄</span>
+                    <strong>Diamètre d'Enroulement</strong>
+                    <span>Vérification de l'encombrement dans le coffre</span>
+                </div>
+                <div class="rds-card-footer">Vérifier →</div>
+            </a>
+        </div>
     </div>
 </div>
 
-<footer>
-    &copy; 2026 Rue du Store - Développé par Adam pour la force de vente.
-</footer>
+<style>
+.site-top-container, .header-area-title, .site-logo-outer {
+display: none;
+}
+    /* 1. NEUTRALISATION TOTALE DES PARENTS (Sidebar, article-wrapper-outer, etc.) */
+    article, .entry-content, .post-content, .site-main, .content-area, 
+    .article-wrapper-outer, .container, .clearfix, .has-sidebar, aside {
+        width: 100% !important;
+        max-width: 100% !important;
+        float: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .sidebar, .sidebar-clearfix { display: none !important; }
 
-</body>
-</html>
+    /* 2. LA MAGIE DU BREAK-OUT (100% LARGEUR FENÊTRE) */
+    .rds-expert-force-fullwidth {
+        width: 100vw !important;
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        background: #fdfdfe;
+        padding: 60px 0;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    /* 3. CONTENEUR DES CARTES */
+    .rds-cards-content-centered {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 30px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .rds-expert-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .rds-expert-header h2 {
+        margin: 0;
+        color: #33757e;
+        font-size: 2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: inline-block;
+        border-bottom: 4px solid #f2711c;
+        padding-bottom: 10px;
+    }
+
+    /* 4. LA GRILLE (Plusieurs colonnes automatiques) */
+    .rds-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    /* 5. DESIGN DES CARTES */
+    .rds-card-item {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .rds-card-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px -12px rgba(51, 117, 126, 0.15);
+        border-color: #33757e;
+    }
+
+    .rds-card-main {
+        padding: 30px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .rds-card-icon {
+        font-size: 48px;
+        margin: 0 auto 20px;
+        background: #f1f5f9;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .rds-card-main strong {
+        display: block;
+        color: #1e293b;
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+
+    .rds-card-main span {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.4;
+    }
+
+    .rds-card-footer {
+        padding: 18px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        color: #f2711c;
+        font-weight: 700;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .rds-card-item:hover .rds-card-footer {
+        background: #f2711c;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .rds-expert-force-fullwidth {
+            width: 100% !important;
+            left: 0 !important;
+            margin-left: 0 !important;
+            padding: 40px 0;
+        }
+        .rds-cards-content-centered { padding: 0 20px; }
+        .rds-cards-grid { grid-template-columns: 1fr; }
+        .rds-expert-header h2 { font-size: 1.6rem; }
+    }
+</style>
