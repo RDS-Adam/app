@@ -29,7 +29,7 @@
         /* PANNEAU LATÉRAL */
         .sidebar { width: 320px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
         .upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #f8fafc; transition: 0.2s; margin-bottom: 20px;}
-        .upload-area:hover { border-color: var(--primary); background: #f0f8ff; }
+        .upload-area:hover, .upload-area.dragover { border-color: var(--primary); background: #f0f8ff; }
         .upload-area input { display: none; }
         
         .photo-list-title { font-size: 0.9rem; font-weight: bold; color: var(--secondary); margin-bottom: 10px; text-transform: uppercase; }
@@ -57,7 +57,7 @@
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
         
         .mode-switch { display: flex; background: #e2e8f0; border-radius: 6px; overflow: hidden; height: 40px; }
-        .mode-btn { padding: 0 15px; border: none; background: transparent; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.2s; color: #64748b; }
+        .mode-btn { padding: 0 10px; border: none; background: transparent; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.2s; color: #64748b; flex: 1; white-space: nowrap; }
         .mode-btn.active { background: var(--primary); color: white; }
 
         .color-picker-wrapper { display: flex; flex-direction: column; gap: 8px; align-items: center; }
@@ -151,12 +151,13 @@
                 <label class="form-label-title">Outil</label>
                 <div class="mode-switch">
                     <button class="mode-btn active" id="modeMeasureBtn" onclick="setMode('measure')">↗️ Flèches</button>
+                    <button class="mode-btn" id="modeCircleBtn" onclick="setMode('circle')">⭕ Entourer</button>
                     <button class="mode-btn" id="modeNoteBtn" onclick="setMode('note')">📝 Note</button>
                 </div>
             </div>
 
             <div class="color-picker-wrapper">
-                <label class="form-label-title">Couleur de l'outil</label>
+                <label class="form-label-title">Couleur</label>
                 <input type="color" id="arrowColor" value="#d62828" title="Changer la couleur par défaut">
             </div>
 
@@ -237,6 +238,7 @@
     let hasDragged = false; 
 
     const fileInput = document.getElementById('fileInput');
+    const uploadDropzone = document.getElementById('uploadDropzone');
     const photoList = document.getElementById('photoList');
     const toolbar = document.getElementById('toolbar');
     const emptyState = document.getElementById('emptyState');
@@ -295,12 +297,32 @@
     // GESTION DES FICHIERS & DRAG N DROP
     // ==========================================
     fileInput.addEventListener('change', handleFileSelect);
+
+    // Ajout de la gestion complète du Drag & Drop
+    uploadDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadDropzone.classList.add('dragover');
+    });
+
+    uploadDropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadDropzone.classList.remove('dragover');
+    });
+
+    uploadDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadDropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            handleFileSelect({ target: { files: e.dataTransfer.files } });
+        }
+    });
     
     function handleFileSelect(e) {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
         files.forEach(file => {
+            if (!file.type.startsWith('image/')) return; // Sécurité si on drop autre chose
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
@@ -317,7 +339,11 @@
             };
             reader.readAsDataURL(file);
         });
-        fileInput.value = '';
+        
+        // Vider l'input avec un micro délai pour ne pas stopper les lecteurs en cours
+        if(e.target === fileInput) {
+            setTimeout(() => { fileInput.value = ''; }, 100);
+        }
     }
 
     window.deletePhoto = function(event, index) {
@@ -417,7 +443,7 @@
     });
 
     // ==========================================
-    // CANVAS & ZOOM LOGIC (CORRIGÉ POUR PDF)
+    // CANVAS & ZOOM LOGIC
     // ==========================================
     function setupCanvasSize() {
         const padding = 40;
@@ -430,7 +456,6 @@
 
         const activePhoto = photos[currentPhotoIndex];
         
-        // Si l'écran a été redimensionné, on ajuste les coordonnées existantes pour éviter le décalage !
         if (activePhoto && activePhoto.refWidth && Math.abs(activePhoto.refWidth - newWidth) > 0.1) {
             const ratioX = newWidth / activePhoto.refWidth;
             const ratioY = newHeight / activePhoto.refHeight;
@@ -483,8 +508,11 @@
         currentMode = mode;
         document.getElementById('modeMeasureBtn').classList.remove('active');
         document.getElementById('modeNoteBtn').classList.remove('active');
+        document.getElementById('modeCircleBtn').classList.remove('active');
+        
         if(mode === 'measure') document.getElementById('modeMeasureBtn').classList.add('active');
-        else document.getElementById('modeNoteBtn').classList.add('active');
+        else if (mode === 'note') document.getElementById('modeNoteBtn').classList.add('active');
+        else if (mode === 'circle') document.getElementById('modeCircleBtn').classList.add('active');
         resetDrawingState();
     }
 
@@ -518,6 +546,24 @@
                 const lenSq = Math.pow(d.x2 - d.x1, 2) + Math.pow(d.y2 - d.y1, 2);
                 if (distLine < 15 && dot >= 0 && dot <= lenSq) return { el: d, part: 'body' };
             } 
+            else if (d.type === 'circle') {
+                if (Math.hypot(d.x1 - clickX, d.y1 - clickY) < 15) return { el: d, part: 'start' };
+                if (Math.hypot(d.x2 - clickX, d.y2 - clickY) < 15) return { el: d, part: 'end' };
+
+                if (d.text) {
+                    ctx.font = "bold 16px Arial";
+                    const lines = d.text.split('\n');
+                    const midX = (d.x1 + d.x2) / 2 + (d.textOffsetX || 0); 
+                    const midY = (d.y1 + d.y2) / 2 + (d.textOffsetY || 0);
+                    let maxW = 0; lines.forEach(l => { let w = ctx.measureText(l).width; if(w>maxW) maxW=w; });
+                    const boxW = maxW + 16; const boxH = (lines.length * 20) + 8;
+                    if (clickX >= midX - boxW/2 && clickX <= midX + boxW/2 && clickY >= midY - boxH/2 && clickY <= midY + boxH/2) return { el: d, part: 'text' };
+                }
+                
+                const minX = Math.min(d.x1, d.x2); const maxX = Math.max(d.x1, d.x2);
+                const minY = Math.min(d.y1, d.y2); const maxY = Math.max(d.y1, d.y2);
+                if (clickX >= minX && clickX <= maxX && clickY >= minY && clickY <= maxY) return { el: d, part: 'body' };
+            }
             else if (d.type === 'note') {
                 const lines = d.text.split('\n');
                 const { padding, lineH } = getSizeParams(d.size || 'moyen');
@@ -596,6 +642,11 @@
             else if (drawingStep === 2) {
                 drawingStep = 3; tempX = pos.x; tempY = pos.y;
                 redrawCanvas(); updateLoupe(e.clientX, e.clientY, tempX, tempY);
+            }
+        } else if (currentMode === 'circle') {
+            if (drawingStep === 0) {
+                drawingStep = 1; startX = pos.x; startY = pos.y; tempX = pos.x; tempY = pos.y;
+                redrawCanvas(); updateLoupe(e.clientX, e.clientY, startX, startY);
             }
         } else if (currentMode === 'note') {
             tempX = pos.x; tempY = pos.y;
@@ -678,6 +729,20 @@
                     resetDrawingState(); redrawCanvas(); updatePhotoState();
                 });
             }
+        } else if (currentMode === 'circle') {
+            if (drawingStep === 1) {
+                loupe.style.display = 'none'; endX = tempX; endY = tempY;
+                
+                openTextModal("Annotation (optionnelle)", "", null, colorPicker.value, false, (noteText, size, color) => {
+                    drawingIdCounter++;
+                    currentDrawings.push({
+                        id: drawingIdCounter, type: 'circle', x1: startX, y1: startY, x2: endX, y2: endY,
+                        text: noteText ? noteText.trim() : "", color: color || colorPicker.value, thickness: size || 'moyen',
+                        textOffsetX: 0, textOffsetY: 0
+                    });
+                    resetDrawingState(); redrawCanvas(); updatePhotoState();
+                });
+            }
         } else if (currentMode === 'note') {
             openTextModal("Saisissez l'instruction", "", 'moyen', colorPicker.value, false, (noteText, noteSize, noteColor) => {
                 if (noteText && noteText.trim() !== "") {
@@ -712,12 +777,15 @@
         ctx.drawImage(baseImg, 0, 0, cssCanvasWidth, cssCanvasHeight);
         
         currentDrawings.forEach(d => { if(d.type === 'measure') drawArrow(ctx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
+        currentDrawings.forEach(d => { if(d.type === 'circle') drawEllipse(ctx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
         currentDrawings.forEach(d => { if(d.type === 'note') drawNoteBlock(ctx, d.x, d.y, d.text, d.size || 'moyen', d.textOffsetX, d.textOffsetY, d.color); });
         
         if (currentMode === 'measure') {
             if (drawingStep === 1) { drawTarget(ctx, tempX, tempY, colorPicker.value); }
             else if (drawingStep === 2) { drawTarget(ctx, startX, startY, colorPicker.value); drawTarget(ctx, endX, endY, colorPicker.value); drawArrow(ctx, startX, startY, endX, endY, "", colorPicker.value); }
             else if (drawingStep === 3) { drawTarget(ctx, startX, startY, colorPicker.value); drawTarget(ctx, tempX, tempY, colorPicker.value); drawArrow(ctx, startX, startY, tempX, tempY, "", colorPicker.value); }
+        } else if (currentMode === 'circle') {
+            if (drawingStep === 1) { drawEllipse(ctx, startX, startY, tempX, tempY, "", colorPicker.value); }
         }
 
         ctx.restore();
@@ -751,6 +819,47 @@
             }
 
             const lines = text.split('\n'); context.font = "bold 16px Arial"; 
+            let maxW = 0; lines.forEach(l => { let w = context.measureText(l).width; if(w>maxW) maxW=w; });
+            const lineHeight = 20; const boxW = maxW + 16; const boxH = (lines.length * lineHeight) + 8;
+            const boxX = midX - boxW/2; const boxY = midY - boxH/2;
+
+            context.fillStyle = "rgba(255, 255, 255, 0.95)"; context.fillRect(boxX, boxY, boxW, boxH);
+            context.strokeStyle = color; context.lineWidth = 2; context.strokeRect(boxX, boxY, boxW, boxH);
+            context.fillStyle = "#023e8a"; context.textAlign = "center"; context.textBaseline = "middle";
+            lines.forEach((line, index) => { context.fillText(line, midX, boxY + 4 + (index * lineHeight) + (lineHeight / 2)); });
+        }
+    }
+
+    function drawEllipse(context, x1, y1, x2, y2, text, colorCode, textOffsetX = 0, textOffsetY = 0, thickness = 'moyen') {
+        let lw = 4;
+        if (thickness === 'petit') lw = 2;
+        else if (thickness === 'grand') lw = 6;
+
+        const color = colorCode || "#d62828";
+        context.strokeStyle = color;
+        context.lineWidth = lw;
+
+        const centerX = (x1 + x2) / 2;
+        const centerY = (y1 + y2) / 2;
+        const radiusX = Math.abs(x2 - x1) / 2;
+        const radiusY = Math.abs(y2 - y1) / 2;
+
+        if (radiusX > 0 && radiusY > 0) {
+            context.beginPath();
+            context.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+            context.stroke();
+        }
+
+        if (text) {
+            const midX = centerX + textOffsetX;
+            const midY = centerY + textOffsetY;
+
+            if (Math.hypot(textOffsetX, textOffsetY) > Math.max(radiusX, radiusY) + 10) {
+                context.beginPath(); context.moveTo(centerX, centerY); context.lineTo(midX, midY);
+                context.lineWidth = 1.5; context.setLineDash([4, 4]); context.stroke(); context.setLineDash([]);
+            }
+
+            const lines = text.split('\n'); context.font = "bold 16px Arial";
             let maxW = 0; lines.forEach(l => { let w = context.measureText(l).width; if(w>maxW) maxW=w; });
             const lineHeight = 20; const boxW = maxW + 16; const boxH = (lines.length * lineHeight) + 8;
             const boxX = midX - boxW/2; const boxY = midY - boxH/2;
@@ -864,7 +973,7 @@
         const link = document.createElement("a"); link.download = `${photoNameInput.value || 'Pix_Cotes'}.jpg`; link.href = dataUrl; link.click();
     });
 
-    // Générateur d'image annotée (CORRIGÉ POUR PDF & ZIP)
+    // Générateur d'image annotée
     async function generateAnnotatedCanvas(photo) {
         return new Promise((resolve) => {
             const img = new Image();
@@ -873,7 +982,6 @@
                 tempCanvas.width = img.width; tempCanvas.height = img.height;
                 tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); tempCtx.drawImage(img, 0, 0);
 
-                // UTILISE LA VALEUR DE REFERENCE ENREGISTREE (Garantit une échelle parfaite)
                 const refWidth = photo.refWidth || img.width;
                 const refHeight = photo.refHeight || img.height;
 
@@ -882,6 +990,7 @@
                 tempCtx.save(); tempCtx.scale(scaleX, scaleY);
                 
                 photo.drawings.forEach(d => { if(d.type === 'measure') drawArrow(tempCtx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
+                photo.drawings.forEach(d => { if(d.type === 'circle') drawEllipse(tempCtx, d.x1, d.y1, d.x2, d.y2, d.text, d.color, d.textOffsetX, d.textOffsetY, d.thickness); });
                 photo.drawings.forEach(d => { if(d.type === 'note') drawNoteBlock(tempCtx, d.x, d.y, d.text, d.size || 'moyen', d.textOffsetX, d.textOffsetY, d.color); });
                 
                 tempCtx.restore();
