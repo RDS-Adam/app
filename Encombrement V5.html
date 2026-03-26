@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculateur Expert SBV (cm) - Ruedustore</title>
+    <style>
+        :root { --primary: #f2711c; --secondary: #0f172a; --bg: #f8fafc; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #1e293b; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 650px; width: 100%; }
+        header { text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .mode-selector { display: flex; background: #e2e8f0; padding: 5px; border-radius: 10px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; border: none; padding: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .mode-btn.active { background: var(--primary); color: white; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #64748b; font-size: 0.85rem; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        input:focus { border-color: var(--primary); outline: none; background: #fffaf5; }
+        
+        .result-container { background: var(--secondary); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 5px solid var(--primary); }
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem; }
+        .res-line.total { border-top: 1px solid #334155; padding-top: 10px; margin-top: 10px; font-weight: bold; font-size: 1.4rem; color: var(--primary); }
+        .highlight-text { color: #fbbf24; font-weight: bold; }
+        .info-tab { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 15px; }
+
+        .error-msg { color: var(--danger); font-weight: bold; text-align: center; display: none; margin-top: 10px; padding: 10px; border: 1px solid var(--danger); border-radius: 8px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <header>
+        <h2 style="margin:0;">Calcul encombrement SBV Rue Du Store</h2>
+    </header>
+
+    <label>Méthode de calcul :</label>
+    <div class="mode-selector">
+        <button id="btnBaie" class="mode-btn active" onclick="setMode('BAIE')">Largeur Baie (cm)</button>
+        <button id="btnRail" class="mode-btn" onclick="setMode('RAIL')">Rail Souhaité (cm)</button>
+    </div>
+
+    <div class="grid">
+        <div class="form-group">
+            <label id="labelPrincipal">Largeur Baie (cm)</label>
+            <input type="number" id="inputPrincipal" value="200" step="0.1" oninput="calculer()">
+        </div>
+        <div class="form-group">
+            <label>Type de Lame</label>
+            <select id="typeLame" onchange="calculer()">
+                <option value="89">89 mm</option>
+                <option value="127">127 mm</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Type de Repli (Refoulement)</label>
+        <select id="typeRepli" onchange="calculer()">
+            <option value="lat">LA / LO (Latéral Gauche ou Droit)</option>
+            <option value="ext">Chaque Extrémité (Séparé)</option>
+            <option value="ce">CE (Central)</option>
+        </select>
+    </div>
+
+    <div id="errorBox" class="error-msg">⚠️ Largeur maximale de rail (600 cm) dépassée.</div>
+
+    <div id="resultsArea">
+        <div class="result-container">
+            <div class="res-line">
+                <span>Nombre de lames :</span>
+                <span id="resLames" class="highlight-text">-</span>
+            </div>
+            <div class="res-line">
+                <span>Encombrement total :</span>
+                <span id="resEnc" class="highlight-text">-</span>
+            </div>
+            <div class="res-line">
+                <span id="labelPassage">Ouverture couverte :</span>
+                <span id="resPassage">-</span>
+            </div>
+            <div class="res-line total">
+                <span>LARGEUR DU RAIL :</span>
+                <span id="resRail">-</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-tab">
+        Saisie en cm | Calculs basés sur abaques techniques
+    </div>
+</div>
+
+<script>
+let currentMode = 'BAIE';
+
+const DATA = {
+    "89": {
+        ratio: 78/600,
+        lat: { base: 14.8, perCm: (68.8-14.8)/500 },
+        ext: { base: 9.8, perCm: (36.4-9.8)/500 },
+        ce: { base: 18.9, perCm: (72.0-18.9)/500 }
+    },
+    "127": {
+        ratio: 54/600,
+        lat: { base: 13.4, perCm: (50.8-13.4)/500 },
+        ext: { base: 10.1, perCm: (28.3-10.1)/500 },
+        ce: { base: 1.9, perCm: (55.5-1.9)/500 }
+    }
+};
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btnBaie').classList.toggle('active', mode === 'BAIE');
+    document.getElementById('btnRail').classList.toggle('active', mode === 'RAIL');
+    document.getElementById('labelPrincipal').textContent = mode === 'BAIE' ? "Largeur Baie (cm)" : "Rail Souhaité (cm)";
+    calculer();
+}
+
+function calculer() {
+    const valCm = parseFloat(document.getElementById('inputPrincipal').value) || 0;
+    const type = document.getElementById('typeLame').value;
+    const repli = document.getElementById('typeRepli').value;
+    const config = DATA[type];
+    const errorBox = document.getElementById('errorBox');
+    const resultsArea = document.getElementById('resultsArea');
+
+    let railFinal = 0;
+    let encTotal = 0;
+    let nbLames = 0;
+    let passage = 0;
+    let labelEnc = "";
+
+    if (valCm > 0) {
+        // Calcul du nombre de bandes sur la base de la largeur saisie
+        nbLames = Math.ceil(valCm * config.ratio);
+        
+        // Calcul de l'encombrement (Abaques)
+        if (repli === "lat") {
+            encTotal = config.lat.base + (config.lat.perCm * (valCm - 100));
+            labelEnc = encTotal.toFixed(1) + " cm";
+        } else if (repli === "ext") {
+            let encUnitaire = config.ext.base + (config.ext.perCm * (valCm - 100));
+            encTotal = encUnitaire * 2;
+            labelEnc = encUnitaire.toFixed(1) + " + " + encUnitaire.toFixed(1) + " cm";
+        } else if (repli === "ce") {
+            encTotal = config.ce.base + (config.ce.perCm * (valCm - 100));
+            labelEnc = encTotal.toFixed(1) + " cm";
+        }
+
+        // Sécurité petites largeurs (valeurs plancher du tableau)
+        if (valCm < 100) {
+            if(repli === "lat") encTotal = config.lat.base;
+            if(repli === "ext") encTotal = config.ext.base * 2;
+            if(repli === "ce") encTotal = config.ce.base;
+            labelEnc = (repli === "ext") ? (encTotal/2).toFixed(1) + "x2 cm" : encTotal.toFixed(1) + " cm";
+        }
+
+        // Définition du Rail Final selon le mode
+        if (currentMode === 'BAIE') {
+            railFinal = valCm + encTotal;
+            passage = valCm;
+        } else {
+            railFinal = valCm;
+            passage = railFinal - encTotal;
+        }
+
+        // --- VERIFICATION DES LIMITES (Saisie ET Résultat) ---
+        if (valCm > 600 || railFinal > 600) {
+            errorBox.style.display = 'block';
+            errorBox.innerHTML = `⚠️ Limite technique dépassée : Le rail final atteindrait ${railFinal.toFixed(1)} cm (Max : 600 cm).`;
+            resultsArea.style.opacity = '0.2';
+            document.getElementById('resRail').textContent = "-";
+            return;
+        } else {
+            errorBox.style.display = 'none';
+            resultsArea.style.opacity = '1';
+        }
+
+        // Affichage des résultats
+        document.getElementById('labelPassage').textContent = (currentMode === 'BAIE') ? "Ouverture couverte :" : "Passage libre (vitre) :";
+        document.getElementById('resLames').textContent = nbLames;
+        document.getElementById('resEnc').textContent = labelEnc;
+        document.getElementById('resPassage').textContent = Math.max(0, passage).toFixed(1) + " cm";
+        document.getElementById('resRail').textContent = railFinal.toFixed(1) + " cm";
+    }
+}
+
+calculer();
+</script>
+
+</body>
+</html>
