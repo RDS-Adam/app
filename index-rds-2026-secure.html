@@ -79,3 +79,145 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Masquer les éléments inutiles de l'interface WordPress */
+    .site-top-container, .header-area-title, .site-logo-outer {
+        display: none;
+    }
+
+    /* 1. NEUTRALISATION DES PARENTS POUR LE PLEIN ÉCRAN */
+    article, .entry-content, .post-content, .site-main, .content-area, 
+    .article-wrapper-outer, .container, .clearfix, .has-sidebar, aside {
+        width: 100% !important;
+        max-width: 100% !important;
+        float: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .sidebar, .sidebar-clearfix { display: none !important; }
+
+    /* 2. LE BREAK-OUT (100% LARGEUR FENÊTRE) */
+    .rds-expert-force-fullwidth {
+        width: 100vw !important;
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        background: #fdfdfe;
+        padding: 60px 0;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    /* 3. CONTENEUR CENTRALISÉ */
+    .rds-cards-content-centered {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 30px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .rds-expert-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .rds-expert-header h2 {
+        margin: 0;
+        color: #33757e;
+        font-size: 2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: inline-block;
+        border-bottom: 4px solid #f2711c;
+        padding-bottom: 10px;
+    }
+
+    /* 4. LA GRILLE RESPONSIVE */
+    .rds-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    /* 5. DESIGN DES CARTES */
+    .rds-card-item {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .rds-card-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px -12px rgba(51, 117, 126, 0.15);
+        border-color: #33757e;
+    }
+
+    .rds-card-main {
+        padding: 30px;
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .rds-card-icon {
+        font-size: 48px;
+        margin: 0 auto 20px;
+        background: #f1f5f9;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .rds-card-main strong {
+        display: block;
+        color: #1e293b;
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+
+    .rds-card-main span {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.4;
+    }
+
+    .rds-card-footer {
+        padding: 18px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        color: #f2711c;
+        font-weight: 700;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .rds-card-item:hover .rds-card-footer {
+        background: #f2711c;
+        color: white;
+    }
+
+    /* 6. ADAPTATION MOBILE */
+    @media (max-width: 768px) {
+        .rds-expert-force-fullwidth {
+            width: 100% !important;
+            left: 0 !important;
+            margin-left: 0 !important;
+            padding: 40px 0;
+        }
+        .rds-cards-content-centered { padding: 0 20px; }
+        .rds-cards-grid { grid-template-columns: 1fr; }
+        .rds-expert-header h2 { font-size: 1.6rem; }
+    }
+</style>
