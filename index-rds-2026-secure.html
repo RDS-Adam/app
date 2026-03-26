@@ -4,81 +4,71 @@
             <h2>Boîte à Outils Adam</h2>
         </div>
         
-        <div class="rds-cards-grid">
-            <a href="https://rds-adam.github.io/app/Gestion%20des%20tourne%CC%81es.html" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">🚚</span>
-                    <strong>Gestion des tournées</strong>
-                    <span>Organisation et suivi des livraisons et poses</span>
-                </div>
-                <div class="rds-card-footer">Organiser →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/prix-cotes/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">📐</span>
-                    <strong>Pix'Côtes</strong>
-                    <span>Éditeur de côtes et annotations sur photos</span>
-                </div>
-                <div class="rds-card-footer">Démarrer →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/pose-v4/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">🛠️</span>
-                    <strong>Calculateur Pose</strong>
-                    <span>Simulateur de devis, zones et marges</span>
-                </div>
-                <div class="rds-card-footer">Calculer →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/panachage/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">🎨</span>
-                    <strong>Panachage SBV</strong>
-                    <span>Configuration de motifs pour bandes verticales</span>
-                </div>
-                <div class="rds-card-footer">Personnaliser →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/calcul-trapeze-triangle/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">📐</span>
-                    <strong>Stores Inclinés</strong>
-                    <span>Calcul de faisabilité trapèzes et triangles</span>
-                </div>
-                <div class="rds-card-footer">Vérifier →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/triangles/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">📐</span>
-                    <strong>Calcul Triangles</strong>
-                    <span>Dimensions et faisabilité des stores triangulaires</span>
-                </div>
-                <div class="rds-card-footer">Calculer →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/calcul-gain-de-temperature/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">🌡️</span>
-                    <strong>Expertise Thermique</strong>
-                    <span>Simulateur de rejet de chaleur et confort</span>
-                </div>
-                <div class="rds-card-footer">Simuler →</div>
-            </a>
-
-            <a href="https://www.ruedustore.fr/blog/calculer-le-diametre-denroulement-dune-toile/" class="rds-card-item" target="_blank" rel="noopener noreferrer">
-                <div class="rds-card-main">
-                    <span class="rds-card-icon">🔄</span>
-                    <strong>Diamètre d'Enroulement</strong>
-                    <span>Vérification de l'encombrement dans le coffre</span>
-                </div>
-                <div class="rds-card-footer">Vérifier →</div>
-            </a>
+        <div class="rds-cards-grid" id="dynamic-cards-container">
+            <div style="text-align:center; padding: 20px; color: #64748b;">Chargement des outils...</div>
         </div>
     </div>
 </div>
+
+<script>
+async function generateCards() {
+    const container = document.getElementById('dynamic-cards-container');
+    const baseUrl = "https://rds-adam.github.io/app/";
+    
+    // Configuration des icônes par défaut ou selon mots-clés
+    const getIcon = (name) => {
+        if (name.includes('tourne')) return '🚚';
+        if (name.includes('pix') || name.includes('cote')) return '📐';
+        if (name.includes('pose')) return '🛠️';
+        if (name.includes('panachage')) return '🎨';
+        if (name.includes('temperature') || name.includes('thermique')) return '🌡️';
+        if (name.includes('enroulement')) return '🔄';
+        return '📄'; // Icône par défaut
+    };
+
+    try {
+        // Interroge l'API GitHub pour lister les fichiers
+        const response = await fetch('https://api.github.com/repos/RDS-Adam/app/contents/');
+        const files = await response.json();
+
+        // On filtre : fichiers HTML uniquement, et on ignore l'index lui-même et robots.txt
+        const htmlFiles = files.filter(file => 
+            file.name.endsWith('.html') && 
+            !file.name.includes('index-rds-2026-secure')
+        );
+
+        container.innerHTML = ""; // On vide le message de chargement
+
+        htmlFiles.forEach(file => {
+            // Formatage du nom : on enlève .html, on remplace les tirets/codes par des espaces
+            const cleanName = decodeURIComponent(file.name)
+                .replace('.html', '')
+                .replace(/-/g, ' ')
+                .replace(/_/g, ' ');
+
+            const icon = getIcon(cleanName.toLowerCase());
+
+            const cardHtml = `
+                <a href="${baseUrl}${file.name}" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                    <div class="rds-card-main">
+                        <span class="rds-card-icon">${icon}</span>
+                        <strong>${cleanName}</strong>
+                        <span>Outil de calcul Rue du Store</span>
+                    </div>
+                    <div class="rds-card-footer">Démarrer →</div>
+                </a>
+            `;
+            container.innerHTML += cardHtml;
+        });
+    } catch (error) {
+        console.error("Erreur GitHub API:", error);
+        container.innerHTML = "<p>Impossible de charger les cartes. Vérifiez la connexion.</p>";
+    }
+}
+
+// Lancement automatique
+generateCards();
+</script>
 
 <style>
     /* Masquer les éléments inutiles de l'interface WordPress */
