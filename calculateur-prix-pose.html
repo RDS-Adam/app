@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">.
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculateur Pose Expert 2026</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #f1c40f; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; font-size: 13px; color: #333; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        
+        /* GESTION SAUVEGARDES */
+        .save-load-area { display: flex; gap: 10px; background: #e3f2fd; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; align-items: center; flex-wrap: wrap; }
+        .btn-sl { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 0.9rem; }
+        .btn-save { background: var(--primary); }
+        .btn-load { background: #2980b9; }
+        .btn-del { background: var(--danger); }
+        .btn-export { background: #8e44ad; }
+        .btn-import { background: #d35400; }
+        
+        .config-area { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
+        .selection-box { border: 2px solid var(--primary); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .product-inputs { display: grid; grid-template-columns: 1.5fr 1.5fr 80px; gap: 15px; }
+        .options-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        
+        .opt-group { padding: 10px; border-radius: 6px; border: 1px solid #ddd; }
+        .opt-yellow { background: #fff9c4; border-color: #fbc02d; } 
+        .opt-blue { background: #e3f2fd; border-color: #2196f3; }   
+        .opt-green { background: #e8f5e9; border-color: #4caf50; }
+        .opt-orange { background: #fff3e0; border-color: #ff9800; }
+        
+        h4 { margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; box-sizing: border-box; font-size: 14px; }
+        
+        .check-item { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
+        .check-item input { width: auto; margin-right: 10px; margin-bottom: 0; transform: scale(1.2); }
+        
+        .btn-add { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; }
+        .btn-add-frais { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; width: 100%; height: 42px; }
+        
+        .btn-print { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; float: right; font-size: 1rem; }
+        .btn-reset { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; float: left; font-size: 1rem; }
+        .btn-details { background: #ecf0f1; border: 1px solid #bdc3c7; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-left: 10px; color: #333; }
+        .btn-details:hover { background: #d5dbdb; }
+        
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; min-width: 600px; }
+        th { background: var(--primary); color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        .row-frais-fixes { background: #f1f8e9; font-style: italic; color: #555; }
+        .details-row { background: #fdfefe; font-size: 0.85rem; color: #555; }
+        .details-row ul { margin: 5px 0; padding-left: 20px; }
+        .details-row li { margin-bottom: 3px; }
+        
+        .total-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
+        .stat { padding: 15px; border-radius: 8px; text-align: center; color: white; }
+        .stat-a { background: #7f8c8d; } .stat-v { background: #2980b9; } .stat-m { background: var(--success); }
+        .stat span { display: block; font-size: 22px; font-weight: bold; margin-top: 5px; }
+        
+        .delete-btn { color: var(--danger); cursor: pointer; border: 1px solid var(--danger); padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; text-align: center; display: inline-block; }
+
+        /* GESTION AFFICHAGE (MASQUER COLONNES) */
+        .display-toggles { background: #e3f2fd; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #90caf9; display: flex; gap: 20px; align-items: center; font-size: 0.9rem; flex-wrap: wrap; }
+        .display-toggles label { cursor: pointer; display: inline-flex; align-items: center; font-weight: bold; margin-bottom: 0; color: var(--primary); }
+        .display-toggles input { width: auto; margin: 0 8px 0 0; transform: scale(1.2); }
+        
+        body.hide-achat .col-achat, body.hide-achat .stat-a { display: none !important; }
+        body.hide-vente .col-vente, body.hide-vente .stat-v { display: none !important; }
+        body.hide-marge .col-marge, body.hide-marge .stat-m { display: none !important; }
+
+        /* STYLES DE LA CALCULATRICE */
+        .calc-number { cursor: pointer; border-radius: 3px; padding: 0 4px; user-select: none; font-weight: bold; display: inline-block; }
+        .calc-number.highlighted { background-color: #ffeb3b; color: #000; box-shadow: 0 0 0 2px #ffeb3b; }
+        .calc-number.highlighted-sub { background-color: #e74c3c; color: #fff; box-shadow: 0 0 0 2px #e74c3c; }
+        
+        .calculator-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 240px;
+            max-width: 90vw;
+            display: none;
+        }
+        .mode-btn { flex: 1; padding: 6px; border: 1px solid #ccc; background: #eee; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.85rem; }
+        .mode-btn.active-add { background: var(--success); color: white; border-color: var(--success); }
+        .mode-btn.active-sub { background: var(--danger); color: white; border-color: var(--danger); }
+
+        .calc-display { background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-family: monospace; word-wrap: break-word; min-height: 20px; }
+        .calc-result { font-size: 1.3rem; font-weight: bold; color: var(--success); margin-bottom: 10px; text-align: right; min-height: 25px; }
+        .calc-btns { display: flex; gap: 8px; }
+        .calc-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 0.9rem;}
+        .calc-btn-calc { background: var(--primary); }
+        .calc-btn-clear { background: #7f8c8d; }
+
+        /* AJUSTEMENTS POUR SMARTPHONE */
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .container { padding: 15px; }
+            .save-load-area { flex-direction: column; align-items: stretch; }
+            .config-area { grid-template-columns: 1fr; gap: 5px; }
+            .product-inputs { grid-template-columns: 1fr; gap: 5px; }
+            .options-container { grid-template-columns: 1fr; }
+            .total-box { grid-template-columns: 1fr; gap: 10px; }
+            .global-margin-grid { grid-template-columns: 1fr !important; gap: 5px !important; }
+            .btn-reset, .btn-print { width: 100%; float: none; display: block; margin-top: 10px; box-sizing: border-box; }
+            .frais-btn-container { margin-top: 10px; display: block !important; }
+            .mesures-container { display: flex; gap: 10px; flex-direction: column; }
+            .mesures-container select, .mesures-container input { width: 100%; margin-bottom: 0; }
+            .calculator-panel { bottom: 10px; right: 10px; left: 10px; max-width: auto; }
+        }
+
+        @media print {
+            .save-load-area, .config-area, .selection-box, .btn-print, .btn-reset, .col-action, .btn-details, .calculator-panel, .display-toggles { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; }
+            .total-box { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important; display: flex !important; justify-content: space-around; }
+            .stat { color: black !important; background: none !important; border: 1px solid #ccc; padding: 10px; flex: 1; margin: 0 5px; }
+            .stat span { color: black !important; }
+            th { background: #eee !important; color: black !important; border: 1px solid #ccc; }
+            td { border: 1px solid #ccc; }
+            .table-responsive { overflow-x: visible; }
+            table { min-width: 100%; }
+            .calc-number { padding: 0; }
+            .calc-number.highlighted, .calc-number.highlighted-sub { background-color: transparent; color: inherit; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Calculateur Pose 2026</h1>
+        <p style="margin: 5px 0 0 0;">Tarifs applicables au 06/03/2026</p>
+    </div>
+
+    <div class="save-load-area">
+        <strong style="color: var(--primary);">💾 Devis enregistrés :</strong>
+        <button class="btn-sl btn-save" onclick="saveDevis()">Enregistrer le devis en cours</button>
+        <div style="flex-grow: 1;"></div>
+        <select id="loadDevisSelect" style="width: auto; margin-bottom: 0; flex: 1;">
+            <option value="">-- Sélectionner un devis --</option>
+        </select>
+        <button class="btn-sl btn-load" onclick="loadDevis()">Charger</button>
+        <button class="btn-sl btn-del" onclick="deleteDevis()">Supprimer</button>
+        
+        <button class="btn-sl btn-export" onclick="exportToFile()">📥 Exporter</button>
+        <button class="btn-sl btn-import" onclick="document.getElementById('importFile').click()">📤 Importer</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importFromFile(event)">
+    </div>
+
+    <div class="config-area">
+        <div>
+            <label>📄 N° de Devis <span style="color:red">*</span></label>
+            <input type="text" id="devisNum" placeholder="Ex: DEV00" oninput="updateUI()">
+        </div>
+        <div>
+            <label>📍 Lieu d'intervention</label>
+            <select id="zone" onchange="updateUI()">
+                <option value="province">Province (Mise en place 70€ V / 50€ A)</option>
+                <option value="paris">Paris / IDF (Mise en place 120€ V / 90€ A)</option>
+            </select>
+        </div>
+        <div>
+            <label>🚚 Déplacement</label>
+            <select id="trajet" onchange="updateUI()">
+                <option value="30">Moins de 30 min (30€ V / 30€ A)</option>
+                <option value="45">Plus de 30 min (50€ V / 40€ A)</option>
+                <option value="idf">Plus de 45 min / Paris IDF (75€ V / 75€ A)</option>
+            </select>
+        </div>
+        <div>
+            <label>📏 Prise de mesures</label>
+            <div class="mesures-container" style="display: flex; gap: 5px;">
+                <select id="mesures" onchange="updateUI()" style="flex: 3;">
+                    <option value="0">Aucune</option>
+                    <option value="75">Seule (75€)</option>
+                    <option value="40">Sur place (40€)</option>
+                </select>
+                <input type="number" id="mesuresQty" value="1" min="1" style="flex: 1;" title="Nombre de stores" placeholder="Qté">
+            </div>
+        </div>
+        <div class="frais-btn-container" style="display: flex; align-items: flex-end; margin-bottom: 10px;">
+            <button class="btn-add-frais" onclick="addFrais()">+ AJOUTER FRAIS</button>
+        </div>
+    </div>
+
+    <div class="selection-box">
+        <div class="product-inputs">
+            <div>
+                <label>1. Produit</label>
+                <select id="pMain" onchange="populateSub()">
+                    <option value="">-- Sélectionner --</option>
+                    <optgroup label="STORES BANNES">
+                        <option value="banne_man">Store Banne Manuel</option>
+                        <option value="banne_elec">Store Banne Électrique / Solaire</option>
+                        <option value="banne_ult">Store Banne Ultima / Pure</option>
+                        <option value="veraclim">Véraclim</option>
+                    </optgroup>
+                    <optgroup label="TOILES DE STORE">
+                        <option value="toile_classique">Toile classique</option>
+                        <option value="toile_face_jonc">Toile (Entoilage face / Jonc magn.)</option>
+                    </optgroup>
+                    <optgroup label="VOLETS ROULANTS">
+                        <option value="vr_man">VR Manuel / Solaire</option>
+                        <option value="vr_elec">VR Élec / Solaire déporté</option>
+                        <option value="vr_trad">VR Traditionnel (dans coffre)</option>
+                    </optgroup>
+                    <optgroup label="MOUSTIQUAIRES">
+                        <option value="moust_man">Moustiquaire Manuelle/Solaire</option>
+                        <option value="moust_elec">Moustiquaire Élec/Solaire déporté</option>
+                        <option value="moust_p">Moustiquaire Porte-fenêtre</option>
+                        <option value="moust_e">Moustiquaire Easy-Clic</option>
+                    </optgroup>
+                    <optgroup label="STORES EXTÉRIEURS">
+                        <option value="proj_cord">Store Proj / Vertical Cordon</option>
+                        <option value="proj_man">Store Proj / Vertical Manivelle</option>
+                        <option value="proj_elec">Store Proj / Vertical Électrique</option>
+                        <option value="zip_bso_man">Store ZIP / BSO Manivelle</option>
+                        <option value="zip_bso_elec">Store ZIP / BSO Électrique</option>
+                    </optgroup>
+                    <optgroup label="STORES INTÉRIEURS">
+                        <option value="ven_alu">Vénitien Aluminium</option>
+                        <option value="ven_bois">Vénitien Bois</option>
+                        <option value="enr_easy">Enrouleur Easy</option>
+                        <option value="enr_sans">Enrouleur sans coffre ni coulisse</option>
+                        <option value="plis">Plissé / Bateau</option>
+                        <option value="novis">Fitbox et Plissé No'vis</option>
+                        <option value="cal_chain">Californien AVEC chaînette</option>
+                        <option value="cal_sans">Californien SANS chaînette</option>
+                        <option value="japonais">Panneaux Japonais</option>
+                        <option value="velum">Vélum (Plissé, Oasis, Evada, Véga)</option>
+                    </optgroup>
+                    <optgroup label="MOTORISATIONS">
+                        <option value="moto_vr_bois">Moteur VR (Coffre bois)</option>
+                        <option value="moto_vr_pvc">Moteur VR (PVC/Tunnel)</option>
+                        <option value="moto_vr_rdc">Moteur VR (Réno RDC)</option>
+                        <option value="moto_banne_c">Moteur Banne (Coffre)</option>
+                        <option value="moto_banne_s">Moteur Banne (Sans coffre)</option>
+                    </optgroup>
+                    <optgroup label="RIDEAUX & TRINGLES">
+                        <option value="tring_seule">Tringles seules</option>
+                        <option value="rid_oeil">Rideaux seuls (Oeillets)</option>
+                        <option value="rid_ruf">Rideaux seuls (Ruflettes/Waves)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div>
+                <label>2. Dimensions / Type</label>
+                <select id="pSub"></select>
+            </div>
+            <div>
+                <label>3. Qté</label>
+                <input type="number" id="pQty" value="1" min="1">
+            </div>
+        </div>
+
+        <div class="options-container">
+            <div class="opt-group opt-yellow">
+                <h4>⚡ Électricité & Pose Spéciale</h4>
+                <div class="check-grid">
+                    <div class="check-item"><input type="checkbox" id="o_elec"> Raccordement boîte dérivation (40€V/20€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_perc"> Perçage mur/tuiles/passage tube > 1m (130€V/100€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_vr_perc"> Perçage mur VR (boîte dérivation int. attente) (30€V/20€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_corde"> Montée à la corde (100€V/60€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_escal"> Montée étage escalier store banne (>4e V / >3e A) (60€V/20€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur (70€V/50€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50 (30€V/10€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Location) (250€V/150€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_echa_pose"> Échafaudage Pose (30€V/20€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_depose"> Dépose & Mise en déchetterie</div>
+                </div>
+            </div>
+            <div class="opt-group opt-blue">
+                <h4>🏠 Options Intérieurs</h4>
+                <div class="check-item"><input type="checkbox" id="o_guid"> Guidage câbles / coulisses (20€V/15€A)</div>
+                <div class="check-item"><input type="checkbox" id="o_equer"> Pose sur équerres réglables (15€V/10€A)</div>
+                <div class="check-item"><input type="checkbox" id="o_faux"> Support faux-plafond Californien (-10€V/-10€A)</div>
+            </div>
+            <div class="opt-group opt-green">
+                <h4>☀️ Options Extérieurs</h4>
+                <div class="check-item"><input type="checkbox" id="o_renvoi"> Renvoi intérieur manivelle/cordon (20€A/30€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_pers"> Supports persiennes PROJ (20€A/50€V)</div>
+            </div>
+            <div class="opt-group opt-orange">
+                <h4>🟧 Options Bannes & VR</h4>
+                <div class="check-item"><input type="checkbox" id="o_modul"> Modul'ombre / Leds Ultima (40€A/60€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_manchon"> Manchonnage store banne (150€A/250€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_ite"> Pose sur ITE (0€A/300€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_vr_bois"> VR Tradi coffre bois (20€A/30€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_vr_renvoi"> Renvoi int. sangle/manivelle (20€A/30€V)</div>
+            </div>
+        </div>
+        <button class="btn-add" onclick="addItem()">AJOUTER AU DEVIS</button>
+    </div>
+
+    <div class="display-toggles">
+        <strong style="margin-right: 10px;">👁️ Affichage :</strong>
+        <label><input type="checkbox" checked onchange="document.body.classList.toggle('hide-achat', !this.checked)"> Achat HT</label>
+        <label><input type="checkbox" checked onchange="document.body.classList.toggle('hide-vente', !this.checked)"> Vente HT</label>
+        <label><input type="checkbox" checked onchange="document.body.classList.toggle('hide-marge', !this.checked)"> Marge</label>
+    </div>
+
+    <h3 id="displayDevisNum" style="display:none; margin-bottom:10px;">Devis N° : <span id="numVal"></span></h3>
+
+    <div class="table-responsive">
+        <table id="devis-table">
+            <thead>
+                <tr>
+                    <th>Désignation</th>
+                    <th style="text-align:center">Qté</th>
+                    <th class="col-achat">Achat HT</th>
+                    <th class="col-vente">Vente HT</th>
+                    <th class="col-marge">Marge</th>
+                    <th class="col-action">Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-body"></tbody>
+        </table>
+    </div>
+
+    <div class="total-box">
+        <div class="stat stat-a">ACHAT TOTAL HT<span id="res-a">0.00 €</span></div>
+        <div class="stat stat-v">VENTE TOTALE HT<span id="res-v">0.00 €</span></div>
+        <div class="stat stat-m">MARGE NETTE HT<span id="res-m">0.00 €</span></div>
+    </div>
+
+    <div class="global-margin-box" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #90caf9;">
+        <h4 style="margin-top: 0; border-bottom: 1px solid #90caf9; padding-bottom: 5px; color: var(--primary);">📊 Calcul de la Marge Globale (Pose + Produit)</h4>
+        <div class="global-margin-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: center;">
+            <div class="col-achat">
+                <label>Prix d'Achat Produit HT</label>
+                <input type="number" id="globalAchatProd" placeholder="Ex: 1500" oninput="updateUI()" style="margin-bottom: 0;">
+            </div>
+            <div class="col-vente">
+                <label>Prix de Vente Produit HT</label>
+                <input type="number" id="globalVenteProd" placeholder="Ex: 3000" oninput="updateUI()" style="margin-bottom: 0;">
+            </div>
+            <div class="col-marge" style="text-align: right; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+                <strong style="font-size: 0.9rem; color: #555;">MARGE GLOBALE</strong><br>
+                <span id="res-global-marge" style="font-size: 1.6rem; font-weight: bold; color: var(--success);">0.00 €</span>
+                <span id="res-global-pourcent" style="font-size: 1rem; color: #7f8c8d; margin-left: 5px;">(0.00%)</span>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button class="btn-reset" onclick="resetDevis()">NOUVEAU DEVIS (EFFACER)</button>
+        <button class="btn-print" onclick="window.print()">IMPRIMER / PDF</button>
+        <div style="clear:both;"></div>
+    </div>
+</div>
+
+<div id="calculatorPanel" class="calculator-panel">
+    <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px; margin-bottom:10px;">🧮 Calculatrice</h4>
+    
+    <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <button id="btnModeAdd" class="mode-btn active-add" onclick="setCalcMode('add')">➕ Ajouter</button>
+        <button id="btnModeSub" class="mode-btn" onclick="setCalcMode('sub')">➖ Soustraire</button>
+    </div>
+
+    <div id="calcDisplay" class="calc-display">0.00</div>
+    <div id="calcResult" class="calc-result"></div>
+    <div class="calc-btns">
+        <button class="calc-btn calc-btn-clear" onclick="clearCalc()">Effacer</button>
+        <button class="calc-btn calc-btn-calc" onclick="runCalc()">Calculer</button>
+    </div>
+</div>
+
+<script>
+const TARIFS = {
+    banne_man: { "Avancée < 3m": [170, 230], "Avancée 3m50 - 4m": [260, 360] },
+    banne_elec: { "Avancée < 3m": [220, 270], "Avancée 3m50 - 4m": [310, 400] },
+    banne_ult: { "Avancée < 3m": [310, 410], "Avancée 3m50 - 4m": [420, 580] },
+    veraclim: { "1 module (Base)": [500, 700], "2 modules": [800, 1100] },
+    
+    toile_classique: { "Largeur < 1m40": [50, 70], "Largeur < 2m": [70, 100], "Largeur < 4m": [150, 200], "Largeur < 6m": [200, 260], "Lg 6-8m / Double pente": [250, 400], "Largeur > 8m": [400, 600] },
+    toile_face_jonc: { "Largeur < 1m40": [40, 50], "Largeur < 2m": [50, 70], "Largeur < 4m": [100, 150], "Largeur < 6m": [150, 210], "Lg 6-8m / Double pente": [250, 400], "Largeur > 8m": [400, 600] },
+    
+    vr_man: { "Largeur < 1m40": [60, 80], "Largeur > 1m40": [80, 110], "Largeur > 2m50": [100, 140] },
+    vr_elec: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
+    vr_trad: { "Largeur < 1m40": [100, 140], "Largeur > 1m40": [120, 170], "Largeur > 2m50": [140, 200] },
+    
+    moust_man: { "Largeur < 1m40": [60, 80], "Largeur > 1m40": [80, 110], "Largeur > 2m50": [100, 140] },
+    moust_elec: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
+    moust_p: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
+    moust_e: { "Largeur < 1m40": [40, 70], "Largeur > 1m40": [60, 100], "Largeur > 2m50": [80, 130] },
+    
+    proj_cord: { "Largeur < 1m40": [60, 90], "Largeur < 2m50": [90, 140] },
+    proj_man: { "Largeur < 1m40": [50, 70], "Largeur < 2m50": [80, 120], "Largeur < 3m50": [120, 180], "Largeur > 3m50": [150, 220] },
+    proj_elec: { "Largeur < 1m40": [70, 100], "Largeur < 2m50": [100, 150], "Largeur < 3m50": [140, 210], "Largeur > 3m50": [170, 250] },
+    
+    zip_bso_man: { "Largeur < 1m40": [120, 170], "Largeur < 2m50": [150, 220], "Largeur < 3m50": [190, 280], "Largeur > 3m50": [220, 320] },
+    zip_bso_elec: { "Largeur < 1m40": [140, 200], "Largeur < 2m50": [170, 250], "Largeur < 3m50": [210, 310], "Largeur > 3m50": [240, 350] },
+    
+    cal_chain: { "Lg < 1m50": [30, 40], "Lg > 1m50": [50, 70], "Lg > 2m50": [80, 120], "Lg > 3m50": [100, 150] },
+    cal_sans: { "Lg < 1m50": [30, 40], "Lg > 1m50": [40, 60], "Lg > 2m50": [50, 80], "Lg > 3m50": [70, 120] },
+    novis: { "Forfait Lg < 1m50": [30, 40] },
+    velum: { "Largeur < 1m50": [60, 100], "Largeur > 1m50": [120, 200], "Largeur > 2m50": [200, 300], "Largeur > 3m50": [300, 400] },
+    moto_vr_bois: { "Forfait unique": [180, 250] },
+    moto_vr_pvc: { "Forfait unique": [150, 250] },
+    moto_vr_rdc: { "Forfait unique": [150, 250] },
+    moto_banne_c: { "Forfait unique": [290, 450] },
+    moto_banne_s: { "Forfait unique": [180, 250] },
+    tring_seule: { "Lg < 2m": [30, 40], "Lg < 4m": [50, 60] },
+    rid_oeil: { "Lg < 2m": [20, 30], "Lg < 4m": [30, 40] },
+    rid_ruf: { "Lg < 2m": [30, 40], "Lg < 4m": [50, 60] },
+    ven_alu: { "Lg < 1m50": [20, 30], "Lg > 1m50": [30, 50], "Lg > 2m50": [80, 120], "Lg > 3m50": [140, 200] },
+    ven_bois: { "Lg < 1m50": [30, 50], "Lg > 1m50": [50, 80], "Lg > 2m50": [100, 150] },
+    enr_easy: { "Lg < 1m50": [20, 30], "Lg > 1m50": [30, 50], "Lg > 2m50": [80, 120], "Lg > 3m50": [140, 200] },
+    enr_sans: { "Lg < 1m50": [30, 40], "Lg > 1m50": [50, 70], "Lg > 2m50": [80, 120], "Lg > 3m50": [140, 200] },
+    plis: { "Lg < 1m50": [20, 30], "Lg > 1m50": [30, 50], "Lg > 2m50": [80, 120], "Lg > 3m50": [140, 200] },
+    japonais: { "Lg < 1m50": [20, 40], "Lg > 1m50": [30, 60], "Lg > 2m50": [50, 90], "Lg > 3m50": [60, 110] }
+};
+
+let panier = [];
+let calcValues = [];
+let calcMode = 'add'; // 'add' ou 'sub'
+
+const STORAGE_KEY = 'pose_expert_saved_devis';
+
+// Initialisation au chargement de la page
+window.onload = function() {
+    refreshDevisList();
+};
+
+/* ===== GESTION DES SAUVEGARDES ===== */
+function getSavedDevis() {
+    let saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+}
+
+function refreshDevisList() {
+    let select = document.getElementById('loadDevisSelect');
+    let saved = getSavedDevis();
+    select.innerHTML = '<option value="">-- Sélectionner un devis --</option>';
+    for (let devisNum in saved) {
+        let opt = document.createElement('option');
+        opt.value = devisNum;
+        opt.text = devisNum;
+        select.appendChild(opt);
+    }
+}
+
+function saveDevis() {
+    let devisNum = document.getElementById('devisNum').value.trim();
+    if (!devisNum) {
+        alert("⚠️ Veuillez saisir un N° de Devis avant d'enregistrer.");
+        return;
+    }
+
+    let currentState = {
+        panier: panier,
+        zone: document.getElementById('zone').value,
+        trajet: document.getElementById('trajet').value,
+        mesures: document.getElementById('mesures').value,
+        mesuresQty: document.getElementById('mesuresQty').value,
+        achatProd: document.getElementById('globalAchatProd').value,
+        venteProd: document.getElementById('globalVenteProd').value
+    };
+
+    let saved = getSavedDevis();
+    saved[devisNum] = currentState;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    
+    refreshDevisList();
+    document.getElementById('loadDevisSelect').value = devisNum;
+    alert(`✅ Le devis "${devisNum}" a été enregistré avec succès !`);
+}
+
+function loadDevis() {
+    let select = document.getElementById('loadDevisSelect');
+    let devisNum = select.value;
+    if (!devisNum) {
+        alert("⚠️ Veuillez sélectionner un devis à charger dans la liste.");
+        return;
+    }
+
+    let saved = getSavedDevis();
+    let data = saved[devisNum];
+    if (data) {
+        panier = data.panier || [];
+        document.getElementById('devisNum').value = devisNum;
+        document.getElementById('zone').value = data.zone || 'province';
+        document.getElementById('trajet').value = data.trajet || '30';
+        document.getElementById('mesures').value = data.mesures || '0';
+        document.getElementById('mesuresQty').value = data.mesuresQty || '1';
+        document.getElementById('globalAchatProd').value = data.achatProd || '';
+        document.getElementById('globalVenteProd').value = data.venteProd || '';
+        
+        clearCalc();
+        updateUI();
+    }
+}
+
+function deleteDevis() {
+    let select = document.getElementById('loadDevisSelect');
+    let devisNum = select.value;
+    if (!devisNum) {
+        alert("⚠️ Veuillez sélectionner un devis à supprimer dans la liste.");
+        return;
+    }
+
+    if(confirm(`Êtes-vous sûr de vouloir supprimer définitivement le devis "${devisNum}" ?`)) {
+        let saved = getSavedDevis();
+        delete saved[devisNum];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        refreshDevisList();
+    }
+}
+
+/* ===== EXPORT / IMPORT ===== */
+function exportToFile() {
+    let saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved || saved === '{}') {
+        alert("⚠️ Aucun devis enregistré à exporter.");
+        return;
+    }
+    let blob = new Blob([saved], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = "sauvegarde_devis_pose_expert.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importFromFile(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let importedData = JSON.parse(e.target.result);
+            let currentSaved = getSavedDevis();
+            
+            // Fusion des données
+            Object.assign(currentSaved, importedData);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSaved));
+            
+            refreshDevisList();
+            alert("✅ Fichier importé avec succès ! Les devis ont été ajoutés à votre liste.");
+        } catch (error) {
+            alert("❌ Erreur lors de l'importation. Le fichier n'est pas un JSON valide.");
+        }
+        // Réinitialiser l'input
+        event.target.value = "";
+    };
+    reader.readAsText(file);
+}
+
+/* ===== CALCULATRICE ===== */
+function setCalcMode(mode) {
+    calcMode = mode;
+    if(mode === 'add') {
+        document.getElementById('btnModeAdd').classList.add('active-add');
+        document.getElementById('btnModeSub').classList.remove('active-sub');
+    } else {
+        document.getElementById('btnModeAdd').classList.remove('active-add');
+        document.getElementById('btnModeSub').classList.add('active-sub');
+    }
+}
+
+document.addEventListener('dblclick', function(e) {
+    if(e.target && e.target.classList.contains('calc-number')) {
+        window.getSelection().removeAllRanges(); 
+        
+        let rawVal = parseFloat(e.target.getAttribute('data-val'));
+        let val = (calcMode === 'add') ? rawVal : -rawVal;
+        
+        calcValues.push(val);
+        
+        if (calcMode === 'add') {
+            e.target.classList.add('highlighted');
+        } else {
+            e.target.classList.add('highlighted-sub');
+        }
+        
+        document.getElementById('calculatorPanel').style.display = 'block';
+        
+        let formula = calcValues.map((v, i) => {
+            if (i === 0) return v.toFixed(2);
+            return v < 0 ? `- ${Math.abs(v).toFixed(2)}` : `+ ${v.toFixed(2)}`;
+        }).join(' ');
+        
+        document.getElementById('calcDisplay').innerText = formula;
+        document.getElementById('calcResult').innerText = ""; 
+    }
+});
+
+function runCalc() {
+    if(calcValues.length === 0) return;
+    let sum = calcValues.reduce((a, b) => a + b, 0);
+    document.getElementById('calcResult').innerText = "= " + sum.toFixed(2) + " €";
+}
+
+function clearCalc() {
+    calcValues = [];
+    document.getElementById('calcDisplay').innerText = "0.00";
+    document.getElementById('calcResult').innerText = "";
+    document.getElementById('calculatorPanel').style.display = 'none';
+    document.querySelectorAll('.calc-number.highlighted').forEach(el => el.classList.remove('highlighted'));
+    document.querySelectorAll('.calc-number.highlighted-sub').forEach(el => el.classList.remove('highlighted-sub'));
+    setCalcMode('add');
+}
+
+/* ===== LOGIQUE PRINCIPALE DU DEVIS ===== */
+function populateSub() {
+    const main = document.getElementById('pMain').value;
+    const sub = document.getElementById('pSub');
+    sub.innerHTML = "";
+    if (!main) return;
+    for (let dim in TARIFS[main]) {
+        let opt = document.createElement('option');
+        opt.value = dim; opt.text = dim;
+        sub.appendChild(opt);
+    }
+}
+
+function resetDevis() {
+    if(confirm("Attention, cela va effacer tout le devis en cours. Confirmer ?")) {
+        panier = [];
+        clearCalc();
+        document.getElementById('devisNum').value = "";
+        document.getElementById('pQty').value = 1;
+        document.getElementById('mesuresQty').value = 1;
+        document.getElementById('mesures').value = "0";
+        document.getElementById('trajet').value = "30";
+        document.getElementById('zone').value = "province";
+        document.getElementById('globalAchatProd').value = "";
+        document.getElementById('globalVenteProd').value = "";
+        document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
+        updateUI();
+    }
+}
+
+function addFrais() {
+    const isParis = document.getElementById('zone').value === 'paris';
+    const tra = document.getElementById('trajet').value;
+    const mVal = parseFloat(document.getElementById('mesures').value);
+    const mQty = parseInt(document.getElementById('mesuresQty').value) || 1;
+
+    let setupA = isParis ? 90 : 50; 
+    let setupV = isParis ? 120 : 70;
+    panier.push({ isFrais: true, name: `Mise en place (${isParis ? 'Paris/IDF' : 'Province'})`, qty: 1, a: setupA, v: setupV, options: [] });
+
+    let depA = (tra==='30') ? 30 : (tra==='45') ? 40 : 75;
+    let depV = (tra==='30') ? 30 : (tra==='45') ? 50 : 75;
+    panier.push({ isFrais: true, name: 'Déplacement', qty: 1, a: depA, v: depV, options: [] });
+
+    if (mVal > 0) {
+        let extraCost = 0;
+        if (mQty > 5) {
+            extraCost = (mQty - 5) * 5;
+        }
+        let finalMVal = mVal + extraCost;
+        let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures';
+        panier.push({ isFrais: true, name: nameLabel, qty: 1, a: finalMVal, v: finalMVal, options: [] });
+    }
+    updateUI();
+}
+
+function addItem() {
+    const mSelect = document.getElementById('pMain');
+    const sub = document.getElementById('pSub').value;
+    const qty = parseInt(document.getElementById('pQty').value);
+    if (!mSelect.value || !sub) return;
+
+    let baseA = TARIFS[mSelect.value][sub][0];
+    let baseV = TARIFS[mSelect.value][sub][1];
+    let baseName = mSelect.options[mSelect.selectedIndex].text + " (" + sub + ")";
+
+    let optList = [];
+    let totA = baseA;
+    let totV = baseV;
+
+    const addOpt = (id, nom, a, v) => {
+        if(document.getElementById(id).checked) {
+            optList.push({ name: nom, a: a, v: v });
+            totA += a; totV += v;
+        }
+    };
+
+    addOpt('o_elec', "Électricité", 20, 40);
+    addOpt('o_perc', "Perçage Mur/Tube", 100, 130);
+    addOpt('o_vr_perc', "Perçage VR", 20, 30);
+    addOpt('o_corde', "Montée à la corde", 60, 100);
+    addOpt('o_escal', "Montée Escalier", 20, 60);
+    addOpt('o_syam', "SYAM / Étage Int.", 50, 70);
+    addOpt('o_echelle', "Pose Échelle > 3m50", 10, 30);
+    addOpt('o_echa_inst', "Inst. Échafaudage", 150, 250);
+    addOpt('o_echa_pose', "Pose Échafaudage", 20, 30);
+    addOpt('o_guid', "Guidage", 15, 20);
+    addOpt('o_equer', "Équerres", 10, 15);
+    addOpt('o_faux', "Faux Plafond", -10, -10);
+    addOpt('o_renvoi', "Renvoi Intérieur", 20, 30);
+    addOpt('o_pers', "Supports Persiennes", 20, 50);
+
+    addOpt('o_modul', "Modul'ombre/Leds", 40, 60);
+    addOpt('o_manchon', "Manchonnage Banne", 150, 250);
+    addOpt('o_ite', "Pose sur ITE", 0, 300);
+    addOpt('o_vr_bois', "VR Tradi coffre bois", 20, 30);
+    addOpt('o_vr_renvoi', "Renvoi int. sangle/manivelle", 20, 30);
+
+    if(document.getElementById('o_depose').checked) {
+        let depA = 10, depV = 15;
+        if (mSelect.value.startsWith('banne')) { depA = 60; depV = 90; }
+        else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso')) { depA = 30; depV = 40; }
+        optList.push({ name: "Dépose", a: depA, v: depV });
+        totA += depA; totV += depV;
+    }
+    
+    panier.push({ 
+        isFrais: false,
+        mainCat: mSelect.value, 
+        name: baseName, 
+        baseA: baseA,
+        baseV: baseV,
+        options: optList,
+        qty: qty, 
+        unitA: totA, 
+        unitV: totV  
+    });
+
+    updateUI();
+    document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
+}
+
+function toggleDetails(index) {
+    const row = document.getElementById(`details-${index}`);
+    if (row) {
+        row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    }
+}
+
+function updateUI() {
+    const body = document.getElementById('cart-body');
+    const numInput = document.getElementById('devisNum').value;
+    const displayNum = document.getElementById('displayDevisNum');
+    body.innerHTML = "";
+    
+    if(numInput) {
+        displayNum.style.display = "block";
+        document.getElementById('numVal').innerText = numInput;
+    } else {
+        displayNum.style.display = "none";
+    }
+
+    let sumA = 0;
+    let sumV = 0;
+    let baseSumA = 0;
+    let baseSumV = 0;
+    let depA = 0;
+    let depV = 0;
+
+    const isParis = document.getElementById('zone').value === 'paris';
+
+    let totalProductQty = panier.reduce((acc, item) => item.isFrais ? acc : acc + item.qty, 0);
+    let applyGlobalDiscount = totalProductQty >= 6;
+    
+    let totalBannesQty = panier.reduce((acc, item) => (!item.isFrais && item.mainCat && item.mainCat.startsWith('banne')) ? acc + item.qty : acc, 0);
+    let applyBanneDiscount = totalBannesQty >= 2;
+
+    panier.forEach((item, idx) => {
+        let trClass = item.isFrais ? "row-frais-fixes" : "";
+        let btnHtml = (!item.isFrais) ? 
+            `<button class="btn-details" onclick="toggleDetails(${idx})"> Détails</button>` : '';
+        
+        let currentA = item.a; 
+        let currentV = item.v; 
+        let discountBadge = "";
+
+        if (!item.isFrais) {
+            let uA = item.unitA;
+            let uV = item.unitV;
+
+            if (isParis) {
+                uA += 10;
+                uV += 30;
+            }
+
+            if (item.mainCat && item.mainCat.startsWith('banne') && applyBanneDiscount) {
+                uA -= 30;
+                uV -= 30;
+                discountBadge += `<span style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-30€/u Qté Banne)</span> `;
+            }
+
+            currentA = uA * item.qty;
+            currentV = uV * item.qty;
+
+            let isExcludedBase = (item.baseA === 20 && item.baseV === 30);
+            if (applyGlobalDiscount && !isExcludedBase) {
+                currentA = currentA * 0.85;
+                currentV = currentV * 0.90;
+                discountBadge += `<span style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-15%A / -10%V Globale)</span>`;
+            }
+        } else {
+            currentA = item.a;
+            currentV = item.v;
+        }
+
+        if (item.name === 'Déplacement') {
+            depA += currentA;
+            depV += currentV;
+        } else {
+            baseSumA += currentA;
+            baseSumV += currentV;
+        }
+
+        body.innerHTML += `<tr class="${trClass}">
+            <td><strong>${item.name}</strong> ${discountBadge} ${btnHtml}</td>
+            <td style="text-align:center">${item.qty}</td>
+            <td class="col-achat"><span class="calc-number" data-val="${currentA}">${currentA.toFixed(2)}</span>€</td>
+            <td class="col-vente"><span class="calc-number" data-val="${currentV}">${currentV.toFixed(2)}</span>€</td>
+            <td class="col-marge" style="color:green; font-weight:bold"><span class="calc-number" data-val="${currentV - currentA}">${(currentV - currentA).toFixed(2)}</span>€</td>
+            <td class="col-action"><span class="delete-btn" onclick="panier.splice(${idx},1);updateUI()">X</span></td>
+        </tr>`;
+
+        if (!item.isFrais) {
+            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;">
+                <td colspan="6">
+                    <ul>
+                        <li><em>Base unitaire : Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€ / Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</em></li>`;
+            
+            if (item.options) {
+                item.options.forEach(opt => {
+                    let signA = opt.a > 0 ? '+' : '';
+                    let signV = opt.v > 0 ? '+' : '';
+                    detailsHtml += `<li><em>Option ${opt.name} : Achat ${signA}<span class="calc-number" data-val="${opt.a}">${Math.abs(opt.a).toFixed(2)}</span>€ / Vente ${signV}<span class="calc-number" data-val="${opt.v}">${Math.abs(opt.v).toFixed(2)}</span>€</em></li>`;
+                });
+            }
+
+            if (isParis) {
+                detailsHtml += `<li><em>Supplément auto Paris/IDF : Achat +<span class="calc-number" data-val="10">10.00</span>€ / Vente +<span class="calc-number" data-val="30">30.00</span>€</em></li>`;
+            }
+            
+            detailsHtml += `</ul></td></tr>`;
+            body.innerHTML += detailsHtml;
+        }
+    });
+
+    if (panier.length > 0) {
+        if (isParis) { 
+            let minAdjA = 0;
+            let minAdjV = 0;
+
+            if (baseSumA > 0 && baseSumA < 300) minAdjA = 300 - baseSumA;
+            if (baseSumV > 0 && baseSumV < 400) minAdjV = 400 - baseSumV;
+
+            if (minAdjA > 0 || minAdjV > 0) {
+                body.innerHTML += `<tr class="row-frais-fixes" style="color: #e67e22; background-color: #fdf2e9;">
+                    <td><strong>⚠️ Ajustement Minimum Facturation Paris/IDF</strong></td>
+                    <td style="text-align:center">-</td>
+                    <td class="col-achat">+<span class="calc-number" data-val="${minAdjA}">${minAdjA.toFixed(2)}</span>€</td>
+                    <td class="col-vente">+<span class="calc-number" data-val="${minAdjV}">${minAdjV.toFixed(2)}</span>€</td>
+                    <td class="col-marge" style="color:green; font-weight:bold"><span class="calc-number" data-val="${minAdjV - minAdjA}">${(minAdjV - minAdjA).toFixed(2)}</span>€</td>
+                    <td class="col-action"></td>
+                </tr>`;
+            }
+
+            sumA = baseSumA + minAdjA + depA;
+            sumV = baseSumV + minAdjV + depV;
+        } else {
+            sumA = baseSumA + depA;
+            sumV = baseSumV + depV;
+        }
+    }
+
+    document.getElementById('res-a').innerHTML = `<span class="calc-number" data-val="${sumA}">${sumA.toFixed(2)}</span> €`;
+    document.getElementById('res-v').innerHTML = `<span class="calc-number" data-val="${sumV}">${sumV.toFixed(2)}</span> €`;
+    document.getElementById('res-m').innerHTML = `<span class="calc-number" data-val="${sumV - sumA}">${(sumV - sumA).toFixed(2)}</span> €`;
+
+    // CALCUL MARGE GLOBALE
+    let valAchatProd = parseFloat(document.getElementById('globalAchatProd').value) || 0;
+    let valVenteProd = parseFloat(document.getElementById('globalVenteProd').value) || 0;
+    
+    let totalGlobalAchat = sumA + valAchatProd;
+    let totalGlobalVente = sumV + valVenteProd;
+    let margeGlobale = totalGlobalVente - totalGlobalAchat;
+    let pourcentage = totalGlobalVente > 0 ? ((margeGlobale / totalGlobalVente) * 100).toFixed(2) : "0.00";
+
+    document.getElementById('res-global-marge').innerText = margeGlobale.toFixed(2) + " €";
+    document.getElementById('res-global-pourcent').innerText = "(" + pourcentage + "%)";
+}
+</script>
+</body>
+</html>
