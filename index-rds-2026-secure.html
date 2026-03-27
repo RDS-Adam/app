@@ -13,9 +13,9 @@
 <script>
 async function generateCards() {
     const container = document.getElementById('dynamic-cards-container');
-    const baseUrl = "https://rds-adam.github.io/app/";
+    // Nouvelle URL de base pour pointer vers le blog
+    const blogBaseUrl = "https://www.ruedustore.fr/blog/";
     
-    // Configuration des icônes par défaut ou selon mots-clés
     const getIcon = (name) => {
         if (name.includes('tourne')) return '🚚';
         if (name.includes('pix') || name.includes('cote')) return '📐';
@@ -23,33 +23,36 @@ async function generateCards() {
         if (name.includes('panachage')) return '🎨';
         if (name.includes('temperature') || name.includes('thermique')) return '🌡️';
         if (name.includes('enroulement')) return '🔄';
-        return '📄'; // Icône par défaut
+        if (name.includes('trapeze')) return '📐';
+        return '📄';
     };
 
     try {
-        // Interroge l'API GitHub pour lister les fichiers
         const response = await fetch('https://api.github.com/repos/RDS-Adam/app/contents/');
         const files = await response.json();
 
-        // On filtre : fichiers HTML uniquement, et on ignore l'index lui-même et robots.txt
         const htmlFiles = files.filter(file => 
             file.name.endsWith('.html') && 
             !file.name.includes('index-rds-2026-secure')
         );
 
-        container.innerHTML = ""; // On vide le message de chargement
+        container.innerHTML = "";
 
         htmlFiles.forEach(file => {
-            // Formatage du nom : on enlève .html, on remplace les tirets/codes par des espaces
+            // Nom propre pour l'affichage
             const cleanName = decodeURIComponent(file.name)
                 .replace('.html', '')
                 .replace(/-/g, ' ')
                 .replace(/_/g, ' ');
 
+            // Création du slug pour l'URL (on enlève .html pour WordPress)
+            const urlSlug = file.name.replace('.html', '');
+            const finalUrl = `${blogBaseUrl}${urlSlug}`;
+
             const icon = getIcon(cleanName.toLowerCase());
 
             const cardHtml = `
-                <a href="${baseUrl}${file.name}" class="rds-card-item" target="_blank" rel="noopener noreferrer">
+                <a href="${finalUrl}" class="rds-card-item" target="_blank" rel="noopener noreferrer">
                     <div class="rds-card-main">
                         <span class="rds-card-icon">${icon}</span>
                         <strong>${cleanName}</strong>
@@ -62,152 +65,42 @@ async function generateCards() {
         });
     } catch (error) {
         console.error("Erreur GitHub API:", error);
-        container.innerHTML = "<p>Impossible de charger les cartes. Vérifiez la connexion.</p>";
+        container.innerHTML = "<p>Impossible de charger les outils. Vérifiez la connexion.</p>";
     }
 }
 
-// Lancement automatique
 generateCards();
 </script>
 
 <style>
-    /* Masquer les éléments inutiles de l'interface WordPress */
-    .site-top-container, .header-area-title, .site-logo-outer {
-        display: none;
-    }
-
-    /* 1. NEUTRALISATION DES PARENTS POUR LE PLEIN ÉCRAN */
-    article, .entry-content, .post-content, .site-main, .content-area, 
-    .article-wrapper-outer, .container, .clearfix, .has-sidebar, aside {
-        width: 100% !important;
-        max-width: 100% !important;
-        float: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    /* Styles identiques à votre version précédente */
+    .site-top-container, .header-area-title, .site-logo-outer { display: none; }
+    article, .entry-content, .post-content, .site-main, .content-area, .article-wrapper-outer, .container, .clearfix, .has-sidebar, aside {
+        width: 100% !important; max-width: 100% !important; float: none !important; margin: 0 !important; padding: 0 !important;
     }
     .sidebar, .sidebar-clearfix { display: none !important; }
 
-    /* 2. LE BREAK-OUT (100% LARGEUR FENÊTRE) */
     .rds-expert-force-fullwidth {
-        width: 100vw !important;
-        position: relative !important;
-        left: 50% !important;
-        right: 50% !important;
-        margin-left: -50vw !important;
-        margin-right: -50vw !important;
-        background: #fdfdfe;
-        padding: 60px 0;
-        box-sizing: border-box;
-        overflow: hidden;
+        width: 100vw !important; position: relative !important; left: 50% !important; right: 50% !important;
+        margin-left: -50vw !important; margin-right: -50vw !important; background: #fdfdfe; padding: 60px 0;
+        box-sizing: border-box; overflow: hidden;
     }
 
-    /* 3. CONTENEUR CENTRALISÉ */
-    .rds-cards-content-centered {
-        max-width: 1300px;
-        margin: 0 auto;
-        padding: 0 30px;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
+    .rds-cards-content-centered { max-width: 1300px; margin: 0 auto; padding: 0 30px; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .rds-expert-header { text-align: center; margin-bottom: 50px; }
+    .rds-expert-header h2 { margin: 0; color: #33757e; font-size: 2rem; font-weight: 800; text-transform: uppercase; display: inline-block; border-bottom: 4px solid #f2711c; padding-bottom: 10px; }
+    .rds-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+    .rds-card-item { display: flex; flex-direction: column; background: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; text-decoration: none; transition: all 0.3s ease; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: 100%; }
+    .rds-card-item:hover { transform: translateY(-10px); box-shadow: 0 25px 50px -12px rgba(51, 117, 126, 0.15); border-color: #33757e; }
+    .rds-card-main { padding: 30px; flex-grow: 1; text-align: center; }
+    .rds-card-icon { font-size: 48px; margin: 0 auto 20px; background: #f1f5f9; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .rds-card-main strong { display: block; color: #1e293b; font-size: 1.3rem; margin-bottom: 12px; }
+    .rds-card-main span { font-size: 0.9rem; color: #64748b; line-height: 1.4; }
+    .rds-card-footer { padding: 18px; background: #f8fafc; border-top: 1px solid #e2e8f0; color: #f2711c; font-weight: 700; text-align: center; transition: 0.3s; }
+    .rds-card-item:hover .rds-card-footer { background: #f2711c; color: white; }
 
-    .rds-expert-header {
-        text-align: center;
-        margin-bottom: 50px;
-    }
-
-    .rds-expert-header h2 {
-        margin: 0;
-        color: #33757e;
-        font-size: 2rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        display: inline-block;
-        border-bottom: 4px solid #f2711c;
-        padding-bottom: 10px;
-    }
-
-    /* 4. LA GRILLE RESPONSIVE */
-    .rds-cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 30px;
-    }
-
-    /* 5. DESIGN DES CARTES */
-    .rds-card-item {
-        display: flex;
-        flex-direction: column;
-        background: #ffffff;
-        border-radius: 20px;
-        border: 1px solid #e2e8f0;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        height: 100%;
-    }
-
-    .rds-card-item:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 25px 50px -12px rgba(51, 117, 126, 0.15);
-        border-color: #33757e;
-    }
-
-    .rds-card-main {
-        padding: 30px;
-        flex-grow: 1;
-        text-align: center;
-    }
-
-    .rds-card-icon {
-        font-size: 48px;
-        margin: 0 auto 20px;
-        background: #f1f5f9;
-        width: 90px;
-        height: 90px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    .rds-card-main strong {
-        display: block;
-        color: #1e293b;
-        font-size: 1.3rem;
-        margin-bottom: 12px;
-    }
-
-    .rds-card-main span {
-        font-size: 0.9rem;
-        color: #64748b;
-        line-height: 1.4;
-    }
-
-    .rds-card-footer {
-        padding: 18px;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
-        color: #f2711c;
-        font-weight: 700;
-        text-align: center;
-        transition: 0.3s;
-    }
-
-    .rds-card-item:hover .rds-card-footer {
-        background: #f2711c;
-        color: white;
-    }
-
-    /* 6. ADAPTATION MOBILE */
     @media (max-width: 768px) {
-        .rds-expert-force-fullwidth {
-            width: 100% !important;
-            left: 0 !important;
-            margin-left: 0 !important;
-            padding: 40px 0;
-        }
-        .rds-cards-content-centered { padding: 0 20px; }
+        .rds-expert-force-fullwidth { width: 100% !important; left: 0 !important; margin-left: 0 !important; padding: 40px 0; }
         .rds-cards-grid { grid-template-columns: 1fr; }
-        .rds-expert-header h2 { font-size: 1.6rem; }
     }
 </style>
