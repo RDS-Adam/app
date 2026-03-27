@@ -2,76 +2,226 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">.
-    <title>Expertise Thermique - Rapport Client</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Expertise Thermique - Rapport Client RDS</title>
     <style>
-        /* Styles pour l'écran */
-        body { font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 20px auto; background-color: #f8f9fa; color: #333; line-height: 1.5; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; text-align: center; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: #444; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #eef2f7; padding: 15px; border-radius: 10px; }
-        .btn-calc { width: 100%; padding: 18px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .btn-print { width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; margin-top: 10px; display: none; }
-        
-        #resultat { margin-top: 25px; display: none; border-top: 2px solid #eee; padding-top: 20px; }
-        .temp-display { display: flex; justify-content: space-around; margin-bottom: 20px; text-align: center; }
-        .temp-card { padding: 10px; border-radius: 10px; width: 45%; }
-        .temp-old { background: #fee2e2; color: #991b1b; }
-        .temp-new { background: #dcfce7; color: #166534; }
-        .temp-val { font-size: 1.8em; font-weight: bold; display: block; }
-        .gain-badge { text-align: center; background: #d93025; color: white; padding: 5px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2em; margin: 10px auto; width: fit-content; }
-        
-        details { background: #f1f3f4; border-radius: 8px; padding: 10px; margin-top: 15px; cursor: pointer; font-size: 0.85em; }
-        summary { font-weight: bold; color: #1a73e8; outline: none; }
-        .calc-box { margin-top: 10px; border-left: 3px solid #1a73e8; padding-left: 10px; color: #555; }
+        :root {
+            --rds-bleu: #25737d;
+            --rds-orange: #ff7200;
+            --rds-gris-bg: #e8e8e8;
+            --rds-text: #1e293b;
+            --rds-white: rgba(255, 255, 255, 0.9);
+        }
 
-        .lexique { margin-top: 20px; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; font-size: 0.9em; }
-        .clause-technique { margin-top: 20px; font-size: 0.75em; color: #7f8c8d; font-style: italic; border-top: 1px solid #eee; padding-top: 10px; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--rds-gris-bg); 
+            color: var(--rds-text); 
+            margin: 0; 
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 650px; 
+            background: var(--rds-white); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(37, 115, 125, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        h2 { 
+            color: var(--rds-bleu); 
+            text-align: center; 
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            margin-bottom: 30px; 
+        }
+
+        .rds-line {
+            width: 60px;
+            height: 5px;
+            background: var(--rds-orange);
+            margin: -20px auto 30px;
+            border-radius: 10px;
+        }
+
+        .input-group { margin-bottom: 20px; }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 700; 
+            font-size: 0.85em; 
+            color: var(--rds-bleu); 
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        input, select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid rgba(37, 115, 125, 0.2); 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-size: 1em; 
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--rds-orange);
+            box-shadow: 0 0 0 4px rgba(255, 114, 0, 0.1);
+        }
+
+        .grid-3 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+            background: rgba(37, 115, 125, 0.05); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 25px;
+        }
+
+        .btn-calc { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--rds-bleu); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.1em; 
+            font-weight: 800; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-calc:hover {
+            background: #1d5c64;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 115, 125, 0.2);
+        }
+
+        .btn-print { 
+            width: 100%; 
+            padding: 12px; 
+            background: transparent; 
+            color: var(--rds-bleu); 
+            border: 2px solid var(--rds-bleu); 
+            border-radius: 12px; 
+            font-size: 1em; 
+            font-weight: 700;
+            cursor: pointer; 
+            margin-top: 15px; 
+            display: none; 
+            transition: 0.3s;
+        }
+
+        .btn-print:hover { background: var(--rds-bleu); color: white; }
+        
+        #resultat { 
+            margin-top: 35px; 
+            display: none; 
+            border-top: 2px solid var(--rds-gris-bg); 
+            padding-top: 30px; 
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .temp-display { display: flex; justify-content: space-between; margin-bottom: 25px; }
+        
+        .temp-card { 
+            padding: 20px; 
+            border-radius: 18px; 
+            width: 46%; 
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .temp-old { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .temp-new { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        
+        .temp-val { font-size: 2.2em; font-weight: 900; display: block; margin-top: 5px; }
+
+        .gain-badge { 
+            text-align: center; 
+            background: var(--rds-orange); 
+            color: white; 
+            padding: 8px 30px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            font-size: 1.3em; 
+            margin: 0 auto 25px; 
+            width: fit-content;
+            box-shadow: 0 4px 12px rgba(255, 114, 0, 0.3);
+        }
+        
+        details { background: white; border: 1px solid var(--rds-gris-bg); border-radius: 12px; padding: 15px; margin-top: 20px; cursor: pointer; }
+        summary { font-weight: 800; color: var(--rds-bleu); text-transform: uppercase; font-size: 0.85em; }
+        .calc-box { margin-top: 15px; border-left: 4px solid var(--rds-orange); padding-left: 15px; color: #475569; font-size: 0.9em; line-height: 1.6; }
+
+        .lexique { margin-top: 30px; background: rgba(37, 115, 125, 0.03); border-radius: 15px; padding: 20px; font-size: 0.9em; }
+        .lexique strong { color: var(--rds-bleu); }
+
+        .clause-technique { margin-top: 30px; font-size: 0.75em; color: #94a3b8; font-style: italic; text-align: center; }
 
         @media print {
-            body { background: white; margin: 0; padding: 0; }
-            .card { box-shadow: none; border: none; width: 100%; max-width: 100%; }
-            .btn-calc, .btn-print, .input-group, .grid-3, label, h2 { display: none !important; }
-            #resultat { display: block !important; border-top: none; }
-            .print-header { display: block !important; text-align: center; border-bottom: 2px solid #1a73e8; margin-bottom: 20px; padding-bottom: 10px; }
-            .print-info { display: block !important; margin-bottom: 20px; font-size: 1.1em; }
-            details { display: block !important; background: none; border: 1px solid #ddd; }
-            details summary { list-style: none; border-bottom: 1px solid #ddd; margin-bottom: 5px; padding-bottom: 5px; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; }
+            .btn-calc, .btn-print, .input-group, .grid-3, label, h2, .rds-line { display: none !important; }
+            #resultat { display: block !important; }
+            .print-header { display: block !important; border-bottom: 3px solid var(--rds-bleu); padding-bottom: 20px; margin-bottom: 30px; }
+            .print-info { display: block !important; border-left: 4px solid var(--rds-orange); padding-left: 15px; margin-bottom: 30px; }
+            .gain-badge { border: 2px solid var(--rds-orange); color: var(--rds-orange) !important; background: white !important; box-shadow: none; }
         }
         .print-header, .print-info { display: none; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="container">
     <div class="print-header">
-        <h1>Rapport d'Expertise Thermique <br> Rue du Store</h1>
+        <h1 style="color: #25737d; margin:0;">Expertise Thermique</h1>
+        <p style="color: #ff7200; font-weight: bold; margin:5px 0 0;">Rue du Store - Adam</p>
     </div>
 
     <h2>Simulateur de Confort</h2>
+    <div class="rds-line"></div>
 
     <div class="input-group">
         <label>Référence de la toile</label>
         <input type="text" id="refToile" placeholder="Ex: Thermo-métal Snow 87501 ">
     </div>
 
-    <div class="input-group">
-        <label>Température extérieure prévue (°C)</label>
-        <input type="number" id="tempExt" value="30">
-    </div>
-
-    <div class="input-group">
-        <label>Type de Vitrage</label>
-        <select id="glassType">
-            <option value="">--- Choisir le vitrage ---</option>
-            <option value="0.85">Simple vitrage</option>
-            <option value="0.75">Double vitrage standard</option>
-            <option value="0.60">Double vitrage ITR</option>
-            <option value="0.50">Triple vitrage</option>
-        </select>
+    <div style="display: flex; gap: 15px;">
+        <div class="input-group" style="flex: 1;">
+            <label>Temp. Extérieure (°C)</label>
+            <input type="number" id="tempExt" value="30">
+        </div>
+        <div class="input-group" style="flex: 2;">
+            <label>Type de Vitrage</label>
+            <select id="glassType">
+                <option value="">--- Sélection ---</option>
+                <option value="0.85">Simple vitrage</option>
+                <option value="0.75">Double vitrage standard</option>
+                <option value="0.60">Double vitrage ITR</option>
+                <option value="0.50">Triple vitrage</option>
+            </select>
+        </div>
     </div>
 
     <div class="input-group">
@@ -83,57 +233,58 @@
         </select>
     </div>
 
-    <label>Données de la Toile (%)</label>
+    <label>Performances Toile (%)</label>
     <div class="grid-3">
         <div><label>Trans. (Ts)</label><input type="number" id="ts" value="3"></div>
         <div><label>Réfl. (Rs)</label><input type="number" id="rs" value="82"></div>
         <div><label>Abs. (As)</label><input type="number" id="as" value="15"></div>
     </div>
 
-    <button class="btn-calc" onclick="calculerPerformance()">Actualiser le calcul</button>
+    <button class="btn-calc" onclick="calculerPerformance()">Calculer le gain</button>
     <button id="btnPrint" class="btn-print" onclick="window.print()">Imprimer le rapport PDF</button>
 
     <div id="resultat">
         <div class="print-info">
-            <strong>Référence :</strong> <span id="pRef"></span><br>
-            <strong>Données Toile :</strong> Ts: <span id="repTs"></span>% | Rs: <span id="repRs"></span>% | As: <span id="repAs"></span>%<br>
-            <strong>Conditions :</strong> Extérieur <span id="pExt"></span>°C | Vitrage : <span id="pVit"></span>
+            <h3 style="margin-top:0; color:#25737d;">Analyse de performance</h3>
+            <strong>Référence toile :</strong> <span id="pRef"></span><br>
+            <strong>Données techniques :</strong> Ts: <span id="repTs"></span>% | Rs: <span id="repRs"></span>% | As: <span id="repAs"></span>%<br>
+            <strong>Conditions :</strong> <span id="pExt"></span>°C extérieur | Vitrage : <span id="pVit"></span>
         </div>
 
         <div class="temp-display">
             <div class="temp-card temp-old">
-                <span style="font-size: 0.8em; font-weight: bold;">SANS STORE</span>
+                <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase;">Sans protection</span>
                 <span class="temp-val" id="resSans">--°C</span>
             </div>
             <div class="temp-card temp-new">
-                <span style="font-size: 0.8em; font-weight: bold;">AVEC STORE</span>
+                <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase;">Avec Store RDS</span>
                 <span class="temp-val" id="resAvec">--°C</span>
             </div>
         </div>
 
         <div class="gain-badge" id="gainDegres">Gain : -0.0 °C</div>
         
+        <p style="text-align: center; font-size: 1em; color: #25737d;">Chaleur rejetée par ce complexe : <strong id="rejetPC" style="color:#ff7200; font-size:1.3em;">0</strong><strong>%</strong></p>
+
         <details id="detailsCalcul">
-            <summary>Détail du calcul thermique</summary>
+            <summary>Détail scientifique du calcul</summary>
             <div class="calc-box">
-                <strong>Situation SANS Store :</strong><br>
-                Temp. Extérieure (<span id="cExt1"></span>°C) + (Facteur Vitre <span id="cVit"></span> x Apport Solaire 12°C) = <span id="cSans"></span>°C.
+                <strong>Situation Sans Store :</strong><br>
+                Temp. Ext. (<span id="cExt1"></span>°C) + (Facteur Vitre <span id="cVit"></span> x Apport 12°C) = <span id="cSans"></span>°C.
                 <br><br>
-                <strong>Situation AVEC Store :</strong><br>
-                Temp. Extérieure (<span id="cExt2"></span>°C) + (Efficacité Globale $g_{tot}$ <span id="cGtot"></span> x Apport Solaire 12°C) = <span id="cAvec"></span>°C.
+                <strong>Situation Avec Store :</strong><br>
+                Temp. Ext. (<span id="cExt2"></span>°C) + (Efficacité $g_{tot}$ <span id="cGtot"></span> x Apport 12°C) = <span id="cAvec"></span>°C.
             </div>
         </details>
 
-        <p style="text-align: center; font-size: 0.9em;">Chaleur totale rejetée par ce complexe : <strong id="rejetPC">0</strong>%</p>
-
         <div class="lexique">
-            <div style="margin-bottom: 15px;"><strong>Transmission (<span id="lexTs"></span>%) :</strong> C'est la chaleur qui traverse la toile. Plus elle est basse, plus vous éliminez la sensation de brûlure du soleil sur la peau et protégez vos intérieurs de la décoloration.</div>
-            <div style="margin-bottom: 15px;"><strong>Réflexion (<span id="lexRs"></span>%) :</strong> C'est votre bouclier miroir. Ce chiffre indique la part d'énergie renvoyée directement vers l'extérieur. Une réflexion élevée est la clé pour empêcher la pièce de chauffer.</div>
-            <div><strong>Absorption (<span id="lexAs"></span>%) :</strong> C'est la chaleur stockée par le tissu. En extérieur : elle est évacuée par l'air avant d'entrer. En intérieur : elle transforme le store en radiateur, d'où l'importance d'avoir une réflexion (Rs) forte.<span id="expliqueAs"></span></div>
+            <p><strong>Transmission (<span id="lexTs"></span>%) :</strong> Part de chaleur traversant la toile. Plus elle est faible, plus vous protégez vos sols et meubles.</p>
+            <p><strong>Réflexion (<span id="lexRs"></span>%) :</strong> Pouvoir réfléchissant de la toile. C'est l'indicateur clé de performance thermique.</p>
+            <p><strong>Absorption (<span id="lexAs"></span>%) :</strong> Énergie stockée. <span id="expliqueAs"></span></p>
         </div>
 
         <div class="clause-technique">
-            <strong>Note technique :</strong> Les calculs sont basés sur la norme <strong>NF EN 13363-1</strong>. Ces chiffres sont des estimations théoriques reflétant la capacité de protection de la toile. Le résultat réel dépend de l'isolation globale du bâtiment.
+            Expertise basée sur la norme NF EN 13363-1. Ces résultats sont des estimations théoriques de performance de la toile.
         </div>
     </div>
 </div>
@@ -144,11 +295,11 @@
         const positionVal = document.getElementById('position').value;
 
         if (glassTypeVal === "" || positionVal === "") {
-            alert("Veuillez sélectionner le type de vitrage et la position du store.");
+            alert("Veuillez sélectionner le vitrage et la position.");
             return;
         }
 
-        const ref = document.getElementById('refToile').value || "Non spécifiée";
+        const ref = document.getElementById('refToile').value || "Toile sélectionnée";
         const tExt = parseFloat(document.getElementById('tempExt').value) || 0;
         const selGlass = document.getElementById('glassType');
         const g_verre = parseFloat(glassTypeVal);
@@ -161,7 +312,7 @@
         const as = (parseFloat(valAs) || 0) / 100;
 
         if (Math.abs((rs + ts + as) - 1) > 0.02) {
-            alert("Erreur : La somme Ts + Rs + As doit être égale à 100%.");
+            alert("Erreur : La somme Ts + Rs + As doit être de 100%.");
             return;
         }
 
@@ -196,13 +347,14 @@
         document.getElementById('lexAs').innerText = (as * 100).toFixed(0);
 
         document.getElementById('expliqueAs').innerHTML = (positionVal === "exterior") 
-            ? "En extérieur, cette chaleur est évacuée naturellement par l'air." 
-            : "En intérieur, le tissu agit comme un radiateur ; une forte réflexion est alors essentielle.";
+            ? "En pose extérieure, cette chaleur est balayée par l'air extérieur." 
+            : "En intérieur, le tissu stocke la chaleur. Une forte réflexion est vitale.";
             
         window.onbeforeprint = function() {
             document.getElementById('detailsCalcul').open = true;
         };
     }
 </script>
+<script>document.addEventListener('contextmenu', e => e.preventDefault()); document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };</script>
 </body>
 </html>
