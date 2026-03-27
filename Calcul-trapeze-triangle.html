@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Calculateur Stores Inclinés - Rue du Store</title>
+    <title>Calculateur pour Stores - Rue du Store</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
@@ -19,20 +18,18 @@
 
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: var(--rds-gris);
-            color: var(--rds-text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            background-color: var(--rds-gris); 
+            color: var(--rds-text); 
+            margin: 0; 
+            padding: 20px; 
             -webkit-font-smoothing: antialiased;
         }
 
         .container { 
-            width: 100%;
             max-width: 800px; 
-            padding: 40px;
-            background: #ffffff;
+            margin: auto; 
+            background: white; 
+            padding: 40px; 
         }
 
         h1 { 
@@ -65,6 +62,7 @@
             letter-spacing: 1px;
             position: relative;
         }
+        .tab:hover { color: var(--rds-text); }
         .tab.active { 
             color: var(--rds-text);
         }
@@ -79,8 +77,8 @@
         }
 
         .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.5s ease; }
-
+        .form-section.active { display: block; }
+        
         .input-group { margin-bottom: 25px; }
         label { 
             display: block; 
@@ -123,32 +121,40 @@
             transition: all 0.3s ease;
         }
         button.action-btn:hover { background: var(--rds-text); color: #fff; }
-
+        
+        /* Résultats */
         .result { 
             margin-top: 40px; 
-            padding-top: 25px; 
-            border-top: 1px solid var(--rds-border);
+            padding: 25px; 
+            background: #fafafa; 
+            border-left: 2px solid var(--rds-orange); 
         }
         .result h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rds-text); margin-bottom: 15px; font-weight: 500; }
         .result p { font-size: 0.9rem; margin: 5px 0; font-weight: 300; }
-        .result strong { font-weight: 500; color: var(--rds-orange); }
-
+        .alert { color: #c0392b; font-weight: 400; }
+        .success { color: #27ae60; font-weight: 400; }
+        
         #schema-container { 
             text-align: center; 
             margin-top: 50px; 
+            display: none; 
             padding-top: 40px;
             border-top: 1px solid var(--rds-border);
-            display: none;
         }
         #schema-container h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: 500; }
-
+        
         .visu-selector {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             font-size: 0.75rem;
             color: #999;
             text-transform: uppercase;
         }
-        .visu-selector label { display: inline-block; margin: 0 10px; cursor: pointer; color: var(--rds-text); }
+        .visu-selector label {
+            display: inline-block;
+            margin: 0 10px;
+            cursor: pointer;
+            color: var(--rds-text);
+        }
 
         canvas { 
             background-color: #fafafa; 
@@ -157,26 +163,63 @@
             border: 1px solid #f0f0f0;
         }
 
-        .export-btn { 
-            background: transparent; border: none; color: #999; text-decoration: underline; 
-            font-size: 0.7rem; cursor: pointer; margin-top: 15px; text-transform: uppercase;
+        button.export-btn { 
+            background: transparent; 
+            border: none; 
+            color: #999; 
+            text-decoration: underline; 
+            font-size: 0.7rem; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            text-transform: uppercase;
         }
-        .export-btn:hover { color: var(--rds-orange); }
+        button.export-btn:hover { color: var(--rds-orange); }
 
-        .toggle-btn {
-            width: 100%; padding: 12px; background: transparent; border: 1px solid #eee; color: #bbb;
-            font-size: 0.7rem; cursor: pointer; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px;
+        button.toggle-btn {
+            width: 100%; 
+            padding: 12px; 
+            background: transparent; 
+            border: 1px solid #eee; 
+            color: #bbb;
+            font-size: 0.7rem; 
+            cursor: pointer; 
+            margin-top: 40px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
         }
-
-        #restrictions-tables { margin-top: 30px; display: none; font-size: 0.75rem; color: #666; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: center; font-weight: 300; }
-        th { background: #fafafa; color: var(--rds-bleu); font-weight: 500; text-transform: uppercase; font-size: 0.65rem; }
-
-        .alert { color: #d9534f; font-weight: 400; }
-        .success { color: #5cb85c; font-weight: 400; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button.toggle-btn:hover { border-color: var(--rds-text); color: var(--rds-text); }
+        
+        #restrictions-tables {
+            margin-top: 30px;
+            padding: 25px;
+            display: none; 
+            font-size: 0.75rem;
+            color: #666;
+        }
+        #restrictions-tables h3 { font-size: 0.8rem; text-transform: uppercase; color: var(--rds-bleu); margin-bottom: 15px; }
+        #restrictions-tables h4 { font-size: 0.75rem; text-transform: uppercase; margin-top: 25px; color: var(--rds-text); }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #eee;
+            padding: 12px;
+            text-align: center;
+            font-weight: 300;
+        }
+        th {
+            background-color: #fafafa;
+            color: var(--rds-bleu);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+        }
+        
+        /* Chrome, Safari, Edge, Opera - Enlever les flèches input number */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
@@ -186,16 +229,16 @@
     <h1>Stores Inclinés</h1>
     
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('trapeze', this)">Trapèze</div>
-        <div class="tab" onclick="switchTab('triangle', this)">Triangle</div>
+        <div class="tab active" onclick="switchTab('trapeze', this)">Store TRAPÈZE</div>
+        <div class="tab" onclick="switchTab('triangle', this)">Store TRIANGLE</div>
     </div>
 
     <div id="trapeze" class="form-section active">
         <div class="input-group">
-            <label>Position Grande Hauteur</label>
+            <label>Position de la Grande Hauteur</label>
             <select id="trap_orientation">
-                <option value="gauche">Gauche</option>
-                <option value="droite">Droite</option>
+                <option value="gauche">À gauche</option>
+                <option value="droite">À droite</option>
             </select>
         </div>
         <div class="input-group">
@@ -207,61 +250,113 @@
             <input type="number" id="trap_h" value="118" step="0.1">
         </div>
         <div class="input-group">
-            <label>Largeur Base (cm)</label>
+            <label>Base / Largeur (cm)</label>
             <input type="number" id="trap_B" value="180" step="0.1">
         </div>
-        <button class="action-btn" onclick="calculerTrapeze()">Calculer le projet</button>
+        <button class="action-btn" onclick="calculerTrapeze()">Calculer & Dessiner</button>
         <div id="result_trapeze" class="result" style="display:none;"></div>
     </div>
 
     <div id="triangle" class="form-section">
         <div class="input-group">
-            <label>Position Hauteur</label>
+            <label>Position de la Hauteur</label>
             <select id="tri_orientation">
-                <option value="gauche">Gauche</option>
-                <option value="droite">Droite</option>
+                <option value="gauche">À gauche</option>
+                <option value="droite">À droite</option>
             </select>
         </div>
         <div class="input-group">
-            <label>Hauteur (cm)</label>
+            <label>Hauteur du triangle (cm)</label>
             <input type="number" id="tri_H" value="110" step="0.1">
         </div>
         <div class="input-group">
-            <label>Largeur Base (cm)</label>
+            <label>Base / Largeur (cm)</label>
             <input type="number" id="tri_B" value="163.5" step="0.1">
         </div>
-        <button class="action-btn" onclick="calculerTriangle()">Calculer le projet</button>
+        <button class="action-btn" onclick="calculerTriangle()">Calculer & Dessiner</button>
         <div id="result_triangle" class="result" style="display:none;"></div>
     </div>
 
     <div id="schema-container">
         <h3>Schéma de fabrication</h3>
+        
         <div id="visu-selector" class="visu-selector">
             Type de store : 
             <label><input type="radio" name="store_visu" value="plisse" checked onchange="calculerTrapeze()"> Plissé</label>
             <label><input type="radio" name="store_visu" value="californien" onchange="calculerTrapeze()"> Californien</label>
         </div>
+
         <canvas id="schemaCanvas" width="600" height="400"></canvas>
-        <button id="btnExport" class="export-btn" onclick="exporterImage()">Télécharger le schéma PNG</button>
+        <button id="btnExport" class="export-btn" onclick="exporterImage()">Télécharger le schéma (PNG)</button>
     </div>
 
-    <button class="toggle-btn" onclick="toggleRestrictions()">Limites techniques de fabrication</button>
+    <button class="toggle-btn" onclick="toggleRestrictions()">Abaques de limites de fabrication</button>
     
     <div id="restrictions-tables">
+        <h3>Abaques de limites de fabrication</h3>
+        
+        <h4>Store Californien (Trapèze)</h4>
         <table>
-            <tr><th>Type</th><th>Angle Max</th><th>Largeur Max</th><th>Hauteur Max</th></tr>
-            <tr><td>Californien</td><td>45°</td><td>500 cm</td><td>400 cm</td></tr>
-            <tr><td>Plissé Trapèze</td><td>30°</td><td>180 cm (hypo)</td><td>300 cm</td></tr>
-            <tr><td>Plissé Triangle</td><td>60°</td><td>210 cm (hypo)</td><td>200 cm</td></tr>
+            <tr>
+                <th>Angle</th>
+                <th>Largeur Maxi</th>
+                <th>Largeur Mini</th>
+                <th>Hauteur Maxi</th>
+                <th>Hauteur Mini</th>
+                <th>Surface Maxi</th>
+            </tr>
+            <tr>
+                <td>0° à 20°</td>
+                <td>500 cm</td>
+                <td rowspan="4">40 cm</td>
+                <td>400 cm</td>
+                <td rowspan="4">15 cm</td>
+                <td>15 m²</td>
+            </tr>
+            <tr>
+                <td>20° à 30°</td>
+                <td>450 cm</td>
+                <td>300 cm</td>
+                <td>10 m²</td>
+            </tr>
+            <tr>
+                <td>30° à 40°</td>
+                <td>350 cm</td>
+                <td>275 cm</td>
+                <td>6 m²</td>
+            </tr>
+            <tr>
+                <td>40° à 45°</td>
+                <td>250 cm</td>
+                <td>250 cm</td>
+                <td>3 m²</td>
+            </tr>
+        </table>
+        
+        <h4>Store Plissé (Trapèze)</h4>
+        <table>
+            <tr>
+                <th>Angle Maxi</th>
+                <th>Hypoténuse Maxi</th>
+                <th>Hauteur Maxi</th>
+            </tr>
+            <tr><td>30°</td><td>180 cm</td><td>300 cm</td></tr>
+        </table>
+
+        <h4>Store Plissé (Triangle)</h4>
+        <table>
+            <tr>
+                <th>Angle Maxi</th>
+                <th>Hypoténuse Maxi</th>
+                <th>Hauteur Maxi</th>
+            </tr>
+            <tr><td>60°</td><td>210 cm</td><td>200 cm</td></tr>
         </table>
     </div>
+
 </div>
 
 <script>
-    // Protection
-    document.addEventListener('contextmenu', e => e.preventDefault()); 
-    document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };
-
     function switchTab(tabId, el) {
         document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -272,7 +367,12 @@
 
     function toggleRestrictions() {
         let div = document.getElementById("restrictions-tables");
-        div.style.display = (div.style.display === "none" || div.style.display === "") ? "block" : "none";
+        if (div.style.display === "none" || div.style.display === "") {
+            div.style.display = "block";
+            div.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            div.style.display = "none";
+        }
     }
 
     function calculerTrapeze() {
@@ -281,26 +381,51 @@
         let B = parseFloat(document.getElementById('trap_B').value);
         let orientation = document.getElementById('trap_orientation').value;
         let visuType = document.querySelector('input[name="store_visu"]:checked').value;
-        if (isNaN(H) || isNaN(h) || isNaN(B)) return;
+        
+        if (isNaN(H) || isNaN(h) || isNaN(B)) return alert("Veuillez remplir tous les champs.");
 
         let diff = Math.abs(H - h);
         let angleDeg = Math.atan(diff / B) * (180 / Math.PI);
         let hypo = Math.sqrt(diff*diff + B*B);
         let surfaceM2 = ((H + h) / 2) * B / 10000;
-        
-        let calif_ok = angleDeg <= 45 && B >= 40 && h >= 15;
-        let plisse_ok = angleDeg <= 30 && hypo <= 180 && H <= 300;
 
-        let divResult = document.getElementById("result_trapeze");
-        divResult.style.display = 'block';
-        divResult.innerHTML = `
-            <h3>Analyse technique</h3>
-            <p>Inclinaison : <strong>${angleDeg.toFixed(2)} °</strong></p>
-            <p>Hypoténuse : <strong>${hypo.toFixed(2)} cm</strong></p>
-            <p>Surface : <strong>${surfaceM2.toFixed(2)} m²</strong></p>
-            <p>Californien : <span class="${calif_ok ? 'success' : 'alert'}">${calif_ok ? 'Conforme' : 'Hors limites'}</span></p>
-            <p>Plissé : <span class="${plisse_ok ? 'success' : 'alert'}">${plisse_ok ? 'Conforme' : 'Hors limites'}</span></p>
-        `;
+        let messages = [];
+        let calif_ok = true;
+        
+        if (angleDeg > 45) { 
+            calif_ok = false; 
+            messages.push("Californien: Angle > 45° (Maximum 45°)"); 
+        } else {
+            if (B < 40) { calif_ok = false; messages.push("Californien: Largeur < 40 cm"); }
+            if (h < 15) { calif_ok = false; messages.push("Californien: Petite Hauteur < 15 cm"); }
+
+            if (angleDeg <= 20) {
+                if (B > 500 || H > 400 || surfaceM2 > 15) {
+                    calif_ok = false; messages.push("Californien (0-20°): Dépassement des limites max (L>500, H>400 ou S>15m²)");
+                }
+            } else if (angleDeg <= 30) {
+                if (B > 450 || H > 300 || surfaceM2 > 10) {
+                    calif_ok = false; messages.push("Californien (20-30°): Dépassement des limites max (L>450, H>300 ou S>10m²)");
+                }
+            } else if (angleDeg <= 40) {
+                if (B > 350 || H > 275 || surfaceM2 > 6) {
+                    calif_ok = false; messages.push("Californien (30-40°): Dépassement des limites max (L>350, H>275 ou S>6m²)");
+                }
+            } else if (angleDeg <= 45) {
+                if (B > 250 || H > 250 || surfaceM2 > 3) {
+                    calif_ok = false; messages.push("Californien (40-45°): Dépassement des limites max (L>250, H>250 ou S>3m²)");
+                }
+            }
+        }
+
+        let plisse_ok = true;
+        if (angleDeg > 30) { plisse_ok = false; messages.push("Plissé: Angle > 30°"); }
+        if (hypo > 180) { plisse_ok = false; messages.push("Plissé: Hypoténuse > 180 cm"); }
+        if (H > 300) { plisse_ok = false; messages.push("Plissé: Hauteur > 300 cm"); }
+
+        afficherResultat("result_trapeze", angleDeg, hypo, surfaceM2, calif_ok, plisse_ok, messages);
+        document.getElementById('visu-selector').style.display = 'inline-block';
+        
         dessinerSchema('trapeze', H, h, B, hypo, orientation, visuType, angleDeg);
     }
 
@@ -308,12 +433,19 @@
         let H = parseFloat(document.getElementById('tri_H').value);
         let B = parseFloat(document.getElementById('tri_B').value);
         let orientation = document.getElementById('tri_orientation').value;
-        if (isNaN(H) || isNaN(B)) return;
+
+        if (isNaN(H) || isNaN(B)) return alert("Veuillez remplir tous les champs.");
 
         let angleDeg = Math.atan(H / B) * (180 / Math.PI);
         let hypo = Math.sqrt(H*H + B*B);
         let surfaceM2 = (H * B / 2) / 10000;
-        let plisse_ok = angleDeg <= 60 && hypo <= 210 && H <= 200;
+
+        let messages = [];
+        let plisse_ok = true;
+
+        if (angleDeg > 60) { plisse_ok = false; messages.push("Plissé Triangle: Angle > 60°"); }
+        if (hypo > 210) { plisse_ok = false; messages.push("Plissé Triangle: Hypoténuse > 210 cm"); }
+        if (H > 200) { plisse_ok = false; messages.push("Plissé Triangle: Hauteur > 200 cm"); }
 
         let divResult = document.getElementById('result_triangle');
         divResult.style.display = 'block';
@@ -322,39 +454,207 @@
             <p>Inclinaison : <strong>${angleDeg.toFixed(2)} °</strong></p>
             <p>Hypoténuse : <strong>${hypo.toFixed(2)} cm</strong></p>
             <p>Surface : <strong>${surfaceM2.toFixed(2)} m²</strong></p>
-            <p>Plissé Triangle : <span class="${plisse_ok ? 'success' : 'alert'}">${plisse_ok ? 'Conforme' : 'Hors limites'}</span></p>
+            <hr>
+            <h3>Faisabilité (Store Plissé Triangle) :</h3>
+            ${plisse_ok ? '<div class="success">✓ Réalisable selon le tableau</div>' : '<div class="alert">✗ Non réalisable :<br>- ' + messages.join('<br>- ') + '</div>'}
         `;
+
+        document.getElementById('visu-selector').style.display = 'none';
+        
         dessinerSchema('triangle', H, 0, B, hypo, orientation, 'plisse', angleDeg);
+    }
+
+    function afficherResultat(divId, angle, hypo, surface, calif_ok, plisse_ok, messages) {
+        let divResult = document.getElementById(divId);
+        divResult.style.display = 'block';
+        let html = `
+            <h3>Analyse technique</h3>
+            <p>Inclinaison : <strong>${angle.toFixed(2)} °</strong></p>
+            <p>Hypoténuse : <strong>${hypo.toFixed(2)} cm</strong></p>
+            <p>Surface : <strong>${surface.toFixed(2)} m²</strong></p>
+            <hr>
+            <h3>Faisabilité :</h3>
+            <p>Store Californien : ${calif_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p>
+            <p>Store Plissé : ${plisse_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p>
+        `;
+        if(messages.length > 0) { html += `<div class="alert"><small>Raisons du blocage :<br>- ${messages.join('<br>- ')}</small></div>`; }
+        divResult.innerHTML = html;
     }
 
     function dessinerSchema(type, H, h, B, hypo, orientation, visuType, angleDeg) {
         let canvas = document.getElementById('schemaCanvas');
         let ctx = canvas.getContext('2d');
+        
         document.getElementById('schema-container').style.display = 'block';
+        document.getElementById('btnExport').style.display = 'block';
+
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        let margin = 80;
-        let scale = Math.min((canvas.width - margin*2)/B, (canvas.height - margin*2)/Math.max(H,h));
-        let x_l = margin, y_b = canvas.height - margin, px_B = B*scale;
-        let h_g = (orientation==='gauche')?H:h, h_d = (orientation==='gauche')?h:H;
-        let pt_bl={x:x_l,y:y_b}, pt_br={x:x_l+px_B,y:y_b}, pt_tr={x:x_l+px_B,y:y_b-h_d*scale}, pt_tl={x:x_l,y:y_b-h_g*scale};
+
+        let marginX = 100; 
+        let marginY = 95; 
         
-        ctx.beginPath(); ctx.moveTo(pt_bl.x,pt_bl.y); ctx.lineTo(pt_br.x,pt_br.y); ctx.lineTo(pt_tr.x,pt_tr.y); ctx.lineTo(pt_tl.x,pt_tl.y); ctx.closePath();
-        ctx.fillStyle="#fcfcfc"; ctx.fill(); ctx.strokeStyle="#ddd"; ctx.lineWidth=1; ctx.stroke();
+        let drawWidth = canvas.width - (marginX * 2);
+        let drawHeight = canvas.height - (marginY * 2);
+
+        let maxH = Math.max(H, h);
+        let scaleX = drawWidth / B;
+        let scaleY = drawHeight / maxH;
+        let scale = Math.min(scaleX, scaleY); 
+
+        let x_left = marginX + (drawWidth - (B * scale)) / 2;
+        let y_bottom = canvas.height - marginY + 20;
+
+        let px_B = B * scale;
+        let hauteur_gauche = (orientation === 'gauche') ? H : h;
+        let hauteur_droite = (orientation === 'gauche') ? h : H;
+        let px_h_gauche = hauteur_gauche * scale;
+        let px_h_droite = hauteur_droite * scale;
+
+        let pt_bl = { x: x_left, y: y_bottom };
+        let pt_br = { x: x_left + px_B, y: y_bottom };
+        let pt_tr = { x: x_left + px_B, y: y_bottom - px_h_droite };
+        let pt_tl = { x: x_left, y: y_bottom - px_h_gauche };
+
+        let region = new Path2D();
+        region.moveTo(pt_bl.x, pt_bl.y);
+        region.lineTo(pt_br.x, pt_br.y);
+        region.lineTo(pt_tr.x, pt_tr.y);
+        region.lineTo(pt_tl.x, pt_tl.y);
+        region.closePath();
+
+        ctx.fillStyle = "#fcfcfc"; 
+        ctx.fill(region);
+
+        ctx.save();
+        ctx.clip(region); 
+
+        let railEpaisseur = 12;
+
+        if (visuType === 'plisse') {
+            ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
+            ctx.lineWidth = 1.5;
+            let step = 8;
+            let topY = Math.min(pt_tl.y, pt_tr.y);
+            for (let y = pt_bl.y; y >= topY; y -= step) {
+                ctx.beginPath();
+                ctx.moveTo(pt_bl.x, y);
+                ctx.lineTo(pt_br.x, y);
+                ctx.stroke();
+            }
+        } else if (visuType === 'californien') {
+            let largeurLamelle = 16;
+            ctx.fillStyle = "rgba(234, 243, 244, 0.8)"; 
+            ctx.strokeStyle = "rgba(51, 117, 126, 0.5)"; 
+            ctx.lineWidth = 1;
+
+            for (let x = pt_bl.x; x < pt_br.x; x += largeurLamelle) {
+                ctx.beginPath();
+                ctx.rect(x, Math.min(pt_tl.y, pt_tr.y) - 20, largeurLamelle - 1, pt_bl.y - Math.min(pt_tl.y, pt_tr.y) + 20);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        // --- DESSIN DES RAILS MÉTALLIQUES RECTANGULAIRES ---
+        ctx.fillStyle = "#33757e";
+        ctx.beginPath();
+        let dx = pt_tr.x - pt_tl.x;
+        let dy = pt_tr.y - pt_tl.y;
+        let epaisseurRailHaut = (visuType === 'californien') ? railEpaisseur + 5 : railEpaisseur;
+        let coupeDecalage = 10; 
+
+        if (hauteur_gauche > 0 && hauteur_droite === 0) { 
+            let cutX = pt_tr.x - coupeDecalage; 
+            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+            ctx.moveTo(pt_tl.x, pt_tl.y);
+            ctx.lineTo(cutX, cutY);
+            ctx.lineTo(cutX, cutY + epaisseurRailHaut); 
+            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+        } else if (hauteur_droite > 0 && hauteur_gauche === 0) { 
+            let cutX = pt_tl.x + coupeDecalage;
+            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+            ctx.moveTo(cutX, cutY);
+            ctx.lineTo(pt_tr.x, pt_tr.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+            ctx.lineTo(cutX, cutY + epaisseurRailHaut); 
+        } else { 
+            ctx.moveTo(pt_tl.x, pt_tl.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y);
+            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+        }
+        ctx.fill();
+
+        if (visuType === 'plisse') {
+            ctx.fillStyle = "#33757e";
+            ctx.fillRect(pt_bl.x, pt_bl.y - railEpaisseur, px_B, railEpaisseur);
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(pt_bl.x, pt_bl.y - railEpaisseur);
+            ctx.lineTo(pt_br.x, pt_br.y - railEpaisseur);
+            ctx.stroke();
+
+            if (hauteur_gauche > 0 && hauteur_droite === 0) {
+                let cutX = pt_tr.x - coupeDecalage;
+                ctx.beginPath();
+                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                ctx.stroke();
+            } else if (hauteur_droite > 0 && hauteur_gauche === 0) {
+                let cutX = pt_tl.x + coupeDecalage;
+                ctx.beginPath();
+                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                ctx.stroke();
+            }
+        }
+
+        ctx.restore(); 
+
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = "12px Poppins";
+        ctx.textBaseline = "middle";
+
+        ctx.textAlign = "center";
+        ctx.fillText(`${B} cm`, x_left + (px_B / 2), y_bottom + 25);
+
+        if (hauteur_gauche > 0) {
+            ctx.textAlign = "right";
+            ctx.fillText(`${hauteur_gauche} cm`, x_left - 15, y_bottom - (px_h_gauche / 2));
+        }
+        if (hauteur_droite > 0) {
+            ctx.textAlign = "left";
+            ctx.fillText(`${hauteur_droite} cm`, pt_br.x + 15, y_bottom - (px_h_droite / 2));
+        }
+
+        let mid_x = (pt_tl.x + pt_tr.x) / 2;
+        let mid_y = (pt_tl.y + pt_tr.y) / 2;
         
-        ctx.fillStyle="#1a1a1a"; ctx.font="12px Poppins"; ctx.textAlign="center";
-        ctx.fillText(`${B} cm`, x_l+px_B/2, y_b+25);
-        if(h_g>0) { ctx.textAlign="right"; ctx.fillText(`${h_g} cm`, x_l-15, y_b-h_g*scale/2); }
-        if(h_d>0) { ctx.textAlign="left"; ctx.fillText(`${h_d} cm`, pt_br.x+15, y_b-h_d*scale/2); }
+        ctx.textAlign = "center";
+        ctx.fillText(`Hypoténuse : ${hypo.toFixed(2)} cm`, mid_x, mid_y - 75);
+        ctx.fillText(`Inclinaison : ${angleDeg.toFixed(2)} °`, mid_x, mid_y - 55);
     }
 
     function exporterImage() {
         let canvas = document.getElementById('schemaCanvas');
+        let imageURL = canvas.toDataURL("image/png");
         let lien = document.createElement('a');
-        lien.href = canvas.toDataURL("image/png");
-        lien.download = 'schema_rds.png';
+        lien.href = imageURL;
+        lien.download = 'schema_store.png';
+        document.body.appendChild(lien);
         lien.click();
+        document.body.removeChild(lien);
     }
+
+    // Protection Clic Droit & Touches F12
+    document.addEventListener('contextmenu', e => e.preventDefault()); 
+    document.onkeydown = e => { 
+        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) 
+        return false; 
+    };
 </script>
+
 </body>
 </html>
