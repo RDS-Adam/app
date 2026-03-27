@@ -1,29 +1,25 @@
-<div class="rds-expert-force-fullwidth">
+<div class="rds-expert-force-fullwidth" id="rds-main-wrapper">
     <div id="rds-hub-container" class="rds-cards-content-centered">
         <div class="rds-expert-header">
             <h2>Boîte à Outils Adam</h2>
         </div>
         <div class="rds-cards-grid" id="dynamic-cards-container">
-            <div style="text-align:center; padding: 20px; color: #64748b;">Initialisation des outils...</div>
+            <div style="text-align:center; padding: 20px; color: #64748b;">Chargement de tous les outils...</div>
         </div>
     </div>
 
     <div id="rds-app-viewer" style="display:none;">
         <div class="rds-app-bar">
-            <button onclick="closeApp()" class="rds-back-button">
-                <span style="margin-right:8px;">←</span> Retour aux outils
-            </button>
+            <button onclick="closeApp()" class="rds-back-button">← Retour</button>
             <div id="rds-app-title-container">
                 <span id="rds-app-title">Chargement...</span>
-                <small>Outil de calcul Rue du Store</small>
             </div>
         </div>
-        <iframe id="rds-app-iframe" src="" frameborder="0" allowfullscreen></iframe>
+        <iframe id="rds-app-iframe" src="" frameborder="0"></iframe>
     </div>
 </div>
 
 <script>
-// PROTECTION : Désactivation du clic droit
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 const githubBaseUrl = "https://rds-adam.github.io/app/";
@@ -31,33 +27,27 @@ const hubContainer = document.getElementById('rds-hub-container');
 const appViewer = document.getElementById('rds-app-viewer');
 const appIframe = document.getElementById('rds-app-iframe');
 const appTitle = document.getElementById('rds-app-title');
+const mainWrapper = document.getElementById('rds-main-wrapper');
 
-/**
- * Ouvre l'outil dans l'Iframe
- */
 function openApp(fileName, cleanName) {
     hubContainer.style.display = 'none';
     appViewer.style.display = 'block';
     appTitle.innerText = cleanName;
     appIframe.src = githubBaseUrl + fileName;
     
-    // Remonte en haut de page pour l'outil
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Désactiver le scroll sur la page parente quand l'app est ouverte
+    document.body.style.overflow = 'hidden'; 
+    window.scrollTo(0, 0);
 }
 
-/**
- * Ferme l'outil et revient à la grille
- */
 function closeApp() {
-    appIframe.src = ""; // Coupe le processus de l'iframe
+    appIframe.src = "";
     appViewer.style.display = 'none';
     hubContainer.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Réactiver le scroll quand on revient au menu
+    document.body.style.overflow = 'auto'; 
 }
 
-/**
- * Génère les cartes dynamiquement via l'API GitHub
- */
 async function generateCards() {
     const container = document.getElementById('dynamic-cards-container');
     
@@ -75,104 +65,98 @@ async function generateCards() {
 
     try {
         const response = await fetch('https://api.github.com/repos/RDS-Adam/app/contents/');
-        const files = await response.json();
-
-        // Filtrage des fichiers selon ta capture écran
-        const htmlFiles = files.filter(file => 
-            file.name.endsWith('.html') && 
-            !file.name.includes('index-rds-2026-secure') &&
-            !file.name.includes('robots.txt')
-        );
+        const items = await response.json();
 
         container.innerHTML = "";
 
-        htmlFiles.forEach(file => {
-            const cleanName = decodeURIComponent(file.name)
-                .replace('.html', '')
-                .replace(/-/g, ' ')
-                .replace(/_/g, ' ');
+        items.forEach(item => {
+            // On accepte les fichiers .html OU les dossiers (pour ne rien rater)
+            const isHtml = item.name.endsWith('.html');
+            const isFolder = item.type === 'dir';
+            const isIgnored = item.name.includes('index-rds-2026-secure') || item.name.includes('robots.txt');
 
-            const icon = getIcon(cleanName.toLowerCase());
+            if ((isHtml || isFolder) && !isIgnored) {
+                const cleanName = decodeURIComponent(item.name)
+                    .replace('.html', '')
+                    .replace(/-/g, ' ')
+                    .replace(/_/g, ' ');
 
-            const cardHtml = `
-                <div class="rds-card-item" onclick="openApp('${file.name}', '${cleanName}')">
-                    <div class="rds-card-main">
-                        <span class="rds-card-icon">${icon}</span>
-                        <strong>${cleanName}</strong>
-                        <p>Outil d'aide à la vente</p>
+                // Si c'est un dossier, on cherche l'index dedans, sinon le fichier direct
+                const linkTarget = isFolder ? `${item.name}/index.html` : item.name;
+
+                const cardHtml = `
+                    <div class="rds-card-item" onclick="openApp('${linkTarget}', '${cleanName}')">
+                        <div class="rds-card-main">
+                            <span class="rds-card-icon">${getIcon(cleanName)}</span>
+                            <strong>${cleanName}</strong>
+                            <p>Outil de calcul</p>
+                        </div>
+                        <div class="rds-card-footer">Lancer →</div>
                     </div>
-                    <div class="rds-card-footer">Lancer l'application →</div>
-                </div>
-            `;
-            container.innerHTML += cardHtml;
+                `;
+                container.innerHTML += cardHtml;
+            }
         });
     } catch (error) {
-        console.error("GitHub API Error:", error);
-        container.innerHTML = "<p>Impossible de charger la liste des outils. Vérifiez la connexion.</p>";
+        container.innerHTML = "<p>Erreur lors du chargement des outils.</p>";
     }
 }
 
-// Lancement
 generateCards();
 </script>
 
 <style>
-    /* 1. RESET & FULLWIDTH (Pour WordPress) */
-    .site-top-container, .header-area-title, .site-logo-outer { display: none !important; }
-    article, .entry-content, .post-content, .site-main, .content-area, .article-wrapper-outer {
-        width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important;
-    }
-
+    /* DESACTIVATION DU SCROLL GLOBAL SUR LE WRAPPER */
     .rds-expert-force-fullwidth {
-        width: 100vw !important; position: relative !important; left: 50% !important; right: 50% !important;
-        margin-left: -50vw !important; margin-right: -50vw !important; background: #f8fafc; min-height: 100vh;
-        font-family: 'Segoe UI', system-ui, sans-serif; user-select: none;
+        overflow-x: hidden !important; /* Pas de scroll horizontal */
+        width: 100vw !important;
+        position: relative !important;
+        left: 50% !important;
+        margin-left: -50vw !important;
+        background: #f8fafc;
+        min-height: 100vh;
     }
 
-    /* 2. STYLE DU HUB */
-    .rds-cards-content-centered { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
-    .rds-expert-header { text-align: center; margin-bottom: 50px; }
-    .rds-expert-header h2 { color: #33757e; font-size: 2.2rem; font-weight: 800; text-transform: uppercase; border-bottom: 5px solid #f2711c; padding-bottom: 12px; display: inline-block; }
+    /* WP RESET */
+    .site-top-container, .header-area-title, .site-logo-outer { display: none !important; }
+    article, .entry-content, .post-content, .site-main { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
 
-    .rds-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    /* HUB & GRID */
+    .rds-cards-content-centered { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    .rds-expert-header h2 { color: #33757e; font-size: 2rem; border-bottom: 4px solid #f2711c; padding-bottom: 10px; display: inline-block; text-transform: uppercase; }
+    .rds-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
 
-    .rds-card-item { 
-        display: flex; flex-direction: column; background: #ffffff; border-radius: 24px; border: 1px solid #e2e8f0; 
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; overflow: hidden;
+    /* CARDS */
+    .rds-card-item { background: white; border-radius: 20px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; overflow: hidden; }
+    .rds-card-item:hover { transform: translateY(-8px); border-color: #33757e; box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    .rds-card-main { padding: 30px; text-align: center; flex-grow: 1; }
+    .rds-card-icon { font-size: 45px; margin-bottom: 15px; display: block; }
+    .rds-card-main strong { display: block; font-size: 1.2rem; color: #1e293b; text-transform: capitalize; }
+    .rds-card-footer { padding: 15px; background: #f8fafc; color: #f2711c; font-weight: bold; text-align: center; border-top: 1px solid #eee; }
+
+    /* APP VIEWER FULLSCREEN & NO SCROLL */
+    #rds-app-viewer {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: 999999;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Blocage du scroll ici aussi */
     }
-    .rds-card-item:hover { transform: translateY(-12px); border-color: #33757e; box-shadow: 0 20px 40px rgba(51, 117, 126, 0.15); }
-
-    .rds-card-main { padding: 40px 30px; text-align: center; flex-grow: 1; }
-    .rds-card-icon { font-size: 50px; background: #f1f5f9; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 25px; transition: 0.3s; }
-    .rds-card-item:hover .rds-card-icon { background: #33757e; transform: scale(1.1); }
+    .rds-app-bar { background: #33757e; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .rds-back-button { background: #f2711c; border: none; color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     
-    .rds-card-main strong { display: block; font-size: 1.3rem; color: #1e293b; margin-bottom: 8px; text-transform: capitalize; }
-    .rds-card-main p { color: #64748b; font-size: 0.95rem; margin: 0; }
-
-    .rds-card-footer { padding: 20px; background: #f8fafc; color: #f2711c; font-weight: 700; text-align: center; border-top: 1px solid #f1f5f9; }
-    .rds-card-item:hover .rds-card-footer { background: #f2711c; color: white; }
-
-    /* 3. INTERFACE APP (IFRAME) */
-    .rds-app-bar { 
-        background: #33757e; color: white; padding: 15px 40px; display: flex; align-items: center; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
+    #rds-app-iframe { 
+        flex-grow: 1; 
+        width: 100%; 
+        height: 100%; 
+        border: none;
+        overflow: hidden; /* Empêche le scroll de l'iframe si l'app le permet */
     }
-    .rds-back-button { 
-        background: #f2711c; color: white; border: none; padding: 12px 24px; border-radius: 12px; 
-        font-weight: 800; cursor: pointer; transition: 0.3s; margin-right: 30px;
-    }
-    .rds-back-button:hover { background: #e06317; transform: translateX(-5px); }
-    
-    #rds-app-title-container { display: flex; flex-direction: column; }
-    #rds-app-title { font-weight: 800; font-size: 1.2rem; text-transform: uppercase; line-height: 1; }
-    #rds-app-title-container small { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 4px; }
 
-    #rds-app-iframe { width: 100%; height: 90vh; background: white; }
-
-    /* MOBILE */
     @media (max-width: 768px) {
-        .rds-app-bar { padding: 10px 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
-        .rds-back-button { width: 100%; }
-        #rds-app-iframe { height: 80vh; }
+        .rds-cards-grid { grid-template-columns: 1fr; }
     }
 </style>
