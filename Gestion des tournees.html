@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planificateur de Tournées - Rue du Store</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; color: #1f2937; line-height: 1.5; }
+    @media print { .no-print { display: none !important; } .card { box-shadow: none !important; border: 1px solid #eee !important; } body { background: white; } }
+    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #374151; }
+    input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+    .btn { cursor: pointer; padding: 10px 20px; border-radius: 8px; font-weight: 600; border: none; transition: all 0.2s; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; font-size: 13px; padding: 8px 12px; }
+    .btn-danger-outline { background: white; color: #dc2626; border: 1px solid #f87171; font-size: 13px; padding: 8px 12px; }
+    .btn-mail { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; font-size: 11px; padding: 4px 8px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+    .btn-cal { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-size: 11px; padding: 4px 8px; font-weight: 600; cursor: pointer; border-radius: 6px; margin-left: 5px; }
+    .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 8px; }
+    .status-ok { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fee2e2; color: #991b1b; }
+    
+    /* Styles pour la carte */
+    #map-container { width: 100%; height: 400px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; }
+    .map-number { border: 2px solid white; border-radius: 50%; color: white; font-weight: bold; text-align: center; line-height: 24px; font-size: 12px; width: 24px; height: 24px; }
+    .map-number.job { background: #2563eb; }
+    .map-number.depot { background: #16a34a; }
+
+    /* Styles pour le drag & drop */
+    .draggable-row { transition: background 0.2s; }
+    .draggable-row:active { background: #f0f7ff !important; }
+    .drag-handle { cursor: grab; padding-right: 10px; color: #9ca3af; font-size: 16px; user-select: none; }
+    .drag-handle:active { cursor: grabbing; }
+    .drag-over { border-top: 2px dashed #2563eb !important; background: #f0f7ff !important; }
+    .lunch-row { background: #fffbeb; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    async function geocode(address) {
+      if (!address || address.length < 3) throw new Error("Adresse trop courte");
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", address); url.searchParams.set("format", "jsonv2"); url.searchParams.set("limit", "1");
+      const res = await fetch(url.toString(), { headers: { "User-Agent": "tour-planner-rue-du-store" } });
+      const data = await res.json();
+      if (!data?.length) throw new Error("Adresse introuvable");
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), label: data[0].display_name };
+    }
+
+    async function suggestions(query) {
+      if (!query || query.trim().length < 3) return [];
+      try {
+        const url = new URL("https://nominatim.openstreetmap.org/search");
+        url.searchParams.set("q", query); url.searchParams.set("format", "jsonv2");
+        const res = await fetch(url.toString());
+        const data = await res.json();
+        return (data || []).map(d => ({ label: d.display_name, lat: parseFloat(d.lat), lon: parseFloat(d.lon) }));
+      } catch { return []; }
+    }
+
+    const timeToMinutes = (hhmm) => { const [h, m] = hhmm.split(/[h:]/).map(Number); return h * 60 + m; };
+    const minutesToTime = (total) => {
+      const h = Math.floor(Math.round(total) / 60) % 24;
+      const m = Math.round(total) % 60;
+      return `${String(h).padStart(2, "0")}h${String(m).padStart(2, "0")}`;
+    };
+
+    function AddressInput({ value, onChange, onPick, isGeocoded, placeholder }) {
+      const [open, setOpen] = useState(false);
+      const [items, setItems] = useState([]);
+      const timerRef = useRef(null);
+
+      const handleChange = (e) => {
+        const v = e.target.value; onChange(v); setOpen(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(async () => { const list = await suggestions(v); setItems(list); }, 400);
+      };
+
+      return (
+        <div style={{ position: "relative" }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <input type="text" value={value} onChange={handleChange} placeholder={placeholder} />
+            <span className={`status-badge ${isGeocoded ? 'status-ok' : 'status-pending'}`}>{isGeocoded ? 'OK' : '...'}</span>
+          </div>
+          {open && items.length > 0 && (
+            <div style={{ position: "absolute", zIndex: 1000, left: 0, right: 0, background: "#fff", border: "1px solid #ddd", maxHeight: 150, overflowY: "auto", borderRadius: 8 }}>
+              {items.map((it, idx) => (
+                <div key={idx} onClick={() => { onChange(it.label); onPick(it); setOpen(false); }} style={{ padding: "8px 12px", cursor: "pointer", borderBottom: "1px solid #f3f4f6", fontSize: '13px' }}>{it.label}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function LeafletMap({ points, routeGeometry }) {
+      const mapRef = useRef(null);
+      useEffect(() => {
+        if (!mapRef.current) {
+          mapRef.current = L.map("map-container").setView([47.9, 1.9], 8);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapRef.current);
+        }
+        const L_map = mapRef.current;
+        L_map.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Polyline) L_map.removeLayer(l); });
+        const activePoints = points.filter(p => p.lat);
+        activePoints.forEach((p, index) => {
+          const isExtremity = p.isDepot || p.isArrival || p.client === "Départ" || p.client === "Retour";
+          const markerClass = isExtremity ? "map-number depot" : "map-number job";
+          const icon = L.divIcon({
+            className: 'map-number-icon',
+            html: `<div class="${markerClass}">${isExtremity ? (p.client === "Départ" ? "D" : "R") : index}</div>`,
+            iconSize: [24, 24], iconAnchor: [12, 12]
+          });
+          L.marker([p.lat, p.lon], { icon }).addTo(L_map).bindPopup(p.client || p.address);
+        });
+        if (routeGeometry) {
+          const poly = L.polyline(routeGeometry, { color: '#2563eb', weight: 4, opacity: 0.7 }).addTo(L_map);
+          L_map.fitBounds(poly.getBounds(), { padding: [50, 50] });
+        }
+      }, [points, routeGeometry]);
+      return <div id="map-container" />;
+    }
+
+    function App() {
+      const savedState = JSON.parse(localStorage.getItem('rueDuStore_state') || 'null');
+      const [savedToursDict, setSavedToursDict] = useState(() => JSON.parse(localStorage.getItem('rueDuStore_savedTours') || '{}'));
+
+      const [depot, setDepot] = useState(savedState?.depot || { address: "Orléans", lat: null, lon: null });
+      const [arrival, setArrival] = useState(savedState?.arrival || { address: "", lat: null, lon: null });
+      const [sameAsStart, setSameAsStart] = useState(savedState?.sameAsStart ?? true);
+      const [tourDate, setTourDate] = useState(savedState?.tourDate || new Date().toISOString().split('T')[0]);
+      const [startTime, setStartTime] = useState(savedState?.startTime || "08h00");
+      const [jobs, setJobs] = useState(savedState?.jobs || [{ id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null }]);
+      const [result, setResult] = useState(savedState?.result || null);
+      const [routeGeo, setRouteGeo] = useState(savedState?.routeGeo || null);
+      
+      const [loading, setLoading] = useState(false);
+      const [draggedIdx, setDraggedIdx] = useState(null);
+      const [dragOverIdx, setDragOverIdx] = useState(null);
+
+      // États pour la fenêtre (modal) de l'agenda
+      const [calModalOpen, setCalModalOpen] = useState(false);
+      const [calModalText, setCalModalText] = useState("");
+      const [calModalJob, setCalModalJob] = useState(null);
+
+      useEffect(() => {
+        const stateToSave = { depot, arrival, sameAsStart, tourDate, startTime, jobs, result, routeGeo };
+        localStorage.setItem('rueDuStore_state', JSON.stringify(stateToSave));
+      }, [depot, arrival, sameAsStart, tourDate, startTime, jobs, result, routeGeo]);
+
+      const startTimes = [];
+      for(let h=6; h<=10; h++) [0,15,30,45].forEach(m => startTimes.push(`${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}`));
+
+      const handleSaveAs = () => {
+        const name = window.prompt("Nom de la sauvegarde (ex: Tournée Jean - 12 Mars) :");
+        if (!name) return;
+        const stateToSave = { depot, arrival, sameAsStart, tourDate, startTime, jobs, result, routeGeo };
+        const newDict = { ...savedToursDict, [name]: stateToSave };
+        setSavedToursDict(newDict);
+        localStorage.setItem('rueDuStore_savedTours', JSON.stringify(newDict));
+        alert(`La tournée "${name}" a été sauvegardée avec succès !`);
+      };
+
+      const handleLoadTour = (e) => {
+        const name = e.target.value;
+        if (!name) return;
+        if (!window.confirm(`Voulez-vous écraser le travail en cours pour charger "${name}" ?`)) {
+          e.target.value = ""; 
+          return;
+        }
+        const data = savedToursDict[name];
+        if (data) {
+          setDepot(data.depot); setArrival(data.arrival); setSameAsStart(data.sameAsStart);
+          setTourDate(data.tourDate); setStartTime(data.startTime); setJobs(data.jobs);
+          setResult(data.result); setRouteGeo(data.routeGeo);
+        }
+        e.target.value = ""; 
+      };
+
+      const resetTour = () => {
+        if (window.confirm("🗑️ Voulez-vous vraiment effacer toute la tournée et recommencer à zéro ? (Cela n'effacera pas vos sauvegardes nommées)")) {
+          localStorage.removeItem('rueDuStore_state');
+          window.location.reload(); 
+        }
+      };
+
+      const updateTimesAndRoute = async (currentOrder) => {
+        const allItems = [{...depot, isDepot:true, client:"Départ"}, ...currentOrder];
+        const returnPoint = sameAsStart ? depot : arrival;
+        if (!allItems[allItems.length-1].isArrival) allItems.push({...returnPoint, isDepot:true, isArrival:true, client:"Retour"});
+
+        const coords = allItems.filter(p => p.lat).map(c => `${c.lon},${c.lat}`).join(";");
+        const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&annotations=duration`);
+        const routeData = await routeRes.json();
+
+        let currentTime = timeToMinutes(startTime);
+        let legIndex = 0;
+        const durations = routeData.routes[0].legs.map(l => (l.duration / 60) * 1.10); 
+        
+        const newPlan = [];
+        for (let i = 1; i < allItems.length; i++) {
+          const currentItem = allItems[i];
+
+          if (currentItem.isLunch) {
+            const buffer = currentItem.eatOnSite ? 0 : 15;
+            const arriveLunch = currentTime + buffer;
+            const dur = currentItem.duration || 0;
+            newPlan.push({ ...currentItem, arrive: minutesToTime(arriveLunch), depart: minutesToTime(arriveLunch + dur) });
+            currentTime = arriveLunch + dur + buffer;
+          } else {
+            const travel = durations[legIndex] || 0;
+            const arriveMin = currentTime + travel;
+            const dur = currentItem.duration || 0;
+            newPlan.push({ ...currentItem, arrive: minutesToTime(arriveMin), depart: minutesToTime(arriveMin + dur) });
+            currentTime = arriveMin + dur;
+            legIndex++;
+          }
+        }
+        setResult({ plan: newPlan });
+        setRouteGeo(routeData.routes[0].geometry.coordinates.map(c => [c[1], c[0]]));
+      };
+
+      const computePlan = async () => {
+        setLoading(true);
+        try {
+          const all = [...jobs];
+          for (let item of all) { if (!item.lat && item.address) { const g = await geocode(item.address); item.lat = g.lat; item.lon = g.lon; await sleep(400); } }
+          if (!depot.lat) { const g = await geocode(depot.address); depot.lat = g.lat; depot.lon = g.lon; }
+          if (!sameAsStart && !arrival.lat) { const g = await geocode(arrival.address); arrival.lat = g.lat; arrival.lon = g.lon; }
+          
+          let current = depot, unvisited = [...all], ordered = [];
+          while(unvisited.length) {
+            unvisited.sort((a,b) => (Math.pow(a.lat-current.lat,2)+Math.pow(a.lon-current.lon,2)) - (Math.pow(b.lat-current.lat,2)+Math.pow(b.lon-current.lon,2)));
+            current = unvisited.shift(); ordered.push(current);
+          }
+          await updateTimesAndRoute(ordered);
+        } catch (e) { alert(e.message); }
+        setLoading(false);
+      };
+
+      const addLunch = () => {
+        const lunch = { id: 'lunch-' + Date.now(), client: "PAUSE DÉJEUNER", isLunch: true, eatOnSite: false, duration: 60, address: "Sur place", lat: null, lon: null };
+        const newPlan = [...result.plan];
+        newPlan.splice(Math.max(0, newPlan.length - 1), 0, lunch);
+        updateTimesAndRoute(newPlan.filter(p => !p.isArrival));
+      };
+
+      const handleDragStart = (e, idx) => {
+        setDraggedIdx(idx);
+        e.dataTransfer.effectAllowed = "move";
+      };
+      const handleDragOver = (e, idx) => {
+        e.preventDefault();
+        if (dragOverIdx !== idx) setDragOverIdx(idx);
+      };
+      const handleDragLeave = () => setDragOverIdx(null);
+      const handleDrop = (idx) => {
+        setDragOverIdx(null);
+        if (draggedIdx === null || draggedIdx === idx) return;
+        const newOrder = [...result.plan.filter(p => !p.isArrival)];
+        const item = newOrder.splice(draggedIdx, 1)[0];
+        newOrder.splice(idx, 0, item);
+        updateTimesAndRoute(newOrder);
+        setDraggedIdx(null);
+      };
+
+      const sendEmail = (p) => {
+        const d = new Date(tourDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const poseObj = p.notes ? p.notes : "votre installation";
+        const subject = encodeURIComponent(`Confirmation d'intervention Rue du Store - ${d}`);
+        const body = encodeURIComponent(
+          `Bonjour,\n\n` +
+          `Nous vous confirmons par la présente le passage de nos techniciens pour l'intervention suivante :\n\n` +
+          `• Objet : ${poseObj}\n` +
+          `• Date : ${d}\n` +
+          `• Créneau d'arrivée indicatif : à partir de ${p.arrive}\n\n` +
+          `Nos équipes font le maximum pour respecter cet horaire, toutefois celui-ci reste dépendant des aléas de circulation et de la durée des interventions précédentes. En cas de retard important, nous ne manquerons pas de vous prévenir.\n\n` +
+          `Pour le bon déroulement de la pose, merci de bien vouloir dégager l'accès aux menuiseries ou zones concernées.\n\n` +
+          `Dans l'attente de notre passage, nous restons à votre disposition pour toute question.\n\n` +
+          `Cordialement,\n\n` +
+          `L'équipe Rue du Store\n` +
+          `www.ruedustore.fr`
+        );
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${p.email}&su=${subject}&body=${body}`, '_blank');
+      };
+
+      // Fonction d'ouverture de la fenêtre pour l'agenda
+      const openCalendarModal = (p) => {
+        const defaultDetails = `Notes : ${p.notes || 'Aucune'}\nClient : ${p.client}\nEmail : ${p.email || 'Non renseigné'}`;
+        setCalModalText(defaultDetails);
+        setCalModalJob(p);
+        setCalModalOpen(true);
+      };
+
+      // Fonction de confirmation (création du lien Google Agenda)
+      const confirmAddToCalendar = () => {
+        if (!calModalJob) return;
+        const p = calModalJob;
+        const [y, m, d] = tourDate.split('-');
+        const arriveTime = p.arrive.replace('h', '') + '00';
+        const departTime = p.depart.replace('h', '') + '00';
+        
+        const dates = `${y}${m}${d}T${arriveTime}/${y}${m}${d}T${departTime}`;
+        const title = encodeURIComponent(`Intervention - ${p.client}`);
+        const details = encodeURIComponent(calModalText);
+        const location = encodeURIComponent(p.address || '');
+
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+        window.open(url, '_blank');
+        
+        setCalModalOpen(false);
+        setCalModalJob(null);
+      };
+
+      return (
+        <div style={{ maxWidth: 950, margin: "20px auto", padding: "0 20px" }}>
+          <div className="no-print card">
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: '10px' }}>
+              <h2 style={{ margin: 0 }}>Tournée Rue du Store</h2>
+              
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <select onChange={handleLoadTour} style={{ width: 'auto', marginBottom: 0, padding: '8px', fontSize: '13px' }}>
+                  <option value="">📂 Mes sauvegardes...</option>
+                  {Object.keys(savedToursDict).map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
+                <button className="btn btn-secondary" onClick={handleSaveAs}>💾 Enregistrer sous...</button>
+                <button className="btn btn-danger-outline" onClick={resetTour}>🗑️ Nouvelle</button>
+              </div>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 15 }}>
+              <div><label>Date</label><input type="date" value={tourDate} onChange={e => setTourDate(e.target.value)} /></div>
+              <div><label>Heure de départ</label>
+                <select value={startTime} onChange={e => setStartTime(e.target.value)}>
+                  {startTimes.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div><label>Lieu de Départ</label><AddressInput placeholder="Ex: Orléans" value={depot.address} isGeocoded={!!depot.lat} onChange={v => setDepot({...depot, address: v, lat: null})} onPick={s => setDepot({...depot, lat: s.lat, lon: s.lon, address: s.label})} /></div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0' }}>
+               <input type="checkbox" id="ret" checked={sameAsStart} onChange={e => setSameAsStart(e.target.checked)} style={{ width: 'auto', margin: 0 }} />
+               <label htmlFor="ret" style={{ margin: 0 }}>Retour au même endroit</label>
+            </div>
+            {!sameAsStart && <div style={{marginBottom: 10}}><label>Lieu de Retour</label><AddressInput placeholder="Ex: Adresse dépôt ou domicile" value={arrival.address} isGeocoded={!!arrival.lat} onChange={v => setArrival({...arrival, address: v, lat: null})} onPick={s => setArrival({...arrival, lat: s.lat, lon: s.lon, address: s.label})} /></div>}
+
+            {jobs.map((j) => (
+              <div key={j.id} style={{ padding: 15, border: '1px solid #eee', borderRadius: 10, marginBottom: 15, background: '#fcfcfc' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div><label>Nom Client</label><input type="text" placeholder="Ex: Jean Dupont" value={j.client} onChange={e => setJobs(jobs.map(x => x.id === j.id ? {...x, client: e.target.value} : x))} /></div>
+                  <div><label>Email</label><input type="text" placeholder="Ex: jean.dupont@email.com" value={j.email} onChange={e => setJobs(jobs.map(x => x.id === j.id ? {...x, email: e.target.value} : x))} /></div>
+                </div>
+                <label>Adresse d'intervention</label>
+                <AddressInput placeholder="Ex: 12 rue de la Paix, Paris" value={j.address} isGeocoded={!!j.lat} onChange={v => setJobs(jobs.map(x => x.id === j.id ? {...x, address: v, lat: null} : x))} onPick={s => setJobs(jobs.map(x => x.id === j.id ? {...x, lat: s.lat, lon: s.lon, address: s.label} : x))} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+                  <div><label>Durée prévue</label><select value={j.duration} onChange={e => setJobs(jobs.map(x => x.id === j.id ? {...x, duration: parseInt(e.target.value)} : x))}>
+                    {[30, 60, 90, 120, 150, 180, 210, 240, 270, 300].map(m => <option key={m} value={m}>{Math.floor(m/60)}h{String(m%60).padStart(2,'0')}</option>)}
+                  </select></div>
+                  <div><label>Note (Objet du mail)</label><input type="text" placeholder="Ex: Store banne motorisé" value={j.notes} onChange={e => setJobs(jobs.map(x => x.id === j.id ? {...x, notes: e.target.value} : x))} /></div>
+                  <button className="btn" style={{ background: '#fee2e2', color: '#b91c1c' }} onClick={() => setJobs(jobs.filter(x => x.id !== j.id))}>X</button>
+                </div>
+              </div>
+            ))}
+            <button className="btn" style={{ background: '#f3f4f6' }} onClick={() => setJobs([...jobs, { id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null }])}>+ Ajouter un chantier</button>
+            <button className="btn btn-primary" style={{ float: 'right' }} onClick={computePlan} disabled={loading}>{loading ? "Calcul..." : "Optimiser la tournée"}</button>
+          </div>
+
+          <LeafletMap points={result ? [{...depot, isDepot: true, client: "Départ"}, ...result.plan] : [{...depot, isDepot: true, client: "Départ"}, ...jobs]} routeGeometry={routeGeo} />
+
+          {result && (
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                <h3>Feuille de route</h3>
+                <button className="btn no-print" style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a' }} onClick={addLunch}>🍴 Ajouter une pause</button>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
+                    <th style={{padding:10}}>#</th>
+                    <th style={{padding:10}}>Destination</th>
+                    <th style={{padding:10}}>Arrivée à...</th>
+                    <th style={{padding:10}}>Durée</th>
+                    <th style={{padding:10}}>Départ à...</th>
+                    <th className="no-print">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.plan.map((p, i) => (
+                    <tr key={p.id || i} 
+                        draggable={!p.isArrival}
+                        onDragStart={(e) => handleDragStart(e, i)}
+                        onDragOver={(e) => handleDragOver(e, i)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={() => handleDrop(i)}
+                        className={`${p.isLunch ? "lunch-row" : ""} ${!p.isArrival ? "draggable-row" : ""} ${dragOverIdx === i ? "drag-over" : ""}`} 
+                        style={{ borderBottom: '1px solid #f9f9f9' }}>
+                      <td style={{ padding: 12 }}>
+                        {!p.isArrival && <span className="drag-handle no-print" title="Glisser pour déplacer">☰</span>}
+                        {p.isLunch ? "🍴" : (p.isArrival ? "🏁" : i + 1)}
+                      </td>
+                      <td style={{ padding: 12 }}>
+                        <b>{p.client}</b><br/>
+                        {p.isLunch ? (
+                          <div className="no-print" style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px' }}>
+                            <input type="checkbox" id={`eat-${i}`} checked={p.eatOnSite} onChange={(e) => {
+                              const newPlan = [...result.plan.filter(x => !x.isArrival)];
+                              newPlan[i].eatOnSite = e.target.checked;
+                              updateTimesAndRoute(newPlan);
+                            }} style={{ width: 'auto', margin: 0 }} />
+                            <label htmlFor={`eat-${i}`} style={{ margin: 0, fontStyle: 'normal', cursor: 'pointer' }}>Mange sur place (supprime le trajet)</label>
+                          </div>
+                        ) : (
+                          <small>{p.address}</small>
+                        )}
+                      </td>
+                      <td style={{ padding: 12 }}>{p.arrive}</td>
+                      <td style={{ padding: 12 }}>
+                        {p.isArrival ? "-" : (
+                          <select className="no-print" style={{ width: 80, padding: 2, margin: 0 }} value={p.duration} onChange={(e) => {
+                            const newPlan = [...result.plan.filter(x => !x.isArrival)];
+                            newPlan[i].duration = parseInt(e.target.value);
+                            updateTimesAndRoute(newPlan);
+                          }}>
+                            {[15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240].map(m => <option key={m} value={m}>{Math.floor(m/60)}h{String(m%60).padStart(2,'0')}</option>)}
+                          </select>
+                        )}
+                        <span className="print-only" style={{ display: 'none' }}>{Math.floor(p.duration/60)}h{String(p.duration%60).padStart(2,'0')}</span>
+                      </td>
+                      <td style={{ padding: 12 }}>{p.depart}</td>
+                      <td className="no-print" style={{ padding: 12, display: 'flex', gap: '5px', alignItems: 'center' }}>
+                        {!p.isArrival && !p.isLunch && (
+                          <>
+                            {p.email && <button onClick={() => sendEmail(p)} className="btn-mail">📧 Mail</button>}
+                            <button onClick={() => openCalendarModal(p)} className="btn-cal">📅 Agenda</button>
+                          </>
+                        )}
+                        {p.isLunch && <button onClick={() => updateTimesAndRoute(result.plan.filter((_,idx) => idx !== i && !_.isArrival))} style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>Supprimer</button>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <style>{`@media print { .print-only { display: inline !important; } }`}</style>
+              <button className="btn no-print" style={{ background: '#111827', color: 'white', marginTop: 20 }} onClick={() => window.print()}>🖨️ Imprimer</button>
+            </div>
+          )}
+
+          {/* FENÊTRE MODAL POUR L'AGENDA */}
+          {calModalOpen && (
+            <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+              <div style={{ background: 'white', padding: 20, borderRadius: 12, width: '400px', maxWidth: '90%', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ marginTop: 0, marginBottom: 15 }}>Détails pour l'Agenda</h3>
+                <p style={{ fontSize: 13, color: '#4b5563', marginBottom: 10 }}>Modifiez la description du rendez-vous ci-dessous :</p>
+                <textarea 
+                  value={calModalText} 
+                  onChange={(e) => setCalModalText(e.target.value)}
+                  style={{ width: '100%', height: '120px', padding: 10, border: '1px solid #d1d5db', borderRadius: 8, fontFamily: 'inherit', fontSize: 14, marginBottom: 15, resize: 'vertical' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                  <button className="btn btn-secondary" onClick={() => setCalModalOpen(false)}>Annuler</button>
+                  <button className="btn btn-primary" onClick={confirmAddToCalendar}>Ouvrir l'Agenda</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
