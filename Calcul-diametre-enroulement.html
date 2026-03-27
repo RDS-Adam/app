@@ -2,86 +2,194 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculateur Diamètre d'Enroulement</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .calculateur {
-      max-width: 500px; margin: auto; border: 1px solid #ddd;
-      border-radius: 8px; padding: 20px;
+    :root {
+      --primary: #0071e3;
+      --bg: #f5f5f7;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --text: #1d1d1f;
+      --text-dim: #86868b;
     }
-    label, input, select, button {
-      display: block; width: 100%; margin: 10px 0;
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
     }
-    button { padding: 10px; cursor: pointer; }
-    .resultat {
-      margin-top: 15px; padding: 10px; background: #f3f3f3;
-      border: 1px solid #ccc; border-radius: 5px;
+
+    .panneau-calcul {
+      width: 100%;
+      max-width: 420px;
+      margin: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 22px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    h2 { 
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 30px;
+      letter-spacing: -0.5px;
+    }
+
+    .groupe-saisie {
+      margin-bottom: 20px;
+    }
+
+    label { 
+      display: block; 
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+
+    select, input { 
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid #d2d2d7;
+      background: rgba(255, 255, 255, 0.4);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    }
+
+    button { 
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border-radius: 12px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #0077ed;
+      transform: scale(1.01);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .zone-resultat {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.03);
+      display: none; /* Caché par défaut */
+      animation: apparition 0.4s ease-out;
+    }
+
+    .valeur-diametre {
+      display: block;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 5px 0;
+    }
+
+    .notice {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    @keyframes apparition {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-<div class="calculateur">
-  <h2>Calculateur de Diamètre d'Enroulement</h2>
+<div class="panneau-calcul">
+  <h2>Diamètre d'Enroulement</h2>
   
-  <label for="tubeEnroulement">Tube d'enroulement nu (sélectionnez le diamètre) :</label>
-  <select id="tubeEnroulement">
-    <option value="6">6 cm</option>
-    <option value="7">7 cm</option>
-    <option value="8">8 cm</option>
-  </select>
+  <div class="groupe-saisie">
+    <label for="tubeEnroulement">Tube d'enroulement nu</label>
+    <select id="tubeEnroulement">
+      <option value="6">Diamètre 60 mm (6 cm)</option>
+      <option value="7">Diamètre 70 mm (7 cm)</option>
+      <option value="8">Diamètre 80 mm (8 cm)</option>
+    </select>
+  </div>
   
-  <label for="qualite">Qualité de la toile :</label>
-  <select id="qualite">
-    <!-- Affichage en mm tout en utilisant des valeurs en cm dans le calcul -->
-    <option value="acrylique">Acrylique (épaisseur 1,6 mm)</option>
-    <option value="soltis">Soltis 92 (épaisseur 0,5 mm)</option>
-  </select>
+  <div class="groupe-saisie">
+    <label for="qualite">Type de toile</label>
+    <select id="qualite">
+      <option value="acrylique">Acrylique (1,6 mm)</option>
+      <option value="soltis">Soltis 92 (0,5 mm)</option>
+    </select>
+  </div>
   
-  <label for="avancee">Longueur de l'avancée (cm) :</label>
-  <input type="number" id="avancee" placeholder="Ex : 200" min="0" step="1">
+  <div class="groupe-saisie">
+    <label for="avancee">Longueur de l'avancée (en cm)</label>
+    <input type="number" id="avancee" placeholder="Ex : 250" min="0">
+  </div>
   
-  <button type="button" onclick="calculerDiametre()">Calculer</button>
+  <button type="button" onclick="calculerDiametre()">Calculer le diamètre</button>
   
-  <div id="resultat" class="resultat"></div>
+  <div id="resultat" class="zone-resultat">
+    <span class="notice">Diamètre final estimé :</span>
+    <span id="valeur-num" class="valeur-diametre">--</span>
+    <p class="notice">
+      Vérifiez l'espace disponible dans votre coffre. Nous suggérons une marge de sécurité de +10% sur ce résultat.
+    </p>
+  </div>
 </div>
 
 <script>
   function calculerDiametre() {
-    // Récupération des valeurs
     let dTube = parseFloat(document.getElementById('tubeEnroulement').value);
     let qualite = document.getElementById('qualite').value;
     let L = parseFloat(document.getElementById('avancee').value);
-    let t; // épaisseur de la toile en cm
+    let t; 
 
-    // Debug : affichage des valeurs récupérées
-    console.log("Tube : " + dTube + ", Qualité : " + qualite + ", Avancée : " + L);
-
-    // Vérification des entrées
-    if (isNaN(dTube) || dTube <= 0) {
-      document.getElementById('resultat').innerHTML = "❗️Veuillez sélectionner un tube d'enroulement valide.";
-      return;
-    }
     if (isNaN(L) || L <= 0) {
-      document.getElementById('resultat').innerHTML = "❗️Veuillez entrer une longueur d'avancée valide (> 0).";
+      alert("Veuillez entrer une longueur d'avancée valide.");
       return;
     }
 
-    // Définition de l'épaisseur selon la qualité de la toile (conversion en centimètres)
-    if (qualite === "acrylique") {
-      t = 0.16; // 1,6 mm = 0,16 cm
-    } else if (qualite === "soltis") {
-      t = 0.05; // 0,5 mm = 0,05 cm
-    }
+    t = (qualite === "acrylique") ? 0.16 : 0.05;
 
-    // Calcul du diamètre final d'enroulement (en cm)
-    let dFinal = Math.sqrt(dTube * dTube + (4 * t * L) / Math.PI);
-    dFinal = Math.round(dFinal * 10) / 10; // arrondi à une décimale
+    // Formule : Df = sqrt( Dtube² + (4 * t * L) / PI )
+    let dFinal = Math.sqrt(Math.pow(dTube, 2) + (4 * t * L) / Math.PI);
+    dFinal = dFinal.toFixed(1);
 
-    // Affichage du résultat
-    document.getElementById('resultat').innerHTML = 
-      `Diamètre final d'enroulement : <strong>${dFinal} cm</strong><br>
-       Vérifiez que ce diamètre rentre dans l'espace disponible de votre coffre de Store banne. Nous vous conseillons d'ajouter une marge d'erreur au résultat calculé.`;
+    const zoneResultat = document.getElementById('resultat');
+    const valeurNum = document.getElementById('valeur-num');
+
+    valeurNum.innerText = dFinal + " cm";
+    zoneResultat.style.display = 'block';
   }
 </script>
 
