@@ -5,20 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Calculateur Stores Inclinés - Rue du Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --rds-bleu: #33757e;
             --rds-orange: #ff7200;
-            --rds-gris-bg: #e8e8e8;
-            --rds-white: rgba(255, 255, 255, 0.9);
-            --rds-text: #1e293b;
+            --rds-gris: #ffffff;
+            --rds-text: #1a1a1a;
+            --rds-border: #eeeeee;
         }
 
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background-color: var(--rds-gris-bg); 
-            color: var(--rds-text); 
-            margin: 0; 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--rds-gris);
+            color: var(--rds-text);
+            margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
@@ -28,195 +31,171 @@
         .container { 
             width: 100%;
             max-width: 800px; 
-            background: var(--rds-white); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 40px; 
-            border-radius: 24px; 
-            box-shadow: 0 15px 35px rgba(51, 117, 126, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 40px;
+            background: #ffffff;
         }
 
         h1 { 
-            text-align: center; 
-            color: var(--rds-bleu); 
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: left;
+            color: var(--rds-text);
+            margin: 0 0 40px 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 30px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--rds-border);
+            padding-bottom: 15px;
         }
 
-        /* Onglets style Apple/RDS */
+        /* Onglets style Minimaliste */
         .tabs { 
             display: flex; 
-            margin-bottom: 30px; 
-            background: rgba(51, 117, 126, 0.05);
-            padding: 5px;
-            border-radius: 14px;
+            margin-bottom: 40px; 
+            gap: 30px;
+            border-bottom: 1px solid var(--rds-border);
         }
         .tab { 
-            flex: 1; 
-            text-align: center; 
-            padding: 12px; 
-            color: var(--rds-bleu);
-            font-weight: 800; 
+            padding: 10px 0; 
+            color: #999;
+            font-weight: 400; 
             cursor: pointer;
-            border-radius: 10px;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            font-size: 0.85em;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            position: relative;
         }
         .tab.active { 
-            background: var(--rds-bleu); 
-            color: white; 
-            box-shadow: 0 4px 10px rgba(51, 117, 126, 0.2);
+            color: var(--rds-text);
+        }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--rds-orange);
         }
 
         .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .form-section.active { display: block; animation: fadeIn 0.5s ease; }
 
-        .input-group { margin-bottom: 20px; }
+        .input-group { margin-bottom: 25px; }
         label { 
             display: block; 
-            margin-bottom: 8px; 
-            font-weight: 700; 
-            font-size: 0.85em; 
-            color: var(--rds-bleu); 
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #999;
             text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
         }
 
         input[type="number"], select { 
             width: 100%; 
-            padding: 12px 16px; 
-            box-sizing: border-box; 
-            border: 1px solid rgba(51, 117, 126, 0.2); 
-            border-radius: 12px; 
-            font-size: 16px;
-            background: white;
+            padding: 12px 0; 
+            border: none;
+            border-bottom: 1px solid var(--rds-border);
+            background: transparent;
+            font-size: 0.9rem;
+            color: var(--rds-text);
+            outline: none;
             transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
         input[type="number"]:focus, select:focus {
-            border-color: var(--rds-orange);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(255, 114, 0, 0.1);
+            border-bottom-color: var(--rds-orange);
         }
 
         button.action-btn { 
             width: 100%; 
-            padding: 16px; 
-            background: var(--rds-bleu); 
-            color: white; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: 800;
-            border-radius: 12px; 
-            cursor: pointer; 
+            padding: 15px; 
+            margin-top: 20px;
+            border: 1px solid var(--rds-text);
+            background: transparent;
+            color: var(--rds-text);
+            font-size: 0.8rem;
+            font-weight: 500;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        button.action-btn:hover { background: #265a61; transform: translateY(-2px); }
-
-        button.export-btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: var(--rds-orange); 
-            color: white; 
-            border: none; 
-            font-size: 15px; 
-            font-weight: 800;
-            border-radius: 10px; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            display: none; 
-            text-transform: uppercase;
-        }
-
-        button.toggle-btn {
-            width: 100%; 
-            padding: 12px; 
-            background: transparent; 
-            color: var(--rds-bleu); 
-            border: 2px solid var(--rds-bleu); 
-            font-size: 14px; 
-            font-weight: 800;
-            border-radius: 10px; 
-            cursor: pointer; 
-            margin-top: 30px; 
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        button.toggle-btn:hover { background: var(--rds-bleu); color: white; }
+        button.action-btn:hover { background: var(--rds-text); color: #fff; }
 
         .result { 
-            margin-top: 25px; 
-            padding: 25px; 
-            background: rgba(51, 117, 126, 0.03); 
-            border-left: 6px solid var(--rds-orange); 
-            border-radius: 14px;
+            margin-top: 40px; 
+            padding-top: 25px; 
+            border-top: 1px solid var(--rds-border);
         }
+        .result h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rds-text); margin-bottom: 15px; font-weight: 500; }
+        .result p { font-size: 0.9rem; margin: 5px 0; font-weight: 300; }
+        .result strong { font-weight: 500; color: var(--rds-orange); }
 
         #schema-container { 
             text-align: center; 
-            margin-top: 40px; 
-            display: none; 
-            padding-top: 30px;
-            border-top: 1px solid var(--rds-gris-bg);
+            margin-top: 50px; 
+            padding-top: 40px;
+            border-top: 1px solid var(--rds-border);
+            display: none;
         }
+        #schema-container h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; font-weight: 500; }
 
         .visu-selector {
-            margin-bottom: 20px;
-            background: #fff;
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: 1px solid var(--rds-gris-bg);
-            display: inline-block;
+            margin-bottom: 30px;
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
         }
+        .visu-selector label { display: inline-block; margin: 0 10px; cursor: pointer; color: var(--rds-text); }
 
         canvas { 
-            border: 1px solid var(--rds-gris-bg); 
-            background-color: white; 
-            border-radius: 16px; 
+            background-color: #fafafa; 
             max-width: 100%; 
             height: auto; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
         }
 
-        #restrictions-tables {
-            margin-top: 25px;
-            padding: 25px;
-            background: white;
-            border-radius: 18px;
-            border: 1px solid var(--rds-gris-bg);
-            display: none; 
+        .export-btn { 
+            background: transparent; border: none; color: #999; text-decoration: underline; 
+            font-size: 0.7rem; cursor: pointer; margin-top: 15px; text-transform: uppercase;
+        }
+        .export-btn:hover { color: var(--rds-orange); }
+
+        .toggle-btn {
+            width: 100%; padding: 12px; background: transparent; border: 1px solid #eee; color: #bbb;
+            font-size: 0.7rem; cursor: pointer; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;}
-        th, td { border: 1px solid var(--rds-gris-bg); padding: 12px; text-align: center; }
-        th { background-color: var(--rds-bleu); color: white; text-transform: uppercase; font-size: 11px; }
+        #restrictions-tables { margin-top: 30px; display: none; font-size: 0.75rem; color: #666; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: center; font-weight: 300; }
+        th { background: #fafafa; color: var(--rds-bleu); font-weight: 500; text-transform: uppercase; font-size: 0.65rem; }
 
-        .alert { color: #c0392b; font-weight: 800; margin-top: 10px;}
-        .success { color: #27ae60; font-weight: 800; margin-top: 10px;}
+        .alert { color: #d9534f; font-weight: 400; }
+        .success { color: #5cb85c; font-weight: 400; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Calculateur Stores Inclinés</h1>
+    <h1>Stores Inclinés</h1>
     
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('trapeze', this)">Store TRAPÈZE</div>
-        <div class="tab" onclick="switchTab('triangle', this)">Store TRIANGLE</div>
+        <div class="tab active" onclick="switchTab('trapeze', this)">Trapèze</div>
+        <div class="tab" onclick="switchTab('triangle', this)">Triangle</div>
     </div>
 
     <div id="trapeze" class="form-section active">
         <div class="input-group">
-            <label>Position de la Grande Hauteur</label>
+            <label>Position Grande Hauteur</label>
             <select id="trap_orientation">
-                <option value="gauche">À gauche</option>
-                <option value="droite">À droite</option>
+                <option value="gauche">Gauche</option>
+                <option value="droite">Droite</option>
             </select>
         </div>
         <div class="input-group">
@@ -228,47 +207,47 @@
             <input type="number" id="trap_h" value="118" step="0.1">
         </div>
         <div class="input-group">
-            <label>Base / Largeur (cm)</label>
+            <label>Largeur Base (cm)</label>
             <input type="number" id="trap_B" value="180" step="0.1">
         </div>
-        <button class="action-btn" onclick="calculerTrapeze()">Calculer & Dessiner</button>
+        <button class="action-btn" onclick="calculerTrapeze()">Calculer le projet</button>
         <div id="result_trapeze" class="result" style="display:none;"></div>
     </div>
 
     <div id="triangle" class="form-section">
         <div class="input-group">
-            <label>Position de la Hauteur</label>
+            <label>Position Hauteur</label>
             <select id="tri_orientation">
-                <option value="gauche">À gauche</option>
-                <option value="droite">À droite</option>
+                <option value="gauche">Gauche</option>
+                <option value="droite">Droite</option>
             </select>
         </div>
         <div class="input-group">
-            <label>Hauteur du triangle (cm)</label>
+            <label>Hauteur (cm)</label>
             <input type="number" id="tri_H" value="110" step="0.1">
         </div>
         <div class="input-group">
-            <label>Base / Largeur (cm)</label>
+            <label>Largeur Base (cm)</label>
             <input type="number" id="tri_B" value="163.5" step="0.1">
         </div>
-        <button class="action-btn" onclick="calculerTriangle()">Calculer & Dessiner</button>
+        <button class="action-btn" onclick="calculerTriangle()">Calculer le projet</button>
         <div id="result_triangle" class="result" style="display:none;"></div>
     </div>
 
     <div id="schema-container">
         <h3>Schéma de fabrication</h3>
         <div id="visu-selector" class="visu-selector">
+            Type de store : 
             <label><input type="radio" name="store_visu" value="plisse" checked onchange="calculerTrapeze()"> Plissé</label>
-            <label style="margin-left:15px;"><input type="radio" name="store_visu" value="californien" onchange="calculerTrapeze()"> Californien</label>
+            <label><input type="radio" name="store_visu" value="californien" onchange="calculerTrapeze()"> Californien</label>
         </div>
         <canvas id="schemaCanvas" width="600" height="400"></canvas>
-        <button id="btnExport" class="export-btn" onclick="exporterImage()">Télécharger le schéma (PNG)</button>
+        <button id="btnExport" class="export-btn" onclick="exporterImage()">Télécharger le schéma PNG</button>
     </div>
 
-    <button class="toggle-btn" onclick="toggleRestrictions()">Abaques de fabrication</button>
+    <button class="toggle-btn" onclick="toggleRestrictions()">Limites techniques de fabrication</button>
     
     <div id="restrictions-tables">
-        <h3 style="color:var(--rds-bleu)">Limites techniques</h3>
         <table>
             <tr><th>Type</th><th>Angle Max</th><th>Largeur Max</th><th>Hauteur Max</th></tr>
             <tr><td>Californien</td><td>45°</td><td>500 cm</td><td>400 cm</td></tr>
@@ -279,7 +258,7 @@
 </div>
 
 <script>
-    /* PROTECTION ANTI-CLIC DROIT & INSPECTER */
+    // Protection
     document.addEventListener('contextmenu', e => e.preventDefault()); 
     document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };
 
@@ -302,15 +281,26 @@
         let B = parseFloat(document.getElementById('trap_B').value);
         let orientation = document.getElementById('trap_orientation').value;
         let visuType = document.querySelector('input[name="store_visu"]:checked').value;
-        if (isNaN(H) || isNaN(h) || isNaN(B)) return alert("Veuillez remplir les champs.");
+        if (isNaN(H) || isNaN(h) || isNaN(B)) return;
+
         let diff = Math.abs(H - h);
         let angleDeg = Math.atan(diff / B) * (180 / Math.PI);
         let hypo = Math.sqrt(diff*diff + B*B);
         let surfaceM2 = ((H + h) / 2) * B / 10000;
-        let messages = [];
+        
         let calif_ok = angleDeg <= 45 && B >= 40 && h >= 15;
         let plisse_ok = angleDeg <= 30 && hypo <= 180 && H <= 300;
-        afficherResultat("result_trapeze", angleDeg, hypo, surfaceM2, calif_ok, plisse_ok, messages);
+
+        let divResult = document.getElementById("result_trapeze");
+        divResult.style.display = 'block';
+        divResult.innerHTML = `
+            <h3>Analyse technique</h3>
+            <p>Inclinaison : <strong>${angleDeg.toFixed(2)} °</strong></p>
+            <p>Hypoténuse : <strong>${hypo.toFixed(2)} cm</strong></p>
+            <p>Surface : <strong>${surfaceM2.toFixed(2)} m²</strong></p>
+            <p>Californien : <span class="${calif_ok ? 'success' : 'alert'}">${calif_ok ? 'Conforme' : 'Hors limites'}</span></p>
+            <p>Plissé : <span class="${plisse_ok ? 'success' : 'alert'}">${plisse_ok ? 'Conforme' : 'Hors limites'}</span></p>
+        `;
         dessinerSchema('trapeze', H, h, B, hypo, orientation, visuType, angleDeg);
     }
 
@@ -318,41 +308,44 @@
         let H = parseFloat(document.getElementById('tri_H').value);
         let B = parseFloat(document.getElementById('tri_B').value);
         let orientation = document.getElementById('tri_orientation').value;
-        if (isNaN(H) || isNaN(B)) return alert("Veuillez remplir les champs.");
+        if (isNaN(H) || isNaN(B)) return;
+
         let angleDeg = Math.atan(H / B) * (180 / Math.PI);
         let hypo = Math.sqrt(H*H + B*B);
         let surfaceM2 = (H * B / 2) / 10000;
         let plisse_ok = angleDeg <= 60 && hypo <= 210 && H <= 200;
+
         let divResult = document.getElementById('result_triangle');
         divResult.style.display = 'block';
-        divResult.innerHTML = `<p><strong>Inclinaison :</strong> ${angleDeg.toFixed(2)} °</p><p><strong>Hypoténuse :</strong> ${hypo.toFixed(2)} cm</p><p><strong>Surface :</strong> ${surfaceM2.toFixed(2)} m²</p><hr>${plisse_ok ? '<div class="success">✓ Réalisable</div>' : '<div class="alert">✗ Hors limites</div>'}`;
+        divResult.innerHTML = `
+            <h3>Analyse technique</h3>
+            <p>Inclinaison : <strong>${angleDeg.toFixed(2)} °</strong></p>
+            <p>Hypoténuse : <strong>${hypo.toFixed(2)} cm</strong></p>
+            <p>Surface : <strong>${surfaceM2.toFixed(2)} m²</strong></p>
+            <p>Plissé Triangle : <span class="${plisse_ok ? 'success' : 'alert'}">${plisse_ok ? 'Conforme' : 'Hors limites'}</span></p>
+        `;
         dessinerSchema('triangle', H, 0, B, hypo, orientation, 'plisse', angleDeg);
-    }
-
-    function afficherResultat(divId, angle, hypo, surface, calif_ok, plisse_ok, messages) {
-        let divResult = document.getElementById(divId);
-        divResult.style.display = 'block';
-        divResult.innerHTML = `<p><strong>Inclinaison :</strong> ${angle.toFixed(2)} °</p><p><strong>Hypoténuse :</strong> ${hypo.toFixed(2)} cm</p><p><strong>Surface :</strong> ${surface.toFixed(2)} m²</p><hr><h3>Faisabilité :</h3><p><strong>Californien :</strong> ${calif_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p><p><strong>Plissé :</strong> ${plisse_ok ? '<span class="success">✓ Faisable</span>' : '<span class="alert">✗ Non faisable</span>'}</p>`;
     }
 
     function dessinerSchema(type, H, h, B, hypo, orientation, visuType, angleDeg) {
         let canvas = document.getElementById('schemaCanvas');
         let ctx = canvas.getContext('2d');
         document.getElementById('schema-container').style.display = 'block';
-        document.getElementById('btnExport').style.display = 'block';
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        let marginX = 80, marginY = 80;
-        let scale = Math.min((canvas.width - 160)/B, (canvas.height - 160)/Math.max(H,h));
-        let x_l = 80, y_b = canvas.height - 80, px_B = B*scale;
+        let margin = 80;
+        let scale = Math.min((canvas.width - margin*2)/B, (canvas.height - margin*2)/Math.max(H,h));
+        let x_l = margin, y_b = canvas.height - margin, px_B = B*scale;
         let h_g = (orientation==='gauche')?H:h, h_d = (orientation==='gauche')?h:H;
         let pt_bl={x:x_l,y:y_b}, pt_br={x:x_l+px_B,y:y_b}, pt_tr={x:x_l+px_B,y:y_b-h_d*scale}, pt_tl={x:x_l,y:y_b-h_g*scale};
+        
         ctx.beginPath(); ctx.moveTo(pt_bl.x,pt_bl.y); ctx.lineTo(pt_br.x,pt_br.y); ctx.lineTo(pt_tr.x,pt_tr.y); ctx.lineTo(pt_tl.x,pt_tl.y); ctx.closePath();
-        ctx.fillStyle="#f0f7f8"; ctx.fill(); ctx.strokeStyle="#33757e"; ctx.stroke();
-        ctx.fillStyle="#33757e"; ctx.font="bold 14px sans-serif"; ctx.textAlign="center";
+        ctx.fillStyle="#fcfcfc"; ctx.fill(); ctx.strokeStyle="#ddd"; ctx.lineWidth=1; ctx.stroke();
+        
+        ctx.fillStyle="#1a1a1a"; ctx.font="12px Poppins"; ctx.textAlign="center";
         ctx.fillText(`${B} cm`, x_l+px_B/2, y_b+25);
-        if(h_g>0) ctx.fillText(`${h_g} cm`, x_l-40, y_b-h_g*scale/2);
-        if(h_d>0) ctx.fillText(`${h_d} cm`, pt_br.x+40, y_b-h_d*scale/2);
+        if(h_g>0) { ctx.textAlign="right"; ctx.fillText(`${h_g} cm`, x_l-15, y_b-h_g*scale/2); }
+        if(h_d>0) { ctx.textAlign="left"; ctx.fillText(`${h_d} cm`, pt_br.x+15, y_b-h_d*scale/2); }
     }
 
     function exporterImage() {
