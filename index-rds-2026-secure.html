@@ -11,13 +11,24 @@
 </div>
 
 <script>
-// --- DÉSACTIVATION DU CLIC DROIT ---
+// 1. DÉSACTIVATION DU CLIC DROIT
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 async function generateCards() {
     const container = document.getElementById('dynamic-cards-container');
     const blogBaseUrl = "https://www.ruedustore.fr/blog/";
     
+    // 2. TABLE DE CORRESPONDANCE (MAPPING)
+    // Format : "NomDuFichierGitHub": "Slug-WordPress"
+    const urlMapping = {
+        "Pix-cotes.html": "prix-cotes",
+        "Pose-V4.2.html": "pose-v4",
+        "Calcul-trapeze-triangle.html": "calcul-trapeze-triangle",
+        "Panachage.html": "panachage",
+        "Calcul-gain-de-temperature.html": "calcul-gain-de-temperature",
+        "Enroulement.html": "calculer-le-diametre-denroulement-dune-toile"
+    };
+
     const getIcon = (name) => {
         const n = name.toLowerCase();
         if (n.includes('tourne')) return '🚚';
@@ -42,20 +53,21 @@ async function generateCards() {
         container.innerHTML = "";
 
         htmlFiles.forEach(file => {
-            // 1. Nom propre pour l'affichage (ex: "Gestion des tournées")
+            // Nom affiché sur la carte
             const cleanName = decodeURIComponent(file.name)
                 .replace('.html', '')
                 .replace(/-/g, ' ')
                 .replace(/_/g, ' ');
 
-            // 2. Création du slug pour l'URL WordPress
-            // On remplace les espaces encodés (%20) ou réels par des tirets
-            const urlSlug = file.name
-                .replace('.html', '')
-                .replace(/%20/g, '-')
-                .replace(/\s+/g, '-');
+            // Détermination de l'URL finale
+            let urlSlug;
+            if (urlMapping[file.name]) {
+                urlSlug = urlMapping[file.name]; // Utilise le lien spécifique fourni
+            } else {
+                urlSlug = file.name.replace('.html', '').toLowerCase(); // Génération auto sinon
+            }
             
-            const finalUrl = `${blogBaseUrl}${urlSlug}`;
+            const finalUrl = `${blogBaseUrl}${urlSlug}/`; // Ajout du slash final (propre à WP)
             const icon = getIcon(cleanName.toLowerCase());
 
             const cardHtml = `
@@ -72,7 +84,7 @@ async function generateCards() {
         });
     } catch (error) {
         console.error("Erreur GitHub API:", error);
-        container.innerHTML = "<p>Impossible de charger les outils. Vérifiez la connexion.</p>";
+        container.innerHTML = "<p>Impossible de charger les outils.</p>";
     }
 }
 
@@ -80,8 +92,10 @@ generateCards();
 </script>
 
 <style>
-    /* Styles pour le plein écran et la grille */
+    /* Masquer les éléments WP inutiles */
     .site-top-container, .header-area-title, .site-logo-outer { display: none; }
+    
+    /* Plein écran forcé */
     article, .entry-content, .post-content, .site-main, .content-area, .article-wrapper-outer, .container, .clearfix, .has-sidebar, aside {
         width: 100% !important; max-width: 100% !important; float: none !important; margin: 0 !important; padding: 0 !important;
     }
@@ -91,8 +105,7 @@ generateCards();
         width: 100vw !important; position: relative !important; left: 50% !important; right: 50% !important;
         margin-left: -50vw !important; margin-right: -50vw !important; background: #fdfdfe; padding: 60px 0;
         box-sizing: border-box; overflow: hidden;
-        /* Empêche la sélection de texte pour renforcer la protection */
-        user-select: none; 
+        user-select: none; /* Désactive la sélection de texte */
     }
 
     .rds-cards-content-centered { max-width: 1300px; margin: 0 auto; padding: 0 30px; font-family: 'Segoe UI', system-ui, sans-serif; }
