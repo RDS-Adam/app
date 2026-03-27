@@ -4,17 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculateur Diamètre d'Enroulement - Adam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --rds-bleu: #25737d;
       --rds-orange: #ff7200;
-      --rds-gris: #e8e8e8;
-      --rds-text: #1e293b;
-      --rds-white: #ffffff;
+      --rds-gris: #ffffff;
+      --rds-text: #1a1a1a;
+      --rds-input-bg: #f9f9f9;
+      --rds-border: #eeeeee;
     }
 
     body { 
-      font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      font-family: 'Poppins', sans-serif; 
       background-color: var(--rds-gris);
       color: var(--rds-text);
       display: flex;
@@ -25,127 +29,123 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Panneau Principal */
     .panneau-calcul {
       width: 100%;
-      max-width: 400px;
-      margin: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border-radius: 24px;
-      padding: 35px;
-      box-shadow: 0 12px 40px rgba(37, 115, 125, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      max-width: 380px;
+      padding: 40px;
+      background: #ffffff;
     }
 
     h2 { 
-      font-size: 22px;
-      font-weight: 800;
-      text-align: center;
-      color: var(--rds-bleu);
-      margin: 0 0 30px 0;
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-align: left;
+      color: var(--rds-text);
+      margin: 0 0 40px 0;
       text-transform: uppercase;
-      letter-spacing: -0.5px;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--rds-border);
+      padding-bottom: 15px;
     }
 
     .groupe {
-      margin-bottom: 22px;
+      margin-bottom: 25px;
     }
 
     label { 
       display: block; 
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--rds-bleu);
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: #999;
       text-transform: uppercase;
       margin-bottom: 8px;
-      letter-spacing: 0.5px;
-      opacity: 0.8;
+      letter-spacing: 1px;
     }
 
     select, input { 
       width: 100%;
       box-sizing: border-box;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(37, 115, 125, 0.2);
-      background: var(--rds-white);
-      font-size: 16px;
+      padding: 12px 0;
+      border: none;
+      border-bottom: 1px solid var(--rds-border);
+      background: transparent;
+      font-size: 0.9rem;
       color: var(--rds-text);
       outline: none;
-      transition: all 0.25s ease;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
     }
 
     select:focus, input:focus {
-      border-color: var(--rds-orange);
-      box-shadow: 0 0 0 4px rgba(255, 114, 0, 0.1);
+      border-bottom-color: var(--rds-orange);
     }
 
-    /* Bouton RDS */
     button { 
       width: 100%;
-      padding: 16px;
-      margin-top: 10px;
-      border-radius: 14px;
-      border: none;
-      background: var(--rds-bleu);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid var(--rds-text);
+      background: transparent;
+      color: var(--rds-text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(37, 115, 125, 0.2);
     }
 
     button:hover {
-      background: #1d5c64;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(37, 115, 125, 0.3);
+      background: var(--rds-text);
+      color: #fff;
     }
 
-    button:active {
-      transform: translateY(0);
-    }
-
-    /* Zone de Résultat */
+    /* Zone de Résultat - Style Minimaliste */
     .zone-resultat {
-      margin-top: 30px;
-      padding: 25px;
-      border-radius: 20px;
-      background: var(--rds-bleu);
-      color: white;
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--rds-border);
       display: none; 
-      animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      text-align: center;
+      animation: fadeIn 0.5s ease;
     }
 
     .valeur-diametre {
       display: block;
-      font-size: 38px;
-      font-weight: 900;
-      color: var(--rds-orange);
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--rds-text);
       margin: 10px 0;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .valeur-diametre span {
+        color: var(--rds-orange);
+        font-weight: 500;
     }
 
     .notice {
-      font-size: 12px;
-      line-height: 1.5;
-      opacity: 0.9;
-      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      color: #999;
+      margin: 15px 0 0 0;
     }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Chrome, Safari, Edge, Opera - Enlever les flèches input number */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
   </style>
 </head>
 <body>
 
 <div class="panneau-calcul">
-  <h2>Calcul Enroulement</h2>
+  <h2>Enroulement</h2>
   
   <div class="groupe">
     <label for="tubeEnroulement">Tube d'enroulement nu</label>
@@ -174,10 +174,10 @@
   <button type="button" onclick="calculerDiametre()">Calculer</button>
   
   <div id="resultat" class="zone-resultat">
-    <p class="notice">DIAMÈTRE FINAL ESTIMÉ</p>
-    <span id="valeur-num" class="valeur-diametre">--</span>
+    <label>Diamètre final estimé</label>
+    <span class="valeur-diametre"><span id="valeur-num">--</span> cm</span>
     <p class="notice">
-      Attention : Prévoyez une marge de sécurité dans votre coffre (+10%).
+      Prévoir une marge de sécurité de +10% dans votre coffre.
     </p>
   </div>
 </div>
@@ -189,24 +189,25 @@
     let L = parseFloat(document.getElementById('avancee').value);
 
     if (isNaN(L) || L <= 0) {
-      alert("Veuillez entrer une longueur d'avancée valide.");
       return;
     }
 
-    // t en cm
     let t = (qualite === "acrylique") ? 0.16 : 0.05;
 
-    // Formule : Df = sqrt( Dtube² + (4 * t * L) / PI )
     let dFinal = Math.sqrt(Math.pow(dTube, 2) + (4 * t * L) / Math.PI);
     dFinal = dFinal.toFixed(1);
 
-    const zoneResultat = document.getElementById('resultat');
-    const valeurNum = document.getElementById('valeur-num');
-
-    valeurNum.innerText = dFinal + " cm";
-    zoneResultat.style.display = 'block';
+    document.getElementById('resultat').style.display = 'block';
+    document.getElementById('valeur-num').innerText = dFinal;
   }
+
+  // Protection Clic Droit & Touches F12
+  document.addEventListener('contextmenu', e => e.preventDefault()); 
+  document.onkeydown = e => { 
+      if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) 
+      return false; 
+  };
 </script>
-<script>document.addEventListener('contextmenu', e => e.preventDefault()); document.onkeydown = e => { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };</script>
+
 </body>
 </html>
