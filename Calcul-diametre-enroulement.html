@@ -13,7 +13,6 @@
       --rds-orange: #ff7200;
       --rds-gris: #ffffff;
       --rds-text: #1a1a1a;
-      --rds-input-bg: #f9f9f9;
       --rds-border: #eeeeee;
     }
 
@@ -34,6 +33,7 @@
       max-width: 380px;
       padding: 40px;
       background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
 
     h2 { 
@@ -62,7 +62,7 @@
       letter-spacing: 1px;
     }
 
-    select, input { 
+    input, select { 
       width: 100%;
       box-sizing: border-box;
       padding: 12px 0;
@@ -76,7 +76,7 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    select:focus, input:focus {
+    input:focus, select:focus {
       border-bottom-color: var(--rds-orange);
     }
 
@@ -100,7 +100,6 @@
       color: #fff;
     }
 
-    /* Zone de Résultat - Style Minimaliste */
     .zone-resultat {
       margin-top: 40px;
       padding-top: 25px;
@@ -134,7 +133,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Chrome, Safari, Edge, Opera - Enlever les flèches input number */
+    /* Supprimer les flèches sur les inputs nombre */
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -148,14 +147,8 @@
   <h2>Enroulement</h2>
   
   <div class="groupe">
-    <label for="tubeEnroulement">Tube d'enroulement nu</label>
-    <select id="tubeEnroulement">
-      <option value="4">Tube Ø 40 mm (4 cm)</option>
-      <option value="5">Tube Ø 50 mm (5 cm)</option>
-      <option value="6">Tube Ø 60 mm (6 cm)</option>
-      <option value="7">Tube Ø 70 mm (7 cm)</option>
-      <option value="8">Tube Ø 80 mm (8 cm)</option>
-    </select>
+    <label for="tubeEnroulement">Diamètre du tube nu (mm)</label>
+    <input type="number" id="tubeEnroulement" placeholder="Ex: 60, 70, 78..." min="1">
   </div>
   
   <div class="groupe">
@@ -184,16 +177,23 @@
 
 <script>
   function calculerDiametre() {
-    let dTube = parseFloat(document.getElementById('tubeEnroulement').value);
+    // On récupère la valeur saisie en mm
+    let dTubeMM = parseFloat(document.getElementById('tubeEnroulement').value);
     let qualite = document.getElementById('qualite').value;
     let L = parseFloat(document.getElementById('avancee').value);
 
-    if (isNaN(L) || L <= 0) {
+    // Vérification que les champs sont remplis
+    if (isNaN(dTubeMM) || isNaN(L) || dTubeMM <= 0 || L <= 0) {
       return;
     }
 
+    // Conversion du tube en cm pour le calcul (ex: 60mm -> 6cm)
+    let dTube = dTubeMM / 10;
+    
+    // Épaisseur de la toile en cm
     let t = (qualite === "acrylique") ? 0.16 : 0.05;
 
+    // Formule mathématique d'enroulement spirale
     let dFinal = Math.sqrt(Math.pow(dTube, 2) + (4 * t * L) / Math.PI);
     dFinal = dFinal.toFixed(1);
 
