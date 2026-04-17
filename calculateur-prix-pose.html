@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">.
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Calculateur Pose Expert 2026</title>
     <style>
@@ -132,6 +132,8 @@
             table { min-width: 100%; }
             .calc-number { padding: 0; }
             .calc-number.highlighted, .calc-number.highlighted-sub { background-color: transparent; color: inherit; box-shadow: none; }
+            /* Rendre les détails toujours visibles à l'impression */
+            .details-row { display: table-row !important; } 
         }
     </style>
 </head>
@@ -335,20 +337,25 @@
     </div>
 
     <div class="global-margin-box" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #90caf9;">
-        <h4 style="margin-top: 0; border-bottom: 1px solid #90caf9; padding-bottom: 5px; color: var(--primary);">📊 Calcul de la Marge Globale (Pose + Produit)</h4>
-        <div class="global-margin-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: center;">
-            <div class="col-achat">
-                <label>Prix d'Achat Produit HT</label>
-                <input type="number" id="globalAchatProd" placeholder="Ex: 1500" oninput="updateUI()" style="margin-bottom: 0;">
-            </div>
-            <div class="col-vente">
-                <label>Prix de Vente Produit HT</label>
-                <input type="number" id="globalVenteProd" placeholder="Ex: 3000" oninput="updateUI()" style="margin-bottom: 0;">
-            </div>
-            <div class="col-marge" style="text-align: right; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
-                <strong style="font-size: 0.9rem; color: #555;">MARGE GLOBALE</strong><br>
-                <span id="res-global-marge" style="font-size: 1.6rem; font-weight: bold; color: var(--success);">0.00 €</span>
-                <span id="res-global-pourcent" style="font-size: 1rem; color: #7f8c8d; margin-left: 5px;">(0.00%)</span>
+        <h4 style="margin-top: 0; border-bottom: 1px solid #90caf9; padding-bottom: 5px; color: var(--primary); cursor: pointer; user-select: none;" 
+            onclick="const content = document.getElementById('globalMarginContent'); const icon = document.getElementById('globalMarginIcon'); if(content.style.display === 'none') { content.style.display = 'block'; icon.innerText = '▼'; } else { content.style.display = 'none'; icon.innerText = '▶'; }">
+            📊 Calcul de la Marge Globale (Pose + Produit) <span id="globalMarginIcon" style="float: right; font-size: 14px;">▶</span>
+        </h4>
+        <div id="globalMarginContent" style="display: none; margin-top: 15px;">
+            <div class="global-margin-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: center;">
+                <div class="col-achat">
+                    <label>Prix d'Achat Produit HT</label>
+                    <input type="number" id="globalAchatProd" placeholder="Ex: 1500" oninput="updateUI()" style="margin-bottom: 0;">
+                </div>
+                <div class="col-vente">
+                    <label>Prix de Vente Produit HT</label>
+                    <input type="number" id="globalVenteProd" placeholder="Ex: 3000" oninput="updateUI()" style="margin-bottom: 0;">
+                </div>
+                <div class="col-marge" style="text-align: right; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+                    <strong style="font-size: 0.9rem; color: #555;">MARGE GLOBALE</strong><br>
+                    <span id="res-global-marge" style="font-size: 1.6rem; font-weight: bold; color: var(--success);">0.00 €</span>
+                    <span id="res-global-pourcent" style="font-size: 1rem; color: #7f8c8d; margin-left: 5px;">(0.00%)</span>
+                </div>
             </div>
         </div>
     </div>
@@ -829,21 +836,22 @@ function updateUI() {
         </tr>`;
 
         if (!item.isFrais) {
+            // Modifié : Ajout des classes .col-achat et .col-vente sur les textes de détails
             let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;">
                 <td colspan="6">
                     <ul>
-                        <li><em>Base unitaire : Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€ / Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</em></li>`;
+                        <li><em>Base unitaire : <span class="col-achat">Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</span></em></li>`;
             
             if (item.options) {
                 item.options.forEach(opt => {
                     let signA = opt.a > 0 ? '+' : '';
                     let signV = opt.v > 0 ? '+' : '';
-                    detailsHtml += `<li><em>Option ${opt.name} : Achat ${signA}<span class="calc-number" data-val="${opt.a}">${Math.abs(opt.a).toFixed(2)}</span>€ / Vente ${signV}<span class="calc-number" data-val="${opt.v}">${Math.abs(opt.v).toFixed(2)}</span>€</em></li>`;
+                    detailsHtml += `<li><em>Option ${opt.name} : <span class="col-achat">Achat ${signA}<span class="calc-number" data-val="${opt.a}">${Math.abs(opt.a).toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente ${signV}<span class="calc-number" data-val="${opt.v}">${Math.abs(opt.v).toFixed(2)}</span>€</span></em></li>`;
                 });
             }
 
             if (isParis) {
-                detailsHtml += `<li><em>Supplément auto Paris/IDF : Achat +<span class="calc-number" data-val="10">10.00</span>€ / Vente +<span class="calc-number" data-val="30">30.00</span>€</em></li>`;
+                detailsHtml += `<li><em>Supplément auto Paris/IDF : <span class="col-achat">Achat +<span class="calc-number" data-val="10">10.00</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="30">30.00</span>€</span></em></li>`;
             }
             
             detailsHtml += `</ul></td></tr>`;
