@@ -142,7 +142,7 @@
 <div class="container">
     <div class="header">
         <h1>Calculateur Pose 2026</h1>
-        <p style="margin: 5px 0 0 0;">Tarifs applicables au 27/04/2026</p>
+        <p style="margin: 5px 0 0 0;">Tarifs applicables au 06/03/2026</p>
     </div>
 
     <div class="save-load-area">
@@ -282,22 +282,25 @@
                     <div class="check-item"><input type="checkbox" id="o_depose"> Dépose & Mise en déchetterie</div>
                 </div>
             </div>
-            <div class="opt-group opt-blue">
+            <div class="opt-group opt-blue" id="block-opt-int" style="display:none;">
                 <h4>🏠 Options Intérieurs</h4>
                 <div class="check-item"><input type="checkbox" id="o_guid"> Guidage câbles / coulisses (20€V/15€A)</div>
                 <div class="check-item"><input type="checkbox" id="o_equer"> Pose sur équerres réglables (15€V/10€A)</div>
                 <div class="check-item"><input type="checkbox" id="o_faux"> Support faux-plafond Californien (-10€V/-10€A)</div>
             </div>
-            <div class="opt-group opt-green">
+            <div class="opt-group opt-green" id="block-opt-ext" style="display:none;">
                 <h4>☀️ Options Extérieurs</h4>
                 <div class="check-item"><input type="checkbox" id="o_renvoi"> Renvoi intérieur manivelle/cordon (20€A/30€V)</div>
                 <div class="check-item"><input type="checkbox" id="o_pers"> Supports persiennes PROJ (20€A/50€V)</div>
             </div>
-            <div class="opt-group opt-orange">
-                <h4>🟧 Options Bannes & VR</h4>
+            <div class="opt-group opt-orange" id="block-opt-banne" style="display:none;">
+                <h4>🟧 Options Bannes</h4>
                 <div class="check-item"><input type="checkbox" id="o_modul"> Modul'ombre / Leds Ultima (40€A/60€V)</div>
                 <div class="check-item"><input type="checkbox" id="o_manchon"> Manchonnage store banne (150€A/250€V)</div>
                 <div class="check-item"><input type="checkbox" id="o_ite"> Pose sur ITE (0€A/300€V)</div>
+            </div>
+            <div class="opt-group opt-orange" id="block-opt-vr" style="display:none;">
+                <h4>🟧 Options VR</h4>
                 <div class="check-item"><input type="checkbox" id="o_vr_bois"> VR Tradi coffre bois (20€A/30€V)</div>
                 <div class="check-item"><input type="checkbox" id="o_vr_renvoi"> Renvoi int. sangle/manivelle (20€A/30€V)</div>
             </div>
@@ -387,7 +390,7 @@
 const TARIFS = {
     banne_man: { "Avancée < 3m": [170, 230], "Avancée 3m50 - 4m": [260, 360] },
     banne_elec: { "Avancée < 3m": [220, 270], "Avancée 3m50 - 4m": [310, 400] },
-    banne_ult: { "Avancée < 3m": [310, 410], "Avancée 3m50 - 4m": [420, 580] },
+    banne_ult: { "Avancée < 3m": [310, 460], "Avancée 3m50 - 4m": [420, 630] },
     veraclim: { "1 module (Base)": [500, 700], "2 modules": [800, 1100] },
     
     toile_classique: { "Largeur < 1m40": [50, 70], "Largeur < 2m": [70, 100], "Largeur < 4m": [150, 200], "Largeur < 6m": [200, 260], "Lg 6-8m / Double pente": [300, 400], "Largeur > 8m": [400, 600] },
@@ -505,6 +508,7 @@ function loadDevis() {
         document.getElementById('globalVenteProd').value = data.venteProd || '';
         
         clearCalc();
+        populateSub();
         updateUI();
     }
 }
@@ -647,7 +651,40 @@ function populateSub() {
     const main = document.getElementById('pMain').value;
     const sub = document.getElementById('pSub');
     sub.innerHTML = "";
+    
+    // --- GESTION DE L'AFFICHAGE DES BLOCS D'OPTIONS ---
+    let bExt = document.getElementById('block-opt-ext');
+    let bBanne = document.getElementById('block-opt-banne');
+    let bVr = document.getElementById('block-opt-vr');
+    let bInt = document.getElementById('block-opt-int');
+    
+    if(bExt) bExt.style.display = 'none';
+    if(bBanne) bBanne.style.display = 'none';
+    if(bVr) bVr.style.display = 'none';
+    if(bInt) bInt.style.display = 'none';
+
+    // Décocher les cases cachées pour éviter des ajouts invisibles
+    document.querySelectorAll('#block-opt-ext input, #block-opt-banne input, #block-opt-vr input, #block-opt-int input').forEach(cb => cb.checked = false);
+
     if (!main) return;
+    
+    // Affichage conditionnel selon la sélection principale
+    if (main.startsWith('proj_') || main.startsWith('zip_bso_')) {
+        if(bExt) bExt.style.display = 'block';
+    }
+    if (main.startsWith('banne_') || main === 'veraclim') {
+        if(bBanne) bBanne.style.display = 'block';
+    }
+    if (main.startsWith('vr_')) {
+        if(bVr) bVr.style.display = 'block';
+    }
+    
+    const intProducts = ['ven_alu', 'ven_bois', 'enr_easy', 'enr_sans', 'plis', 'novis', 'cal_chain', 'cal_sans', 'japonais', 'velum'];
+    if (intProducts.includes(main)) {
+        if(bInt) bInt.style.display = 'block';
+    }
+    // ---------------------------------------------------
+
     for (let dim in TARIFS[main]) {
         let opt = document.createElement('option');
         opt.value = dim; opt.text = dim;
@@ -668,6 +705,7 @@ function resetDevis() {
         document.getElementById('globalAchatProd').value = "";
         document.getElementById('globalVenteProd').value = "";
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
+        populateSub();
         updateUI();
     }
 }
@@ -709,13 +747,30 @@ function addFrais() {
 
     if (mVal > 0) {
         let extraCost = 0;
+        let extraDetails = null;
         if (mQty > 5) {
             extraCost = (mQty - 5) * 5; // 5€ par store supp Achat/Vente
+            extraDetails = {
+                baseA: mesA,
+                baseV: mesV,
+                extraQty: (mQty - 5),
+                extraCost: extraCost
+            };
         }
         let finalMesA = mesA + extraCost;
         let finalMesV = mesV + extraCost;
         let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures (jusqu\'à 5 stores)';
-        panier.push({ isFrais: true, name: nameLabel, qty: 1, a: finalMesA, v: finalMesV, options: [] });
+        
+        panier.push({ 
+            isFrais: true, 
+            isMesure: true, 
+            name: nameLabel, 
+            qty: 1, 
+            a: finalMesA, 
+            v: finalMesV, 
+            extraDetails: extraDetails, 
+            options: [] 
+        });
     }
     updateUI();
 }
@@ -735,7 +790,8 @@ function addItem() {
     let totV = baseV;
 
     const addOpt = (id, nom, a, v) => {
-        if(document.getElementById(id).checked) {
+        let el = document.getElementById(id);
+        if(el && el.checked) {
             optList.push({ name: nom, a: a, v: v });
             totA += a; totV += v;
         }
@@ -823,7 +879,7 @@ function updateUI() {
 
     panier.forEach((item, idx) => {
         let trClass = item.isFrais ? "row-frais-fixes" : "";
-        let btnHtml = (!item.isFrais) ? 
+        let btnHtml = (!item.isFrais || (item.isFrais && item.isMesure && item.extraDetails)) ? 
             `<button class="btn-details" onclick="toggleDetails(${idx})"> Détails</button>` : '';
         
         let currentA = item.a; 
@@ -905,6 +961,16 @@ function updateUI() {
             
             detailsHtml += `</ul></td></tr>`;
             body.innerHTML += detailsHtml;
+        } else if (item.isFrais && item.isMesure && item.extraDetails) {
+            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;">
+                <td colspan="6">
+                    <ul>
+                        <li><em>Forfait base (jusqu'à 5 stores) : <span class="col-achat">Achat <span class="calc-number" data-val="${item.extraDetails.baseA}">${item.extraDetails.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.extraDetails.baseV}">${item.extraDetails.baseV.toFixed(2)}</span>€</span></em></li>
+                        <li><em>Supplément (${item.extraDetails.extraQty} stores supplémentaires) : <span class="col-achat">Achat +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span></em></li>
+                    </ul>
+                </td>
+            </tr>`;
+            body.innerHTML += detailsHtml;
         }
     });
 
@@ -913,8 +979,12 @@ function updateUI() {
             let minAdjA = 0;
             let minAdjV = 0;
 
-            if (baseSumA > 0 && baseSumA < 300) minAdjA = 300 - baseSumA;
-            if (baseSumV > 0 && baseSumV < 400) minAdjV = 400 - baseSumV;
+            // Ajout des frais de déplacement au calcul du total minimal requis
+            let totalForMinA = baseSumA + depA;
+            let totalForMinV = baseSumV + depV;
+
+            if (baseSumA > 0 && totalForMinA < 300) minAdjA = 300 - totalForMinA;
+            if (baseSumV > 0 && totalForMinV < 400) minAdjV = 400 - totalForMinV;
 
             if (minAdjA > 0 || minAdjV > 0) {
                 body.innerHTML += `<tr class="row-frais-fixes" style="color: #e67e22; background-color: #fdf2e9;">
