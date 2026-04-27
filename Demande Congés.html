@@ -160,11 +160,44 @@
 </div>
 
 <script>
+    // --- CONFIGURATION GITHUB ---
+    const GITHUB_TOKEN = "TON_TOKEN_GITHUB_ICI"; 
+    const REPO_OWNER = "TON_NOM_UTILISATEUR_GITHUB";
+    const REPO_NAME = "TON_NOM_DE_DEPOT";
+    const FILE_PATH = "data.json";
+
     const PASS = "RH2026";
     const MGR_NAME = "Nicolas Decoster";
     const MGR_EMAIL = "nicolas.decoster@ruedustore.fr";
     let currentUser = null;
     let selectedRequestId = null;
+
+    // --- FONCTIONS CLOUD (GITHUB API) ---
+
+    async function fetchFromGitHub() {
+        try {
+            const response = await fetch(`https://api.api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Cache-Control': 'no-cache' }
+            });
+            if (!response.ok) return { sha: null, db: [] };
+            const data = await response.json();
+            const content = decodeURIComponent(escape(atob(data.content)));
+            return { sha: data.sha, db: JSON.parse(content) };
+        } catch (err) {
+            console.error("Erreur GitHub:", err);
+            return { sha: null, db: [] };
+        }
+    }
+
+    async function saveToGitHub(newDb) {
+        const { sha } = await fetchFromGitHub();
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(newDb, null, 2))));
+        await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "Mise à jour RH", content: content, sha: sha })
+        });
+    }
 
     // --- UTILS ---
     function switchTab(tabName) {
@@ -203,14 +236,14 @@
     }
 
     // --- LOGIQUE SALARIÉ ---
-    function loginEmployee() {
+    async function loginEmployee() {
         const val = document.getElementById('user-selector').value;
         if(!val) return alert("Choisissez un prénom");
         currentUser = val;
         document.getElementById('emp-login').style.display = 'none';
         document.getElementById('emp-content').style.display = 'block';
         document.getElementById('welcome-msg').innerText = "Espace de " + currentUser;
-        renderEmployeeTable();
+        await renderEmployeeTable();
     }
 
     function logoutEmployee() {
@@ -248,27 +281,25 @@
             type_autre: type_autre,
             status: 'En attente',
             date_demande: new Date().toISOString().split('T')[0],
-            reason: '' // Pour le refus éventuel
+            reason: ''
         };
 
-        let db = JSON.parse(localStorage.getItem('requests_db') || '[]');
+        const { db } = await fetchFromGitHub();
         db.push(req);
-        localStorage.setItem('requests_db', JSON.stringify(db));
+        await saveToGitHub(db);
 
-        // Générer le HTML du PDF et lancer le téléchargement
         document.getElementById('pdf_body').innerHTML = buildPDFHTML(req);
         await makePDF(`Demande_Conges_${req.user}.pdf`);
         
-        renderEmployeeTable();
+        await renderEmployeeTable();
         
-        // Mail simple de notification
         const body = `Bonjour Nicolas, \n\nUne nouvelle demande de congés a été effectuée sur le Portail RH par ${currentUser} ${lastname}. \n\nMerci de bien vouloir vous connecter à l'Espace Direction afin de traiter cette demande.\n\nCordialement.`;
         document.getElementById('gmail_link').href = `mailto:${MGR_EMAIL}?subject=Nouvelle demande de congés - ${currentUser}&body=${encodeURIComponent(body)}`;
         document.getElementById('action-request').style.display = 'block';
     }
 
-    function renderEmployeeTable() {
-        const db = JSON.parse(localStorage.getItem('requests_db') || '[]');
+    async function renderEmployeeTable() {
+        const { db } = await fetchFromGitHub();
         const my = db.filter(r => r.user === currentUser).reverse();
         document.getElementById('my-requests-body').innerHTML = my.map(r => `
             <tr><td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td><td>${r.days}</td><td><span class="status ${r.status === 'En attente' ? 'status-pending' : (r.status === 'Validé' ? 'status-valid' : 'status-refused')}">${r.status}</span></td></tr>
@@ -276,11 +307,11 @@
     }
 
     // --- LOGIQUE DIRECTION ---
-    function unlockManager() {
+    async function unlockManager() {
         if(document.getElementById('mgr_pass').value === PASS) {
             document.getElementById('manager-lock').style.display = 'none';
             document.getElementById('manager-content').style.display = 'block';
-            renderManagerList();
+            await renderManagerList();
         } else { alert("Code faux"); }
     }
 
@@ -292,8 +323,8 @@
         document.getElementById('approval-form').style.display = 'none';
     }
 
-    function renderManagerList() {
-        const db = JSON.parse(localStorage.getItem('requests_db') || '[]');
+    async function renderManagerList() {
+        const { db } = await fetchFromGitHub();
         const pending = db.filter(r => r.status === 'En attente');
         document.getElementById('manager-list').innerHTML = pending.length ? pending.map(r => `
             <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center;">
@@ -306,9 +337,10 @@
         `).join('') : "<p style='color:var(--text-light);'>Aucune demande en attente.</p>";
     }
 
-    function selectForDecision(id) {
+    async function selectForDecision(id) {
         selectedRequestId = id;
-        const r = JSON.parse(localStorage.getItem('requests_db')).find(x => x.id === id);
+        const { db } = await fetchFromGitHub();
+        const r = db.find(x => x.id === id);
         document.getElementById('val_display_name').innerText = "Demande de " + r.user + " " + r.lastname;
         document.getElementById('refusal_reason').value = "";
         document.getElementById('approval-form').style.display = 'block';
@@ -316,16 +348,15 @@
     }
 
     async function processDecision(newStatus) {
-        let db = JSON.parse(localStorage.getItem('requests_db'));
+        let { db } = await fetchFromGitHub();
         const idx = db.findIndex(x => x.id === selectedRequestId);
         const r = db[idx];
         const reason = document.getElementById('refusal_reason').value;
         
         db[idx].status = newStatus;
         db[idx].reason = reason;
-        localStorage.setItem('requests_db', JSON.stringify(db));
+        await saveToGitHub(db);
 
-        // On regénère exactement le même PDF mais avec la case "Responsable" remplie !
         document.getElementById('pdf_body').innerHTML = buildPDFHTML(db[idx]);
         await makePDF(`${newStatus}_${r.user}.pdf`);
         
@@ -333,17 +364,16 @@
         document.getElementById('gmail_link_val').href = `mailto:${r.email}?subject=Réponse à votre demande de congés&body=${encodeURIComponent(mailBody)}`;
         document.getElementById('action-decision').style.display = 'block';
         document.getElementById('approval-form').style.display = 'none';
-        renderManagerList();
+        await renderManagerList();
     }
 
-    // --- GÉNÉRATEUR HTML DU PDF COMPLET ---
+    // --- GÉNÉRATEUR HTML DU PDF ---
     function buildPDFHTML(req) {
         const isCP = req.type === 'Congés Payés' ? 'X' : '&nbsp;&nbsp;';
         const isCSS = req.type === 'Congés Sans Solde' ? 'X' : '&nbsp;&nbsp;';
         const isOther = req.type === 'Absence Exceptionnelle' ? 'X' : '&nbsp;&nbsp;';
         const otherText = req.type === 'Absence Exceptionnelle' ? req.type_autre : '..............................';
 
-        // Bloc du Responsable vide (si En attente) ou avec Tampon (si Validé/Refusé)
         let managerBox = `<strong>RESPONSABLE</strong><br><br>DATE ET SIGNATURE<br><br><br><br>`;
         
         if (req.status === 'Validé') {
@@ -364,31 +394,26 @@
         return `
             <div style="font-family: Arial, sans-serif; color: black; padding: 20px;">
                 <h1 style="text-align: center; font-size: 24px; text-decoration: underline; margin-bottom: 40px;">DEMANDE DE CONGES</h1>
-
                 <div style="margin-bottom: 30px;">
                     <p><strong>NOM :</strong> ${req.lastname}</p>
                     <p><strong>PRENOM :</strong> ${req.user}</p>
                 </div>
-
                 <h3 style="font-size: 16px; margin-bottom: 10px; text-decoration: underline;">DATE CONGES SOUHAITES</h3>
                 <div style="margin-bottom: 30px; padding-left: 20px;">
                     <p><strong>DATE DEBUT :</strong> ${formatDate(req.start)}</p>
                     <p><strong>DATE FIN :</strong> ${formatDate(req.end)}</p>
                 </div>
-
                 <div style="margin-bottom: 30px;">
                     <p><strong>SOLDE DE CONGES :</strong> ${req.solde_actuel || '....................'}</p>
                     <p><strong>NOMBRE DE CONGES SOUHAITES (jours ouvrés) :</strong> ${req.days}</p>
                     <p><strong>SOLDE DE CONGES RESTANT :</strong> ${req.solde_restant !== null ? req.solde_restant : '....................'}</p>
                 </div>
-
                 <h3 style="font-size: 16px; margin-bottom: 10px; text-decoration: underline;">TYPE CONGES</h3>
                 <div style="margin-bottom: 50px; padding-left: 20px;">
                     <p>[ <strong style="font-size:18px;">${isCP}</strong> ] CONGES PAYES</p>
                     <p>[ <strong style="font-size:18px;">${isCSS}</strong> ] CONGES SANS SOLDE</p>
                     <p>[ <strong style="font-size:18px;">${isOther}</strong> ] AUTRES : <span style="text-decoration:underline;">${otherText}</span></p>
                 </div>
-
                 <table style="width: 100%; border-collapse: collapse; text-align: center; border: 2px solid black;">
                     <tr>
                         <td style="width: 50%; border: 2px solid black; padding: 15px; vertical-align: top; height: 220px;">
@@ -410,18 +435,15 @@
         const el = document.getElementById('pdf-template');
         el.style.display = 'block';
         await html2pdf().set({ 
-            margin: 15, 
-            filename: name, 
-            image: {type: 'jpeg', quality: 1}, 
-            html2canvas: {scale: 3}, 
-            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'} 
+            margin: 15, filename: name, image: {type: 'jpeg', quality: 1}, 
+            html2canvas: {scale: 3}, jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'} 
         }).from(el).save();
         el.style.display = 'none';
     }
 
-    function exportBackup() {
-        const data = localStorage.getItem('requests_db');
-        const blob = new Blob([data], {type: 'application/json'});
+    async function exportBackup() {
+        const { db } = await fetchFromGitHub();
+        const blob = new Blob([JSON.stringify(db, null, 2)], {type: 'application/json'});
         const a = document.createElement('a'); 
         a.href = URL.createObjectURL(blob); 
         a.download = `Backup_Conges_${new Date().toISOString().split('T')[0]}.json`; 
