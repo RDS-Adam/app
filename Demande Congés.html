@@ -262,7 +262,7 @@
         renderEmployeeTable();
         
         // Mail simple de notification
-        const body = `Bonjour Nicolas, \n\nUne nouvelle demande de congés a été effectuée sur le Portail RH par ${currentUser} ${lastname}. \n\nMerci de bien vouloir vous connecter à l'Espace Direction pour y apposer votre tampon de validation.\n\nCordialement.`;
+        const body = `Bonjour Nicolas, \n\nUne nouvelle demande de congés a été effectuée sur le Portail RH par ${currentUser} ${lastname}. \n\nMerci de bien vouloir vous connecter à l'Espace Direction afin de traiter cette demande.\n\nCordialement.`;
         document.getElementById('gmail_link').href = `mailto:${MGR_EMAIL}?subject=Nouvelle demande de congés - ${currentUser}&body=${encodeURIComponent(body)}`;
         document.getElementById('action-request').style.display = 'block';
     }
