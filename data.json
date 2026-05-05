@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": 1777993308808,
+    "user": "Baptiste",
+    "lastname": "",
+    "email": "baptiste.chevance@ruedustore.fr",
+    "start": "2026-05-08",
+    "end": "2026-05-20",
+    "days": 9,
+    "solde_actuel": "",
+    "type": "Congés Payés",
+    "status": "En attente",
+    "date_demande": "2026-05-05"
+  }
+]
