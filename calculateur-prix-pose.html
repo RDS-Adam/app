@@ -419,8 +419,8 @@
 </div>
 
 <script>
-// --- CONFIGURATION GITHUB ---
-const GITHUB_TOKEN = "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";
+// --- CONFIGURATION ---
+const WORKER_URL = "https://rds-github.cwmpw5qpc5.workers.dev";
 const REPO_OWNER = "RDS-Adam";
 const REPO_NAME = "app";
 const TARIFS_FILE = "tarifs-pose.json";
@@ -428,8 +428,8 @@ let githubTarifsSha = null;
 
 async function fetchTarifsFromGitHub() {
     try {
-        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Cache-Control': 'no-cache' }
+        const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
+            headers: { 'Cache-Control': 'no-cache' }
         });
         if (!res.ok) return null;
         const data = await res.json();
@@ -442,9 +442,9 @@ async function saveTarifsToGitHub(tarifs) {
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(tarifs, null, 2))));
     const body = { message: "MAJ tarifs pose", content };
     if (githubTarifsSha) body.sha = githubTarifsSha;
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
+    const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
         method: 'PUT',
-        headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     });
     if (res.ok) { const data = await res.json(); githubTarifsSha = data.content.sha; }
