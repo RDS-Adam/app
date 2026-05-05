@@ -167,11 +167,16 @@
     async function saveToGitHub(newDb) {
         const { sha } = await fetchFromGitHub();
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(newDb, null, 2))));
-        await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "Update RH", content: content, sha: sha })
         });
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`GitHub write failed (${res.status}): ${err}`);
+        }
+        return true;
     }
 
     function switchTab(tabName) {
@@ -219,25 +224,35 @@
         const email = document.getElementById('emp_email').value;
         if(!start || !end || !email) return alert("Email et dates requis");
 
-        const days = calculateWorkDays(start, end);
-        const req = { 
-            id: Date.now(), user: currentUser, lastname: document.getElementById('emp_lastname').value,
-            email: email, start: start, end: end, days: days,
-            solde_actuel: document.getElementById('emp_solde').value,
-            type: document.getElementById('leave_type').value,
-            status: 'En attente', date_demande: new Date().toISOString().split('T')[0]
-        };
+        const btn = document.querySelector('button[onclick="processRequest()"]');
+        if(btn) { btn.disabled = true; btn.innerText = "⏳ Envoi en cours..."; }
 
-        const { db } = await fetchFromGitHub();
-        db.push(req);
-        await saveToGitHub(db);
-        document.getElementById('pdf_body').innerHTML = buildPDFHTML(req);
-        await makePDF(`Demande_${req.user}.pdf`);
-        await renderEmployeeTable();
-        
-        const mailBody = `Bonjour Nicolas, une demande de congés a été déposée par ${currentUser}.`;
-        document.getElementById('gmail_link').href = `mailto:${MGR_EMAIL}?subject=Demande congés&body=${encodeURIComponent(mailBody)}`;
-        document.getElementById('action-request').style.display = 'block';
+        try {
+            const days = calculateWorkDays(start, end);
+            const req = {
+                id: Date.now(), user: currentUser, lastname: document.getElementById('emp_lastname').value,
+                email: email, start: start, end: end, days: days,
+                solde_actuel: document.getElementById('emp_solde').value,
+                type: document.getElementById('leave_type').value,
+                status: 'En attente', date_demande: new Date().toISOString().split('T')[0]
+            };
+
+            const { db } = await fetchFromGitHub();
+            db.push(req);
+            await saveToGitHub(db);
+
+            document.getElementById('pdf_body').innerHTML = buildPDFHTML(req);
+            await makePDF(`Demande_${req.user}.pdf`);
+            await renderEmployeeTable();
+
+            const mailBody = `Bonjour Nicolas, une demande de congés a été déposée par ${currentUser}.`;
+            document.getElementById('gmail_link').href = `mailto:${MGR_EMAIL}?subject=Demande congés&body=${encodeURIComponent(mailBody)}`;
+            document.getElementById('action-request').style.display = 'block';
+            if(btn) { btn.innerText = "✅ Demande envoyée !"; }
+        } catch(e) {
+            alert("❌ Erreur lors de l'envoi : " + e.message);
+            if(btn) { btn.disabled = false; btn.innerText = "📄 Valider et télécharger le PDF"; }
+        }
     }
 
     async function renderEmployeeTable() {
