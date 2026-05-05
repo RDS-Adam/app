@@ -55,5 +55,19 @@
     "status": "Refusé",
     "date_demande": "2026-05-05",
     "reason": ""
+  },
+  {
+    "id": 1777994586247,
+    "user": "Camille",
+    "lastname": "Girard",
+    "email": "camille.girard@ruedustore.fr",
+    "start": "2026-07-31",
+    "end": "2026-10-31",
+    "days": 66,
+    "solde_actuel": "",
+    "type": "Absence Exceptionnelle",
+    "note": "Bébé 3",
+    "status": "En attente",
+    "date_demande": "2026-05-05"
   }
 ]
