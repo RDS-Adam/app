@@ -9,7 +9,8 @@
     "days": 9,
     "solde_actuel": "",
     "type": "Congés Payés",
-    "status": "En attente",
-    "date_demande": "2026-05-05"
+    "status": "Refusé",
+    "date_demande": "2026-05-05",
+    "reason": ""
   }
 ]
