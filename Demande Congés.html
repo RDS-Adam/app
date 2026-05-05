@@ -33,11 +33,20 @@
         .btn-accent { background: var(--accent); color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: 600; font-size: 1rem;}
         .btn-gmail { background: #ea4335; color: white; text-decoration: none; display: block; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-        .status { padding: 6px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: #f8fafc; font-size: 0.8rem; text-transform: uppercase; color: #64748b; }
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
         .status-pending { background: #fef9c3; color: #a16207; }
         .status-valid { background: #dcfce7; color: #15803d; }
         .status-refused { background: #fee2e2; color: #b91c1c; }
+        .reason-text { color: #b91c1c; font-size: 0.8rem; font-style: italic; margin-top: 4px; }
+        .btn-pdf { background: none; border: 1px solid #cbd5e1; border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-pdf:hover { background: #f1f5f9; }
+        .req-card { border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; border-radius: 10px; background: white; }
+        .req-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .req-card-detail { font-size: 0.85rem; color: #64748b; margin-top: 6px; line-height: 1.6; }
+        .archive-section { margin-top: 25px; }
+        .archive-section h4 { color: #64748b; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
         #pdf-template { display: none; background: white; color: black; }
     </style>
 </head>
@@ -94,7 +103,7 @@
             </div>
             <div class="card">
                 <h3>Mon historique</h3>
-                <table><thead><tr><th>Dates</th><th>Jours</th><th>Statut</th></tr></thead><tbody id="my-requests-body"></tbody></table>
+                <table><thead><tr><th>Dates</th><th>Jours</th><th>Type</th><th>Statut</th><th>PDF</th></tr></thead><tbody id="my-requests-body"></tbody></table>
             </div>
         </div>
     </div>
@@ -112,6 +121,10 @@
             </div>
             <h3>Demandes en attente</h3>
             <div id="manager-list"></div>
+            <div class="archive-section">
+                <h4>📁 Archivées (Validées / Refusées)</h4>
+                <div id="manager-archive"></div>
+            </div>
             <div id="approval-form" class="card" style="display:none; background:#f1f5f9; border-left: 5px solid var(--accent); margin-top:20px;">
                 <h3 id="val_display_name" style="margin-top:0; color:var(--accent);"></h3>
                 <textarea id="refusal_reason" placeholder="Motif (Optionnel)" rows="2"></textarea><br><br>
@@ -238,11 +251,13 @@
 
         try {
             const days = calculateWorkDays(start, end);
+            const typeVal = document.getElementById('leave_type').value;
+            const noteVal = typeVal === 'Absence Exceptionnelle' ? document.getElementById('leave_autre').value : '';
             const req = {
                 id: Date.now(), user: currentUser, lastname: document.getElementById('emp_lastname').value,
                 email: email, start: start, end: end, days: days,
                 solde_actuel: document.getElementById('emp_solde').value,
-                type: document.getElementById('leave_type').value,
+                type: typeVal, note: noteVal,
                 status: 'En attente', date_demande: new Date().toISOString().split('T')[0]
             };
 
@@ -268,9 +283,18 @@
         try {
             const { db } = await fetchFromGitHub();
             const my = db.filter(r => r.user === currentUser).reverse();
-            document.getElementById('my-requests-body').innerHTML = my.map(r => `
-                <tr><td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td><td>${r.days}</td><td><span class="status ${r.status === 'En attente' ? 'status-pending' : (r.status === 'Validé' ? 'status-valid' : 'status-refused')}">${r.status}</span></td></tr>
-            `).join('');
+            document.getElementById('my-requests-body').innerHTML = my.map(r => {
+                const sc = r.status === 'En attente' ? 'status-pending' : (r.status === 'Validé' ? 'status-valid' : 'status-refused');
+                const typeLabel = r.type + (r.note ? ` <em>(${r.note})</em>` : '');
+                const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-text">Motif : ${r.reason}</div>` : '';
+                return `<tr>
+                    <td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td>
+                    <td>${r.days}</td>
+                    <td style="font-size:0.85rem">${typeLabel}</td>
+                    <td><span class="status ${sc}">${r.status}</span>${reasonHtml}</td>
+                    <td><button class="btn-pdf" onclick="downloadPDF(${r.id})">📄</button></td>
+                </tr>`;
+            }).join('');
         } catch(e) { console.error('renderEmployeeTable:', e.message); }
     }
 
@@ -291,14 +315,47 @@
     async function renderManagerList() {
         try {
             const { db } = await fetchFromGitHub();
+
+            // Pending
             const pending = db.filter(r => r.status === 'En attente');
             document.getElementById('manager-list').innerHTML = pending.length ? pending.map(r => `
-                <div style="border:1px solid #e2e8f0; padding:15px; margin-bottom:10px; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong>${r.user} ${r.lastname}</strong><br>${r.days}j du ${formatDate(r.start)} au ${formatDate(r.end)}</div>
-                    <button class="btn-accent" style="width:auto; padding:5px 15px;" onclick="selectForDecision(${r.id})">Traiter</button>
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <div>
+                            <strong>${r.user} ${r.lastname}</strong>
+                            <div class="req-card-detail">
+                                📅 Du ${formatDate(r.start)} au ${formatDate(r.end)} — <strong>${r.days} jour(s)</strong><br>
+                                📋 ${r.type}${r.note ? ` <em>(${r.note})</em>` : ''}<br>
+                                💼 Solde actuel : ${r.solde_actuel || '?'} jours<br>
+                                🗓 Demandé le ${formatDate(r.date_demande)}
+                            </div>
+                        </div>
+                        <button class="btn-accent" style="width:auto; padding:8px 18px; white-space:nowrap;" onclick="selectForDecision(${r.id})">Traiter</button>
+                    </div>
                 </div>
-            `).join('') : "<p>Aucune demande.</p>";
-        } catch(e) { document.getElementById('manager-list').innerHTML = '<p style="color:red">Erreur chargement : ' + e.message + '</p>'; }
+            `).join('') : "<p style='color:#64748b'>Aucune demande en attente.</p>";
+
+            // Archive
+            const archived = db.filter(r => r.status !== 'En attente').reverse();
+            document.getElementById('manager-archive').innerHTML = archived.length ? `
+                <table>
+                    <thead><tr><th>Salarié</th><th>Dates</th><th>Jours</th><th>Type</th><th>Statut</th><th>Motif</th><th>PDF</th></tr></thead>
+                    <tbody>${archived.map(r => {
+                        const sc = r.status === 'Validé' ? 'status-valid' : 'status-refused';
+                        return `<tr>
+                            <td><strong>${r.user} ${r.lastname}</strong><br><small>${formatDate(r.date_demande)}</small></td>
+                            <td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td>
+                            <td>${r.days}</td>
+                            <td style="font-size:0.82rem">${r.type}${r.note ? `<br><em>${r.note}</em>` : ''}</td>
+                            <td><span class="status ${sc}">${r.status}</span></td>
+                            <td style="font-size:0.82rem;color:#64748b">${r.reason || '—'}</td>
+                            <td><button class="btn-pdf" onclick="downloadPDF(${r.id})">📄</button></td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table>
+            ` : "<p style='color:#64748b'>Aucune demande archivée.</p>";
+
+        } catch(e) { document.getElementById('manager-list').innerHTML = '<p style="color:red">Erreur : ' + e.message + '</p>'; }
     }
 
     async function selectForDecision(id) {
@@ -342,6 +399,16 @@
         el.style.display = 'block';
         await html2pdf().set({ margin: 15, filename: name, html2canvas: {scale: 2}, jsPDF: {unit: 'mm', format: 'a4'} }).from(el).save();
         el.style.display = 'none';
+    }
+
+    async function downloadPDF(id) {
+        try {
+            const { db } = await fetchFromGitHub();
+            const r = db.find(x => x.id === id);
+            if (!r) return alert("Demande introuvable.");
+            document.getElementById('pdf_body').innerHTML = buildPDFHTML(r);
+            await makePDF(`${r.status}_${r.user}_${formatDate(r.start)}.pdf`);
+        } catch(e) { alert("Erreur PDF : " + e.message); }
     }
 
     async function exportBackup() {
