@@ -2,8 +2,8 @@
   "options": {
     "frais_mep_prov": {
       "name": "Mise en place (Province)",
-      "a": 100,
-      "v": 200
+      "a": 60,
+      "v": 80
     },
     "frais_mep_7592": {
       "name": "Mise en place (Dép. 75/92)",
