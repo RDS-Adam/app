@@ -26,5 +26,18 @@
     "status": "Refusé",
     "date_demande": "2026-05-05",
     "reason": "non"
+  },
+  {
+    "id": 1777993934198,
+    "user": "Camille",
+    "lastname": "Girard",
+    "email": "camille.girard@ruedustore.fr",
+    "start": "2026-06-01",
+    "end": "2026-10-02",
+    "days": 90,
+    "solde_actuel": "",
+    "type": "Absence Exceptionnelle",
+    "status": "En attente",
+    "date_demande": "2026-05-05"
   }
 ]
