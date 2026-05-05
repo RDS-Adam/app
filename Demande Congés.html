@@ -149,6 +149,17 @@
         "Karine":    "karine.paillard@ruedustore.fr"
     };
 
+    const LASTNAME_MAP = {
+        "Adam":      "Audam",
+        "Alexandre": "Morel",
+        "Axel":      "Seigneury",
+        "Baptiste":  "Chevance",
+        "Camille":   "Girard",
+        "Cindy":     "Masson",
+        "Clarisse":  "Guai",
+        "Karine":    "Paillard"
+    };
+
     let currentUser = null;
     let selectedRequestId = null;
 
@@ -206,6 +217,7 @@
         document.getElementById('emp-content').style.display = 'block';
         document.getElementById('welcome-msg').innerText = "Espace de " + currentUser;
         if (EMAIL_MAP[currentUser]) document.getElementById('emp_email').value = EMAIL_MAP[currentUser];
+        if (LASTNAME_MAP[currentUser]) document.getElementById('emp_lastname').value = LASTNAME_MAP[currentUser];
         await renderEmployeeTable();
     }
 
