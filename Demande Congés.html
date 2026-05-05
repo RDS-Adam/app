@@ -153,19 +153,16 @@
     let selectedRequestId = null;
 
     async function fetchFromGitHub() {
-        try {
-            const response = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: { 'Cache-Control': 'no-cache' }
-            });
-            if (!response.ok) return { sha: null, db: [] };
-            const data = await response.json();
-            const content = decodeURIComponent(escape(atob(data.content)));
-            return { sha: data.sha, db: JSON.parse(content) };
-        } catch (err) { return { sha: null, db: [] }; }
+        const response = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+            headers: { 'Cache-Control': 'no-cache' }
+        });
+        if (!response.ok) throw new Error(`Lecture GitHub échouée (${response.status})`);
+        const data = await response.json();
+        const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+        return { sha: data.sha, db: JSON.parse(content) };
     }
 
-    async function saveToGitHub(newDb) {
-        const { sha } = await fetchFromGitHub();
+    async function saveToGitHub(newDb, sha) {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(newDb, null, 2))));
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
             method: 'PUT',
@@ -174,7 +171,7 @@
         });
         if (!res.ok) {
             const err = await res.text();
-            throw new Error(`GitHub write failed (${res.status}): ${err}`);
+            throw new Error(`Écriture GitHub échouée (${res.status}): ${err}`);
         }
         return true;
     }
@@ -237,9 +234,9 @@
                 status: 'En attente', date_demande: new Date().toISOString().split('T')[0]
             };
 
-            const { db } = await fetchFromGitHub();
+            const { db, sha } = await fetchFromGitHub();
             db.push(req);
-            await saveToGitHub(db);
+            await saveToGitHub(db, sha);
 
             document.getElementById('pdf_body').innerHTML = buildPDFHTML(req);
             await makePDF(`Demande_${req.user}.pdf`);
@@ -256,11 +253,13 @@
     }
 
     async function renderEmployeeTable() {
-        const { db } = await fetchFromGitHub();
-        const my = db.filter(r => r.user === currentUser).reverse();
-        document.getElementById('my-requests-body').innerHTML = my.map(r => `
-            <tr><td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td><td>${r.days}</td><td><span class="status ${r.status === 'En attente' ? 'status-pending' : (r.status === 'Validé' ? 'status-valid' : 'status-refused')}">${r.status}</span></td></tr>
-        `).join('');
+        try {
+            const { db } = await fetchFromGitHub();
+            const my = db.filter(r => r.user === currentUser).reverse();
+            document.getElementById('my-requests-body').innerHTML = my.map(r => `
+                <tr><td>Du ${formatDate(r.start)}<br>au ${formatDate(r.end)}</td><td>${r.days}</td><td><span class="status ${r.status === 'En attente' ? 'status-pending' : (r.status === 'Validé' ? 'status-valid' : 'status-refused')}">${r.status}</span></td></tr>
+            `).join('');
+        } catch(e) { console.error('renderEmployeeTable:', e.message); }
     }
 
     async function unlockManager() {
@@ -278,14 +277,16 @@
     }
 
     async function renderManagerList() {
-        const { db } = await fetchFromGitHub();
-        const pending = db.filter(r => r.status === 'En attente');
-        document.getElementById('manager-list').innerHTML = pending.length ? pending.map(r => `
-            <div style="border:1px solid #e2e8f0; padding:15px; margin-bottom:10px; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center;">
-                <div><strong>${r.user} ${r.lastname}</strong><br>${r.days}j du ${formatDate(r.start)} au ${formatDate(r.end)}</div>
-                <button class="btn-accent" style="width:auto; padding:5px 15px;" onclick="selectForDecision(${r.id})">Traiter</button>
-            </div>
-        `).join('') : "<p>Aucune demande.</p>";
+        try {
+            const { db } = await fetchFromGitHub();
+            const pending = db.filter(r => r.status === 'En attente');
+            document.getElementById('manager-list').innerHTML = pending.length ? pending.map(r => `
+                <div style="border:1px solid #e2e8f0; padding:15px; margin-bottom:10px; border-radius:10px; background:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${r.user} ${r.lastname}</strong><br>${r.days}j du ${formatDate(r.start)} au ${formatDate(r.end)}</div>
+                    <button class="btn-accent" style="width:auto; padding:5px 15px;" onclick="selectForDecision(${r.id})">Traiter</button>
+                </div>
+            `).join('') : "<p>Aucune demande.</p>";
+        } catch(e) { document.getElementById('manager-list').innerHTML = '<p style="color:red">Erreur chargement : ' + e.message + '</p>'; }
     }
 
     async function selectForDecision(id) {
@@ -297,17 +298,19 @@
     }
 
     async function processDecision(newStatus) {
-        let { db } = await fetchFromGitHub();
-        const idx = db.findIndex(x => x.id === selectedRequestId);
-        db[idx].status = newStatus;
-        db[idx].reason = document.getElementById('refusal_reason').value;
-        await saveToGitHub(db);
-        document.getElementById('pdf_body').innerHTML = buildPDFHTML(db[idx]);
-        await makePDF(`${newStatus}_${db[idx].user}.pdf`);
-        document.getElementById('gmail_link_val').href = `mailto:${db[idx].email}?subject=Réponse congés&body=Votre demande est ${newStatus}.`;
-        document.getElementById('action-decision').style.display = 'block';
-        document.getElementById('approval-form').style.display = 'none';
-        await renderManagerList();
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const idx = db.findIndex(x => x.id === selectedRequestId);
+            db[idx].status = newStatus;
+            db[idx].reason = document.getElementById('refusal_reason').value;
+            await saveToGitHub(db, sha);
+            document.getElementById('pdf_body').innerHTML = buildPDFHTML(db[idx]);
+            await makePDF(`${newStatus}_${db[idx].user}.pdf`);
+            document.getElementById('gmail_link_val').href = `mailto:${db[idx].email}?subject=Réponse congés&body=Votre demande est ${newStatus}.`;
+            document.getElementById('action-decision').style.display = 'block';
+            document.getElementById('approval-form').style.display = 'none';
+            await renderManagerList();
+        } catch(e) { alert("❌ Erreur : " + e.message); }
     }
 
     function buildPDFHTML(req) {
