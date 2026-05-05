@@ -419,6 +419,38 @@
 </div>
 
 <script>
+// --- CONFIGURATION GITHUB ---
+const GITHUB_TOKEN = "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";
+const REPO_OWNER = "RDS-Adam";
+const REPO_NAME = "app";
+const TARIFS_FILE = "tarifs-pose.json";
+let githubTarifsSha = null;
+
+async function fetchTarifsFromGitHub() {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Cache-Control': 'no-cache' }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        githubTarifsSha = data.sha;
+        return JSON.parse(decodeURIComponent(escape(atob(data.content))));
+    } catch (e) { return null; }
+}
+
+async function saveTarifsToGitHub(tarifs) {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(tarifs, null, 2))));
+    const body = { message: "MAJ tarifs pose", content };
+    if (githubTarifsSha) body.sha = githubTarifsSha;
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${TARIFS_FILE}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (res.ok) { const data = await res.json(); githubTarifsSha = data.content.sha; }
+    return res.ok;
+}
+
 /* =========================================================
    BASE DE DONNÉES PAR DÉFAUT (NE PAS MODIFIER DIRECTEMENT)
 ========================================================= */
@@ -501,16 +533,22 @@ const DEFAULT_TARIFS_OPTIONS = {
 /* =========================================================
    CHARGEMENT DES DONNÉES ACTUELLES
 ========================================================= */
-let TARIFS_PRODUITS = JSON.parse(localStorage.getItem('custom_tarifs_produits')) || JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
-let TARIFS_OPTIONS = JSON.parse(localStorage.getItem('custom_tarifs_options')) || JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
+let TARIFS_PRODUITS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
+let TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
 
 let panier = [];
 let calcValues = [];
 let calcMode = 'add'; 
 const STORAGE_KEY = 'pose_expert_saved_devis';
 
-window.onload = function() {
+window.onload = async function() {
+    const tarifs = await fetchTarifsFromGitHub();
+    if (tarifs) {
+        if (tarifs.options) TARIFS_OPTIONS = tarifs.options;
+        if (tarifs.produits) TARIFS_PRODUITS = tarifs.produits;
+    }
     refreshDevisList();
+    populateSub();
 };
 
 /* ===== GESTION DES SAUVEGARDES DEVIS ===== */
@@ -1037,7 +1075,7 @@ function renderAdminPanel() {
     container.innerHTML = html;
 }
 
-function saveAdminChanges() {
+async function saveAdminChanges() {
     for (let key in TARIFS_OPTIONS) {
         let a = parseFloat(document.getElementById(`adm_opt_a_${key}`).value) || 0;
         let v = parseFloat(document.getElementById(`adm_opt_v_${key}`).value) || 0;
@@ -1053,23 +1091,20 @@ function saveAdminChanges() {
         }
     }
 
-    localStorage.setItem('custom_tarifs_options', JSON.stringify(TARIFS_OPTIONS));
-    localStorage.setItem('custom_tarifs_produits', JSON.stringify(TARIFS_PRODUITS));
-    
-    alert("✅ Nouveaux tarifs enregistrés avec succès !");
+    const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
+    alert(ok ? "✅ Nouveaux tarifs enregistrés sur GitHub !" : "⚠️ Tarifs mis à jour localement (erreur GitHub).");
     updateUI();
     closeAdmin();
 }
 
-function resetDatabaseToDefault() {
+async function resetDatabaseToDefault() {
     if(confirm("ATTENTION : Cela va écraser toutes vos modifications et remettre les prix d'origine. Confirmer ?")) {
         TARIFS_PRODUITS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
         TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
-        localStorage.removeItem('custom_tarifs_options');
-        localStorage.removeItem('custom_tarifs_produits');
+        await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
         renderAdminPanel();
         updateUI();
-        alert("✅ Les prix par défaut ont été restaurés.");
+        alert("✅ Les prix par défaut ont été restaurés et sauvegardés sur GitHub.");
     }
 }
 
@@ -1082,17 +1117,16 @@ function importDatabase(event) {
     let file = event.target.files[0];
     if (!file) return;
     let reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
             let importedData = JSON.parse(e.target.result);
             if (importedData.options && importedData.produits) {
                 TARIFS_OPTIONS = importedData.options;
                 TARIFS_PRODUITS = importedData.produits;
-                localStorage.setItem('custom_tarifs_options', JSON.stringify(TARIFS_OPTIONS));
-                localStorage.setItem('custom_tarifs_produits', JSON.stringify(TARIFS_PRODUITS));
+                const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
                 renderAdminPanel();
                 updateUI();
-                alert("✅ Base de prix importée avec succès !");
+                alert(ok ? "✅ Base de prix importée et sauvegardée sur GitHub !" : "✅ Base de prix importée (erreur GitHub).");
             } else {
                 alert("❌ Fichier invalide. Assurez-vous que c'est une base de prix exportée depuis cet outil.");
             }
