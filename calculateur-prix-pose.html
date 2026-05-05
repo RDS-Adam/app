@@ -8,9 +8,13 @@
     <style>
         :root { --primary: #2c3e50; --accent: #f1c40f; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; font-size: 13px; color: #333; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
+        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; position: relative; }
         
+        /* BOUTON ADMIN */
+        .btn-admin-login { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .btn-admin-login:hover { opacity: 1; transform: rotate(45deg); }
+
         /* GESTION SAUVEGARDES */
         .save-load-area { display: flex; gap: 10px; background: #e3f2fd; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; align-items: center; flex-wrap: wrap; }
         .btn-sl { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 0.9rem; }
@@ -72,29 +76,46 @@
         body.hide-vente .col-vente, body.hide-vente .stat-v { display: none !important; }
         body.hide-marge .col-marge, body.hide-marge .stat-m { display: none !important; }
 
-        /* STYLES DE LA CALCULATRICE */
+        /* MODAL ADMIN */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        .admin-header h2 { margin: 0; color: var(--primary); }
+        .btn-close { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
+        
+        /* ACCORDEONS ADMIN */
+        .accordion-btn { background-color: #f1f5f9; color: var(--primary); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid #e2e8f0; text-align: left; outline: none; font-size: 1.05rem; font-weight: bold; transition: 0.2s; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        .accordion-btn:hover { background-color: #e2e8f0; }
+        .accordion-btn.active { background-color: var(--primary); color: white; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-color: var(--primary); }
+        .accordion-content { padding: 20px; display: none; background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-bottom: 15px; }
+        
+        /* GRILLES ET CARTES ADMIN */
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+        .admin-card { border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; background: #fdfdfd; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.2s; }
+        .admin-card:hover { border-color: #94a3b8; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .admin-card p { margin: 0 0 12px 0; font-weight: bold; font-size: 0.95rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        
+        .admin-input-group { display: flex; gap: 15px; }
+        .admin-input-wrapper { flex: 1; display: flex; flex-direction: column; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .admin-input-wrapper span { font-size: 0.75rem; font-weight: bold; color: #64748b; margin-bottom: 4px; text-transform: uppercase; }
+        .input-euro-container { display: flex; align-items: center; }
+        .input-euro-container input { border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px; font-size: 0.95rem; text-align: right; margin: 0; flex: 1; background: white; }
+        .input-euro-container input:focus { border-color: var(--primary); outline: none; }
+        .input-euro-container strong { margin-left: 6px; color: #475569; font-size: 1rem; }
+
+        .admin-actions { position: sticky; bottom: -25px; background: white; padding: 20px 0; border-top: 1px solid #e2e8f0; display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; }
+        .btn-admin-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2); }
+        .btn-admin-save:hover { background: #219653; }
+        .btn-admin-reset { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* CALCULATRICE */
         .calc-number { cursor: pointer; border-radius: 3px; padding: 0 4px; user-select: none; font-weight: bold; display: inline-block; }
         .calc-number.highlighted { background-color: #ffeb3b; color: #000; box-shadow: 0 0 0 2px #ffeb3b; }
         .calc-number.highlighted-sub { background-color: #e74c3c; color: #fff; box-shadow: 0 0 0 2px #e74c3c; }
-        
-        .calculator-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            border: 3px solid var(--primary);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 1000;
-            min-width: 240px;
-            max-width: 90vw;
-            display: none;
-        }
+        .calculator-panel { position: fixed; bottom: 20px; right: 20px; background: white; border: 3px solid var(--primary); border-radius: 8px; padding: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 1000; min-width: 240px; display: none; }
         .mode-btn { flex: 1; padding: 6px; border: 1px solid #ccc; background: #eee; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.85rem; }
         .mode-btn.active-add { background: var(--success); color: white; border-color: var(--success); }
         .mode-btn.active-sub { background: var(--danger); color: white; border-color: var(--danger); }
-
         .calc-display { background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-family: monospace; word-wrap: break-word; min-height: 20px; }
         .calc-result { font-size: 1.3rem; font-weight: bold; color: var(--success); margin-bottom: 10px; text-align: right; min-height: 25px; }
         .calc-btns { display: flex; gap: 8px; }
@@ -102,25 +123,15 @@
         .calc-btn-calc { background: var(--primary); }
         .calc-btn-clear { background: #7f8c8d; }
 
-        /* AJUSTEMENTS POUR SMARTPHONE */
         @media (max-width: 768px) {
             body { padding: 5px; }
             .container { padding: 15px; }
-            .save-load-area { flex-direction: column; align-items: stretch; }
-            .config-area { grid-template-columns: 1fr; gap: 5px; }
-            .product-inputs { grid-template-columns: 1fr; gap: 5px; }
-            .options-container { grid-template-columns: 1fr; }
-            .total-box { grid-template-columns: 1fr; gap: 10px; }
-            .global-margin-grid { grid-template-columns: 1fr !important; gap: 5px !important; }
-            .btn-reset, .btn-print { width: 100%; float: none; display: block; margin-top: 10px; box-sizing: border-box; }
-            .frais-btn-container { margin-top: 10px; display: block !important; }
-            .mesures-container { display: flex; gap: 10px; flex-direction: column; }
-            .mesures-container select, .mesures-container input { width: 100%; margin-bottom: 0; }
-            .calculator-panel { bottom: 10px; right: 10px; left: 10px; max-width: auto; }
+            .save-load-area, .config-area, .product-inputs, .options-container, .total-box { grid-template-columns: 1fr; flex-direction: column; align-items: stretch; gap: 5px; }
+            .admin-grid { grid-template-columns: 1fr; }
         }
 
         @media print {
-            .save-load-area, .config-area, .selection-box, .btn-print, .btn-reset, .col-action, .btn-details, .calculator-panel, .display-toggles { display: none !important; }
+            .save-load-area, .config-area, .selection-box, .btn-print, .btn-reset, .col-action, .btn-details, .calculator-panel, .display-toggles, .btn-admin-login { display: none !important; }
             body { background: white; padding: 0; }
             .container { box-shadow: none; border: none; width: 100%; }
             .total-box { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important; display: flex !important; justify-content: space-around; }
@@ -131,8 +142,6 @@
             .table-responsive { overflow-x: visible; }
             table { min-width: 100%; }
             .calc-number { padding: 0; }
-            .calc-number.highlighted, .calc-number.highlighted-sub { background-color: transparent; color: inherit; box-shadow: none; }
-            /* Rendre les détails toujours visibles à l'impression */
             .details-row { display: table-row !important; } 
         }
     </style>
@@ -142,7 +151,8 @@
 <div class="container">
     <div class="header">
         <h1>Calculateur Pose 2026</h1>
-        <p style="margin: 5px 0 0 0;">Tarifs applicables au 06/03/2026</p>
+        <p style="margin: 5px 0 0 0;">Tarifs dynamiques applicables</p>
+        <button class="btn-admin-login" onclick="askAdminPassword()" title="Espace Administrateur">⚙️</button>
     </div>
 
     <div class="save-load-area">
@@ -155,9 +165,9 @@
         <button class="btn-sl btn-load" onclick="loadDevis()">Charger</button>
         <button class="btn-sl btn-del" onclick="deleteDevis()">Supprimer</button>
         
-        <button class="btn-sl btn-export" onclick="exportToFile()">📥 Exporter</button>
-        <button class="btn-sl btn-import" onclick="document.getElementById('importFile').click()">📤 Importer</button>
-        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importFromFile(event)">
+        <button class="btn-sl btn-export" onclick="exportDevisFile()">📥 Exporter</button>
+        <button class="btn-sl btn-import" onclick="document.getElementById('importDevisFile').click()">📤 Importer</button>
+        <input type="file" id="importDevisFile" style="display:none" accept=".json" onchange="importDevisFile(event)">
     </div>
 
     <div class="config-area">
@@ -168,25 +178,25 @@
         <div>
             <label>📍 Lieu d'intervention</label>
             <select id="zone" onchange="updateUI()">
-                <option value="province">Province (Mise en place 70€ V / 50€ A)</option>
-                <option value="paris">Paris / IDF (Mise en place 120€ V / 90€ A)</option>
+                <option value="province">Province</option>
+                <option value="dep75_92">Dép. 75/92</option>
+                <option value="idf_metro">IDF - Métropole</option>
             </select>
         </div>
         <div>
             <label>🚚 Déplacement</label>
             <select id="trajet" onchange="updateUI()">
-                <option value="30">Moins de 30 min (30€ V / 30€ A)</option>
-                <option value="45">Plus de 30 min (50€ V / 40€ A)</option>
-                <option value="idf">Plus de 45 min / Paris IDF (75€ V / 75€ A)</option>
+                <option value="standard">Standard (selon zone)</option>
+                <option value="moins_1h">Déplacement < 1h</option>
+                <option value="0">Aucun frais</option>
             </select>
         </div>
         <div>
             <label>📏 Prise de mesures</label>
             <div class="mesures-container" style="display: flex; gap: 5px;">
                 <select id="mesures" onchange="updateUI()" style="flex: 3;">
-                    <option value="0">Aucune</option>
-                    <option value="75">Seule (75€)</option>
-                    <option value="40">Sur place (40€)</option>
+                    <option value="0">Sans</option>
+                    <option value="1">Avec</option>
                 </select>
                 <input type="number" id="mesuresQty" value="1" min="1" style="flex: 1;" title="Nombre de stores" placeholder="Qté">
             </div>
@@ -270,36 +280,39 @@
             <div class="opt-group opt-yellow">
                 <h4>⚡ Électricité & Pose Spéciale</h4>
                 <div class="check-grid">
-                    <div class="check-item"><input type="checkbox" id="o_elec"> Raccordement boîte dérivation (40€V/20€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_perc"> Perçage mur/tuiles/passage tube > 1m (130€V/100€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_vr_perc"> Perçage mur VR (boîte dérivation int. attente) (30€V/20€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_corde"> Montée à la corde (100€V/60€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_escal"> Montée étage escalier store banne (>4e V / >3e A) (60€V/20€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur (70€V/50€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50 (30€V/10€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Location) (250€V/150€A)</div>
-                    <div class="check-item"><input type="checkbox" id="o_echa_pose"> Échafaudage Pose (30€V/20€A)</div>
+                    <div class="check-item"><input type="checkbox" id="o_elec"> Raccordement boîte dérivation</div>
+                    <div class="check-item"><input type="checkbox" id="o_perc"> Perçage mur/tuiles/passage tube > 1m</div>
+                    <div class="check-item"><input type="checkbox" id="o_vr_perc"> Perçage mur VR (boîte dérivation)</div>
+                    <div class="check-item"><input type="checkbox" id="o_corde"> Montée à la corde</div>
+                    <div class="check-item"><input type="checkbox" id="o_escal"> Montée étage escalier</div>
+                    <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur</div>
+                    <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50</div>
+                    <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Loc)</div>
+                    <div class="check-item"><input type="checkbox" id="o_echa_pose"> Échafaudage Pose</div>
                     <div class="check-item"><input type="checkbox" id="o_depose"> Dépose & Mise en déchetterie</div>
                 </div>
             </div>
-            <div class="opt-group opt-blue">
+            <div class="opt-group opt-blue" id="block-opt-int" style="display:none;">
                 <h4>🏠 Options Intérieurs</h4>
-                <div class="check-item"><input type="checkbox" id="o_guid"> Guidage câbles / coulisses (20€V/15€A)</div>
-                <div class="check-item"><input type="checkbox" id="o_equer"> Pose sur équerres réglables (15€V/10€A)</div>
-                <div class="check-item"><input type="checkbox" id="o_faux"> Support faux-plafond Californien (-10€V/-10€A)</div>
+                <div class="check-item"><input type="checkbox" id="o_guid"> Guidage câbles / coulisses</div>
+                <div class="check-item"><input type="checkbox" id="o_equer"> Pose sur équerres réglables</div>
+                <div class="check-item"><input type="checkbox" id="o_faux"> Support faux-plafond Californien</div>
             </div>
-            <div class="opt-group opt-green">
+            <div class="opt-group opt-green" id="block-opt-ext" style="display:none;">
                 <h4>☀️ Options Extérieurs</h4>
-                <div class="check-item"><input type="checkbox" id="o_renvoi"> Renvoi intérieur manivelle/cordon (20€A/30€V)</div>
-                <div class="check-item"><input type="checkbox" id="o_pers"> Supports persiennes PROJ (20€A/50€V)</div>
+                <div class="check-item"><input type="checkbox" id="o_renvoi"> Renvoi intérieur manivelle/cordon</div>
+                <div class="check-item"><input type="checkbox" id="o_pers"> Supports persiennes PROJ</div>
             </div>
-            <div class="opt-group opt-orange">
-                <h4>🟧 Options Bannes & VR</h4>
-                <div class="check-item"><input type="checkbox" id="o_modul"> Modul'ombre / Leds Ultima (40€A/60€V)</div>
-                <div class="check-item"><input type="checkbox" id="o_manchon"> Manchonnage store banne (150€A/250€V)</div>
-                <div class="check-item"><input type="checkbox" id="o_ite"> Pose sur ITE (0€A/300€V)</div>
-                <div class="check-item"><input type="checkbox" id="o_vr_bois"> VR Tradi coffre bois (20€A/30€V)</div>
-                <div class="check-item"><input type="checkbox" id="o_vr_renvoi"> Renvoi int. sangle/manivelle (20€A/30€V)</div>
+            <div class="opt-group opt-orange" id="block-opt-banne" style="display:none;">
+                <h4>🟧 Options Bannes</h4>
+                <div class="check-item"><input type="checkbox" id="o_modul"> Modul'ombre / Leds Ultima</div>
+                <div class="check-item"><input type="checkbox" id="o_manchon"> Manchonnage store banne</div>
+                <div class="check-item"><input type="checkbox" id="o_ite"> Pose sur ITE</div>
+            </div>
+            <div class="opt-group opt-orange" id="block-opt-vr" style="display:none;">
+                <h4>🟧 Options VR</h4>
+                <div class="check-item"><input type="checkbox" id="o_vr_bois"> VR Tradi coffre bois</div>
+                <div class="check-item"><input type="checkbox" id="o_vr_renvoi"> Renvoi int. sangle/manivelle</div>
             </div>
         </div>
         <button class="btn-add" onclick="addItem()">AJOUTER AU DEVIS</button>
@@ -362,19 +375,17 @@
 
     <div>
         <button class="btn-reset" onclick="resetDevis()">NOUVEAU DEVIS (EFFACER)</button>
-        <button class="btn-print" onclick="window.print()">IMPRIMER / PDF</button>
+        <button class="btn-print" onclick="printDevis()">IMPRIMER / PDF</button>
         <div style="clear:both;"></div>
     </div>
 </div>
 
 <div id="calculatorPanel" class="calculator-panel">
     <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px; margin-bottom:10px;">🧮 Calculatrice</h4>
-    
     <div style="display:flex; gap:5px; margin-bottom:10px;">
         <button id="btnModeAdd" class="mode-btn active-add" onclick="setCalcMode('add')">➕ Ajouter</button>
         <button id="btnModeSub" class="mode-btn" onclick="setCalcMode('sub')">➖ Soustraire</button>
     </div>
-
     <div id="calcDisplay" class="calc-display">0.00</div>
     <div id="calcResult" class="calc-result"></div>
     <div class="calc-btns">
@@ -383,32 +394,53 @@
     </div>
 </div>
 
+<div id="adminModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="admin-header">
+            <h2>⚙️ Interface Administrateur (Base de prix)</h2>
+            <button class="btn-close" onclick="closeAdmin()">Fermer</button>
+        </div>
+        
+        <div style="margin-bottom: 25px; display:flex; gap:10px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+            <button class="btn-sl btn-import" onclick="document.getElementById('importDBFile').click()">📤 Importer Tarifs JSON</button>
+            <input type="file" id="importDBFile" style="display:none" accept=".json" onchange="importDatabase(event)">
+            <button class="btn-sl btn-export" onclick="exportDatabase()">📥 Exporter Tarifs JSON</button>
+            <div style="flex-grow: 1;"></div>
+            <button class="btn-admin-reset" onclick="resetDatabaseToDefault()">⚠️ Restaurer Prix par Défaut</button>
+        </div>
+
+        <div id="adminContainer">
+            </div>
+
+        <div class="admin-actions">
+            <button class="btn-admin-save" onclick="saveAdminChanges()">💾 Enregistrer les Modifications</button>
+        </div>
+    </div>
+</div>
+
 <script>
-const TARIFS = {
+/* =========================================================
+   BASE DE DONNÉES PAR DÉFAUT (NE PAS MODIFIER DIRECTEMENT)
+========================================================= */
+const DEFAULT_TARIFS_PRODUITS = {
     banne_man: { "Avancée < 3m": [170, 230], "Avancée 3m50 - 4m": [260, 360] },
     banne_elec: { "Avancée < 3m": [220, 270], "Avancée 3m50 - 4m": [310, 400] },
-    banne_ult: { "Avancée < 3m": [310, 410], "Avancée 3m50 - 4m": [420, 580] },
+    banne_ult: { "Avancée < 3m": [310, 460], "Avancée 3m50 - 4m": [420, 630] },
     veraclim: { "1 module (Base)": [500, 700], "2 modules": [800, 1100] },
-    
-    toile_classique: { "Largeur < 1m40": [50, 70], "Largeur < 2m": [70, 100], "Largeur < 4m": [150, 200], "Largeur < 6m": [200, 260], "Lg 6-8m / Double pente": [250, 400], "Largeur > 8m": [400, 600] },
-    toile_face_jonc: { "Largeur < 1m40": [40, 50], "Largeur < 2m": [50, 70], "Largeur < 4m": [100, 150], "Largeur < 6m": [150, 210], "Lg 6-8m / Double pente": [250, 400], "Largeur > 8m": [400, 600] },
-    
+    toile_classique: { "Largeur < 1m40": [50, 70], "Largeur < 2m": [70, 100], "Largeur < 4m": [150, 200], "Largeur < 6m": [200, 260], "Lg 6-8m / Double pente": [300, 400], "Largeur > 8m": [400, 600] },
+    toile_face_jonc: { "Largeur < 1m40": [40, 50], "Largeur < 2m": [50, 70], "Largeur < 4m": [100, 150], "Largeur < 6m": [150, 210], "Lg 6-8m / Double pente": [300, 400], "Largeur > 8m": [400, 600] },
     vr_man: { "Largeur < 1m40": [60, 80], "Largeur > 1m40": [80, 110], "Largeur > 2m50": [100, 140] },
     vr_elec: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
     vr_trad: { "Largeur < 1m40": [100, 140], "Largeur > 1m40": [120, 170], "Largeur > 2m50": [140, 200] },
-    
     moust_man: { "Largeur < 1m40": [60, 80], "Largeur > 1m40": [80, 110], "Largeur > 2m50": [100, 140] },
     moust_elec: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
     moust_p: { "Largeur < 1m40": [80, 110], "Largeur > 1m40": [100, 140], "Largeur > 2m50": [120, 170] },
     moust_e: { "Largeur < 1m40": [40, 70], "Largeur > 1m40": [60, 100], "Largeur > 2m50": [80, 130] },
-    
     proj_cord: { "Largeur < 1m40": [60, 90], "Largeur < 2m50": [90, 140] },
     proj_man: { "Largeur < 1m40": [50, 70], "Largeur < 2m50": [80, 120], "Largeur < 3m50": [120, 180], "Largeur > 3m50": [150, 220] },
     proj_elec: { "Largeur < 1m40": [70, 100], "Largeur < 2m50": [100, 150], "Largeur < 3m50": [140, 210], "Largeur > 3m50": [170, 250] },
-    
     zip_bso_man: { "Largeur < 1m40": [120, 170], "Largeur < 2m50": [150, 220], "Largeur < 3m50": [190, 280], "Largeur > 3m50": [220, 320] },
     zip_bso_elec: { "Largeur < 1m40": [140, 200], "Largeur < 2m50": [170, 250], "Largeur < 3m50": [210, 310], "Largeur > 3m50": [240, 350] },
-    
     cal_chain: { "Lg < 1m50": [30, 40], "Lg > 1m50": [50, 70], "Lg > 2m50": [80, 120], "Lg > 3m50": [100, 150] },
     cal_sans: { "Lg < 1m50": [30, 40], "Lg > 1m50": [40, 60], "Lg > 2m50": [50, 80], "Lg > 3m50": [70, 120] },
     novis: { "Forfait Lg < 1m50": [30, 40] },
@@ -429,18 +461,59 @@ const TARIFS = {
     japonais: { "Lg < 1m50": [20, 40], "Lg > 1m50": [30, 60], "Lg > 2m50": [50, 90], "Lg > 3m50": [60, 110] }
 };
 
+const DEFAULT_TARIFS_OPTIONS = {
+    // Frais Fixes
+    frais_mep_prov: { name: "Mise en place (Province)", a: 60, v: 80 },
+    frais_mep_7592: { name: "Mise en place (Dép. 75/92)", a: 90, v: 120 },
+    frais_mep_idf: { name: "Mise en place (IDF - Métropole)", a: 90, v: 100 },
+    frais_dep_std: { name: "Déplacement (Standard)", a: 30, v: 40 },
+    frais_dep_1h: { name: "Déplacement (< 1h)", a: 75, v: 80 },
+    frais_mesure: { name: "Prise de mesures (base jusqu'à 5)", a: 75, v: 80 },
+    frais_mesure_supp: { name: "Prise de mesures (supp. par store)", a: 5, v: 5 },
+    maj_zone_7592: { name: "Majoration Zone 75/92 (par produit)", a: 30, v: 50 },
+    maj_zone_idf: { name: "Majoration Zone IDF (par produit)", a: 20, v: 30 },
+    remise_banne: { name: "Remise Bannes (>= 2)", a: -30, v: -30 },
+    // Options
+    o_elec: { name: "Électricité", a: 20, v: 40 },
+    o_perc: { name: "Perçage Mur/Tube", a: 100, v: 130 },
+    o_vr_perc: { name: "Perçage VR", a: 20, v: 30 },
+    o_corde: { name: "Montée à la corde", a: 60, v: 100 },
+    o_escal: { name: "Montée Escalier", a: 20, v: 60 },
+    o_syam: { name: "SYAM / Étage Int.", a: 50, v: 70 },
+    o_echelle: { name: "Pose Échelle > 3m50", a: 10, v: 30 },
+    o_echa_inst: { name: "Inst. Échafaudage", a: 150, v: 250 },
+    o_echa_pose: { name: "Pose Échafaudage", a: 20, v: 30 },
+    o_guid: { name: "Guidage", a: 15, v: 20 },
+    o_equer: { name: "Équerres", a: 10, v: 15 },
+    o_faux: { name: "Faux Plafond", a: -10, v: -10 },
+    o_renvoi: { name: "Renvoi Intérieur", a: 20, v: 30 },
+    o_pers: { name: "Supports Persiennes", a: 20, v: 50 },
+    o_modul: { name: "Modul'ombre/Leds", a: 40, v: 60 },
+    o_manchon: { name: "Manchonnage Banne", a: 150, v: 250 },
+    o_ite: { name: "Pose sur ITE", a: 0, v: 300 },
+    o_vr_bois: { name: "VR Tradi coffre bois", a: 20, v: 30 },
+    o_vr_renvoi: { name: "Renvoi int. sangle/manivelle", a: 20, v: 30 },
+    depose_base: { name: "Dépose Standard", a: 10, v: 15 },
+    depose_ext: { name: "Dépose VR/Proj/Moust", a: 30, v: 40 },
+    depose_banne: { name: "Dépose Banne", a: 60, v: 90 }
+};
+
+/* =========================================================
+   CHARGEMENT DES DONNÉES ACTUELLES
+========================================================= */
+let TARIFS_PRODUITS = JSON.parse(localStorage.getItem('custom_tarifs_produits')) || JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
+let TARIFS_OPTIONS = JSON.parse(localStorage.getItem('custom_tarifs_options')) || JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
+
 let panier = [];
 let calcValues = [];
-let calcMode = 'add'; // 'add' ou 'sub'
-
+let calcMode = 'add'; 
 const STORAGE_KEY = 'pose_expert_saved_devis';
 
-// Initialisation au chargement de la page
 window.onload = function() {
     refreshDevisList();
 };
 
-/* ===== GESTION DES SAUVEGARDES ===== */
+/* ===== GESTION DES SAUVEGARDES DEVIS ===== */
 function getSavedDevis() {
     let saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : {};
@@ -460,64 +533,43 @@ function refreshDevisList() {
 
 function saveDevis() {
     let devisNum = document.getElementById('devisNum').value.trim();
-    if (!devisNum) {
-        alert("⚠️ Veuillez saisir un N° de Devis avant d'enregistrer.");
-        return;
-    }
-
+    if (!devisNum) return alert("⚠️ Veuillez saisir un N° de Devis avant d'enregistrer.");
     let currentState = {
-        panier: panier,
-        zone: document.getElementById('zone').value,
-        trajet: document.getElementById('trajet').value,
-        mesures: document.getElementById('mesures').value,
+        panier: panier, zone: document.getElementById('zone').value,
+        trajet: document.getElementById('trajet').value, mesures: document.getElementById('mesures').value,
         mesuresQty: document.getElementById('mesuresQty').value,
-        achatProd: document.getElementById('globalAchatProd').value,
-        venteProd: document.getElementById('globalVenteProd').value
+        achatProd: document.getElementById('globalAchatProd').value, venteProd: document.getElementById('globalVenteProd').value
     };
-
     let saved = getSavedDevis();
     saved[devisNum] = currentState;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-    
     refreshDevisList();
     document.getElementById('loadDevisSelect').value = devisNum;
-    alert(`✅ Le devis "${devisNum}" a été enregistré avec succès !`);
+    alert(`✅ Le devis "${devisNum}" a été enregistré !`);
 }
 
 function loadDevis() {
-    let select = document.getElementById('loadDevisSelect');
-    let devisNum = select.value;
-    if (!devisNum) {
-        alert("⚠️ Veuillez sélectionner un devis à charger dans la liste.");
-        return;
-    }
-
+    let devisNum = document.getElementById('loadDevisSelect').value;
+    if (!devisNum) return alert("⚠️ Veuillez sélectionner un devis.");
     let saved = getSavedDevis();
     let data = saved[devisNum];
     if (data) {
         panier = data.panier || [];
         document.getElementById('devisNum').value = devisNum;
         document.getElementById('zone').value = data.zone || 'province';
-        document.getElementById('trajet').value = data.trajet || '30';
+        document.getElementById('trajet').value = data.trajet || 'standard';
         document.getElementById('mesures').value = data.mesures || '0';
         document.getElementById('mesuresQty').value = data.mesuresQty || '1';
         document.getElementById('globalAchatProd').value = data.achatProd || '';
         document.getElementById('globalVenteProd').value = data.venteProd || '';
-        
-        clearCalc();
-        updateUI();
+        clearCalc(); populateSub(); updateUI();
     }
 }
 
 function deleteDevis() {
-    let select = document.getElementById('loadDevisSelect');
-    let devisNum = select.value;
-    if (!devisNum) {
-        alert("⚠️ Veuillez sélectionner un devis à supprimer dans la liste.");
-        return;
-    }
-
-    if(confirm(`Êtes-vous sûr de vouloir supprimer définitivement le devis "${devisNum}" ?`)) {
+    let devisNum = document.getElementById('loadDevisSelect').value;
+    if (!devisNum) return;
+    if(confirm(`Supprimer définitivement "${devisNum}" ?`)) {
         let saved = getSavedDevis();
         delete saved[devisNum];
         localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
@@ -525,102 +577,46 @@ function deleteDevis() {
     }
 }
 
-/* ===== EXPORT / IMPORT ===== */
-function exportToFile() {
+function exportDevisFile() {
     let saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved || saved === '{}') {
-        alert("⚠️ Aucun devis enregistré à exporter.");
-        return;
-    }
-    let blob = new Blob([saved], { type: "application/json" });
-    let url = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-    a.href = url;
-    a.download = "sauvegarde_devis_pose_expert.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (!saved || saved === '{}') return alert("⚠️ Aucun devis à exporter.");
+    downloadJSON(saved, "sauvegarde_devis.json");
 }
 
-function importFromFile(event) {
+function importDevisFile(event) {
     let file = event.target.files[0];
     if (!file) return;
-
     let reader = new FileReader();
     reader.onload = function(e) {
         try {
             let importedData = JSON.parse(e.target.result);
             let currentSaved = getSavedDevis();
-            
-            // Fusion des données
             Object.assign(currentSaved, importedData);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSaved));
-            
             refreshDevisList();
-            alert("✅ Fichier importé avec succès ! Les devis ont été ajoutés à votre liste.");
-        } catch (error) {
-            alert("❌ Erreur lors de l'importation. Le fichier n'est pas un JSON valide.");
-        }
-        // Réinitialiser l'input
+            alert("✅ Devis importés avec succès !");
+        } catch (err) { alert("❌ Fichier invalide."); }
         event.target.value = "";
     };
     reader.readAsText(file);
 }
 
-/* ===== CALCULATRICE ===== */
-function setCalcMode(mode) {
-    calcMode = mode;
-    if(mode === 'add') {
-        document.getElementById('btnModeAdd').classList.add('active-add');
-        document.getElementById('btnModeSub').classList.remove('active-sub');
-    } else {
-        document.getElementById('btnModeAdd').classList.remove('active-add');
-        document.getElementById('btnModeSub').classList.add('active-sub');
-    }
+function downloadJSON(dataString, filename) {
+    let blob = new Blob([dataString], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-document.addEventListener('dblclick', function(e) {
-    if(e.target && e.target.classList.contains('calc-number')) {
-        window.getSelection().removeAllRanges(); 
-        
-        let rawVal = parseFloat(e.target.getAttribute('data-val'));
-        let val = (calcMode === 'add') ? rawVal : -rawVal;
-        
-        calcValues.push(val);
-        
-        if (calcMode === 'add') {
-            e.target.classList.add('highlighted');
-        } else {
-            e.target.classList.add('highlighted-sub');
-        }
-        
-        document.getElementById('calculatorPanel').style.display = 'block';
-        
-        let formula = calcValues.map((v, i) => {
-            if (i === 0) return v.toFixed(2);
-            return v < 0 ? `- ${Math.abs(v).toFixed(2)}` : `+ ${v.toFixed(2)}`;
-        }).join(' ');
-        
-        document.getElementById('calcDisplay').innerText = formula;
-        document.getElementById('calcResult').innerText = ""; 
-    }
-});
-
-function runCalc() {
-    if(calcValues.length === 0) return;
-    let sum = calcValues.reduce((a, b) => a + b, 0);
-    document.getElementById('calcResult').innerText = "= " + sum.toFixed(2) + " €";
-}
-
-function clearCalc() {
-    calcValues = [];
-    document.getElementById('calcDisplay').innerText = "0.00";
-    document.getElementById('calcResult').innerText = "";
-    document.getElementById('calculatorPanel').style.display = 'none';
-    document.querySelectorAll('.calc-number.highlighted').forEach(el => el.classList.remove('highlighted'));
-    document.querySelectorAll('.calc-number.highlighted-sub').forEach(el => el.classList.remove('highlighted-sub'));
-    setCalcMode('add');
+/* ===== IMPRESSION ===== */
+function printDevis() {
+    const devisNum = document.getElementById('devisNum').value.trim();
+    const originalTitle = document.title;
+    document.title = devisNum ? "Prix de pose " + devisNum : "Prix de pose";
+    window.print();
+    document.title = originalTitle;
 }
 
 /* ===== LOGIQUE PRINCIPALE DU DEVIS ===== */
@@ -628,8 +624,28 @@ function populateSub() {
     const main = document.getElementById('pMain').value;
     const sub = document.getElementById('pSub');
     sub.innerHTML = "";
+    
+    let bExt = document.getElementById('block-opt-ext');
+    let bBanne = document.getElementById('block-opt-banne');
+    let bVr = document.getElementById('block-opt-vr');
+    let bInt = document.getElementById('block-opt-int');
+    
+    if(bExt) bExt.style.display = 'none';
+    if(bBanne) bBanne.style.display = 'none';
+    if(bVr) bVr.style.display = 'none';
+    if(bInt) bInt.style.display = 'none';
+
+    document.querySelectorAll('#block-opt-ext input, #block-opt-banne input, #block-opt-vr input, #block-opt-int input').forEach(cb => cb.checked = false);
+
     if (!main) return;
-    for (let dim in TARIFS[main]) {
+    
+    if (main.startsWith('proj_') || main.startsWith('zip_bso_')) if(bExt) bExt.style.display = 'block';
+    if (main.startsWith('banne_') || main === 'veraclim') if(bBanne) bBanne.style.display = 'block';
+    if (main.startsWith('vr_')) if(bVr) bVr.style.display = 'block';
+    const intProducts = ['ven_alu', 'ven_bois', 'enr_easy', 'enr_sans', 'plis', 'novis', 'cal_chain', 'cal_sans', 'japonais', 'velum'];
+    if (intProducts.includes(main)) if(bInt) bInt.style.display = 'block';
+
+    for (let dim in TARIFS_PRODUITS[main]) {
         let opt = document.createElement('option');
         opt.value = dim; opt.text = dim;
         sub.appendChild(opt);
@@ -638,43 +654,56 @@ function populateSub() {
 
 function resetDevis() {
     if(confirm("Attention, cela va effacer tout le devis en cours. Confirmer ?")) {
-        panier = [];
-        clearCalc();
-        document.getElementById('devisNum').value = "";
-        document.getElementById('pQty').value = 1;
-        document.getElementById('mesuresQty').value = 1;
-        document.getElementById('mesures').value = "0";
-        document.getElementById('trajet').value = "30";
-        document.getElementById('zone').value = "province";
-        document.getElementById('globalAchatProd').value = "";
-        document.getElementById('globalVenteProd').value = "";
+        panier = []; clearCalc();
+        document.getElementById('devisNum').value = ""; document.getElementById('pQty').value = 1;
+        document.getElementById('mesuresQty').value = 1; document.getElementById('mesures').value = "0";
+        document.getElementById('trajet').value = "standard"; document.getElementById('zone').value = "province";
+        document.getElementById('globalAchatProd').value = ""; document.getElementById('globalVenteProd').value = "";
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
-        updateUI();
+        populateSub(); updateUI();
     }
 }
 
 function addFrais() {
-    const isParis = document.getElementById('zone').value === 'paris';
+    const zone = document.getElementById('zone').value;
     const tra = document.getElementById('trajet').value;
-    const mVal = parseFloat(document.getElementById('mesures').value);
+    const mVal = parseInt(document.getElementById('mesures').value);
     const mQty = parseInt(document.getElementById('mesuresQty').value) || 1;
 
-    let setupA = isParis ? 90 : 50; 
-    let setupV = isParis ? 120 : 70;
-    panier.push({ isFrais: true, name: `Mise en place (${isParis ? 'Paris/IDF' : 'Province'})`, qty: 1, a: setupA, v: setupV, options: [] });
+    let setupA = TARIFS_OPTIONS.frais_mep_prov.a, setupV = TARIFS_OPTIONS.frais_mep_prov.v;
+    let depA = TARIFS_OPTIONS.frais_dep_std.a, depV = TARIFS_OPTIONS.frais_dep_std.v;
+    let zoneLabel = "Province";
 
-    let depA = (tra==='30') ? 30 : (tra==='45') ? 40 : 75;
-    let depV = (tra==='30') ? 30 : (tra==='45') ? 50 : 75;
-    panier.push({ isFrais: true, name: 'Déplacement', qty: 1, a: depA, v: depV, options: [] });
+    if (zone === 'dep75_92') {
+        setupA = TARIFS_OPTIONS.frais_mep_7592.a; setupV = TARIFS_OPTIONS.frais_mep_7592.v;
+        depA = TARIFS_OPTIONS.frais_mep_7592.a; depV = TARIFS_OPTIONS.frais_mep_7592.v;
+        zoneLabel = "Dép. 75/92";
+    } else if (zone === 'idf_metro') {
+        setupA = TARIFS_OPTIONS.frais_mep_idf.a; setupV = TARIFS_OPTIONS.frais_mep_idf.v;
+        depA = TARIFS_OPTIONS.frais_mep_idf.a; depV = TARIFS_OPTIONS.frais_mep_idf.v;
+        zoneLabel = "IDF - Métropole";
+    }
+
+    if (tra === 'moins_1h') {
+        depA = TARIFS_OPTIONS.frais_dep_1h.a; depV = TARIFS_OPTIONS.frais_dep_1h.v;
+    } else if (tra === '0') {
+        depA = 0; depV = 0;
+    }
+
+    panier.push({ isFrais: true, name: `Mise en place (${zoneLabel})`, qty: 1, a: setupA, v: setupV, options: [] });
+    if (tra !== '0') panier.push({ isFrais: true, name: `Déplacement`, qty: 1, a: depA, v: depV, options: [] });
 
     if (mVal > 0) {
-        let extraCost = 0;
+        let mesA = TARIFS_OPTIONS.frais_mesure.a, mesV = TARIFS_OPTIONS.frais_mesure.v;
+        let extraCostA = 0, extraCostV = 0;
+        let extraDetails = null;
         if (mQty > 5) {
-            extraCost = (mQty - 5) * 5;
+            extraCostA = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.a; 
+            extraCostV = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.v; 
+            extraDetails = { baseA: mesA, baseV: mesV, extraQty: (mQty - 5), extraCost: extraCostV };
         }
-        let finalMVal = mVal + extraCost;
-        let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures';
-        panier.push({ isFrais: true, name: nameLabel, qty: 1, a: finalMVal, v: finalMVal, options: [] });
+        let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures (jusqu\'à 5 stores)';
+        panier.push({ isFrais: true, isMesure: true, name: nameLabel, qty: 1, a: mesA + extraCostA, v: mesV + extraCostV, extraDetails: extraDetails, options: [] });
     }
     updateUI();
 }
@@ -685,71 +714,63 @@ function addItem() {
     const qty = parseInt(document.getElementById('pQty').value);
     if (!mSelect.value || !sub) return;
 
-    let baseA = TARIFS[mSelect.value][sub][0];
-    let baseV = TARIFS[mSelect.value][sub][1];
+    let baseA = TARIFS_PRODUITS[mSelect.value][sub][0];
+    let baseV = TARIFS_PRODUITS[mSelect.value][sub][1];
     let baseName = mSelect.options[mSelect.selectedIndex].text + " (" + sub + ")";
 
     let optList = [];
     let totA = baseA;
     let totV = baseV;
 
-    const addOpt = (id, nom, a, v) => {
-        if(document.getElementById(id).checked) {
-            optList.push({ name: nom, a: a, v: v });
+    const addOpt = (id, optKey) => {
+        let el = document.getElementById(id);
+        if(el && el.checked) {
+            let a = TARIFS_OPTIONS[optKey].a;
+            let v = TARIFS_OPTIONS[optKey].v;
+            optList.push({ name: TARIFS_OPTIONS[optKey].name, a: a, v: v });
             totA += a; totV += v;
         }
     };
 
-    addOpt('o_elec', "Électricité", 20, 40);
-    addOpt('o_perc', "Perçage Mur/Tube", 100, 130);
-    addOpt('o_vr_perc', "Perçage VR", 20, 30);
-    addOpt('o_corde', "Montée à la corde", 60, 100);
-    addOpt('o_escal', "Montée Escalier", 20, 60);
-    addOpt('o_syam', "SYAM / Étage Int.", 50, 70);
-    addOpt('o_echelle', "Pose Échelle > 3m50", 10, 30);
-    addOpt('o_echa_inst', "Inst. Échafaudage", 150, 250);
-    addOpt('o_echa_pose', "Pose Échafaudage", 20, 30);
-    addOpt('o_guid', "Guidage", 15, 20);
-    addOpt('o_equer', "Équerres", 10, 15);
-    addOpt('o_faux', "Faux Plafond", -10, -10);
-    addOpt('o_renvoi', "Renvoi Intérieur", 20, 30);
-    addOpt('o_pers', "Supports Persiennes", 20, 50);
-
-    addOpt('o_modul', "Modul'ombre/Leds", 40, 60);
-    addOpt('o_manchon', "Manchonnage Banne", 150, 250);
-    addOpt('o_ite', "Pose sur ITE", 0, 300);
-    addOpt('o_vr_bois', "VR Tradi coffre bois", 20, 30);
-    addOpt('o_vr_renvoi', "Renvoi int. sangle/manivelle", 20, 30);
+    addOpt('o_elec', 'o_elec');
+    addOpt('o_perc', 'o_perc');
+    addOpt('o_vr_perc', 'o_vr_perc');
+    addOpt('o_corde', 'o_corde');
+    addOpt('o_escal', 'o_escal');
+    addOpt('o_syam', 'o_syam');
+    addOpt('o_echelle', 'o_echelle');
+    addOpt('o_echa_inst', 'o_echa_inst');
+    addOpt('o_echa_pose', 'o_echa_pose');
+    addOpt('o_guid', 'o_guid');
+    addOpt('o_equer', 'o_equer');
+    addOpt('o_faux', 'o_faux');
+    addOpt('o_renvoi', 'o_renvoi');
+    addOpt('o_pers', 'o_pers');
+    addOpt('o_modul', 'o_modul');
+    addOpt('o_manchon', 'o_manchon');
+    addOpt('o_ite', 'o_ite');
+    addOpt('o_vr_bois', 'o_vr_bois');
+    addOpt('o_vr_renvoi', 'o_vr_renvoi');
 
     if(document.getElementById('o_depose').checked) {
-        let depA = 10, depV = 15;
-        if (mSelect.value.startsWith('banne')) { depA = 60; depV = 90; }
-        else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso')) { depA = 30; depV = 40; }
-        optList.push({ name: "Dépose", a: depA, v: depV });
-        totA += depA; totV += depV;
+        let depKey = 'depose_base';
+        if (mSelect.value.startsWith('banne')) depKey = 'depose_banne';
+        else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso')) depKey = 'depose_ext';
+        
+        let a = TARIFS_OPTIONS[depKey].a;
+        let v = TARIFS_OPTIONS[depKey].v;
+        optList.push({ name: TARIFS_OPTIONS[depKey].name, a: a, v: v });
+        totA += a; totV += v;
     }
     
-    panier.push({ 
-        isFrais: false,
-        mainCat: mSelect.value, 
-        name: baseName, 
-        baseA: baseA,
-        baseV: baseV,
-        options: optList,
-        qty: qty, 
-        unitA: totA, 
-        unitV: totV  
-    });
-
+    panier.push({ isFrais: false, mainCat: mSelect.value, name: baseName, baseA: baseA, baseV: baseV, options: optList, qty: qty, unitA: totA, unitV: totV });
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
 function toggleDetails(index) {
     const row = document.getElementById(`details-${index}`);
-    if (row) {
-        row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-    }
+    if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }
 
 function updateUI() {
@@ -758,50 +779,42 @@ function updateUI() {
     const displayNum = document.getElementById('displayDevisNum');
     body.innerHTML = "";
     
-    if(numInput) {
-        displayNum.style.display = "block";
-        document.getElementById('numVal').innerText = numInput;
-    } else {
-        displayNum.style.display = "none";
-    }
+    if(numInput) { displayNum.style.display = "block"; document.getElementById('numVal').innerText = numInput; } 
+    else { displayNum.style.display = "none"; }
 
-    let sumA = 0;
-    let sumV = 0;
-    let baseSumA = 0;
-    let baseSumV = 0;
-    let depA = 0;
-    let depV = 0;
-
-    const isParis = document.getElementById('zone').value === 'paris';
+    let sumA = 0, sumV = 0, baseSumA = 0, baseSumV = 0, depA = 0, depV = 0;
+    const zone = document.getElementById('zone').value;
 
     let totalProductQty = panier.reduce((acc, item) => item.isFrais ? acc : acc + item.qty, 0);
     let applyGlobalDiscount = totalProductQty >= 6;
-    
     let totalBannesQty = panier.reduce((acc, item) => (!item.isFrais && item.mainCat && item.mainCat.startsWith('banne')) ? acc + item.qty : acc, 0);
     let applyBanneDiscount = totalBannesQty >= 2;
 
     panier.forEach((item, idx) => {
         let trClass = item.isFrais ? "row-frais-fixes" : "";
-        let btnHtml = (!item.isFrais) ? 
-            `<button class="btn-details" onclick="toggleDetails(${idx})"> Détails</button>` : '';
-        
-        let currentA = item.a; 
-        let currentV = item.v; 
+        let btnHtml = (!item.isFrais || (item.isFrais && item.isMesure && item.extraDetails)) ? `<button class="btn-details" onclick="toggleDetails(${idx})"> Détails</button>` : '';
+        let currentA = item.a, currentV = item.v; 
         let discountBadge = "";
+        let zoneSuppA = 0, zoneSuppV = 0;
 
         if (!item.isFrais) {
             let uA = item.unitA;
             let uV = item.unitV;
 
-            if (isParis) {
-                uA += 10;
-                uV += 30;
+            if (zone === 'dep75_92') {
+                zoneSuppA = TARIFS_OPTIONS.maj_zone_7592.a;
+                zoneSuppV = TARIFS_OPTIONS.maj_zone_7592.v;
+            } else if (zone === 'idf_metro') {
+                zoneSuppA = TARIFS_OPTIONS.maj_zone_idf.a;
+                zoneSuppV = TARIFS_OPTIONS.maj_zone_idf.v;
             }
 
+            uA += zoneSuppA; uV += zoneSuppV;
+
             if (item.mainCat && item.mainCat.startsWith('banne') && applyBanneDiscount) {
-                uA -= 30;
-                uV -= 30;
-                discountBadge += `<span style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-30€/u Qté Banne)</span> `;
+                uA += TARIFS_OPTIONS.remise_banne.a;
+                uV += TARIFS_OPTIONS.remise_banne.v;
+                discountBadge += `<span class="col-achat" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(${TARIFS_OPTIONS.remise_banne.a}€/u Achat Banne)</span> <span class="col-vente" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(${TARIFS_OPTIONS.remise_banne.v}€/u Vente Banne)</span> `;
             }
 
             currentA = uA * item.qty;
@@ -811,20 +824,14 @@ function updateUI() {
             if (applyGlobalDiscount && !isExcludedBase) {
                 currentA = currentA * 0.85;
                 currentV = currentV * 0.90;
-                discountBadge += `<span style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-15%A / -10%V Globale)</span>`;
+                discountBadge += `<span class="col-achat" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-15% Achat Globale)</span> <span class="col-vente" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-10% Vente Globale)</span>`;
             }
         } else {
-            currentA = item.a;
-            currentV = item.v;
+            currentA = item.a; currentV = item.v;
         }
 
-        if (item.name === 'Déplacement') {
-            depA += currentA;
-            depV += currentV;
-        } else {
-            baseSumA += currentA;
-            baseSumV += currentV;
-        }
+        if (item.name === 'Déplacement') { depA += currentA; depV += currentV; } 
+        else { baseSumA += currentA; baseSumV += currentV; }
 
         body.innerHTML += `<tr class="${trClass}">
             <td><strong>${item.name}</strong> ${discountBadge} ${btnHtml}</td>
@@ -836,40 +843,42 @@ function updateUI() {
         </tr>`;
 
         if (!item.isFrais) {
-            // Modifié : Ajout des classes .col-achat et .col-vente sur les textes de détails
-            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;">
-                <td colspan="6">
-                    <ul>
-                        <li><em>Base unitaire : <span class="col-achat">Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</span></em></li>`;
+            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;"><td colspan="6"><ul>
+                <li><em>Base unitaire : <span class="col-achat">Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</span></em></li>`;
             
             if (item.options) {
                 item.options.forEach(opt => {
-                    let signA = opt.a > 0 ? '+' : '';
-                    let signV = opt.v > 0 ? '+' : '';
+                    let signA = opt.a > 0 ? '+' : ''; let signV = opt.v > 0 ? '+' : '';
                     detailsHtml += `<li><em>Option ${opt.name} : <span class="col-achat">Achat ${signA}<span class="calc-number" data-val="${opt.a}">${Math.abs(opt.a).toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente ${signV}<span class="calc-number" data-val="${opt.v}">${Math.abs(opt.v).toFixed(2)}</span>€</span></em></li>`;
                 });
             }
-
-            if (isParis) {
-                detailsHtml += `<li><em>Supplément auto Paris/IDF : <span class="col-achat">Achat +<span class="calc-number" data-val="10">10.00</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="30">30.00</span>€</span></em></li>`;
+            if (zoneSuppA > 0 || zoneSuppV > 0) {
+                let zoneName = zone === 'dep75_92' ? 'Dép. 75/92' : 'IDF/Métropole';
+                detailsHtml += `<li><em>Supplément auto ${zoneName} : <span class="col-achat">Achat +<span class="calc-number" data-val="${zoneSuppA}">${zoneSuppA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="${zoneSuppV}">${zoneSuppV.toFixed(2)}</span>€</span></em></li>`;
             }
-            
             detailsHtml += `</ul></td></tr>`;
+            body.innerHTML += detailsHtml;
+        } else if (item.isFrais && item.isMesure && item.extraDetails) {
+            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;"><td colspan="6"><ul>
+                <li><em>Forfait base (jusqu'à 5 stores) : <span class="col-achat">Achat <span class="calc-number" data-val="${item.extraDetails.baseA}">${item.extraDetails.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.extraDetails.baseV}">${item.extraDetails.baseV.toFixed(2)}</span>€</span></em></li>
+                <li><em>Supplément (${item.extraDetails.extraQty} stores) : <span class="col-achat">Achat +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span></em></li>
+                </ul></td></tr>`;
             body.innerHTML += detailsHtml;
         }
     });
 
     if (panier.length > 0) {
-        if (isParis) { 
-            let minAdjA = 0;
-            let minAdjV = 0;
+        if (zone === 'dep75_92' || zone === 'idf_metro') { 
+            let minAdjA = 0, minAdjV = 0;
+            let totalForMinA = baseSumA + depA;
+            let totalForMinV = baseSumV + depV;
 
-            if (baseSumA > 0 && baseSumA < 300) minAdjA = 300 - baseSumA;
-            if (baseSumV > 0 && baseSumV < 400) minAdjV = 400 - baseSumV;
+            if (baseSumA > 0 && totalForMinA < 300) minAdjA = 300 - totalForMinA;
+            if (baseSumV > 0 && totalForMinV < 400) minAdjV = 400 - totalForMinV;
 
             if (minAdjA > 0 || minAdjV > 0) {
                 body.innerHTML += `<tr class="row-frais-fixes" style="color: #e67e22; background-color: #fdf2e9;">
-                    <td><strong>⚠️ Ajustement Minimum Facturation Paris/IDF</strong></td>
+                    <td><strong>⚠️ Ajustement Minimum Facturation Zone</strong></td>
                     <td style="text-align:center">-</td>
                     <td class="col-achat">+<span class="calc-number" data-val="${minAdjA}">${minAdjA.toFixed(2)}</span>€</td>
                     <td class="col-vente">+<span class="calc-number" data-val="${minAdjV}">${minAdjV.toFixed(2)}</span>€</td>
@@ -877,7 +886,6 @@ function updateUI() {
                     <td class="col-action"></td>
                 </tr>`;
             }
-
             sumA = baseSumA + minAdjA + depA;
             sumV = baseSumV + minAdjV + depV;
         } else {
@@ -890,10 +898,8 @@ function updateUI() {
     document.getElementById('res-v').innerHTML = `<span class="calc-number" data-val="${sumV}">${sumV.toFixed(2)}</span> €`;
     document.getElementById('res-m').innerHTML = `<span class="calc-number" data-val="${sumV - sumA}">${(sumV - sumA).toFixed(2)}</span> €`;
 
-    // CALCUL MARGE GLOBALE
     let valAchatProd = parseFloat(document.getElementById('globalAchatProd').value) || 0;
     let valVenteProd = parseFloat(document.getElementById('globalVenteProd').value) || 0;
-    
     let totalGlobalAchat = sumA + valAchatProd;
     let totalGlobalVente = sumV + valVenteProd;
     let margeGlobale = totalGlobalVente - totalGlobalAchat;
@@ -901,6 +907,199 @@ function updateUI() {
 
     document.getElementById('res-global-marge').innerText = margeGlobale.toFixed(2) + " €";
     document.getElementById('res-global-pourcent').innerText = "(" + pourcentage + "%)";
+}
+
+/* ===== CALCULATRICE ===== */
+function setCalcMode(mode) {
+    calcMode = mode;
+    document.getElementById('btnModeAdd').className = 'mode-btn' + (mode==='add'?' active-add':'');
+    document.getElementById('btnModeSub').className = 'mode-btn' + (mode==='sub'?' active-sub':'');
+}
+document.addEventListener('dblclick', function(e) {
+    if(e.target && e.target.classList.contains('calc-number')) {
+        window.getSelection().removeAllRanges(); 
+        let rawVal = parseFloat(e.target.getAttribute('data-val'));
+        let val = (calcMode === 'add') ? rawVal : -rawVal;
+        calcValues.push(val);
+        e.target.classList.add(calcMode === 'add' ? 'highlighted' : 'highlighted-sub');
+        document.getElementById('calculatorPanel').style.display = 'block';
+        let formula = calcValues.map((v, i) => (i===0?v.toFixed(2):(v<0?`- ${Math.abs(v).toFixed(2)}`:`+ ${v.toFixed(2)}`))).join(' ');
+        document.getElementById('calcDisplay').innerText = formula;
+        document.getElementById('calcResult').innerText = ""; 
+    }
+});
+function runCalc() {
+    if(calcValues.length === 0) return;
+    let sum = calcValues.reduce((a, b) => a + b, 0);
+    document.getElementById('calcResult').innerText = "= " + sum.toFixed(2) + " €";
+}
+function clearCalc() {
+    calcValues = []; document.getElementById('calcDisplay').innerText = "0.00"; document.getElementById('calcResult').innerText = "";
+    document.getElementById('calculatorPanel').style.display = 'none';
+    document.querySelectorAll('.calc-number.highlighted, .calc-number.highlighted-sub').forEach(el => {el.classList.remove('highlighted'); el.classList.remove('highlighted-sub');});
+    setCalcMode('add');
+}
+
+/* =========================================================
+   INTERFACE ADMINISTRATEUR
+========================================================= */
+function askAdminPassword() {
+    let pwd = prompt("Veuillez entrer le mot de passe administrateur :");
+    if (pwd === "nicolas") {
+        openAdmin();
+    } else if (pwd !== null) {
+        alert("❌ Mot de passe incorrect.");
+    }
+}
+
+function openAdmin() {
+    document.getElementById('adminModal').style.display = 'flex';
+    renderAdminPanel();
+}
+
+function closeAdmin() {
+    document.getElementById('adminModal').style.display = 'none';
+}
+
+function toggleAccordion(btn) {
+    btn.classList.toggle("active");
+    let content = btn.nextElementSibling;
+    if (content.style.display === "block") {
+        content.style.display = "none";
+        btn.innerHTML = btn.innerHTML.replace('▼', '▶');
+    } else {
+        content.style.display = "block";
+        btn.innerHTML = btn.innerHTML.replace('▶', '▼');
+    }
+}
+
+function formatKeyName(str) {
+    return str.replace(/_/g, ' ').toUpperCase();
+}
+
+function renderAdminPanel() {
+    let container = document.getElementById('adminContainer');
+    let html = "";
+
+    // 1. Accordéon pour Options / Frais
+    html += `<button class="accordion-btn active" onclick="toggleAccordion(this)">▼ FRAIS FIXES ET OPTIONS GLOBALES</button>`;
+    html += `<div class="accordion-content" style="display:block;"><div class="admin-grid">`;
+    for (let key in TARIFS_OPTIONS) {
+        let opt = TARIFS_OPTIONS[key];
+        html += `<div class="admin-card">
+            <p>${opt.name}</p>
+            <div class="admin-input-group">
+                <div class="admin-input-wrapper">
+                    <span>Achat</span>
+                    <div class="input-euro-container">
+                        <input type="number" id="adm_opt_a_${key}" value="${opt.a}"><strong>€</strong>
+                    </div>
+                </div>
+                <div class="admin-input-wrapper">
+                    <span>Vente</span>
+                    <div class="input-euro-container">
+                        <input type="number" id="adm_opt_v_${key}" value="${opt.v}"><strong>€</strong>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    html += `</div></div>`;
+
+    // 2. Accordéons pour Produits
+    html += `<h3 style="margin:25px 0 10px 0; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px;">📦 Grilles Tarifaires des Produits</h3>`;
+    for (let main in TARIFS_PRODUITS) {
+        html += `<button class="accordion-btn" onclick="toggleAccordion(this)">▶ CATÉGORIE : ${formatKeyName(main)}</button>`;
+        html += `<div class="accordion-content"><div class="admin-grid">`;
+        for (let sub in TARIFS_PRODUITS[main]) {
+            let prices = TARIFS_PRODUITS[main][sub];
+            html += `<div class="admin-card">
+                <p>${sub}</p>
+                <div class="admin-input-group">
+                    <div class="admin-input-wrapper">
+                        <span>Achat</span>
+                        <div class="input-euro-container">
+                            <input type="number" id="adm_prod_a_${main}_${CSS.escape(sub)}" value="${prices[0]}"><strong>€</strong>
+                        </div>
+                    </div>
+                    <div class="admin-input-wrapper">
+                        <span>Vente</span>
+                        <div class="input-euro-container">
+                            <input type="number" id="adm_prod_v_${main}_${CSS.escape(sub)}" value="${prices[1]}"><strong>€</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        html += `</div></div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+function saveAdminChanges() {
+    for (let key in TARIFS_OPTIONS) {
+        let a = parseFloat(document.getElementById(`adm_opt_a_${key}`).value) || 0;
+        let v = parseFloat(document.getElementById(`adm_opt_v_${key}`).value) || 0;
+        TARIFS_OPTIONS[key].a = a;
+        TARIFS_OPTIONS[key].v = v;
+    }
+    for (let main in TARIFS_PRODUITS) {
+        for (let sub in TARIFS_PRODUITS[main]) {
+            let a = parseFloat(document.getElementById(`adm_prod_a_${main}_${CSS.escape(sub)}`).value) || 0;
+            let v = parseFloat(document.getElementById(`adm_prod_v_${main}_${CSS.escape(sub)}`).value) || 0;
+            TARIFS_PRODUITS[main][sub][0] = a;
+            TARIFS_PRODUITS[main][sub][1] = v;
+        }
+    }
+
+    localStorage.setItem('custom_tarifs_options', JSON.stringify(TARIFS_OPTIONS));
+    localStorage.setItem('custom_tarifs_produits', JSON.stringify(TARIFS_PRODUITS));
+    
+    alert("✅ Nouveaux tarifs enregistrés avec succès !");
+    updateUI();
+    closeAdmin();
+}
+
+function resetDatabaseToDefault() {
+    if(confirm("ATTENTION : Cela va écraser toutes vos modifications et remettre les prix d'origine. Confirmer ?")) {
+        TARIFS_PRODUITS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
+        TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
+        localStorage.removeItem('custom_tarifs_options');
+        localStorage.removeItem('custom_tarifs_produits');
+        renderAdminPanel();
+        updateUI();
+        alert("✅ Les prix par défaut ont été restaurés.");
+    }
+}
+
+function exportDatabase() {
+    let db = { options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS };
+    downloadJSON(JSON.stringify(db), "base_de_prix_pose_expert.json");
+}
+
+function importDatabase(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let importedData = JSON.parse(e.target.result);
+            if (importedData.options && importedData.produits) {
+                TARIFS_OPTIONS = importedData.options;
+                TARIFS_PRODUITS = importedData.produits;
+                localStorage.setItem('custom_tarifs_options', JSON.stringify(TARIFS_OPTIONS));
+                localStorage.setItem('custom_tarifs_produits', JSON.stringify(TARIFS_PRODUITS));
+                renderAdminPanel();
+                updateUI();
+                alert("✅ Base de prix importée avec succès !");
+            } else {
+                alert("❌ Fichier invalide. Assurez-vous que c'est une base de prix exportée depuis cet outil.");
+            }
+        } catch (err) { alert("❌ Fichier invalide."); }
+        event.target.value = "";
+    };
+    reader.readAsText(file);
 }
 </script>
 </body>
