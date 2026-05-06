@@ -494,65 +494,108 @@
     function renderAdamPanel() {
         const body  = document.getElementById('adam-panel-body');
         const tools = currentConfig.tools || {};
+        body.innerHTML = '';
 
         if (allGithubTools.length === 0) {
-            body.innerHTML = `<div style="padding:40px;text-align:center;color:#bbb;font-size:13px;font-family:Poppins,sans-serif;">Aucun outil détecté.</div>`;
+            const msg = document.createElement('div');
+            msg.style.cssText = 'padding:40px;text-align:center;color:#bbb;font-size:13px;';
+            msg.textContent = 'Aucun outil détecté.';
+            body.appendChild(msg);
             return;
         }
 
         const grouped = { salarie: [], admin: [], adam: [] };
         allGithubTools.forEach(t => {
             const sp = (tools[t.name] && tools[t.name].space) || 'salarie';
-            (grouped[sp] || (grouped[sp] = [])).push(t);
+            if (grouped[sp]) grouped[sp].push(t); else grouped['salarie'].push(t);
         });
 
         const spaceInfo = [
-            { key: 'salarie', label: '👤 Espace Salarié',  desc: 'Visible par tous',        color: '#4CAF50' },
-            { key: 'admin',   label: '🏢 Espace Admin',    desc: 'Accès par mot de passe',   color: '#ff7200' },
-            { key: 'adam',    label: '⚙ Espace Adam',      desc: 'Ton espace privé',          color: '#25737d' },
+            { key: 'salarie', label: '👤 Espace Salarié', desc: 'Visible par tous',       color: '#4CAF50' },
+            { key: 'admin',   label: '🏢 Espace Admin',   desc: 'Accès par mot de passe',  color: '#ff7200' },
+            { key: 'adam',    label: '⚙ Espace Adam',     desc: 'Ton espace privé',         color: '#25737d' },
         ];
 
-        // Tout en inline styles pour être imperméable aux CSS WordPress/iframe
-        const S = {
-            section: 'display:block;padding:10px 20px 5px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-top:1px solid #f0f0f0;font-family:Poppins,sans-serif;margin-top:4px;',
-            empty:   'display:block;padding:6px 20px 8px;font-size:12px;color:#bbb;font-style:italic;font-family:Poppins,sans-serif;',
-            row:     'display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid #f5f5f5;background:#fff;',
-            left:    'flex:1;min-width:0;',
-            fname:   'display:block;font-size:10px;color:#aaa;margin-bottom:4px;font-family:Poppins,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;',
-            input:   'display:block;width:100%;border:none;border-bottom:1.5px solid #e0e0e0;padding:4px 0;font-size:13px;color:#1a1a1a;font-family:Poppins,sans-serif;background:transparent;outline:none;',
-            select:  'flex-shrink:0;padding:6px 28px 6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:Poppins,sans-serif;color:#333;background:#fff;cursor:pointer;outline:none;min-width:120px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'5\' viewBox=\'0 0 8 5\'%3E%3Cpath d=\'M0 0l4 5 4-5z\' fill=\'%23aaa\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;',
-        };
-
-        let html = '';
-        spaceInfo.forEach(({ key, label, desc, color }) => {
+        spaceInfo.forEach(({ key, label, desc, color }, si) => {
             const list = grouped[key] || [];
-            html += `<div style="${S.section}color:${color};">${label} <span style="color:#bbb;font-weight:400;">(${desc} · ${list.length} outil${list.length!==1?'s':''})</span></div>`;
+
+            // ── En-tête de section ──
+            const sec = document.createElement('div');
+            sec.style.cssText = `padding:10px 20px 6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:${color};${si > 0 ? 'border-top:2px solid #f0f0f0;margin-top:4px;' : ''}`;
+            sec.textContent = label + ' ';
+            const sub = document.createElement('span');
+            sub.style.cssText = 'color:#bbb;font-weight:400;text-transform:none;letter-spacing:0;';
+            sub.textContent = `(${desc} · ${list.length} outil${list.length !== 1 ? 's' : ''})`;
+            sec.appendChild(sub);
+            body.appendChild(sec);
+
             if (list.length === 0) {
-                html += `<div style="${S.empty}">Aucun outil assigné</div>`;
+                const empty = document.createElement('div');
+                empty.style.cssText = 'padding:5px 20px 10px;font-size:12px;color:#ccc;font-style:italic;';
+                empty.textContent = 'Aucun outil assigné';
+                body.appendChild(empty);
+                return;
             }
+
             list.forEach(tool => {
-                const cfg        = tools[tool.name] || {};
-                const labelVal   = cfg.label || '';
-                html += `
-                <div style="${S.row}">
-                    <div style="${S.left}">
-                        <span style="${S.fname}">${tool.name}</span>
-                        <input style="${S.input}" type="text" data-file="${tool.name}"
-                            value="${labelVal.replace(/"/g,'&quot;')}"
-                            placeholder="${tool.rawName}"
-                            onfocus="this.style.borderBottomColor='#ff7200'"
-                            onblur="this.style.borderBottomColor='#e0e0e0'">
-                    </div>
-                    <select style="${S.select}" data-file="${tool.name}">
-                        <option value="salarie" ${key==='salarie'?'selected':''}>👤 Salarié</option>
-                        <option value="admin"   ${key==='admin'  ?'selected':''}>🏢 Admin</option>
-                        <option value="adam"    ${key==='adam'   ?'selected':''}>⚙ Adam</option>
-                    </select>
-                </div>`;
+                const cfg      = tools[tool.name] || {};
+                const labelVal = cfg.label || '';
+
+                // ── Ligne outil ──
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid #f5f5f5;background:#fff;';
+
+                // Colonne gauche
+                const left = document.createElement('div');
+                left.style.cssText = 'flex:1;min-width:0;overflow:hidden;';
+
+                // Nom affiché (rawName) en gras
+                const nameEl = document.createElement('div');
+                nameEl.style.cssText = 'font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;';
+                nameEl.textContent = tool.rawName;
+
+                // Nom fichier (technique) en petit
+                const fileEl = document.createElement('div');
+                fileEl.style.cssText = 'font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;';
+                fileEl.textContent = tool.name;
+
+                // Input renommage
+                const inp = document.createElement('input');
+                inp.type = 'text';
+                inp.dataset.file = tool.name;
+                inp.value = labelVal;
+                inp.placeholder = 'Renommer… (laisser vide = nom auto)';
+                inp.style.cssText = 'display:block;width:100%;border:none;border-bottom:1.5px solid #e8e8e8;padding:3px 0;font-size:12px;color:#555;background:transparent;outline:none;';
+                inp.addEventListener('focus',  () => inp.style.borderBottomColor = '#ff7200');
+                inp.addEventListener('blur',   () => inp.style.borderBottomColor = '#e8e8e8');
+
+                left.appendChild(nameEl);
+                left.appendChild(fileEl);
+                left.appendChild(inp);
+
+                // Select espace
+                const sel = document.createElement('select');
+                sel.dataset.file = tool.name;
+                sel.style.cssText = 'flex-shrink:0;padding:7px 28px 7px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;color:#333;background:#fff;cursor:pointer;outline:none;min-width:118px;-webkit-appearance:none;appearance:none;';
+                [
+                    { v: 'salarie', t: '👤 Salarié' },
+                    { v: 'admin',   t: '🏢 Admin'   },
+                    { v: 'adam',    t: '⚙ Adam'     },
+                ].forEach(({ v, t }) => {
+                    const opt = document.createElement('option');
+                    opt.value = v; opt.textContent = t;
+                    if (v === key) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+                sel.addEventListener('focus', () => sel.style.borderColor = '#ff7200');
+                sel.addEventListener('blur',  () => sel.style.borderColor = '#e0e0e0');
+
+                row.appendChild(left);
+                row.appendChild(sel);
+                body.appendChild(row);
             });
         });
 
-        body.innerHTML = html;
         document.getElementById('adam-save-info').textContent = 'Sauvegardé sur GitHub';
         document.getElementById('adam-save-info').style.color = '#aaa';
     }
