@@ -1,4 +1,6 @@
 {
-  "hidden": [],
+  "hidden": [
+    "messages-type.html"
+  ],
   "labels": {}
 }
