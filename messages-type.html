@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages Types | RDS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bleu: #25737d;
+            --orange: #ff7200;
+            --text: #1a1a1a;
+            --muted: #999;
+            --border: #eeeeee;
+            --bg: #fcfcfc;
+            --success: #2d9e6b;
+            --danger: #e53935;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 20px 60px; }
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* HEADER */
+        .app-header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-text { color: var(--bleu); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 1px; }
+        .logo-text span { color: var(--orange); }
+        .header-ver { font-size: 0.68rem; color: #ccc; }
+
+        /* SEARCH BAR */
+        .search-section { background: white; border: 1px solid #f0f0f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px 22px; margin-bottom: 20px; }
+        .search-row { display: flex; gap: 12px; align-items: center; }
+        .search-input-wrap { flex: 1; position: relative; }
+        .search-input-wrap input {
+            width: 100%; padding: 11px 14px 11px 38px;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            font-family: 'Poppins', sans-serif; font-size: 0.88rem;
+            color: var(--text); outline: none; transition: border-color 0.2s;
+            background: #fafafa;
+        }
+        .search-input-wrap input:focus { border-color: var(--orange); background: white; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; color: var(--muted); pointer-events: none; }
+        .cat-select {
+            padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+            font-family: 'Poppins', sans-serif; font-size: 0.82rem; color: var(--text);
+            background: #fafafa; outline: none; cursor: pointer; min-width: 170px;
+            -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+        }
+        .cat-select:focus { border-color: var(--bleu); }
+        .count-label { font-size: 0.7rem; color: var(--muted); white-space: nowrap; margin-top: 10px; }
+
+        /* ADD BUTTON */
+        .add-btn-wrap { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+
+        /* CARDS GRID */
+        #cards-container { display: flex; flex-direction: column; gap: 10px; }
+
+        /* MESSAGE CARD */
+        .msg-card {
+            background: white; border: 1px solid #f0f0f0; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .msg-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+        .msg-card-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px; cursor: pointer; user-select: none;
+        }
+        .msg-card-left { display: flex; align-items: center; gap: 12px; }
+        .cat-badge {
+            padding: 3px 9px; border-radius: 20px; font-size: 0.65rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+        }
+        .msg-titre { font-weight: 500; font-size: 0.88rem; color: var(--text); }
+        .msg-excerpt { font-size: 0.74rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+        .msg-card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .chevron { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
+        .msg-card.open .chevron { transform: rotate(180deg); }
+
+        /* EXPANDED BODY */
+        .msg-card-body { display: none; border-top: 1px solid var(--border); padding: 16px 18px; }
+        .msg-card.open .msg-card-body { display: block; }
+        .msg-text {
+            background: #f9fbfb; border: 1px solid var(--border); border-radius: 8px;
+            padding: 14px 16px; font-size: 0.82rem; line-height: 1.7;
+            white-space: pre-wrap; color: var(--text); margin-bottom: 14px;
+            max-height: 300px; overflow-y: auto;
+        }
+        .msg-actions { display: flex; gap: 8px; }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+        .empty-state .ei { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty-state strong { display: block; font-size: 0.9rem; color: #666; margin-bottom: 6px; }
+        .empty-state span { font-size: 0.78rem; }
+
+        /* BUTTONS */
+        .btn { cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 8px 16px; border: none; }
+        .btn-primary { background: var(--bleu); color: white; }
+        .btn-primary:hover { background: #1d5f68; }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-orange:hover { opacity: 0.88; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { opacity: 0.88; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: #666; }
+        .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
+        .btn-copy { background: var(--bleu); color: white; }
+        .btn-copy:hover { background: #1d5f68; }
+        .btn-copy.copied { background: var(--success); }
+        .btn-sm { padding: 5px 12px; font-size: 0.72rem; }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+            z-index: 200; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: white; border-radius: 14px; width: 100%; max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+        }
+        .modal-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 0.88rem; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-body { padding: 22px; }
+        .modal-footer { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+        /* FORM */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 7px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 0; border: none; border-bottom: 1.5px solid #ddd;
+            font-size: 0.88rem; outline: none; background: transparent;
+            font-family: 'Poppins', sans-serif; color: var(--text); transition: border-color 0.2s;
+        }
+        .form-group select {
+            cursor: pointer; -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 2px center; padding-right: 18px;
+        }
+        .form-group textarea { resize: vertical; min-height: 160px; border: 1.5px solid #ddd; border-radius: 6px; padding: 10px 12px; margin-top: 2px; line-height: 1.6; }
+        .form-group input:focus, .form-group select:focus { border-bottom-color: var(--orange); }
+        .form-group textarea:focus { border-color: var(--orange); outline: none; }
+
+        /* CONFIRM MODAL */
+        .confirm-modal { max-width: 380px; text-align: center; }
+        .confirm-modal .modal-body p { font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+        .confirm-modal .modal-body strong { font-size: 0.9rem; color: var(--text); }
+        .confirm-modal .modal-footer { justify-content: center; }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 500; z-index: 300; transition: transform 0.3s;
+            pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* CATEGORY COLORS */
+        .cat-exterieur  { background: #e0f0ee; color: #1d6b74; }
+        .cat-interieur  { background: #e8f0ff; color: #3b5bdb; }
+        .cat-motorisation { background: #fff3e0; color: #e65100; }
+        .cat-sav        { background: #fce4ec; color: #c62828; }
+        .cat-general    { background: #f3f3f3; color: #555; }
+        .cat-devis      { background: #e8f5e9; color: #2e7d32; }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .search-row { flex-direction: column; }
+            .cat-select { width: 100%; }
+            .msg-excerpt { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="app-header">
+        <div class="logo-text">Messages Types <span>|</span> RDS</div>
+        <div class="header-ver">V1.0 — Devis &amp; Modèles</div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-section">
+        <div class="search-row">
+            <div class="search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Rechercher un message… store banne, californien, SAV…" oninput="filterMessages()">
+            </div>
+            <select class="cat-select" id="cat-filter" onchange="filterMessages()">
+                <option value="">Toutes les catégories</option>
+                <option value="Extérieur">Extérieur</option>
+                <option value="Intérieur">Intérieur</option>
+                <option value="Motorisation">Motorisation</option>
+                <option value="Devis">Devis</option>
+                <option value="SAV">SAV</option>
+                <option value="Général">Général</option>
+            </select>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+            <div class="count-label" id="count-label">Chargement…</div>
+            <button class="btn btn-orange btn-sm" onclick="openAddModal()">+ Nouveau message</button>
+        </div>
+    </div>
+
+    <!-- CARDS -->
+    <div id="cards-container">
+        <div class="empty-state"><div class="ei">⏳</div><strong>Chargement…</strong></div>
+    </div>
+
+</div>
+
+<!-- MODAL AJOUT / ÉDITION -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Nouveau message</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Titre du message</label>
+                <input type="text" id="f-titre" placeholder="Ex: Store Banne Manuel, Devis Californien…">
+            </div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <select id="f-cat">
+                    <option value="Extérieur">Extérieur</option>
+                    <option value="Intérieur">Intérieur</option>
+                    <option value="Motorisation">Motorisation</option>
+                    <option value="Devis">Devis</option>
+                    <option value="SAV">SAV</option>
+                    <option value="Général">Général</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Contenu du message</label>
+                <textarea id="f-contenu" placeholder="Bonjour Madame/Monsieur,
+
+Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+            <button class="btn btn-primary" id="modal-save-btn" onclick="saveMessage()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMATION SUPPRESSION -->
+<div class="modal-overlay" id="confirm-modal">
+    <div class="modal confirm-modal">
+        <div class="modal-header">
+            <h3>Confirmer la suppression</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Supprimer le message :</p>
+            <strong id="confirm-name">—</strong>
+            <p style="margin-top:10px; font-size:0.76rem; color:var(--muted);">Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeConfirm()">Annuler</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ── CONFIG ──
+    const WORKER_URL  = "https://rds-github.cwmpw5qpc5.workers.dev";
+    const REPO_OWNER  = "RDS-Adam";
+    const REPO_NAME   = "app";
+    const FILE_PATH   = "messages-type.json";
+
+    let allMessages   = [];
+    let editingId     = null;
+    let deletingId    = null;
+    let currentSha    = null;
+
+    // ── CATEGORIES ──
+    const CAT_CLASS = {
+        'Extérieur':    'cat-exterieur',
+        'Intérieur':    'cat-interieur',
+        'Motorisation': 'cat-motorisation',
+        'SAV':          'cat-sav',
+        'Général':      'cat-general',
+        'Devis':        'cat-devis',
+    };
+
+    // ── GITHUB ──
+    async function fetchData() {
+        const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, { headers: { 'Cache-Control': 'no-cache' } });
+        if (!res.ok) throw new Error(`Lecture échouée (${res.status})`);
+        const data = await res.json();
+        currentSha = data.sha;
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+        return parsed.messages || [];
+    }
+
+    async function saveData(messages) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify({ messages }, null, 2))));
+        const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "Update messages-type", content, sha: currentSha })
+        });
+        if (!res.ok) throw new Error(`Écriture échouée (${res.status})`);
+        const d = await res.json();
+        currentSha = d.content.sha;
+    }
+
+    // ── RENDER ──
+    function filterMessages() {
+        const q   = document.getElementById('search-input').value.toLowerCase().trim();
+        const cat = document.getElementById('cat-filter').value;
+        let filtered = allMessages;
+        if (q)   filtered = filtered.filter(m => m.titre.toLowerCase().includes(q) || m.contenu.toLowerCase().includes(q) || (m.categorie||'').toLowerCase().includes(q));
+        if (cat) filtered = filtered.filter(m => m.categorie === cat);
+        renderCards(filtered);
+    }
+
+    function renderCards(messages) {
+        const total = allMessages.length;
+        const shown = messages.length;
+        document.getElementById('count-label').textContent =
+            total === 0 ? 'Aucun message enregistré' :
+            shown === total ? `${total} message${total>1?'s':''} disponible${total>1?'s':''}` :
+            `${shown} résultat${shown>1?'s':''} sur ${total}`;
+
+        if (messages.length === 0) {
+            document.getElementById('cards-container').innerHTML = `
+                <div class="empty-state">
+                    <div class="ei">${total === 0 ? '✉️' : '🔍'}</div>
+                    <strong>${total === 0 ? 'Aucun message enregistré' : 'Aucun résultat'}</strong>
+                    <span>${total === 0 ? 'Créez votre premier message type avec le bouton ci-dessus.' : 'Essayez un autre terme de recherche.'}</span>
+                </div>`;
+            return;
+        }
+
+        document.getElementById('cards-container').innerHTML = messages.map(m => {
+            const catClass = CAT_CLASS[m.categorie] || 'cat-general';
+            const excerpt  = (m.contenu || '').replace(/\n/g, ' ').substring(0, 80) + '…';
+            return `
+            <div class="msg-card" id="card-${m.id}">
+                <div class="msg-card-head" onclick="toggleCard(${m.id})">
+                    <div class="msg-card-left">
+                        <span class="cat-badge ${catClass}">${m.categorie}</span>
+                        <div>
+                            <div class="msg-titre">${escHtml(m.titre)}</div>
+                            <div class="msg-excerpt">${escHtml(excerpt)}</div>
+                        </div>
+                    </div>
+                    <div class="msg-card-right">
+                        <button class="btn btn-ghost btn-sm" onclick="openEditModal(${m.id}, event)">✎ Modifier</button>
+                        <button class="btn btn-ghost btn-sm" style="color:var(--danger); border-color:var(--border);" onclick="openConfirm(${m.id}, event)">✕</button>
+                        <span class="chevron">▼</span>
+                    </div>
+                </div>
+                <div class="msg-card-body">
+                    <div class="msg-text">${escHtml(m.contenu)}</div>
+                    <div class="msg-actions">
+                        <button class="btn btn-copy" id="copy-btn-${m.id}" onclick="copyMessage(${m.id})">📋 Copier le message</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleCard(id) {
+        const card = document.getElementById(`card-${id}`);
+        card.classList.toggle('open');
+    }
+
+    function escHtml(str) {
+        return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── COPY ──
+    async function copyMessage(id) {
+        const m = allMessages.find(x => x.id === id);
+        if (!m) return;
+        try {
+            await navigator.clipboard.writeText(m.contenu);
+            const btn = document.getElementById(`copy-btn-${id}`);
+            btn.classList.add('copied');
+            btn.textContent = '✓ Copié !';
+            showToast('Message copié dans le presse-papiers !');
+            setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copier le message'; }, 2200);
+        } catch(e) {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = m.contenu; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            showToast('Message copié !');
+        }
+    }
+
+    // ── MODAL AJOUT / ÉDITION ──
+    function openAddModal() {
+        editingId = null;
+        document.getElementById('modal-title').textContent = 'Nouveau message';
+        document.getElementById('modal-save-btn').textContent = 'Enregistrer';
+        document.getElementById('f-titre').value = '';
+        document.getElementById('f-cat').value = 'Extérieur';
+        document.getElementById('f-contenu').value = '';
+        document.getElementById('edit-modal').classList.add('open');
+        setTimeout(() => document.getElementById('f-titre').focus(), 100);
+    }
+
+    function openEditModal(id, e) {
+        e && e.stopPropagation();
+        const m = allMessages.find(x => x.id === id);
+        if (!m) return;
+        editingId = id;
+        document.getElementById('modal-title').textContent = 'Modifier le message';
+        document.getElementById('modal-save-btn').textContent = 'Mettre à jour';
+        document.getElementById('f-titre').value = m.titre;
+        document.getElementById('f-cat').value = m.categorie;
+        document.getElementById('f-contenu').value = m.contenu;
+        document.getElementById('edit-modal').classList.add('open');
+        setTimeout(() => document.getElementById('f-titre').focus(), 100);
+    }
+
+    function closeModal() {
+        document.getElementById('edit-modal').classList.remove('open');
+    }
+
+    async function saveMessage() {
+        const titre   = document.getElementById('f-titre').value.trim();
+        const cat     = document.getElementById('f-cat').value;
+        const contenu = document.getElementById('f-contenu').value.trim();
+        if (!titre)   return showToast('⚠ Titre requis');
+        if (!contenu) return showToast('⚠ Contenu requis');
+
+        const btn = document.getElementById('modal-save-btn');
+        btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+        try {
+            if (editingId !== null) {
+                const idx = allMessages.findIndex(x => x.id === editingId);
+                allMessages[idx] = { ...allMessages[idx], titre, categorie: cat, contenu };
+            } else {
+                allMessages.unshift({ id: Date.now(), titre, categorie: cat, contenu });
+            }
+            await saveData(allMessages);
+            closeModal();
+            filterMessages();
+            showToast(editingId !== null ? '✓ Message mis à jour !' : '✓ Message créé !');
+        } catch(e) {
+            showToast('Erreur : ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = editingId !== null ? 'Mettre à jour' : 'Enregistrer';
+        }
+    }
+
+    // ── CONFIRM DELETE ──
+    function openConfirm(id, e) {
+        e && e.stopPropagation();
+        deletingId = id;
+        const m = allMessages.find(x => x.id === id);
+        document.getElementById('confirm-name').textContent = m ? m.titre : '—';
+        document.getElementById('confirm-modal').classList.add('open');
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirm-modal').classList.remove('open');
+        deletingId = null;
+    }
+
+    async function confirmDelete() {
+        if (deletingId === null) return;
+        try {
+            allMessages = allMessages.filter(x => x.id !== deletingId);
+            await saveData(allMessages);
+            closeConfirm();
+            filterMessages();
+            showToast('✓ Message supprimé');
+        } catch(e) {
+            showToast('Erreur : ' + e.message);
+        }
+    }
+
+    // ── TOAST ──
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ── CLOSE ON OVERLAY CLICK ──
+    document.getElementById('edit-modal').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
+    document.getElementById('confirm-modal').addEventListener('click', function(e) { if(e.target === this) closeConfirm(); });
+
+    // ── KEYBOARD ──
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+        if (e.key === 'Enter' && document.getElementById('edit-modal').classList.contains('open') && e.ctrlKey) saveMessage();
+    });
+
+    // ── INIT ──
+    (async function init() {
+        try {
+            allMessages = await fetchData();
+            filterMessages();
+        } catch(e) {
+            document.getElementById('cards-container').innerHTML = `<div class="empty-state"><div class="ei">⚠️</div><strong>Erreur de chargement</strong><span>${e.message}</span></div>`;
+            document.getElementById('count-label').textContent = 'Erreur';
+        }
+    })();
+</script>
+</body>
+</html>
