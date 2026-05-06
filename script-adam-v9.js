@@ -1,648 +1,500 @@
 /**
- * BOÎTE À OUTILS ADAM - EDITION PRO v9.2
- * 3 espaces : Salarié / Admin (mdp) / Adam (mdp)
- * Dropdown en bas à gauche pour switcher
- * Adam peut assigner les outils à chaque espace
+ * BOÎTE À OUTILS ADAM v9.3
+ * 3 espaces : Salarié / Admin (RH2026) / Adam (Adam2026)
+ * Dropdown switcher en bas à gauche
  */
 (function () {
-    const _b = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
-    const _a = atob('aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9SRFMtQWRhbS9hcHAvY29udGVudHMv');
+    const BASE_URL   = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
+    const API_URL    = atob('aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9SRFMtQWRhbS9hcHAvY29udGVudHMv');
+    const WORKER     = 'https://rds-github.cwmpw5qpc5.workers.dev';
+    const PASS_ADMIN = 'RH2026';
+    const PASS_ADAM  = 'Adam2026';
+    const CONFIG     = 'config-outils.json';
+    const SYSTEM_RE  = /index|robots|secure|bdd|noindex/i;
+    const FIXED      = ['Gestion des tournees.html'];
+    const PWD_KEY    = 'rds_adam_pwd_v1';
 
-    const WORKER_URL  = 'https://rds-github.cwmpw5qpc5.workers.dev';
-    const PASS_ADMIN  = 'RH2026';
-    const PASS_ADAM   = 'Adam2026';
-    const CONFIG_FILE = 'config-outils.json';
+    let config        = { tools: {} };   // { "file.html": { space, label } }
+    let configSha     = null;
+    let tools         = [];              // [{ name, label, isDir }]
+    let currentSpace  = 'salarie';
+    let unlocked      = new Set(['salarie']);
 
-    const SYSTEM_RE   = /index|robots|secure|bdd|noindex/i;
-    const FIXED_FILES = ['Gestion des tournees.html'];
-
-    const PWD_STORAGE_KEY  = 'rds_adam_pwd_v1';
-    const IP_STORAGE_KEY   = 'rds_adam_ip_v1';
-    const DATE_STORAGE_KEY = 'rds_adam_date_v1';
-
-    // État de session
-    let currentConfig  = { tools: {} };
-    let configSha      = null;
-    let allGithubTools = []; // { name, rawName, isDir }
-    let currentSpace   = 'salarie';
-    let unlockedSpaces = new Set(['salarie']); // espaces déverrouillés cette session
-
-    const SPACES = {
-        salarie: { label: '👤 Espace Salarié', color: '#4CAF50' },
-        admin:   { label: '🏢 Espace Admin',   color: '#ff7200' },
-        adam:    { label: '⚙ Espace Adam',     color: '#25737d' },
-    };
-
-    /* =========================================================
-       MOT DE PASSE WORDPRESS
-       ========================================================= */
-    function handlePasswordForm() {
-        const form = document.querySelector('.post-password-form');
-        if (!form) return false;
-        const pwdInput  = form.querySelector('input[type="password"]');
-        const submitBtn = form.querySelector('input[type="submit"], button[type="submit"]');
-        if (!pwdInput) return true;
-        const savedPwd = localStorage.getItem(PWD_STORAGE_KEY);
-        if (savedPwd) {
-            pwdInput.value = savedPwd;
-            setTimeout(() => { if (submitBtn) submitBtn.click(); else form.submit(); }, 50);
-            return true;
-        }
-        injectRememberCheckbox(form, pwdInput, submitBtn);
-        return true;
-    }
-
-    function injectRememberCheckbox(form, pwdInput, submitBtn) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap';
-        document.head.appendChild(link);
-        const style = document.createElement('style');
-        style.innerHTML = `
-            .rds-remember-wrap { font-family:'Poppins',sans-serif!important; margin:12px 0 8px; display:flex; align-items:center; gap:8px; font-size:14px; color:#1a1a1a; }
-            .rds-remember-wrap input[type="checkbox"] { width:16px; height:16px; accent-color:#ff7200; cursor:pointer; }
-            .rds-remember-wrap label { cursor:pointer; user-select:none; }
-            .rds-remember-info { font-size:11px; color:#888; margin-top:4px; }
-        `;
-        document.head.appendChild(style);
-        const wrap = document.createElement('div');
-        wrap.className = 'rds-remember-wrap';
-        wrap.innerHTML = `<input type="checkbox" id="rds-remember-pwd"><label for="rds-remember-pwd">Mémoriser le mot de passe sur cet ordinateur</label>`;
-        const info = document.createElement('div');
-        info.className = 'rds-remember-info';
-        info.textContent = 'Enregistré uniquement sur ce poste.';
-        if (submitBtn && submitBtn.parentNode) {
-            submitBtn.parentNode.insertBefore(wrap, submitBtn);
-            submitBtn.parentNode.insertBefore(info, submitBtn);
-        } else { form.appendChild(wrap); form.appendChild(info); }
-        form.addEventListener('submit', function () {
-            try {
-                const remember = document.getElementById('rds-remember-pwd');
-                if (remember && remember.checked && pwdInput.value) {
-                    localStorage.setItem(PWD_STORAGE_KEY, pwdInput.value);
-                    localStorage.setItem(DATE_STORAGE_KEY, new Date().toISOString());
-                    fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>{ if(d&&d.ip) localStorage.setItem(IP_STORAGE_KEY,d.ip); }).catch(()=>{});
-                }
-            } catch (e) {}
-        }, true);
-    }
-
-    /* =========================================================
-       CONFIG GITHUB
-       ========================================================= */
-    async function fetchConfig() {
+    /* ── GitHub ── */
+    async function loadConfig() {
         try {
-            const r = await fetch(`${WORKER_URL}/repos/RDS-Adam/app/contents/${CONFIG_FILE}`, { headers: { 'Cache-Control': 'no-cache' } });
+            const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, { headers: { 'Cache-Control': 'no-cache' } });
             if (!r.ok) return { tools: {} };
             const d = await r.json();
             configSha = d.sha;
-            return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
-        } catch (e) { return { tools: {} }; }
+            return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+        } catch { return { tools: {} }; }
     }
 
-    async function saveConfig(config) {
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(config, null, 2))));
-        const body = { message: 'Update config-outils', content };
-        if (configSha) body.sha = configSha;
-        const r = await fetch(`${WORKER_URL}/repos/RDS-Adam/app/contents/${CONFIG_FILE}`, {
-            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    async function saveConfigToGitHub(newConfig) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
+        const body = JSON.stringify({ message: 'Update config', content, sha: configSha });
+        const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body
         });
-        if (!r.ok) throw new Error(`Erreur ${r.status}`);
-        const d = await r.json();
-        configSha = d.content.sha;
+        if (!r.ok) throw new Error('Sauvegarde échouée (' + r.status + ')');
+        configSha = (await r.json()).content.sha;
     }
 
-    /* =========================================================
-       APP PRINCIPALE
-       ========================================================= */
-    function launchAdam() {
-        if (document.querySelector('.post-password-form')) { handlePasswordForm(); return; }
-        document.addEventListener('contextmenu', e => e.preventDefault());
-
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap';
-        document.head.appendChild(link);
-
-        const style = document.createElement('style');
-        style.innerHTML = `
-            * { font-family:'Poppins',sans-serif!important; -webkit-font-smoothing:antialiased; box-sizing:border-box; }
-            #rds-app { position:fixed!important; top:0!important; left:0!important; width:100vw!important; height:100vh!important; display:flex!important; background:#fff!important; z-index:9999999!important; margin:0; padding:0; overflow:hidden; }
-
-            /* Toggle bouton */
-            #rds-toggle { position:absolute; top:15px; left:15px; z-index:10000001; width:38px; height:38px; background:#1a1a1a; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.3s; color:#fff; }
-            #rds-app.menu-hidden #rds-toggle { background:#fff; border-color:#eee; color:#1a1a1a; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-            #rds-toggle svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; }
-
-            /* Sidebar */
-            #rds-sidebar { width:280px; background:#1a1a1a; color:#fff; display:flex; flex-direction:column; flex-shrink:0; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); position:relative; z-index:10000000; border-right:1px solid rgba(255,255,255,0.05); }
-            #rds-app.menu-hidden #rds-sidebar { transform:translateX(-280px); margin-right:-280px; }
-
-            /* Header sidebar */
-            .side-header { padding:45px 25px 16px; }
-            .side-header h2 { margin:0 0 2px; font-size:1.2rem; font-weight:600; letter-spacing:1px; color:#fff; }
-            #space-label-display { font-size:0.65rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:500; transition:color 0.3s; }
-
-            /* Recherche */
-            .search-container { padding:0 20px 14px; }
-            #tool-search { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:8px 12px; color:#fff; font-size:0.75rem; outline:none; }
-            #tool-search:focus { border-color:#ff7200; }
-
-            /* Liste outils */
-            .nav-list { flex-grow:1; overflow-y:auto; padding:8px 0; scrollbar-width:thin; scrollbar-color:#333 transparent; }
-            .nav-item { display:flex; align-items:center; padding:10px 25px; cursor:pointer; transition:0.2s; color:rgba(255,255,255,0.6); font-size:0.8rem; border-left:3px solid transparent; }
-            .nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
-            .nav-item.active { background:rgba(255,114,0,0.1); color:#ff7200; border-left-color:#ff7200; }
-            .nav-item b { font-weight:400; }
-            .nav-sep { padding:5px 25px 3px; font-size:0.55rem; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.18); }
-
-            /* Section bas */
-            #bottom-section { border-top:1px solid rgba(255,255,255,0.06); padding:12px 0 0; background:#1a1a1a; }
-
-            /* DROPDOWN ESPACE */
-            .space-switcher { padding:0 16px 12px; }
-            .space-select-wrap { position:relative; }
-            #space-select {
-                width:100%; padding:10px 36px 10px 14px; border-radius:8px; cursor:pointer; outline:none;
-                font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:500;
-                background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
-                color:#fff; -webkit-appearance:none; appearance:none; transition:border-color 0.2s;
-            }
-            #space-select:focus { border-color:#ff7200; }
-            #space-select option { background:#222; color:#fff; }
-            .space-chevron { position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:rgba(255,255,255,0.4); font-size:0.65rem; }
-
-            /* Bouton oublier mdp */
-            .nav-item-sm { padding:8px 25px; font-size:0.68rem; opacity:0.45; }
-            .nav-item-sm:hover { opacity:0.8; }
-
-            /* Footer */
-            .side-footer { padding:10px 20px 18px; text-align:center; font-size:9px; color:rgba(255,255,255,0.25); }
-            .status-dot { width:7px; height:7px; background:#4CAF50; border-radius:50%; display:inline-block; margin-right:4px; }
-
-            /* Contenu principal */
-            #rds-content { position:relative; flex-grow:1; height:100vh!important; overflow:hidden; }
-            #welcome-screen { display:flex; align-items:center; justify-content:center; width:100%; height:100%; text-align:center; background:#fff; background-image:radial-gradient(#f0f0f0 1px,transparent 1px); background-size:20px 20px; }
-            .welcome-box { max-width:400px; animation:fadeIn 0.6s ease; }
-            .welcome-box h1 { color:#1a1a1a; font-size:1.4rem; font-weight:500; margin:0; line-height:1.4; }
-            .welcome-box p { color:#888; font-size:0.85rem; margin-top:10px; }
-            .rds-line { width:36px; height:3px; background:#ff7200; margin:18px auto; border-radius:2px; }
-
-            #iframe-viewer { position:absolute; inset:0; display:none; }
-            #target-frame { position:absolute; inset:0; width:100%!important; height:100%!important; border:none!important; }
-            #loader-rds { position:absolute; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:20; }
-            .spinner-rds { width:28px; height:28px; border:3px solid #f0f0f0; border-top:3px solid #ff7200; border-radius:50%; animation:rdsRot 0.8s linear infinite; }
-
-            @keyframes rdsRot { to{transform:rotate(360deg);} }
-            @keyframes fadeIn { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
-
-            /* ── PANEL ADAM (gestion) ── */
-            #adam-overlay { display:none; position:fixed; inset:0; z-index:10000100; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:20px; }
-            #adam-overlay.open { display:flex; }
-            #adam-panel { background:#fff; border-radius:14px; width:100%; max-width:660px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.2); overflow:hidden; }
-            #adam-panel-header { background:#1a1a1a; padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; }
-            #adam-panel-header h3 { margin:0 0 3px; font-size:0.9rem; font-weight:500; color:#fff; }
-            #adam-panel-header p { margin:0; font-size:0.62rem; color:rgba(255,255,255,0.4); }
-            #adam-panel-body { flex:1; overflow-y:auto; }
-            #adam-panel-footer { padding:14px 22px; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; background:#fafafa; }
-            #adam-save-info { font-size:0.7rem; color:#aaa; }
-
-            /* Rows outils dans le panel */
-            .p-section { padding:10px 22px 4px; font-size:0.58rem; text-transform:uppercase; letter-spacing:1px; color:#bbb; font-weight:600; border-top:1px solid #f0f0f0; margin-top:2px; }
-            .p-section:first-child { border-top:none; }
-            .tool-row { display:flex; align-items:center; gap:10px; padding:10px 22px; border-bottom:1px solid #f8f8f8; transition:background 0.15s; }
-            .tool-row:hover { background:#fafafa; }
-            .tool-row-name { flex:1; min-width:0; }
-            .tn-file { font-size:0.58rem; color:#ccc; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-            .tool-label-input { width:100%; border:none; border-bottom:1.5px solid #eee; padding:5px 0; font-size:0.82rem; font-family:'Poppins',sans-serif; color:#1a1a1a; outline:none; background:transparent; transition:border-color 0.2s; }
-            .tool-label-input:focus { border-bottom-color:#ff7200; }
-            .tool-label-input::placeholder { color:#ddd; }
-            .space-tag-select {
-                padding:5px 10px; border:1px solid #eee; border-radius:6px; font-family:'Poppins',sans-serif;
-                font-size:0.72rem; color:#555; outline:none; cursor:pointer; background:#fff;
-                -webkit-appearance:none; appearance:none; min-width:130px;
-                background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23aaa'/%3E%3C/svg%3E");
-                background-repeat:no-repeat; background-position:right 8px center; padding-right:22px;
-            }
-            .space-tag-select:focus { border-color:#ff7200; }
-
-            /* Boutons panel */
-            .ab { cursor:pointer; font-family:'Poppins',sans-serif; font-weight:500; border-radius:6px; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; padding:8px 16px; border:none; }
-            .ab-primary { background:#25737d; color:#fff; }
-            .ab-primary:hover { background:#1d5f68; }
-            .ab-primary:disabled { opacity:0.6; cursor:not-allowed; }
-            .ab-ghost { background:transparent; border:1px solid #eee; color:#666; }
-            .ab-ghost:hover { border-color:#ff7200; color:#ff7200; }
-
-            @media (max-width:850px) {
-                #rds-sidebar { position:fixed; height:100%; box-shadow:10px 0 30px rgba(0,0,0,0.25); }
-                #rds-app.menu-hidden #rds-sidebar { transform:translateX(-100%); margin-right:0; }
-            }
-        `;
-        document.head.appendChild(style);
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.margin = '0';
-
-        document.body.innerHTML = `
-            <div id="rds-app">
-                <button id="rds-toggle" title="Menu">
-                    <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-                </button>
-
-                <div id="rds-sidebar">
-                    <div class="side-header">
-                        <h2>ADAM</h2>
-                        <div id="space-label-display" style="color:#4CAF50;">👤 Espace Salarié</div>
-                    </div>
-
-                    <div class="search-container">
-                        <input type="text" id="tool-search" placeholder="Rechercher un outil…">
-                    </div>
-
-                    <div id="tool-list" class="nav-list">
-                        <div class="nav-item" id="fixed-configurator"><b>🏠 Configurateur RDS</b></div>
-                    </div>
-
-                    <div id="bottom-section">
-                        <div class="nav-item" id="tournee-manager"><b>🚚 Gestion des Tournées</b></div>
-
-                        <!-- DROPDOWN ESPACE -->
-                        <div class="space-switcher" style="margin-top:4px;">
-                            <div class="space-select-wrap">
-                                <select id="space-select">
-                                    <option value="salarie">👤 Espace Salarié</option>
-                                    <option value="admin">🏢 Espace Admin</option>
-                                    <option value="adam">⚙ Espace Adam</option>
-                                </select>
-                                <span class="space-chevron">▼</span>
-                            </div>
-                        </div>
-
-                        <div class="nav-item nav-item-sm" id="forget-pwd"><b>🔓 Oublier le mot de passe</b></div>
-
-                        <div class="side-footer">
-                            <span class="status-dot"></span> Système Opérationnel<br>
-                            <span style="font-size:7px;opacity:0.6;letter-spacing:1px;">RUE DU STORE © 2026</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="rds-content">
-                    <div id="welcome-screen">
-                        <div class="welcome-box">
-                            <h1>Bienvenue sur la boîte à outils d'Adam</h1>
-                            <div class="rds-line"></div>
-                            <p>Sélectionnez un outil dans le menu de gauche.</p>
-                        </div>
-                    </div>
-                    <div id="iframe-viewer">
-                        <div id="loader-rds"><div class="spinner-rds"></div></div>
-                        <iframe id="target-frame" src="about:blank" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PANEL GESTION ADAM -->
-            <div id="adam-overlay">
-                <div id="adam-panel">
-                    <div id="adam-panel-header">
-                        <div>
-                            <h3>⚙ Gestion des outils — Espace Adam</h3>
-                            <p>Assignez chaque outil à un espace · Renommez-les</p>
-                        </div>
-                        <button class="ab ab-ghost" onclick="closeAdamPanel()" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">✕</button>
-                    </div>
-                    <div id="adam-panel-body">
-                        <div style="padding:40px;text-align:center;color:#bbb;font-size:0.82rem;">Chargement…</div>
-                    </div>
-                    <div id="adam-panel-footer">
-                        <span id="adam-save-info">Sauvegardé sur GitHub</span>
-                        <div style="display:flex;gap:8px;">
-                            <button class="ab ab-ghost" onclick="closeAdamPanel()">Fermer</button>
-                            <button class="ab ab-primary" id="adam-save-btn" onclick="saveAdamConfig()">Enregistrer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // ── Recherche ──
-        document.getElementById('tool-search').oninput = function (e) {
-            const val = e.target.value.toLowerCase();
-            document.querySelectorAll('#tool-list .nav-item, #tool-list .nav-sep').forEach(el => {
-                if (el.classList.contains('nav-sep')) { el.style.display = val ? 'none' : ''; return; }
-                el.style.display = el.innerText.toLowerCase().includes(val) ? 'flex' : 'none';
-            });
-        };
-
-        // ── Boutons fixes ──
-        document.getElementById('fixed-configurator').onclick = function () {
-            loadTool('https://prod.seriousframes.com/Configurateur_RDS/', this);
-        };
-        document.getElementById('tournee-manager').onclick = function () {
-            loadTool(encodeURI(_b + 'Gestion des tournees.html'), this);
-        };
-        document.getElementById('forget-pwd').onclick = function () {
-            if (confirm('Oublier le mot de passe enregistré sur cet ordinateur ?')) {
-                localStorage.removeItem(PWD_STORAGE_KEY);
-                localStorage.removeItem(IP_STORAGE_KEY);
-                localStorage.removeItem(DATE_STORAGE_KEY);
-                alert('Mot de passe oublié.');
-            }
-        };
-
-        // ── Dropdown espace ──
-        document.getElementById('space-select').onchange = async function () {
-            const target = this.value;
-            if (target === currentSpace) return;
-
-            if (target === 'admin' && !unlockedSpaces.has('admin')) {
-                const pwd = prompt('Code d\'accès Espace Admin :');
-                if (pwd !== PASS_ADMIN) { this.value = currentSpace; return; }
-                unlockedSpaces.add('admin');
-            }
-            if (target === 'adam' && !unlockedSpaces.has('adam')) {
-                const pwd = prompt('Code d\'accès Espace Adam :');
-                if (pwd !== PASS_ADAM) { this.value = currentSpace; return; }
-                unlockedSpaces.add('adam');
-            }
-
-            currentSpace = target;
-            updateSpaceUI();
-            refreshSidebar();
-        };
-
-        document.getElementById('rds-toggle').onclick = e => { e.stopPropagation(); document.getElementById('rds-app').classList.toggle('menu-hidden'); };
-        document.getElementById('rds-content').onclick = () => { if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden'); };
-        document.getElementById('adam-overlay').onclick = e => { if (e.target.id === 'adam-overlay') closeAdamPanel(); };
-
-        fetchTools();
-    }
-
-    /* =========================================================
-       UI ESPACE
-       ========================================================= */
-    function updateSpaceUI() {
-        const sp = SPACES[currentSpace];
-        const lbl = document.getElementById('space-label-display');
-        lbl.textContent = sp.label;
-        lbl.style.color = sp.color;
-    }
-
-    /* =========================================================
-       CHARGEMENT OUTILS GITHUB
-       ========================================================= */
-    async function fetchTools() {
-        currentConfig = await fetchConfig();
-        const r = await fetch(_a + '?t=' + Date.now()).catch(() => null);
+    async function loadTools() {
+        const r = await fetch(API_URL + '?t=' + Date.now()).catch(() => null);
         if (!r || !r.ok) return;
         const data = await r.json().catch(() => []);
-
-        allGithubTools = [];
+        tools = [];
         data.forEach(item => {
-            const isH = item.name.endsWith('.html'), isD = item.type === 'dir';
+            const isH = item.name.endsWith('.html');
+            const isD = item.type === 'dir';
             if (!isH && !isD) return;
             if (SYSTEM_RE.test(item.name)) return;
-            if (FIXED_FILES.includes(item.name)) return;
-            const rawName = decodeURIComponent(item.name).replace('.html','').replace(/-/g,' ').replace(/_/g,' ');
-            allGithubTools.push({ name: item.name, rawName, isDir: isD });
+            if (FIXED.includes(item.name)) return;
+            const label = decodeURIComponent(item.name).replace('.html','').replace(/[-_]/g,' ');
+            tools.push({ name: item.name, label, isDir: isD });
         });
-
-        refreshSidebar();
     }
 
-    /* =========================================================
-       RAFRAÎCHIR LA SIDEBAR
-       ========================================================= */
+    /* ── Sidebar ── */
+    function getToolSpace(name) {
+        return (config.tools[name] && config.tools[name].space) || 'salarie';
+    }
+    function getToolLabel(name) {
+        const t = tools.find(x => x.name === name);
+        return (config.tools[name] && config.tools[name].label) || (t ? t.label : name);
+    }
+
     function refreshSidebar() {
-        const list   = document.getElementById('tool-list');
-        const tools  = currentConfig.tools || {};
+        const list = document.getElementById('rds-tool-list');
+        Array.from(list.querySelectorAll('.rds-nav-item:not(#rds-fixed-config), .rds-nav-sep')).forEach(e => e.remove());
 
-        // Vider les items dynamiques
-        Array.from(list.querySelectorAll('.nav-item:not(#fixed-configurator), .nav-sep')).forEach(el => el.remove());
+        const spaceTools = tools.filter(t => getToolSpace(t.name) === currentSpace);
 
-        const myTools = allGithubTools.filter(t => {
-            const cfg = tools[t.name];
-            const space = cfg ? cfg.space : 'salarie';
-            return space === currentSpace;
-        });
-
-        myTools.forEach(tool => {
-            const cfg   = tools[tool.name] || {};
-            const label = cfg.label || tool.rawName;
-            const el    = document.createElement('div');
-            el.className = 'nav-item';
-            el.innerHTML = `<b>${label}</b>`;
-            let p = tool.name;
-            if (tool.isDir) p += p.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
-            el.onclick = () => loadTool(_b + encodeURIComponent(p), el);
+        spaceTools.forEach(tool => {
+            const el = document.createElement('div');
+            el.className = 'rds-nav-item';
+            el.textContent = getToolLabel(tool.name);
+            let path = tool.name;
+            if (tool.isDir) path += path.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
+            el.onclick = () => openTool(BASE_URL + encodeURIComponent(path), el);
             list.appendChild(el);
         });
 
-        // Bouton de gestion uniquement dans l'espace Adam
         if (currentSpace === 'adam') {
-            if (myTools.length > 0) {
+            if (spaceTools.length) {
                 const sep = document.createElement('div');
-                sep.className = 'nav-sep';
-                sep.textContent = '──────';
+                sep.className = 'rds-nav-sep';
                 list.appendChild(sep);
             }
-            const mng = document.createElement('div');
-            mng.className = 'nav-item';
-            mng.style.color = '#25737d';
-            mng.innerHTML = '<b>⚙ Gérer les espaces</b>';
-            mng.onclick = openAdamPanel;
-            list.appendChild(mng);
+            const btn = document.createElement('div');
+            btn.className = 'rds-nav-item rds-manage-btn';
+            btn.textContent = '⚙ Gérer les espaces';
+            btn.onclick = openPanel;
+            list.appendChild(btn);
         }
 
-        // Message si aucun outil
-        if (myTools.length === 0 && currentSpace !== 'adam') {
+        if (!spaceTools.length && currentSpace !== 'adam') {
             const empty = document.createElement('div');
-            empty.style.cssText = 'padding:20px 25px;font-size:0.75rem;color:rgba(255,255,255,0.25);';
+            empty.className = 'rds-empty';
             empty.textContent = 'Aucun outil dans cet espace.';
             list.appendChild(empty);
         }
+
+        // Couleur du label espace
+        const colors = { salarie: '#4CAF50', admin: '#ff7200', adam: '#25737d' };
+        const labels = { salarie: '👤 Espace Salarié', admin: '🏢 Espace Admin', adam: '⚙ Espace Adam' };
+        const lbl = document.getElementById('rds-space-lbl');
+        lbl.textContent = labels[currentSpace];
+        lbl.style.color = colors[currentSpace];
     }
 
-    /* =========================================================
-       CHARGEMENT D'UN OUTIL
-       ========================================================= */
-    function loadTool(url, element) {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById('welcome-screen').style.display = 'none';
-        document.getElementById('iframe-viewer').style.display = 'block';
-        document.getElementById('loader-rds').style.display = 'flex';
-        const f = document.getElementById('target-frame');
-        f.src = url;
-        f.onload = () => document.getElementById('loader-rds').style.display = 'none';
-        if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
+    /* ── Panel de gestion ── */
+    function openPanel() {
+        document.getElementById('rds-panel-overlay').style.display = 'flex';
+        renderPanel();
+    }
+    function closePanel() {
+        document.getElementById('rds-panel-overlay').style.display = 'none';
     }
 
-    /* =========================================================
-       PANEL GESTION (ESPACE ADAM)
-       ========================================================= */
-    function openAdamPanel() {
-        document.getElementById('adam-overlay').classList.add('open');
-        renderAdamPanel();
-    }
-
-    window.closeAdamPanel = function () {
-        document.getElementById('adam-overlay').classList.remove('open');
-    };
-
-    function renderAdamPanel() {
-        const body  = document.getElementById('adam-panel-body');
-        const tools = currentConfig.tools || {};
+    function renderPanel() {
+        const body = document.getElementById('rds-panel-body');
         body.innerHTML = '';
 
-        if (allGithubTools.length === 0) {
-            const msg = document.createElement('div');
-            msg.style.cssText = 'padding:40px;text-align:center;color:#bbb;font-size:13px;';
-            msg.textContent = 'Aucun outil détecté.';
-            body.appendChild(msg);
+        if (!tools.length) {
+            body.innerHTML = '<p style="padding:30px;text-align:center;color:#aaa;">Aucun outil chargé.</p>';
             return;
         }
 
-        const grouped = { salarie: [], admin: [], adam: [] };
-        allGithubTools.forEach(t => {
-            const sp = (tools[t.name] && tools[t.name].space) || 'salarie';
-            if (grouped[sp]) grouped[sp].push(t); else grouped['salarie'].push(t);
-        });
+        // ── Table simple ──
+        const table = document.createElement('table');
+        table.style.cssText = 'width:100%;border-collapse:collapse;';
 
-        const spaceInfo = [
-            { key: 'salarie', label: '👤 Espace Salarié', desc: 'Visible par tous',       color: '#4CAF50' },
-            { key: 'admin',   label: '🏢 Espace Admin',   desc: 'Accès par mot de passe',  color: '#ff7200' },
-            { key: 'adam',    label: '⚙ Espace Adam',     desc: 'Ton espace privé',         color: '#25737d' },
-        ];
+        // Header
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr style="background:#f7f7f7;">
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;">Outil</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;width:160px;">Nom affiché</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;width:140px;">Espace</th>
+            </tr>`;
+        table.appendChild(thead);
 
-        spaceInfo.forEach(({ key, label, desc, color }, si) => {
-            const list = grouped[key] || [];
+        const tbody = document.createElement('tbody');
+        tools.forEach((tool, i) => {
+            const currentCfg = config.tools[tool.name] || {};
+            const space = currentCfg.space || 'salarie';
+            const lbl   = currentCfg.label || '';
 
-            // ── En-tête de section ──
-            const sec = document.createElement('div');
-            sec.style.cssText = `padding:10px 20px 6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:${color};${si > 0 ? 'border-top:2px solid #f0f0f0;margin-top:4px;' : ''}`;
-            sec.textContent = label + ' ';
-            const sub = document.createElement('span');
-            sub.style.cssText = 'color:#bbb;font-weight:400;text-transform:none;letter-spacing:0;';
-            sub.textContent = `(${desc} · ${list.length} outil${list.length !== 1 ? 's' : ''})`;
-            sec.appendChild(sub);
-            body.appendChild(sec);
+            const tr = document.createElement('tr');
+            tr.style.cssText = i % 2 === 0 ? 'background:#fff;' : 'background:#fafafa;';
 
-            if (list.length === 0) {
-                const empty = document.createElement('div');
-                empty.style.cssText = 'padding:5px 20px 10px;font-size:12px;color:#ccc;font-style:italic;';
-                empty.textContent = 'Aucun outil assigné';
-                body.appendChild(empty);
-                return;
-            }
+            // Col 1 : nom du fichier
+            const td1 = document.createElement('td');
+            td1.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const nameDiv = document.createElement('div');
+            nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:#222;';
+            nameDiv.textContent = tool.label;        // nom lisible
+            const fileDiv = document.createElement('div');
+            fileDiv.style.cssText = 'font-size:10px;color:#aaa;margin-top:2px;';
+            fileDiv.textContent = tool.name;         // nom fichier
+            td1.appendChild(nameDiv);
+            td1.appendChild(fileDiv);
 
-            list.forEach(tool => {
-                const cfg      = tools[tool.name] || {};
-                const labelVal = cfg.label || '';
+            // Col 2 : input label
+            const td2 = document.createElement('td');
+            td2.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.value = lbl;
+            inp.placeholder = tool.label;
+            inp.dataset.file = tool.name;
+            inp.dataset.role = 'label';
+            inp.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;box-sizing:border-box;';
+            inp.onfocus = () => inp.style.borderColor = '#ff7200';
+            inp.onblur  = () => inp.style.borderColor = '#e0e0e0';
+            td2.appendChild(inp);
 
-                // ── Ligne outil ──
-                const row = document.createElement('div');
-                row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid #f5f5f5;background:#fff;';
-
-                // Colonne gauche
-                const left = document.createElement('div');
-                left.style.cssText = 'flex:1;min-width:0;overflow:hidden;';
-
-                // Nom affiché (rawName) en gras
-                const nameEl = document.createElement('div');
-                nameEl.style.cssText = 'font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;';
-                nameEl.textContent = tool.rawName;
-
-                // Nom fichier (technique) en petit
-                const fileEl = document.createElement('div');
-                fileEl.style.cssText = 'font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;';
-                fileEl.textContent = tool.name;
-
-                // Input renommage
-                const inp = document.createElement('input');
-                inp.type = 'text';
-                inp.dataset.file = tool.name;
-                inp.value = labelVal;
-                inp.placeholder = 'Renommer… (laisser vide = nom auto)';
-                inp.style.cssText = 'display:block;width:100%;border:none;border-bottom:1.5px solid #e8e8e8;padding:3px 0;font-size:12px;color:#555;background:transparent;outline:none;';
-                inp.addEventListener('focus',  () => inp.style.borderBottomColor = '#ff7200');
-                inp.addEventListener('blur',   () => inp.style.borderBottomColor = '#e8e8e8');
-
-                left.appendChild(nameEl);
-                left.appendChild(fileEl);
-                left.appendChild(inp);
-
-                // Select espace
-                const sel = document.createElement('select');
-                sel.dataset.file = tool.name;
-                sel.style.cssText = 'flex-shrink:0;padding:7px 28px 7px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;color:#333;background:#fff;cursor:pointer;outline:none;min-width:118px;-webkit-appearance:none;appearance:none;';
-                [
-                    { v: 'salarie', t: '👤 Salarié' },
-                    { v: 'admin',   t: '🏢 Admin'   },
-                    { v: 'adam',    t: '⚙ Adam'     },
-                ].forEach(({ v, t }) => {
-                    const opt = document.createElement('option');
-                    opt.value = v; opt.textContent = t;
-                    if (v === key) opt.selected = true;
-                    sel.appendChild(opt);
-                });
-                sel.addEventListener('focus', () => sel.style.borderColor = '#ff7200');
-                sel.addEventListener('blur',  () => sel.style.borderColor = '#e0e0e0');
-
-                row.appendChild(left);
-                row.appendChild(sel);
-                body.appendChild(row);
+            // Col 3 : select espace
+            const td3 = document.createElement('td');
+            td3.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const sel = document.createElement('select');
+            sel.dataset.file = tool.name;
+            sel.dataset.role = 'space';
+            sel.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;cursor:pointer;background:#fff;';
+            sel.onfocus = () => sel.style.borderColor = '#ff7200';
+            sel.onblur  = () => sel.style.borderColor = '#e0e0e0';
+            [
+                { v: 'salarie', t: '👤 Salarié' },
+                { v: 'admin',   t: '🏢 Admin'   },
+                { v: 'adam',    t: '⚙ Adam'     },
+            ].forEach(({ v, t }) => {
+                const o = document.createElement('option');
+                o.value = v; o.textContent = t;
+                if (v === space) o.selected = true;
+                sel.appendChild(o);
             });
+            td3.appendChild(sel);
+
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tbody.appendChild(tr);
         });
 
-        document.getElementById('adam-save-info').textContent = 'Sauvegardé sur GitHub';
-        document.getElementById('adam-save-info').style.color = '#aaa';
+        table.appendChild(tbody);
+        body.appendChild(table);
     }
 
-    window.saveAdamConfig = async function () {
-        const btn  = document.getElementById('adam-save-btn');
-        const info = document.getElementById('adam-save-info');
+    async function savePanel() {
+        const btn  = document.getElementById('rds-panel-save');
+        const info = document.getElementById('rds-panel-info');
         btn.disabled = true; btn.textContent = 'Enregistrement…';
+
         try {
             const newTools = {};
-            // Collecter les selects
-            document.querySelectorAll('#adam-panel-body .space-tag-select[data-file]').forEach(sel => {
+            // Lire tous les selects [data-role="space"]
+            document.querySelectorAll('#rds-panel-body select[data-role="space"]').forEach(sel => {
                 newTools[sel.dataset.file] = { space: sel.value };
             });
-            // Collecter les labels
-            document.querySelectorAll('#adam-panel-body .tool-label-input[data-file]').forEach(inp => {
-                const val = inp.value.trim();
-                if (newTools[inp.dataset.file]) newTools[inp.dataset.file].label = val;
+            // Lire tous les inputs [data-role="label"]
+            document.querySelectorAll('#rds-panel-body input[data-role="label"]').forEach(inp => {
+                const v = inp.value.trim();
+                if (newTools[inp.dataset.file]) newTools[inp.dataset.file].label = v;
             });
 
-            const newConfig = { tools: newTools };
-            await saveConfig(newConfig);
-            currentConfig = newConfig;
+            await saveConfigToGitHub({ tools: newTools });
+            config = { tools: newTools };
 
-            renderAdamPanel();
             refreshSidebar();
-
-            info.textContent = '✓ Enregistré ! Menus mis à jour.';
+            info.textContent = '✓ Enregistré — barre latérale mise à jour';
             info.style.color = '#2d9e6b';
-            btn.textContent = '✓ Enregistré';
+            btn.textContent = '✓ OK';
             setTimeout(() => {
                 info.textContent = 'Sauvegardé sur GitHub';
                 info.style.color = '#aaa';
-                btn.textContent  = 'Enregistrer';
-                btn.disabled     = false;
+                btn.textContent = 'Enregistrer';
+                btn.disabled = false;
             }, 2500);
         } catch (e) {
             info.textContent = '❌ ' + e.message;
             info.style.color = '#e53935';
-            btn.textContent  = 'Enregistrer';
-            btn.disabled     = false;
+            btn.textContent = 'Enregistrer';
+            btn.disabled = false;
         }
-    };
+    }
 
-    /* =========================================================
-       INIT
-       ========================================================= */
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launchAdam);
-    else launchAdam();
+    /* ── Charger un outil ── */
+    function openTool(url, el) {
+        document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('rds-welcome').style.display = 'none';
+        document.getElementById('rds-iframe-wrap').style.display = 'block';
+        document.getElementById('rds-loader').style.display = 'flex';
+        const f = document.getElementById('rds-frame');
+        f.src = url;
+        f.onload = () => document.getElementById('rds-loader').style.display = 'none';
+        if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
+    }
+
+    /* ── WP password form ── */
+    function handlePasswordForm() {
+        const form = document.querySelector('.post-password-form');
+        if (!form) return false;
+        const inp = form.querySelector('input[type="password"]');
+        const btn = form.querySelector('input[type="submit"], button[type="submit"]');
+        if (!inp) return true;
+        const saved = localStorage.getItem(PWD_KEY);
+        if (saved) { inp.value = saved; setTimeout(() => btn ? btn.click() : form.submit(), 50); return true; }
+        // Checkbox mémoriser
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:10px 0;display:flex;align-items:center;gap:8px;font-size:13px;';
+        wrap.innerHTML = '<input type="checkbox" id="_rds_rem"> <label for="_rds_rem">Mémoriser sur cet ordinateur</label>';
+        (btn ? btn.parentNode : form).insertBefore(wrap, btn || null);
+        form.addEventListener('submit', () => {
+            const cb = document.getElementById('_rds_rem');
+            if (cb && cb.checked && inp.value) localStorage.setItem(PWD_KEY, inp.value);
+        }, true);
+        return true;
+    }
+
+    /* ── App ── */
+    function launch() {
+        if (document.querySelector('.post-password-form')) { handlePasswordForm(); return; }
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Google Fonts
+        const lnk = document.createElement('link');
+        lnk.rel = 'stylesheet';
+        lnk.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap';
+        document.head.appendChild(lnk);
+
+        // Styles
+        const st = document.createElement('style');
+        st.textContent = `
+* { font-family: 'Poppins', sans-serif !important; box-sizing: border-box; }
+#rds-app { position:fixed !important; inset:0; display:flex !important; z-index:9999999 !important; overflow:hidden; margin:0; padding:0; background:#fff; }
+
+/* Toggle */
+#rds-toggle { position:absolute; top:14px; left:14px; z-index:10000001; width:38px; height:38px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.12); background:#1a1a1a; color:#fff; transition:.25s; }
+#rds-app.menu-hidden #rds-toggle { background:#fff; border-color:#ddd; color:#222; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+#rds-toggle svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; }
+
+/* Sidebar */
+#rds-sidebar { width:272px; flex-shrink:0; background:#1a1a1a; display:flex; flex-direction:column; transition:transform .3s cubic-bezier(.4,0,.2,1); position:relative; z-index:10000000; }
+#rds-app.menu-hidden #rds-sidebar { transform:translateX(-272px); margin-right:-272px; }
+
+.rds-side-header { padding:44px 22px 14px; }
+.rds-side-header h2 { margin:0 0 3px; font-size:1.15rem; font-weight:600; letter-spacing:1px; color:#fff; }
+#rds-space-lbl { font-size:.6rem; font-weight:500; text-transform:uppercase; letter-spacing:1.5px; color:#4CAF50; }
+
+.rds-search { padding:0 18px 12px; }
+.rds-search input { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:8px 11px; color:#fff; font-size:.75rem; outline:none; }
+.rds-search input:focus { border-color:#ff7200; }
+.rds-search input::placeholder { color:rgba(255,255,255,.3); }
+
+#rds-tool-list { flex:1; overflow-y:auto; padding:6px 0; scrollbar-width:thin; scrollbar-color:#333 transparent; }
+.rds-nav-item { padding:10px 22px; cursor:pointer; font-size:.8rem; color:rgba(255,255,255,.6); border-left:3px solid transparent; transition:.15s; }
+.rds-nav-item:hover { background:rgba(255,255,255,.05); color:#fff; }
+.rds-nav-item.active { color:#ff7200; background:rgba(255,114,0,.1); border-left-color:#ff7200; }
+.rds-manage-btn { color:#25737d !important; }
+.rds-manage-btn:hover { color:#25737d !important; background:rgba(37,115,125,.08) !important; }
+.rds-nav-sep { height:1px; background:rgba(255,255,255,.07); margin:6px 0; }
+.rds-empty { padding:16px 22px; font-size:.75rem; color:rgba(255,255,255,.22); }
+
+/* Bottom */
+#rds-bottom { border-top:1px solid rgba(255,255,255,.07); padding:10px 0 0; }
+.rds-space-wrap { padding:8px 16px 10px; }
+#rds-space-select { width:100%; padding:9px 32px 9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); color:#fff; font-size:.78rem; font-weight:500; cursor:pointer; outline:none; -webkit-appearance:none; appearance:none; }
+#rds-space-select option { background:#222; }
+.rds-space-arrow { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,.35); font-size:.6rem; pointer-events:none; }
+.rds-space-rel { position:relative; }
+.rds-forget { padding:6px 22px 8px; font-size:.68rem; color:rgba(255,255,255,.3); cursor:pointer; }
+.rds-forget:hover { color:rgba(255,255,255,.6); }
+.rds-foot { padding:10px 18px 18px; text-align:center; font-size:9px; color:rgba(255,255,255,.22); }
+.rds-dot { width:7px; height:7px; background:#4CAF50; border-radius:50%; display:inline-block; margin-right:4px; }
+
+/* Contenu */
+#rds-content { flex:1; position:relative; overflow:hidden; }
+#rds-welcome { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#fff; background-image:radial-gradient(#efefef 1px,transparent 1px); background-size:20px 20px; text-align:center; }
+.rds-welcome-inner h1 { font-size:1.4rem; font-weight:500; color:#1a1a1a; margin:0; line-height:1.4; }
+.rds-welcome-inner p { font-size:.85rem; color:#999; margin-top:10px; }
+.rds-line { width:36px; height:3px; background:#ff7200; border-radius:2px; margin:16px auto; }
+#rds-iframe-wrap { position:absolute; inset:0; display:none; }
+#rds-frame { position:absolute; inset:0; width:100% !important; height:100% !important; border:none !important; }
+#rds-loader { position:absolute; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:10; }
+.rds-spinner { width:28px; height:28px; border:3px solid #eee; border-top-color:#ff7200; border-radius:50%; animation:rds-spin .8s linear infinite; }
+@keyframes rds-spin { to { transform:rotate(360deg); } }
+
+/* Panel */
+#rds-panel-overlay { display:none; position:fixed; inset:0; z-index:10001000; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:20px; }
+#rds-panel { background:#fff; border-radius:12px; width:100%; max-width:700px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.2); overflow:hidden; }
+#rds-panel-head { background:#1a1a1a; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+#rds-panel-head h3 { margin:0; font-size:.9rem; font-weight:500; color:#fff; }
+#rds-panel-head p  { margin:3px 0 0; font-size:.62rem; color:rgba(255,255,255,.4); }
+#rds-panel-body { flex:1; overflow-y:auto; }
+#rds-panel-foot { padding:12px 20px; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; background:#fafafa; }
+#rds-panel-info { font-size:.7rem; color:#aaa; }
+.rds-btn { cursor:pointer; font-family:inherit; font-weight:500; border-radius:6px; border:none; font-size:.78rem; padding:8px 16px; transition:.2s; display:inline-flex; align-items:center; gap:5px; }
+.rds-btn-primary { background:#25737d; color:#fff; }
+.rds-btn-primary:hover { background:#1d5f68; }
+.rds-btn-primary:disabled { opacity:.6; cursor:not-allowed; }
+.rds-btn-ghost { background:transparent; border:1px solid #ddd; color:#555; }
+.rds-btn-ghost:hover { border-color:#ff7200; color:#ff7200; }
+.rds-btn-close { background:transparent; border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.6); }
+.rds-btn-close:hover { border-color:#fff; color:#fff; }
+
+@media (max-width:850px) {
+    #rds-sidebar { position:fixed; height:100%; box-shadow:10px 0 30px rgba(0,0,0,.2); }
+    #rds-app.menu-hidden #rds-sidebar { transform:translateX(-100%); margin-right:0; }
+}`;
+        document.head.appendChild(st);
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.margin = '0';
+
+        document.body.innerHTML = `
+<div id="rds-app">
+  <button id="rds-toggle"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div id="rds-sidebar">
+    <div class="rds-side-header">
+      <h2>ADAM</h2>
+      <div id="rds-space-lbl">👤 Espace Salarié</div>
+    </div>
+    <div class="rds-search"><input id="rds-search" type="text" placeholder="Rechercher…"></div>
+    <div id="rds-tool-list">
+      <div class="rds-nav-item" id="rds-fixed-config">🏠 Configurateur RDS</div>
+    </div>
+    <div id="rds-bottom">
+      <div class="rds-nav-item" id="rds-tournees">🚚 Gestion des Tournées</div>
+      <div class="rds-space-wrap">
+        <div class="rds-space-rel">
+          <select id="rds-space-select">
+            <option value="salarie">👤 Espace Salarié</option>
+            <option value="admin">🏢 Espace Admin</option>
+            <option value="adam">⚙ Espace Adam</option>
+          </select>
+          <span class="rds-space-arrow">▼</span>
+        </div>
+      </div>
+      <div class="rds-forget" id="rds-forget">🔓 Oublier le mot de passe</div>
+      <div class="rds-foot"><span class="rds-dot"></span>Système opérationnel<br><span style="font-size:7px;opacity:.6;letter-spacing:1px;">RUE DU STORE © 2026</span></div>
+    </div>
+  </div>
+  <div id="rds-content">
+    <div id="rds-welcome">
+      <div class="rds-welcome-inner">
+        <h1>Boîte à outils d'Adam</h1>
+        <div class="rds-line"></div>
+        <p>Sélectionnez un outil dans le menu.</p>
+      </div>
+    </div>
+    <div id="rds-iframe-wrap">
+      <div id="rds-loader"><div class="rds-spinner"></div></div>
+      <iframe id="rds-frame" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Panel gestion -->
+<div id="rds-panel-overlay">
+  <div id="rds-panel">
+    <div id="rds-panel-head">
+      <div>
+        <h3>⚙ Gestion des outils</h3>
+        <p>Choisissez l'espace de chaque outil · Renommez-les</p>
+      </div>
+      <button class="rds-btn rds-btn-close" id="rds-panel-close">✕</button>
+    </div>
+    <div id="rds-panel-body"></div>
+    <div id="rds-panel-foot">
+      <span id="rds-panel-info">Sauvegardé sur GitHub</span>
+      <div style="display:flex;gap:8px;">
+        <button class="rds-btn rds-btn-ghost" id="rds-panel-cancel">Fermer</button>
+        <button class="rds-btn rds-btn-primary" id="rds-panel-save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+        // Events
+        document.getElementById('rds-fixed-config').onclick = () =>
+            openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'));
+
+        document.getElementById('rds-tournees').onclick = () =>
+            openTool(BASE_URL + encodeURIComponent('Gestion des tournees.html'), document.getElementById('rds-tournees'));
+
+        document.getElementById('rds-search').oninput = e => {
+            const v = e.target.value.toLowerCase();
+            document.querySelectorAll('#rds-tool-list .rds-nav-item:not(#rds-fixed-config)').forEach(el => {
+                el.style.display = el.textContent.toLowerCase().includes(v) ? '' : 'none';
+            });
+        };
+
+        document.getElementById('rds-space-select').onchange = async function () {
+            const target = this.value;
+            if (target === currentSpace) return;
+            if (target === 'admin' && !unlocked.has('admin')) {
+                const p = prompt('Code Espace Admin :');
+                if (p !== PASS_ADMIN) { this.value = currentSpace; return; }
+                unlocked.add('admin');
+            }
+            if (target === 'adam' && !unlocked.has('adam')) {
+                const p = prompt('Code Espace Adam :');
+                if (p !== PASS_ADAM) { this.value = currentSpace; return; }
+                unlocked.add('adam');
+            }
+            currentSpace = target;
+            refreshSidebar();
+        };
+
+        document.getElementById('rds-toggle').onclick = e => {
+            e.stopPropagation();
+            document.getElementById('rds-app').classList.toggle('menu-hidden');
+        };
+
+        document.getElementById('rds-content').onclick = () => {
+            if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
+        };
+
+        document.getElementById('rds-forget').onclick = () => {
+            if (confirm('Oublier le mot de passe enregistré ?')) { localStorage.removeItem(PWD_KEY); alert('Mot de passe oublié.'); }
+        };
+
+        document.getElementById('rds-panel-close').onclick  = closePanel;
+        document.getElementById('rds-panel-cancel').onclick = closePanel;
+        document.getElementById('rds-panel-save').onclick   = savePanel;
+        document.getElementById('rds-panel-overlay').onclick = e => { if (e.target.id === 'rds-panel-overlay') closePanel(); };
+
+        // Charger les données
+        (async () => {
+            config = await loadConfig();
+            await loadTools();
+            refreshSidebar();
+        })();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launch);
+    else launch();
 })();
