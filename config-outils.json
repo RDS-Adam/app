@@ -1,12 +1,3 @@
 {
-  "tools": {
-    "Demande Congés.html": {
-      "space": "admin",
-      "label": "Demande de Congés"
-    },
-    "messages-type.html": {
-      "space": "adam",
-      "label": "Messages Types"
-    }
-  }
+  "tools": {}
 }
