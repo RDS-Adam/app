@@ -1,26 +1,23 @@
 /**
- * BOÎTE À OUTILS RDS v9.4
- * 3 espaces fixes : Salarié / Nicolas (RH2026) / Adam (sans mdp)
+ * BOÎTE À OUTILS RDS v9.5
+ * 2 espaces fixes : Salarié / Adam (sans mdp)
  * - Salarié : tous les outils sauf les privés
- * - Nicolas  : Demande de Congés
  * - Adam     : Messages Privés
  */
 (function () {
     const BASE_URL  = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
     const API_URL   = atob('aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9SRFMtQWRhbS9hcHAvY29udGVudHMv');
-    const PASS_NICOLAS = 'RH2026';
-    const SYSTEM_RE = /index|robots|secure|bdd|noindex|messages-type|conges|cong/i;
+    const SYSTEM_RE = /index|robots|secure|bdd|noindex|messages-type/i;
     const FIXED_LIST = ['Gestion des tournees.html'];
 
     // Outils avec espace fixe
     const PRIVATE_TOOLS = {
-        'messages-type.html':  { space: 'adam',    label: 'Messages Privés'    },
-        'Demande Congés.html': { space: 'nicolas',  label: 'Demande de Congés' },
+        'messages-type.html': { space: 'adam', label: 'Messages Privés' },
     };
 
     let tools        = [];   // [{ name, label }] — outils espace salarié uniquement
     let currentSpace = 'salarie';
-    let unlocked     = new Set(['salarie', 'adam']); // adam toujours déverrouillé
+    let unlocked     = new Set(['salarie', 'adam']);
 
     /* ── Chargement des outils depuis GitHub ── */
     async function loadTools() {
@@ -43,7 +40,6 @@
     /* ── Sidebar ── */
     const SPACE_META = {
         salarie: { label: '👤 Espace Salarié', color: '#4CAF50' },
-        nicolas: { label: '📋 Espace Nicolas',  color: '#ff7200' },
         adam:    { label: '⚙ Espace Adam',      color: '#25737d' },
     };
 
@@ -61,9 +57,8 @@
 
         if (currentSpace === 'salarie') {
             spaceTools = tools;
-        } else if (currentSpace === 'nicolas' || currentSpace === 'adam') {
-            // Un seul outil fixe pour ces espaces
-            const entries = Object.entries(PRIVATE_TOOLS).filter(([, v]) => v.space === currentSpace);
+        } else if (currentSpace === 'adam') {
+            const entries = Object.entries(PRIVATE_TOOLS).filter(([, v]) => v.space === 'adam');
             spaceTools = entries.map(([name, v]) => ({ name, label: v.label, isDir: false }));
         }
 
@@ -203,7 +198,6 @@
         <div class="rds-space-rel">
           <select id="rds-space-select">
             <option value="salarie">👤 Espace Salarié</option>
-            <option value="nicolas">📋 Espace Nicolas</option>
             <option value="adam">⚙ Espace Adam</option>
           </select>
           <span class="rds-space-arrow">▼</span>
@@ -245,11 +239,6 @@
             const target = this.value;
             if (target === currentSpace) return;
 
-            if (target === 'nicolas' && !unlocked.has('nicolas')) {
-                const p = prompt('Code Espace Nicolas :');
-                if (p !== PASS_NICOLAS) { this.value = currentSpace; return; }
-                unlocked.add('nicolas');
-            }
             // Adam : pas de mot de passe
 
             currentSpace = target;
