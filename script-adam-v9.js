@@ -1,24 +1,43 @@
 /**
- * BOÎTE À OUTILS RDS v9.5
- * 2 espaces fixes : Salarié / Adam (sans mdp)
- * - Salarié : tous les outils sauf les privés
- * - Adam     : Messages Privés
+ * BOÎTE À OUTILS RDS v9.6
+ * 2 espaces : Salarié / Adam (sans mdp)
+ * Adam peut gérer quels outils vont dans quel espace via le panel ⚙
  */
 (function () {
     const BASE_URL  = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
     const API_URL   = atob('aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9SRFMtQWRhbS9hcHAvY29udGVudHMv');
-    const SYSTEM_RE = /index|robots|secure|bdd|noindex|messages-type/i;
+    const WORKER    = 'https://rds-github.cwmpw5qpc5.workers.dev';
+    const CONFIG    = 'config-outils.json';
+    const SYSTEM_RE = /index|robots|secure|bdd|noindex/i;
     const FIXED_LIST = ['Gestion des tournees.html'];
 
-    // Outils avec espace fixe
-    const PRIVATE_TOOLS = {
-        'messages-type.html': { space: 'adam', label: 'Messages Privés' },
-    };
-
+    let config       = { tools: {} };
+    let configSha    = null;
     let tools        = [];
     let currentSpace = 'salarie';
 
-    /* ── Chargement des outils depuis GitHub ── */
+    /* ── GitHub config ── */
+    async function loadConfig() {
+        try {
+            const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, { headers: { 'Cache-Control': 'no-cache' } });
+            if (!r.ok) return { tools: {} };
+            const d = await r.json();
+            configSha = d.sha;
+            return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
+        } catch { return { tools: {} }; }
+    }
+
+    async function saveConfigToGitHub(newConfig) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
+        const body = JSON.stringify({ message: 'Update config', content, sha: configSha });
+        const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body
+        });
+        if (!r.ok) throw new Error('Sauvegarde échouée (' + r.status + ')');
+        configSha = (await r.json()).content.sha;
+    }
+
+    /* ── Chargement outils depuis GitHub ── */
     async function loadTools() {
         const r = await fetch(API_URL + '?t=' + Date.now()).catch(() => null);
         if (!r || !r.ok) return;
@@ -28,23 +47,30 @@
             const isH = item.name.endsWith('.html');
             const isD = item.type === 'dir';
             if (!isH && !isD) return;
+            if (SYSTEM_RE.test(item.name)) return;
             if (FIXED_LIST.includes(item.name)) return;
-            if (item.name in PRIVATE_TOOLS) return;         // réservé à un espace privé
-            if (/script|config|data|json|robots/i.test(item.name)) return;
             const label = decodeURIComponent(item.name).replace('.html','').replace(/[-_]/g,' ');
             tools.push({ name: item.name, label, isDir: isD });
         });
     }
 
+    /* ── Helpers config ── */
+    function getToolSpace(name) {
+        return (config.tools[name] && config.tools[name].space) || 'salarie';
+    }
+    function getToolLabel(name) {
+        const t = tools.find(x => x.name === name);
+        return (config.tools[name] && config.tools[name].label) || (t ? t.label : name);
+    }
+
     /* ── Sidebar ── */
     const SPACE_META = {
         salarie: { label: '👤 Espace Salarié', color: '#4CAF50' },
-        adam:    { label: '⚙ Espace Adam',      color: '#25737d' },
+        adam:    { label: '⚙ Espace Adam',     color: '#25737d' },
     };
 
     function refreshSidebar() {
         const list = document.getElementById('rds-tool-list');
-        // Vider sauf l'élément fixe configurateur
         Array.from(list.querySelectorAll('.rds-nav-item:not(#rds-fixed-config), .rds-nav-sep, .rds-empty'))
             .forEach(e => e.remove());
 
@@ -52,32 +78,163 @@
         document.getElementById('rds-space-lbl').textContent = meta.label;
         document.getElementById('rds-space-lbl').style.color  = meta.color;
 
-        let spaceTools = [];
-
-        if (currentSpace === 'salarie') {
-            spaceTools = tools;
-        } else if (currentSpace === 'adam') {
-            const entries = Object.entries(PRIVATE_TOOLS).filter(([, v]) => v.space === 'adam');
-            spaceTools = entries.map(([name, v]) => ({ name, label: v.label, isDir: false }));
-        }
-
-        if (!spaceTools.length) {
-            const empty = document.createElement('div');
-            empty.className = 'rds-empty';
-            empty.textContent = 'Aucun outil dans cet espace.';
-            list.appendChild(empty);
-            return;
-        }
+        const spaceTools = tools.filter(t => getToolSpace(t.name) === currentSpace);
 
         spaceTools.forEach(tool => {
             const el = document.createElement('div');
             el.className = 'rds-nav-item';
-            el.textContent = tool.label;
+            el.textContent = getToolLabel(tool.name);
             let path = tool.name;
             if (tool.isDir) path += path.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
             el.onclick = () => openTool(BASE_URL + encodeURIComponent(path), el);
             list.appendChild(el);
         });
+
+        if (currentSpace === 'adam') {
+            if (spaceTools.length) {
+                const sep = document.createElement('div');
+                sep.className = 'rds-nav-sep';
+                list.appendChild(sep);
+            }
+            const btn = document.createElement('div');
+            btn.className = 'rds-nav-item rds-manage-btn';
+            btn.textContent = '⚙ Gérer les espaces';
+            btn.onclick = openPanel;
+            list.appendChild(btn);
+        }
+
+        if (!spaceTools.length && currentSpace !== 'adam') {
+            const empty = document.createElement('div');
+            empty.className = 'rds-empty';
+            empty.textContent = 'Aucun outil dans cet espace.';
+            list.appendChild(empty);
+        }
+    }
+
+    /* ── Panel de gestion ── */
+    function openPanel() {
+        document.getElementById('rds-panel-overlay').style.display = 'flex';
+        renderPanel();
+    }
+    function closePanel() {
+        document.getElementById('rds-panel-overlay').style.display = 'none';
+    }
+
+    function renderPanel() {
+        const body = document.getElementById('rds-panel-body');
+        body.innerHTML = '';
+
+        if (!tools.length) {
+            body.innerHTML = '<p style="padding:30px;text-align:center;color:#aaa;">Aucun outil chargé.</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.style.cssText = 'width:100%;border-collapse:collapse;';
+
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        trh.style.cssText = 'background:#f7f7f7;';
+        [['Outil', ''], ['Nom affiché', 'width:160px'], ['Espace', 'width:130px']].forEach(([txt, w]) => {
+            const th = document.createElement('th');
+            th.style.cssText = 'padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;' + w;
+            th.textContent = txt;
+            trh.appendChild(th);
+        });
+        thead.appendChild(trh);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        tools.forEach((tool, i) => {
+            const currentCfg = config.tools[tool.name] || {};
+            const space = currentCfg.space || 'salarie';
+            const lbl   = currentCfg.label || '';
+
+            const tr = document.createElement('tr');
+            tr.style.cssText = i % 2 === 0 ? 'background:#fff;' : 'background:#fafafa;';
+
+            // Col 1 : nom
+            const td1 = document.createElement('td');
+            td1.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const nameDiv = document.createElement('div');
+            nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:#222;';
+            nameDiv.textContent = tool.label;
+            const fileDiv = document.createElement('div');
+            fileDiv.style.cssText = 'font-size:10px;color:#aaa;margin-top:2px;';
+            fileDiv.textContent = tool.name;
+            td1.appendChild(nameDiv);
+            td1.appendChild(fileDiv);
+
+            // Col 2 : label input
+            const td2 = document.createElement('td');
+            td2.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.value = lbl;
+            inp.placeholder = tool.label;
+            inp.dataset.file = tool.name;
+            inp.dataset.role = 'label';
+            inp.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;box-sizing:border-box;';
+            inp.onfocus = () => inp.style.borderColor = '#ff7200';
+            inp.onblur  = () => inp.style.borderColor = '#e0e0e0';
+            td2.appendChild(inp);
+
+            // Col 3 : espace select
+            const td3 = document.createElement('td');
+            td3.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
+            const sel = document.createElement('select');
+            sel.dataset.file = tool.name;
+            sel.dataset.role = 'space';
+            sel.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;cursor:pointer;background:#fff;';
+            sel.onfocus = () => sel.style.borderColor = '#ff7200';
+            sel.onblur  = () => sel.style.borderColor = '#e0e0e0';
+            [
+                { v: 'salarie', t: '👤 Salarié' },
+                { v: 'adam',    t: '⚙ Adam'     },
+            ].forEach(({ v, t }) => {
+                const o = document.createElement('option');
+                o.value = v; o.textContent = t;
+                if (v === space) o.selected = true;
+                sel.appendChild(o);
+            });
+            td3.appendChild(sel);
+
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        body.appendChild(table);
+    }
+
+    async function savePanel() {
+        const btn  = document.getElementById('rds-panel-save');
+        const info = document.getElementById('rds-panel-info');
+        btn.disabled = true; btn.textContent = 'Enregistrement…';
+        try {
+            const newTools = {};
+            document.querySelectorAll('#rds-panel-body select[data-role="space"]').forEach(sel => {
+                newTools[sel.dataset.file] = { space: sel.value };
+            });
+            document.querySelectorAll('#rds-panel-body input[data-role="label"]').forEach(inp => {
+                const v = inp.value.trim();
+                if (newTools[inp.dataset.file]) newTools[inp.dataset.file].label = v;
+            });
+            await saveConfigToGitHub({ tools: newTools });
+            config = { tools: newTools };
+            refreshSidebar();
+            info.textContent = '✓ Enregistré';
+            info.style.color = '#2d9e6b';
+            btn.textContent = '✓ OK';
+            setTimeout(() => { info.textContent = 'Sauvegardé sur GitHub'; info.style.color = '#aaa'; btn.textContent = 'Enregistrer'; btn.disabled = false; }, 2500);
+        } catch (e) {
+            info.textContent = '❌ ' + e.message;
+            info.style.color = '#e53935';
+            btn.textContent = 'Enregistrer';
+            btn.disabled = false;
+        }
     }
 
     /* ── Ouvrir un outil ── */
@@ -148,6 +305,8 @@
 .rds-nav-item { padding:10px 22px; cursor:pointer; font-size:.8rem; color:rgba(255,255,255,.6); border-left:3px solid transparent; transition:.15s; }
 .rds-nav-item:hover { background:rgba(255,255,255,.05); color:#fff; }
 .rds-nav-item.active { color:#ff7200; background:rgba(255,114,0,.1); border-left-color:#ff7200; }
+.rds-manage-btn { color:#25737d !important; }
+.rds-manage-btn:hover { color:#25737d !important; background:rgba(37,115,125,.08) !important; }
 .rds-nav-sep { height:1px; background:rgba(255,255,255,.07); margin:6px 0; }
 .rds-empty { padding:16px 22px; font-size:.75rem; color:rgba(255,255,255,.22); }
 
@@ -170,6 +329,23 @@
 #rds-loader { position:absolute; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:10; }
 .rds-spinner { width:28px; height:28px; border:3px solid #eee; border-top-color:#ff7200; border-radius:50%; animation:rds-spin .8s linear infinite; }
 @keyframes rds-spin { to { transform:rotate(360deg); } }
+
+#rds-panel-overlay { display:none; position:fixed; inset:0; z-index:10001000; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:20px; }
+#rds-panel { background:#fff; border-radius:12px; width:100%; max-width:700px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.2); overflow:hidden; }
+#rds-panel-head { background:#1a1a1a; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+#rds-panel-head h3 { margin:0; font-size:.9rem; font-weight:500; color:#fff; }
+#rds-panel-head p  { margin:3px 0 0; font-size:.62rem; color:rgba(255,255,255,.4); }
+#rds-panel-body { flex:1; overflow-y:auto; }
+#rds-panel-foot { padding:12px 20px; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; background:#fafafa; }
+#rds-panel-info { font-size:.7rem; color:#aaa; }
+.rds-btn { cursor:pointer; font-family:inherit; font-weight:500; border-radius:6px; border:none; font-size:.78rem; padding:8px 16px; transition:.2s; display:inline-flex; align-items:center; gap:5px; }
+.rds-btn-primary { background:#25737d; color:#fff; }
+.rds-btn-primary:hover { background:#1d5f68; }
+.rds-btn-primary:disabled { opacity:.6; cursor:not-allowed; }
+.rds-btn-ghost { background:transparent; border:1px solid #ddd; color:#555; }
+.rds-btn-ghost:hover { border-color:#ff7200; color:#ff7200; }
+.rds-btn-close { background:transparent; border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.6); }
+.rds-btn-close:hover { border-color:#fff; color:#fff; }
 
 @media (max-width:850px) {
     #rds-sidebar { position:fixed; height:100%; box-shadow:10px 0 30px rgba(0,0,0,.2); }
@@ -218,9 +394,28 @@
       <iframe id="rds-frame" src="about:blank"></iframe>
     </div>
   </div>
+</div>
+
+<div id="rds-panel-overlay">
+  <div id="rds-panel">
+    <div id="rds-panel-head">
+      <div>
+        <h3>⚙ Gestion des outils</h3>
+        <p>Choisissez l'espace de chaque outil · Renommez-les</p>
+      </div>
+      <button class="rds-btn rds-btn-close" id="rds-panel-close">✕</button>
+    </div>
+    <div id="rds-panel-body"></div>
+    <div id="rds-panel-foot">
+      <span id="rds-panel-info">Sauvegardé sur GitHub</span>
+      <div style="display:flex;gap:8px;">
+        <button class="rds-btn rds-btn-ghost" id="rds-panel-cancel">Fermer</button>
+        <button class="rds-btn rds-btn-primary" id="rds-panel-save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
 </div>`;
 
-        // Events
         document.getElementById('rds-fixed-config').onclick = () =>
             openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'));
 
@@ -250,8 +445,13 @@
             if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
         };
 
-        // Charger et afficher
+        document.getElementById('rds-panel-close').onclick  = closePanel;
+        document.getElementById('rds-panel-cancel').onclick = closePanel;
+        document.getElementById('rds-panel-save').onclick   = savePanel;
+        document.getElementById('rds-panel-overlay').onclick = e => { if (e.target.id === 'rds-panel-overlay') closePanel(); };
+
         (async () => {
+            config = await loadConfig();
             await loadTools();
             refreshSidebar();
         })();
