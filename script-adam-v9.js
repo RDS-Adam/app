@@ -15,9 +15,8 @@
         'messages-type.html': { space: 'adam', label: 'Messages Privés' },
     };
 
-    let tools        = [];   // [{ name, label }] — outils espace salarié uniquement
+    let tools        = [];
     let currentSpace = 'salarie';
-    let unlocked     = new Set(['salarie', 'adam']);
 
     /* ── Chargement des outils depuis GitHub ── */
     async function loadTools() {
@@ -235,12 +234,9 @@
             });
         };
 
-        document.getElementById('rds-space-select').onchange = async function () {
+        document.getElementById('rds-space-select').onchange = function () {
             const target = this.value;
             if (target === currentSpace) return;
-
-            // Adam : pas de mot de passe
-
             currentSpace = target;
             refreshSidebar();
         };
