@@ -1,3 +1,56 @@
 {
-  "tools": {}
+  "tools": {
+    "Calcul trapeze - triangle": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Calcul-diametre-enroulement.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Calcul-gain-de-temperature.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Demande Congés.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Encombrement SBV2.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Panachage-californien.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Pix-cotes.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "STORE MINI COFFRE DIA TUBE 26.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "STORE UNIVERSAL COFFRE DIA TUBE 36.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "calculateur-prix-pose.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "enroulement-toile.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "messages-type.html": {
+      "space": "adam",
+      "label": ""
+    }
+  }
 }
