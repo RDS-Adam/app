@@ -1,6 +1,12 @@
 {
   "messages": [
     {
+      "id": 1778143245636,
+      "titre": "Stores bannes",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de cotes définitive et vérification de la solidité du support (mur ou plafond).\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants (si installation existante)\n\nInstallation : Fixation des supports, pose du store et raccordement électrique.\n\nMise en service : Réglage de l'inclinaison, des fins de course et des capteurs (vent/soleil) si présents dans la commande\n\nNettoyage : Nettoyage de la zone d'intervention et évacuation des déchets et emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'entretien de la toile et signature du PV."
+    },
+    {
       "id": 1778143221938,
       "titre": "Volets Roulants Radio / Filaire",
       "categorie": "Extérieur",
