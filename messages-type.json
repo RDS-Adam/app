@@ -1,6 +1,12 @@
 {
   "messages": [
     {
+      "id": 1778143290347,
+      "titre": "Californiens",
+      "categorie": "Intérieur",
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures finales et validation des supports (murs ou plafonds).\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants (si installation existante)\n\nInstallation : Pose du rail, accrochage des lames et mise en place des poids de lestage (si plaques et chainette apparentes) \n\nMise en service : Réglage de l'orientation des lames et test de refoulement (ouverture).\n\nNettoyage : Aspiration des poussières de perçage et évacuation des emballages.\n\nRéception : Démonstration, conseils d'entretien et signature du PV de fin de chantier."
+    },
+    {
       "id": 1778143245636,
       "titre": "Stores bannes",
       "categorie": "Extérieur",
