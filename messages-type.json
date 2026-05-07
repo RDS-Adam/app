@@ -1,6 +1,12 @@
 {
   "messages": [
     {
+      "id": 1778143221938,
+      "titre": "Volets Roulants Radio / Filaire",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de cotes et validation du point d'arrivée électrique.\n\nDépose : Démontage et retrait des anciens équipements (battants, roulants ou persiennes) si nécessaire.\n\nInstallation : Fixation du volet et raccordement au réseau électrique (existant ou dédié).\n\nMise en service : Appairage des télécommandes et réglage des fins de course.\n\nNettoyage : Remise en état des lieux et évacuation des anciens volets et emballages.\n\nRéception : Démonstration, conseils d'utilisation et signature du PV de réception."
+    },
+    {
       "id": 1778143164390,
       "titre": "Volets Roulants Solaires",
       "categorie": "Extérieur",
