@@ -18,69 +18,34 @@
             --danger: #e53935;
             --warning: #e08c00;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 20px 50px; }
         .container { max-width: 980px; margin: 0 auto; }
-
-        /* ── HEADER ── */
-        .app-header {
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
-            margin-bottom: 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .app-header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
         .logo-text { color: var(--bleu); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 1px; }
         .logo-text span { color: var(--orange); }
-
         .nav-tabs { display: flex; gap: 6px; }
-        .nav-tab {
-            padding: 7px 18px; border: 1px solid var(--border); border-radius: 6px;
-            background: white; cursor: pointer; font-family: 'Poppins', sans-serif;
-            font-size: 0.75rem; font-weight: 500; color: var(--muted); transition: all 0.2s;
-        }
+        .nav-tab { padding: 7px 18px; border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 500; color: var(--muted); transition: all 0.2s; }
         .nav-tab.active { background: var(--bleu); color: white; border-color: var(--bleu); }
         .nav-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
         .header-ver { font-size: 0.68rem; color: #ccc; }
-
-        /* ── PAGE / SECTIONS ── */
         .page { display: none; }
         .page.active { display: block; }
-
-        /* ── CARDS ── */
         .card { background: white; border: 1px solid #f0f0f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 18px; }
         .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .card-header h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0; font-weight: 500; }
-        .card-header .ch-right { display: flex; align-items: center; gap: 8px; }
         .card-body { padding: 22px; }
-
-        /* ── FORM ── */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
         .form-grid .full { grid-column: span 2; }
-        .form-group label {
-            font-size: 0.6rem; color: var(--muted); text-transform: uppercase;
-            letter-spacing: 1px; display: block; margin-bottom: 6px;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 9px 0; border: none; border-bottom: 1px solid #ddd;
-            font-size: 0.88rem; outline: none; background: transparent;
-            font-family: 'Poppins', sans-serif; color: var(--text); transition: border-color 0.2s;
-        }
+        .form-group label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.88rem; outline: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--text); transition: border-color 0.2s; }
         .form-group select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 2px center; padding-right: 18px; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-bottom-color: var(--orange); }
-        .form-group input:disabled { color: var(--muted); cursor: not-allowed; }
+        .form-group input:disabled { color: var(--muted); cursor: not-allowed; background: transparent; }
         .form-group textarea { resize: vertical; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-top: 2px; }
         .form-group textarea:focus { border-color: var(--orange); outline: none; }
         .input-hint { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
-
-        /* ── BUTTONS ── */
-        .btn {
-            cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500;
-            border-radius: 6px; transition: all 0.2s; display: inline-flex;
-            align-items: center; gap: 6px; font-size: 0.8rem; padding: 9px 18px; border: none;
-        }
+        .btn { cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 9px 18px; border: none; }
         .btn-primary { background: var(--bleu); color: white; }
         .btn-primary:hover { background: #1d5f68; }
         .btn-orange { background: var(--orange); color: white; }
@@ -95,8 +60,6 @@
         .btn-ghost-danger:hover { border-color: var(--danger); }
         .btn-sm { padding: 5px 12px; font-size: 0.72rem; }
         .btn-full { width: 100%; justify-content: center; }
-
-        /* ── KPI ROW ── */
         .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
         .kpi-card { background: white; border: 1px solid #f0f0f0; border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .kpi-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -104,26 +67,17 @@
         .kpi-val.orange { color: var(--orange); }
         .kpi-val.green { color: var(--success); }
         .kpi-val.red { color: var(--danger); }
-
-        /* ── LOGIN ── */
         .login-wrap { max-width: 380px; margin: 50px auto; }
         .login-title { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 5px; }
         .login-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 22px; }
         .pwd-input-wrap { margin-bottom: 18px; }
-        .pwd-input-wrap input {
-            width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #ddd;
-            font-size: 0.95rem; text-align: center; font-family: 'Poppins', sans-serif; outline: none;
-        }
+        .pwd-input-wrap input { width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.95rem; text-align: center; font-family: 'Poppins', sans-serif; outline: none; }
         .pwd-input-wrap input:focus { border-bottom-color: var(--orange); }
-
-        /* ── BADGES ── */
         .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 500; }
         .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
         .badge-pending { background: #fff3e0; color: #e65100; }
         .badge-valid { background: #e8f5e9; color: #2e7d32; }
         .badge-refused { background: #ffebee; color: #c62828; }
-
-        /* ── TABLE ── */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         thead th { padding: 8px 14px; font-size: 0.58rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); background: #fafafa; }
@@ -131,8 +85,6 @@
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #fafafa; }
         .reason-tag { display: inline-block; background: #ffebee; color: #c62828; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; margin-top: 4px; }
-
-        /* ── REQUEST CARDS ── */
         .req-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; transition: box-shadow 0.2s; }
         .req-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
         .req-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -142,50 +94,52 @@
         .req-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
         .chip { display: inline-flex; align-items: center; gap: 4px; background: #f7f7f7; border: 1px solid #eee; border-radius: 4px; padding: 3px 9px; font-size: 0.7rem; color: #555; }
         .req-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-
-        /* ── DECISION PANEL ── */
         .decision-panel { background: #f6fafb; border: 1.5px solid var(--bleu); border-radius: 10px; padding: 18px; margin-top: 14px; display: none; }
         .decision-panel h4 { font-size: 0.78rem; font-weight: 600; color: var(--bleu); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* ── SECTION TITLE ── */
-        .section-title { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 26px 0 12px; display: flex; align-items: center; gap: 10px; }
-        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-        /* ── ALERTS ── */
         .alert { padding: 10px 14px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .alert-info { background: #e0eff0; color: var(--bleu); border: 1px solid #b2dfdb; }
-
-        /* ── FILTER ROW ── */
+        .alert-warning { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
         .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-        .filter-row select, .filter-row input {
-            padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
-            font-family: 'Poppins', sans-serif; font-size: 0.75rem; background: white; color: var(--text); outline: none;
-        }
+        .filter-row select, .filter-row input { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.75rem; background: white; color: var(--text); outline: none; }
         .filter-row select:focus, .filter-row input:focus { border-color: var(--bleu); }
-
-        /* ── GMAIL ── */
         .gmail-btn { display: inline-flex; align-items: center; gap: 6px; background: #ea4335; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 0.78rem; text-decoration: none; margin-top: 10px; }
-
-        /* ── DAYS PREVIEW ── */
         .days-preview { margin: 14px 0; padding: 10px 14px; background: #e0eff0; border-radius: 6px; font-size: 0.8rem; color: var(--bleu); font-weight: 500; display: none; }
-
-        /* ── MANAGER TOP ── */
         .mgr-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
         .mgr-top h1 { font-size: 1.1rem; font-weight: 600; color: var(--text); }
         .mgr-top p { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
         .mgr-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        /* ── TWO-COL ── */
         .emp-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 18px; }
-
-        /* ── EMPTY STATE ── */
         .empty-state { text-align: center; padding: 40px; color: var(--muted); }
         .empty-state .empty-icon { font-size: 2rem; margin-bottom: 10px; }
         .empty-state strong { display: block; font-size: 0.88rem; color: #555; margin-bottom: 4px; }
         .empty-state span { font-size: 0.78rem; }
-
-        /* ── RESPONSIVE ── */
+        .solde-display { display: inline-flex; align-items: center; gap: 6px; background: #e0eff0; color: var(--bleu); border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; font-weight: 500; margin-top: 8px; }
+        .solde-display.low { background: #fff3e0; color: #e65100; }
+        .solde-display.critical { background: #ffebee; color: #c62828; }
+        .mgr-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+        .mgr-tab { padding: 6px 16px; border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 500; color: var(--muted); transition: all 0.2s; }
+        .mgr-tab.active { background: var(--bleu); color: white; border-color: var(--bleu); }
+        .mgr-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
+        .mgr-section { display: none; }
+        .mgr-section.active { display: block; }
+        .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .cal-nav span { font-size: 0.88rem; font-weight: 600; color: var(--text); text-transform: capitalize; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .cal-day-name { text-align: center; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; color: var(--muted); padding: 4px 0; }
+        .cal-cell { min-height: 54px; border-radius: 6px; padding: 4px 5px; background: #fafafa; border: 1px solid #f0f0f0; }
+        .cal-cell.other-month { opacity: 0.35; }
+        .cal-cell.today { border-color: var(--orange); background: #fff8f0; }
+        .cal-date { font-size: 0.68rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
+        .cal-cell.today .cal-date { color: var(--orange); }
+        .cal-dot { font-size: 0.58rem; padding: 1px 4px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; color: white; font-weight: 500; }
+        .cal-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #555; }
+        .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+        .emp-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; font-size: 0.8rem; }
+        .emp-list-item:last-child { border-bottom: none; }
+        .emp-list-name { font-weight: 600; color: var(--text); }
+        .emp-list-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+        .emp-solde-badge { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
         @media (max-width: 768px) {
             body { padding: 16px 14px 40px; }
             .kpi-row { grid-template-columns: 1fr 1fr; }
@@ -196,13 +150,10 @@
             .header-ver { display: none; }
             .mgr-top { flex-direction: column; gap: 12px; }
         }
-        @media (max-width: 480px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
-
         #pdf-template { display: none; background: white; color: black; }
     </style>
 </head>
 <body>
-
 <div class="container">
 
     <div class="app-header">
@@ -211,13 +162,11 @@
             <button class="nav-tab active" onclick="switchTab('employee')">Espace Salarié</button>
             <button class="nav-tab" onclick="switchTab('manager')">Espace Direction</button>
         </div>
-        <div class="header-ver">V2.0 — RH Rue du Store</div>
+        <div class="header-ver">V3.0 — RH Rue du Store</div>
     </div>
 
-    <!-- ═══════════ ESPACE SALARIÉ ═══════════ -->
+    <!-- ESPACE SALARIÉ -->
     <div id="page-employee" class="page active">
-
-        <!-- LOGIN -->
         <div id="emp-login" class="login-wrap">
             <div class="card">
                 <div class="card-body">
@@ -225,67 +174,35 @@
                     <p class="login-sub">Sélectionnez votre prénom pour accéder à votre espace</p>
                     <div class="form-group" style="margin-bottom:22px;">
                         <label>Votre prénom</label>
-                        <select id="user-selector">
-                            <option value="">— Sélectionner —</option>
-                            <option value="Adam">Adam</option>
-                            <option value="Alexandre">Alexandre</option>
-                            <option value="Axel">Axel</option>
-                            <option value="Baptiste">Baptiste</option>
-                            <option value="Camille">Camille</option>
-                            <option value="Cindy">Cindy</option>
-                            <option value="Clarisse">Clarisse</option>
-                            <option value="Karine">Karine</option>
-                        </select>
+                        <select id="user-selector"><option value="">— Chargement... —</option></select>
                     </div>
                     <button class="btn btn-primary btn-full" onclick="loginEmployee()">Accéder à mon espace →</button>
                 </div>
             </div>
         </div>
 
-        <!-- DASHBOARD SALARIÉ -->
         <div id="emp-content" style="display:none;">
-
-            <div class="kpi-row" id="emp-kpis">
-                <div class="kpi-card">
-                    <div class="kpi-label">Total demandes</div>
-                    <div class="kpi-val" id="kpi-total">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">En attente</div>
-                    <div class="kpi-val orange" id="kpi-pending">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Jours validés</div>
-                    <div class="kpi-val green" id="kpi-days">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Refusées</div>
-                    <div class="kpi-val red" id="kpi-refused">—</div>
-                </div>
+            <div class="kpi-row">
+                <div class="kpi-card"><div class="kpi-label">Total demandes</div><div class="kpi-val" id="kpi-total">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">En attente</div><div class="kpi-val orange" id="kpi-pending">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Jours validés</div><div class="kpi-val green" id="kpi-days">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Refusées</div><div class="kpi-val red" id="kpi-refused">—</div></div>
             </div>
-
             <div class="emp-grid">
-
-                <!-- FORMULAIRE -->
                 <div class="card">
                     <div class="card-header">
                         <h2 id="welcome-msg">Nouvelle demande</h2>
                         <button class="btn btn-ghost btn-sm" onclick="logoutEmployee()">Déconnexion</button>
                     </div>
                     <div class="card-body">
+                        <div id="solde-info" style="margin-bottom:16px;display:none;">
+                            <div class="kpi-label">Solde congés disponible</div>
+                            <div id="solde-display" class="solde-display">— jours</div>
+                        </div>
                         <div class="form-grid">
                             <div class="form-group full">
                                 <label>Email professionnel</label>
-                                <input type="email" id="emp_email" placeholder="prenom.nom@ruedustore.fr">
-                            </div>
-                            <div class="form-group">
-                                <label>Nom de famille</label>
-                                <input type="text" id="emp_lastname" placeholder="Votre nom">
-                            </div>
-                            <div class="form-group">
-                                <label>Solde congés actuel</label>
-                                <input type="number" id="emp_solde" placeholder="Ex: 25" step="0.5">
-                                <div class="input-hint">En jours ouvrés</div>
+                                <input type="email" id="emp_email" disabled>
                             </div>
                             <div class="form-group">
                                 <label>Date de début</label>
@@ -308,22 +225,15 @@
                                 <input type="text" id="leave_autre" placeholder="Ex: Mariage, déménagement...">
                             </div>
                         </div>
-
-                        <div class="days-preview" id="days-preview">
-                            📅 <span id="days-count"></span> jour(s) ouvré(s) concerné(s)
-                        </div>
-
-                        <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">
-                            Soumettre la demande →
-                        </button>
-                        <div id="action-request" style="display:none; margin-top:14px;">
+                        <div class="days-preview" id="days-preview">📅 <span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
+                        <div id="overlap-warning" class="alert alert-warning" style="display:none;margin-top:10px;">⚠ Vous avez déjà une demande sur cette période.</div>
+                        <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">Soumettre la demande →</button>
+                        <div id="action-request" style="display:none;margin-top:14px;">
                             <div class="alert alert-success">✓ Demande enregistrée avec succès !</div>
-                            <a href="#" id="gmail_link" class="gmail-btn">✉ Notifier Nicolas Decoster</a>
+                            <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier Nicolas Decoster</a>
                         </div>
                     </div>
                 </div>
-
-                <!-- HISTORIQUE -->
                 <div class="card">
                     <div class="card-header">
                         <h2>Mon historique</h2>
@@ -332,18 +242,8 @@
                     <div class="card-body" style="padding:0;">
                         <div class="table-wrap">
                             <table>
-                                <thead>
-                                    <tr>
-                                        <th>Période</th>
-                                        <th>Jours</th>
-                                        <th>Type</th>
-                                        <th>Statut</th>
-                                        <th>PDF</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="my-requests-body">
-                                    <tr><td colspan="5" style="text-align:center; color:var(--muted); padding:30px; font-size:0.78rem;">Chargement...</td></tr>
-                                </tbody>
+                                <thead><tr><th>Période</th><th>Jours</th><th>Type</th><th>Statut</th><th>PDF</th></tr></thead>
+                                <tbody id="my-requests-body"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px;font-size:0.78rem;">Chargement...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -352,17 +252,15 @@
         </div>
     </div>
 
-    <!-- ═══════════ ESPACE DIRECTION ═══════════ -->
+    <!-- ESPACE DIRECTION -->
     <div id="page-manager" class="page">
-
-        <!-- LOGIN DIRECTION -->
         <div id="manager-lock-wrap" class="login-wrap">
             <div class="card">
                 <div class="card-body">
                     <div class="login-title">Espace Direction</div>
                     <p class="login-sub">Accès réservé — code confidentiel requis</p>
                     <div class="pwd-input-wrap">
-                        <label style="font-size:0.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">Code d'accès</label>
+                        <label style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Code d'accès</label>
                         <input type="password" id="mgr_pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') unlockManager()">
                     </div>
                     <button class="btn btn-primary btn-full" onclick="unlockManager()">Accéder au tableau de bord →</button>
@@ -370,159 +268,184 @@
             </div>
         </div>
 
-        <!-- DASHBOARD DIRECTION -->
         <div id="manager-content" style="display:none;">
-
             <div class="mgr-top">
-                <div>
-                    <h1>Tableau de bord RH</h1>
-                    <p>Vue d'ensemble des demandes de congés</p>
-                </div>
+                <div><h1>Tableau de bord RH</h1><p>Vue d'ensemble des demandes de congés</p></div>
                 <div class="mgr-top-actions">
                     <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">↻ Actualiser</button>
                     <button class="btn btn-ghost btn-sm" onclick="exportBackup()">↓ Export JSON</button>
                     <button class="btn btn-ghost-danger btn-sm" onclick="lockManager()">Verrouiller</button>
                 </div>
             </div>
-
             <div class="kpi-row">
-                <div class="kpi-card">
-                    <div class="kpi-label">Total demandes</div>
-                    <div class="kpi-val" id="mgr-kpi-total">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">En attente</div>
-                    <div class="kpi-val orange" id="mgr-kpi-pending">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Jours validés</div>
-                    <div class="kpi-val green" id="mgr-kpi-days">—</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Refusées</div>
-                    <div class="kpi-val red" id="mgr-kpi-refused">—</div>
-                </div>
+                <div class="kpi-card"><div class="kpi-label">Total demandes</div><div class="kpi-val" id="mgr-kpi-total">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">En attente</div><div class="kpi-val orange" id="mgr-kpi-pending">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Jours validés</div><div class="kpi-val green" id="mgr-kpi-days">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Refusées</div><div class="kpi-val red" id="mgr-kpi-refused">—</div></div>
+            </div>
+            <div class="mgr-tabs">
+                <button class="mgr-tab active" onclick="switchMgrTab('demandes')">Demandes</button>
+                <button class="mgr-tab" onclick="switchMgrTab('calendrier')">Calendrier</button>
+                <button class="mgr-tab" onclick="switchMgrTab('equipe')">Équipe</button>
+                <button class="mgr-tab" onclick="switchMgrTab('archive')">Archive</button>
             </div>
 
-            <!-- DEMANDES EN ATTENTE -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Demandes en attente</h2>
-                    <span id="pending-badge" class="badge badge-pending">0 en attente</span>
-                </div>
-                <div class="card-body">
-                    <div id="manager-list"><p style="color:var(--muted); font-size:0.82rem;">Chargement...</p></div>
-                    <div id="approval-form" class="decision-panel">
-                        <h4 id="val_display_name">Décision</h4>
-                        <div class="form-group" style="margin-bottom:14px;">
-                            <label>Motif (optionnel — visible par le salarié)</label>
-                            <textarea id="refusal_reason" rows="3" placeholder="Précisez un motif si vous refusez la demande..."></textarea>
+            <div id="mgr-section-demandes" class="mgr-section active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Demandes en attente</h2>
+                        <span id="pending-badge" class="badge badge-pending">0 en attente</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="manager-list"><p style="color:var(--muted);font-size:0.82rem;">Chargement...</p></div>
+                        <div id="approval-form" class="decision-panel">
+                            <h4 id="val_display_name">Décision</h4>
+                            <div class="form-group" style="margin-bottom:14px;">
+                                <label>Motif (optionnel)</label>
+                                <textarea id="refusal_reason" rows="3" placeholder="Précisez un motif si vous refusez la demande..."></textarea>
+                            </div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn btn-success" onclick="processDecision('Validé')">✓ Valider</button>
+                                <button class="btn btn-danger" onclick="processDecision('Refusé')">✕ Refuser</button>
+                                <button class="btn btn-ghost" onclick="document.getElementById('approval-form').style.display='none'">Annuler</button>
+                            </div>
                         </div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button class="btn btn-success" onclick="processDecision('Validé')">✓ Valider</button>
-                            <button class="btn btn-danger" onclick="processDecision('Refusé')">✕ Refuser</button>
-                            <button class="btn btn-ghost" onclick="document.getElementById('approval-form').style.display='none'">Annuler</button>
+                        <div id="action-decision" style="display:none;margin-top:12px;">
+                            <div class="alert alert-success">✓ Décision enregistrée.</div>
+                            <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">✉ Envoyer la réponse au salarié</a>
                         </div>
                     </div>
-                    <div id="action-decision" style="display:none; margin-top:12px;">
-                        <div class="alert alert-success">✓ Décision enregistrée.</div>
-                        <a href="#" id="gmail_link_val" class="gmail-btn">✉ Envoyer la réponse au salarié</a>
+                </div>
+            </div>
+
+            <div id="mgr-section-calendrier" class="mgr-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Calendrier des absences</h2>
+                        <div class="cal-nav">
+                            <button class="btn btn-ghost btn-sm" onclick="calPrev()">‹</button>
+                            <span id="cal-title"></span>
+                            <button class="btn btn-ghost btn-sm" onclick="calNext()">›</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="cal-grid" id="cal-grid"></div>
+                        <div class="cal-legend" id="cal-legend"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ARCHIVE -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Archive des demandes</h2>
-                    <span style="font-size:0.7rem; color:var(--muted);">Validées &amp; Refusées</span>
+            <div id="mgr-section-equipe" class="mgr-section">
+                <div class="card">
+                    <div class="card-header"><h2>Gestion de l'équipe</h2></div>
+                    <div class="card-body" style="padding:0;"><div id="emp-management-list"></div></div>
                 </div>
-                <div class="card-body">
-                    <div class="filter-row">
-                        <select id="filter-employee" onchange="applyFilters()">
-                            <option value="">Tous les salariés</option>
-                        </select>
-                        <select id="filter-status" onchange="applyFilters()">
-                            <option value="">Tous les statuts</option>
-                            <option value="Validé">Validées</option>
-                            <option value="Refusé">Refusées</option>
-                        </select>
-                        <input type="month" id="filter-month" onchange="applyFilters()">
-                        <button class="btn btn-ghost btn-sm" onclick="resetFilters()">✕ Réinitialiser</button>
+                <div class="card">
+                    <div class="card-header"><h2>Ajouter un salarié</h2></div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Prénom</label><input type="text" id="new_emp_name" placeholder="Ex: Marie"></div>
+                            <div class="form-group"><label>Nom</label><input type="text" id="new_emp_lastname" placeholder="Ex: Dupont"></div>
+                            <div class="form-group"><label>Email</label><input type="email" id="new_emp_email" placeholder="marie.dupont@ruedustore.fr"></div>
+                            <div class="form-group"><label>Solde initial (jours)</label><input type="number" id="new_emp_solde" placeholder="25" step="0.5" min="0"></div>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top:14px;" onclick="addEmployee()">+ Ajouter</button>
                     </div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Salarié</th>
-                                    <th>Période</th>
-                                    <th>Jours</th>
-                                    <th>Type</th>
-                                    <th>Statut</th>
-                                    <th>Motif refus</th>
-                                    <th>Date demande</th>
-                                    <th>PDF</th>
-                                </tr>
-                            </thead>
-                            <tbody id="manager-archive">
-                                <tr><td colspan="8" style="text-align:center; color:var(--muted); padding:30px; font-size:0.78rem;">Chargement...</td></tr>
-                            </tbody>
-                        </table>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2>Ajuster un solde</h2></div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Salarié</label><select id="adjust_emp"></select></div>
+                            <div class="form-group"><label>Nouveau solde (jours)</label><input type="number" id="adjust_solde" placeholder="25" step="0.5" min="0"></div>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top:14px;" onclick="adjustSolde()">Mettre à jour</button>
                     </div>
                 </div>
             </div>
 
+            <div id="mgr-section-archive" class="mgr-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Archive des demandes</h2>
+                        <span style="font-size:0.7rem;color:var(--muted);">Validées &amp; Refusées</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-row">
+                            <select id="filter-employee" onchange="applyFilters()"><option value="">Tous les salariés</option></select>
+                            <select id="filter-status" onchange="applyFilters()">
+                                <option value="">Tous les statuts</option>
+                                <option value="Validé">Validées</option>
+                                <option value="Refusé">Refusées</option>
+                            </select>
+                            <input type="month" id="filter-month" onchange="applyFilters()">
+                            <button class="btn btn-ghost btn-sm" onclick="resetFilters()">✕ Réinitialiser</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Salarié</th><th>Période</th><th>Jours</th><th>Type</th><th>Statut</th><th>Motif refus</th><th>Date demande</th><th>PDF</th></tr></thead>
+                                <tbody id="manager-archive"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px;font-size:0.78rem;">Chargement...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-</div><!-- /container -->
-
+</div>
 <div id="pdf-template"><div id="pdf_body"></div></div>
 
 <script>
-    // ── CONFIG ──
     const WORKER_URL = "https://rds-github.cwmpw5qpc5.workers.dev";
     const REPO_OWNER = "RDS-Adam";
     const REPO_NAME  = "app";
     const FILE_PATH  = "data.json";
-    const PASS       = "RH2026";
+    const PASS_HASH  = "cc96be4e13481f9efff57228a0a414c2b110225d4636760b8053a4c212452a4c";
     const MGR_NAME   = "Nicolas Decoster";
     const MGR_EMAIL  = "nicolas.decoster@ruedustore.fr";
-
-    const EMAIL_MAP = {
-        "Adam":"adam.audam@ruedustore.fr","Alexandre":"alexandre.morel@ruedustore.fr",
-        "Axel":"axel.seigneury@ruedustore.fr","Baptiste":"baptiste.chevance@ruedustore.fr",
-        "Camille":"camille.girard@ruedustore.fr","Cindy":"cindy.masson@ruedustore.fr",
-        "Clarisse":"clarisse.guai@ruedustore.fr","Karine":"karine.paillard@ruedustore.fr"
-    };
-    const LASTNAME_MAP = {
-        "Adam":"Audam","Alexandre":"Morel","Axel":"Seigneury","Baptiste":"Chevance",
-        "Camille":"Girard","Cindy":"Masson","Clarisse":"Guai","Karine":"Paillard"
-    };
+    const CAL_COLORS = ["#25737d","#ff7200","#2d9e6b","#9c27b0","#e53935","#0288d1","#f57c00","#00695c"];
 
     let currentUser = null;
     let selectedRequestId = null;
     let allArchiveData = [];
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+    let cachedDB = null;
 
-    // ── GITHUB ──
     async function fetchFromGitHub() {
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, { headers: { 'Cache-Control': 'no-cache' } });
         if (!res.ok) throw new Error(`Lecture échouée (${res.status})`);
         const data = await res.json();
-        return { sha: data.sha, db: JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))))) };
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+        let db;
+        if (Array.isArray(parsed)) {
+            db = { requests: parsed, soldes: {}, employees: [] };
+        } else {
+            db = parsed;
+            if (!db.requests) db.requests = [];
+            if (!db.soldes)   db.soldes   = {};
+            if (!db.employees) db.employees = [];
+        }
+        cachedDB = { sha: data.sha, db };
+        return cachedDB;
     }
 
-    async function saveToGitHub(newDb, sha) {
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(newDb, null, 2))));
+    async function saveToGitHub(db, sha) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "Update RH", content, sha })
         });
         if (!res.ok) throw new Error(`Écriture échouée (${res.status}): ${await res.text()}`);
+        cachedDB = null;
         return true;
     }
 
-    // ── TABS ──
+    async function sha256(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
     function switchTab(tab) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
@@ -531,40 +454,61 @@
         if (tab === 'manager') lockManager();
     }
 
-    // ── UTILS ──
+    function switchMgrTab(name) {
+        document.querySelectorAll('.mgr-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.mgr-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('mgr-section-' + name).classList.add('active');
+        document.querySelector(`.mgr-tab[onclick*="${name}"]`).classList.add('active');
+        if (name === 'calendrier' && cachedDB) renderCalendar(cachedDB.db);
+        if (name === 'equipe' && cachedDB) renderEmployeeManagement(cachedDB.db);
+    }
+
     function formatDate(d) { if(!d) return ''; const [y,m,j] = d.split('-'); return `${j}/${m}/${y}`; }
+
     function calculateWorkDays(start, end) {
-        let c = 0, cur = new Date(start), stop = new Date(end);
+        let c = 0, cur = new Date(start + 'T00:00:00'), stop = new Date(end + 'T00:00:00');
         while (cur <= stop) { if (cur.getDay() !== 0 && cur.getDay() !== 6) c++; cur.setDate(cur.getDate()+1); }
         return c;
     }
+
     function statusBadge(s) {
         const map = { 'En attente': 'badge-pending', 'Validé': 'badge-valid', 'Refusé': 'badge-refused' };
         return `<span class="badge ${map[s]||'badge-pending'}">${s}</span>`;
     }
+
     function initials(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
 
     function updateDaysPreview() {
         const s = document.getElementById('date_start').value;
         const e = document.getElementById('date_end').value;
         const el = document.getElementById('days-preview');
+        document.getElementById('overlap-warning').style.display = 'none';
         if (s && e && s <= e) {
             document.getElementById('days-count').textContent = calculateWorkDays(s, e);
             el.style.display = 'block';
-        } else {
-            el.style.display = 'none';
-        }
+            if (cachedDB) {
+                const has = cachedDB.db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(e < r.start || s > r.end));
+                document.getElementById('overlap-warning').style.display = has ? 'flex' : 'none';
+            }
+        } else { el.style.display = 'none'; }
     }
 
     function toggleAutre() {
         const t = document.getElementById('leave_type').value;
-        const w = document.getElementById('autre-wrap');
-        const i = document.getElementById('leave_autre');
-        if (t === 'Absence Exceptionnelle') { w.style.display = 'block'; }
-        else { w.style.display = 'none'; i.value = ''; }
+        document.getElementById('autre-wrap').style.display = t === 'Absence Exceptionnelle' ? 'block' : 'none';
+        if (t !== 'Absence Exceptionnelle') document.getElementById('leave_autre').value = '';
     }
 
-    // ── EMPLOYEE ──
+    async function loadEmployeeSelector() {
+        try {
+            const { db } = await fetchFromGitHub();
+            const sel = document.getElementById('user-selector');
+            if (db.employees.length > 0) {
+                sel.innerHTML = '<option value="">— Sélectionner —</option>' + db.employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+            }
+        } catch(e) { console.error('loadEmployeeSelector:', e.message); }
+    }
+
     async function loginEmployee() {
         const val = document.getElementById('user-selector').value;
         if (!val) return alert('Veuillez sélectionner votre prénom.');
@@ -572,8 +516,17 @@
         document.getElementById('emp-login').style.display = 'none';
         document.getElementById('emp-content').style.display = 'block';
         document.getElementById('welcome-msg').innerText = `Bonjour ${currentUser}`;
-        if (EMAIL_MAP[currentUser]) document.getElementById('emp_email').value = EMAIL_MAP[currentUser];
-        if (LASTNAME_MAP[currentUser]) document.getElementById('emp_lastname').value = LASTNAME_MAP[currentUser];
+        const { db } = cachedDB || await fetchFromGitHub();
+        const emp = db.employees.find(e => e.name === currentUser);
+        if (emp) document.getElementById('emp_email').value = emp.email;
+        const solde = db.soldes[currentUser];
+        if (solde !== undefined) {
+            const el = document.getElementById('solde-display');
+            el.textContent = `${solde} jour(s) disponible(s)`;
+            el.className = 'solde-display' + (solde <= 5 ? ' critical' : solde <= 10 ? ' low' : '');
+            document.getElementById('solde-info').style.display = 'block';
+        }
+        document.getElementById('action-request').style.display = 'none';
         await renderEmployeeTable();
     }
 
@@ -583,59 +536,48 @@
         document.getElementById('emp-content').style.display = 'none';
         document.getElementById('action-request').style.display = 'none';
         document.getElementById('user-selector').value = '';
+        document.getElementById('solde-info').style.display = 'none';
     }
 
     async function processRequest() {
         const start = document.getElementById('date_start').value;
         const end   = document.getElementById('date_end').value;
         const email = document.getElementById('emp_email').value;
-        if (!start || !end || !email) return alert('Email et dates de début/fin requis.');
+        if (!start || !end || !email) return alert('Email et dates requis.');
         if (start > end) return alert('La date de fin doit être après la date de début.');
-
+        const { db, sha } = await fetchFromGitHub();
+        const overlap = db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(end < r.start || start > r.end));
+        if (overlap) return alert('Vous avez déjà une demande sur cette période.');
         const btn = document.querySelector('button[onclick="processRequest()"]');
         btn.disabled = true; btn.textContent = 'Envoi en cours...';
-
         try {
             const typeVal = document.getElementById('leave_type').value;
             const noteVal = typeVal === 'Absence Exceptionnelle' ? document.getElementById('leave_autre').value : '';
             const days    = calculateWorkDays(start, end);
-            const req = {
-                id: Date.now(), user: currentUser,
-                lastname: document.getElementById('emp_lastname').value,
-                email, start, end, days,
-                solde_actuel: document.getElementById('emp_solde').value,
-                type: typeVal, note: noteVal,
-                status: 'En attente',
-                date_demande: new Date().toISOString().split('T')[0]
-            };
-            const { db, sha } = await fetchFromGitHub();
-            db.push(req);
+            const emp     = db.employees.find(e => e.name === currentUser) || {};
+            const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
+            db.requests.push(req);
             await saveToGitHub(db, sha);
-            document.getElementById('pdf_body').innerHTML = buildPDFHTML(req);
-            await makePDF(`Demande_${req.user}_${start}.pdf`);
             await renderEmployeeTable();
             const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : du ${formatDate(start)} au ${formatDate(end)} (${days} jours)\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
-            document.getElementById('gmail_link').href = `mailto:${MGR_EMAIL}?subject=Demande de congés — ${req.user} ${req.lastname}&body=${encodeURIComponent(body)}`;
+            document.getElementById('gmail_link').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(MGR_EMAIL)}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-request').style.display = 'block';
             btn.textContent = '✓ Demande envoyée';
-        } catch(e) {
-            alert('Erreur : ' + e.message);
-            btn.disabled = false; btn.textContent = 'Soumettre la demande →';
-        }
+            document.getElementById('date_start').value = '';
+            document.getElementById('date_end').value = '';
+            document.getElementById('days-preview').style.display = 'none';
+        } catch(e) { alert('Erreur : '+e.message); btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }
     }
 
     async function renderEmployeeTable() {
         try {
             const { db } = await fetchFromGitHub();
-            const my = db.filter(r => r.user === currentUser).reverse();
-            const pending   = my.filter(r => r.status === 'En attente').length;
+            const my = db.requests.filter(r => r.user === currentUser).reverse();
             const validated = my.filter(r => r.status === 'Validé');
-            const refused   = my.filter(r => r.status === 'Refusé').length;
-            const totalDays = validated.reduce((a, r) => a + (r.days || 0), 0);
             document.getElementById('kpi-total').textContent   = my.length;
-            document.getElementById('kpi-pending').textContent = pending;
-            document.getElementById('kpi-days').textContent    = totalDays + 'j';
-            document.getElementById('kpi-refused').textContent = refused;
+            document.getElementById('kpi-pending').textContent = my.filter(r => r.status === 'En attente').length;
+            document.getElementById('kpi-days').textContent    = validated.reduce((a,r) => a+(r.days||0), 0)+'j';
+            document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
                 const typeLabel = r.type + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
@@ -646,19 +588,19 @@
                     <td>${statusBadge(r.status)}${reasonHtml}</td>
                     <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button></td>
                 </tr>`;
-            }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande de congés.</span></div></td></tr>`;
-        } catch(e) { console.error('renderEmployeeTable:', e.message); }
+            }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
+        } catch(e) { console.error(e.message); }
     }
 
-    // ── MANAGER ──
     async function unlockManager() {
-        if (document.getElementById('mgr_pass').value === PASS) {
+        const pass = document.getElementById('mgr_pass').value;
+        if (!pass) return;
+        const hash = await sha256(pass);
+        if (hash === PASS_HASH) {
             document.getElementById('manager-lock-wrap').style.display = 'none';
             document.getElementById('manager-content').style.display = 'block';
             await renderManagerDashboard();
-        } else if (document.getElementById('mgr_pass').value !== '') {
-            alert('Code incorrect.');
-        }
+        } else { alert('Code incorrect.'); }
     }
 
     function lockManager() {
@@ -670,55 +612,46 @@
     async function renderManagerDashboard() {
         try {
             const { db } = await fetchFromGitHub();
-            const pending   = db.filter(r => r.status === 'En attente');
-            const validated = db.filter(r => r.status === 'Validé');
-            const refused   = db.filter(r => r.status === 'Refusé');
-            const totalDays = validated.reduce((a, r) => a + (r.days || 0), 0);
-            document.getElementById('mgr-kpi-total').textContent   = db.length;
+            const pending   = db.requests.filter(r => r.status === 'En attente');
+            const validated = db.requests.filter(r => r.status === 'Validé');
+            const refused   = db.requests.filter(r => r.status === 'Refusé');
+            document.getElementById('mgr-kpi-total').textContent   = db.requests.length;
             document.getElementById('mgr-kpi-pending').textContent = pending.length;
-            document.getElementById('mgr-kpi-days').textContent    = totalDays + 'j';
+            document.getElementById('mgr-kpi-days').textContent    = validated.reduce((a,r) => a+(r.days||0), 0)+'j';
             document.getElementById('mgr-kpi-refused').textContent = refused.length;
             document.getElementById('pending-badge').textContent   = `${pending.length} en attente`;
-
+            document.title = pending.length > 0 ? `(${pending.length}) RH — Congés | RDS` : 'RH — Congés | Rue du Store';
             document.getElementById('manager-list').innerHTML = pending.length
-                ? pending.map(r => `
-                    <div class="req-card">
-                        <div class="req-card-top">
-                            <div style="display:flex;gap:12px;align-items:flex-start;">
-                                <div class="req-avatar">${initials(r.user)}</div>
-                                <div>
-                                    <div class="req-name">${r.user} ${r.lastname}</div>
-                                    <div class="req-meta">${r.email} — Solde : ${r.solde_actuel || '?'} jours</div>
-                                </div>
-                            </div>
-                            <div class="req-actions">
-                                ${statusBadge(r.status)}
-                                <button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button>
-                            </div>
+                ? pending.map(r => `<div class="req-card">
+                    <div class="req-card-top">
+                        <div style="display:flex;gap:12px;align-items:flex-start;">
+                            <div class="req-avatar">${initials(r.user)}</div>
+                            <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? db.soldes[r.user]+' j' : '?'}</div></div>
                         </div>
-                        <div class="req-chips">
-                            <span class="chip">📅 Du ${formatDate(r.start)} au ${formatDate(r.end)}</span>
-                            <span class="chip">${r.days} jour(s) ouvré(s)</span>
-                            <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
-                            <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
-                        </div>
+                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
-                `).join('')
+                    <div class="req-chips">
+                        <span class="chip">📅 Du ${formatDate(r.start)} au ${formatDate(r.end)}</span>
+                        <span class="chip">${r.days} jour(s) ouvré(s)</span>
+                        <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
+                        <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
+                    </div>
+                </div>`).join('')
                 : `<div class="empty-state"><div class="empty-icon">🎉</div><strong>Aucune demande en attente</strong><span>Toutes les demandes ont été traitées.</span></div>`;
-
-            allArchiveData = db.filter(r => r.status !== 'En attente').reverse();
+            allArchiveData = db.requests.filter(r => r.status !== 'En attente').reverse();
             populateEmployeeFilter(db);
             renderArchiveTable(allArchiveData);
+            renderCalendar(db);
+            renderEmployeeManagement(db);
         } catch(e) {
-            document.getElementById('manager-list').innerHTML = `<p style="color:var(--danger); font-size:0.82rem;">Erreur : ${e.message}</p>`;
+            document.getElementById('manager-list').innerHTML = `<p style="color:var(--danger);font-size:0.82rem;">Erreur : ${e.message}</p>`;
         }
     }
 
     function populateEmployeeFilter(db) {
         const sel = document.getElementById('filter-employee');
-        const names = [...new Set(db.map(r => r.user))].sort();
-        sel.innerHTML = '<option value="">Tous les salariés</option>' +
-            names.map(n => `<option value="${n}">${n}</option>`).join('');
+        const names = [...new Set(db.requests.map(r => r.user))].sort();
+        sel.innerHTML = '<option value="">Tous les salariés</option>' + names.map(n => `<option value="${n}">${n}</option>`).join('');
     }
 
     function renderArchiveTable(data) {
@@ -729,7 +662,7 @@
                 <td>${r.days} j</td>
                 <td style="font-size:0.76rem">${r.type}${r.note ? `<br><em style="color:var(--muted)">${r.note}</em>` : ''}</td>
                 <td>${statusBadge(r.status)}</td>
-                <td style="font-size:0.76rem;color:var(--muted)">${r.reason || '—'}</td>
+                <td style="font-size:0.76rem;color:var(--muted)">${r.reason||'—'}</td>
                 <td style="font-size:0.74rem;color:var(--muted)">${formatDate(r.date_demande)}</td>
                 <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button></td>
             </tr>`).join('')
@@ -737,14 +670,14 @@
     }
 
     function applyFilters() {
-        const emp    = document.getElementById('filter-employee').value;
+        const emp = document.getElementById('filter-employee').value;
         const status = document.getElementById('filter-status').value;
-        const month  = document.getElementById('filter-month').value;
-        let filtered = allArchiveData;
-        if (emp)    filtered = filtered.filter(r => r.user === emp);
-        if (status) filtered = filtered.filter(r => r.status === status);
-        if (month)  filtered = filtered.filter(r => r.start && r.start.startsWith(month));
-        renderArchiveTable(filtered);
+        const month = document.getElementById('filter-month').value;
+        let f = allArchiveData;
+        if (emp) f = f.filter(r => r.user === emp);
+        if (status) f = f.filter(r => r.status === status);
+        if (month) f = f.filter(r => r.start && r.start.startsWith(month));
+        renderArchiveTable(f);
     }
 
     function resetFilters() {
@@ -757,7 +690,7 @@
     async function selectForDecision(id) {
         selectedRequestId = id;
         const { db } = await fetchFromGitHub();
-        const r = db.find(x => x.id === id);
+        const r = db.requests.find(x => x.id === id);
         document.getElementById('val_display_name').textContent = `Décision — ${r.user} ${r.lastname} · ${r.days}j du ${formatDate(r.start)} au ${formatDate(r.end)}`;
         document.getElementById('refusal_reason').value = '';
         document.getElementById('action-decision').style.display = 'none';
@@ -768,46 +701,147 @@
     async function processDecision(newStatus) {
         try {
             const { db, sha } = await fetchFromGitHub();
-            const idx = db.findIndex(x => x.id === selectedRequestId);
-            db[idx].status = newStatus;
-            db[idx].reason = document.getElementById('refusal_reason').value;
-            db[idx].date_decision = new Date().toISOString().split('T')[0];
+            const idx = db.requests.findIndex(x => x.id === selectedRequestId);
+            const r = db.requests[idx];
+            const prevStatus = r.status;
+            r.status = newStatus;
+            r.reason = document.getElementById('refusal_reason').value;
+            r.date_decision = new Date().toISOString().split('T')[0];
+            if (newStatus === 'Validé' && prevStatus !== 'Validé' && db.soldes[r.user] !== undefined) {
+                db.soldes[r.user] = Math.max(0, db.soldes[r.user] - (r.days||0));
+            } else if (newStatus === 'Refusé' && prevStatus === 'Validé' && db.soldes[r.user] !== undefined) {
+                db.soldes[r.user] += (r.days||0);
+            }
             await saveToGitHub(db, sha);
-            document.getElementById('pdf_body').innerHTML = buildPDFHTML(db[idx]);
-            await makePDF(`${newStatus}_${db[idx].user}_${db[idx].start}.pdf`);
-            const body = `Bonjour ${db[idx].user},\n\nVotre demande de congés du ${formatDate(db[idx].start)} au ${formatDate(db[idx].end)} a été ${newStatus.toLowerCase()}e.${db[idx].reason ? '\n\nMotif : ' + db[idx].reason : ''}\n\nCordialement,\n${MGR_NAME}`;
-            document.getElementById('gmail_link_val').href = `mailto:${db[idx].email}?subject=Réponse — Demande de congés&body=${encodeURIComponent(body)}`;
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés du ${formatDate(r.start)} au ${formatDate(r.end)} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${MGR_NAME}`;
+            document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-decision').style.display = 'block';
             document.getElementById('approval-form').style.display = 'none';
             await renderManagerDashboard();
-        } catch(e) { alert('Erreur : ' + e.message); }
+        } catch(e) { alert('Erreur : '+e.message); }
     }
 
-    // ── PDF ──
-    function buildPDFHTML(req) {
-        const statusColor = req.status === 'Validé' ? '#2d9e6b' : req.status === 'Refusé' ? '#e53935' : '#e08c00';
-        return `<div style="padding:50px; font-family:Arial; max-width:700px;">
-            <div style="border-bottom:2px solid #25737d; padding-bottom:20px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:flex-end;">
-                <div>
-                    <h1 style="font-size:1.3rem; font-weight:700; color:#25737d; margin:0;">DEMANDE DE CONGÉS</h1>
-                    <p style="color:#999; margin:4px 0 0; font-size:0.85rem;">Rue du Store</p>
-                </div>
-                <div style="font-size:0.75rem; color:#999; text-align:right;">Réf. #${req.id}<br>${formatDate(req.date_demande)}</div>
+    function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } if(cachedDB) renderCalendar(cachedDB.db); }
+    function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } if(cachedDB) renderCalendar(cachedDB.db); }
+
+    function renderCalendar(db) {
+        const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        document.getElementById('cal-title').textContent = `${months[calMonth]} ${calYear}`;
+        const employees = [...new Set(db.requests.filter(r => r.status==='Validé'||r.status==='En attente').map(r => r.user))].sort();
+        const colorMap = {};
+        employees.forEach((e,i) => colorMap[e] = CAL_COLORS[i % CAL_COLORS.length]);
+        const firstDay = new Date(calYear, calMonth, 1);
+        const lastDay  = new Date(calYear, calMonth+1, 0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        let startDow = firstDay.getDay() - 1; if (startDow < 0) startDow = 6;
+        const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+        let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+        const prevLast = new Date(calYear, calMonth, 0).getDate();
+        for (let i = startDow-1; i >= 0; i--) html += `<div class="cal-cell other-month"><div class="cal-date">${prevLast-i}</div></div>`;
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const date = new Date(calYear, calMonth, d);
+            const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = date.getTime() === today.getTime();
+            const isWeekend = date.getDay()===0||date.getDay()===6;
+            const absents = db.requests.filter(r => (r.status==='Validé'||r.status==='En attente') && dateStr>=r.start && dateStr<=r.end);
+            html += `<div class="cal-cell${isToday?' today':''}" style="${isWeekend?'background:#f5f5f5;':''}">
+                <div class="cal-date">${d}</div>
+                ${absents.map(r => `<div class="cal-dot" style="background:${colorMap[r.user]||'#999'};opacity:${r.status==='En attente'?'0.6':'1'}" title="${r.user} (${r.status})">${r.user.substring(0,3)}</div>`).join('')}
+            </div>`;
+        }
+        const totalCells = startDow + lastDay.getDate();
+        const remaining = totalCells%7===0 ? 0 : 7-(totalCells%7);
+        for (let i = 1; i <= remaining; i++) html += `<div class="cal-cell other-month"><div class="cal-date">${i}</div></div>`;
+        document.getElementById('cal-grid').innerHTML = html;
+        document.getElementById('cal-legend').innerHTML = employees.map(e =>
+            `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`
+        ).join('');
+    }
+
+    function renderEmployeeManagement(db) {
+        document.getElementById('adjust_emp').innerHTML = db.employees.map(e => `<option value="${e.name}">${e.name} ${e.lastname}</option>`).join('');
+        document.getElementById('emp-management-list').innerHTML = db.employees.length
+            ? db.employees.map(e => {
+                const solde = db.soldes[e.name]!==undefined ? db.soldes[e.name] : '?';
+                const cls = solde<=5 ? 'background:#ffebee;color:#c62828' : solde<=10 ? 'background:#fff3e0;color:#e65100' : 'background:#e8f5e9;color:#2e7d32';
+                return `<div class="emp-list-item">
+                    <div><div class="emp-list-name">${e.name} ${e.lastname}</div><div class="emp-list-meta">${e.email}</div></div>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span class="emp-solde-badge" style="${cls}">${solde} j</span>
+                        <button class="btn btn-ghost-danger btn-sm" onclick="removeEmployee('${e.name}')">Retirer</button>
+                    </div>
+                </div>`;
+            }).join('')
+            : `<div class="empty-state"><span>Aucun salarié enregistré.</span></div>`;
+    }
+
+    async function addEmployee() {
+        const name = document.getElementById('new_emp_name').value.trim();
+        const lastname = document.getElementById('new_emp_lastname').value.trim();
+        const email = document.getElementById('new_emp_email').value.trim();
+        const solde = parseFloat(document.getElementById('new_emp_solde').value)||25;
+        if (!name||!email) return alert('Prénom et email requis.');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (db.employees.find(e => e.name===name)) return alert('Ce prénom existe déjà.');
+            db.employees.push({ name, lastname, email });
+            db.soldes[name] = solde;
+            await saveToGitHub(db, sha);
+            document.getElementById('new_emp_name').value = '';
+            document.getElementById('new_emp_lastname').value = '';
+            document.getElementById('new_emp_email').value = '';
+            document.getElementById('new_emp_solde').value = '';
+            await renderManagerDashboard();
+            alert(`${name} ${lastname} ajouté(e).`);
+        } catch(e) { alert('Erreur : '+e.message); }
+    }
+
+    async function removeEmployee(name) {
+        if (!confirm(`Retirer ${name} de l'équipe ?`)) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            db.employees = db.employees.filter(e => e.name!==name);
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : '+e.message); }
+    }
+
+    async function adjustSolde() {
+        const name = document.getElementById('adjust_emp').value;
+        const solde = parseFloat(document.getElementById('adjust_solde').value);
+        if (!name||isNaN(solde)) return alert('Salarié et solde requis.');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            db.soldes[name] = solde;
+            await saveToGitHub(db, sha);
+            document.getElementById('adjust_solde').value = '';
+            await renderManagerDashboard();
+            alert(`Solde de ${name} mis à jour : ${solde} jours.`);
+        } catch(e) { alert('Erreur : '+e.message); }
+    }
+
+    function buildPDFHTML(req, db) {
+        const statusColor = req.status==='Validé' ? '#2d9e6b' : req.status==='Refusé' ? '#e53935' : '#e08c00';
+        const soldeFinal = db&&db.soldes[req.user]!==undefined ? db.soldes[req.user] : '—';
+        return `<div style="padding:50px;font-family:Arial;max-width:700px;">
+            <div style="border-bottom:2px solid #25737d;padding-bottom:20px;margin-bottom:30px;display:flex;justify-content:space-between;align-items:flex-end;">
+                <div><h1 style="font-size:1.3rem;font-weight:700;color:#25737d;margin:0;">DEMANDE DE CONGÉS</h1><p style="color:#999;margin:4px 0 0;font-size:0.85rem;">Rue du Store</p></div>
+                <div style="font-size:0.75rem;color:#999;text-align:right;">Réf. #${req.id}<br>${formatDate(req.date_demande)}</div>
             </div>
-            <table style="width:100%; border-collapse:collapse; margin-bottom:30px;">
-                <tr><td style="padding:10px 0; border-bottom:1px solid #f0f0f0; font-weight:600; width:40%; color:#999; font-size:0.85rem;">Salarié</td><td style="padding:10px 0; border-bottom:1px solid #f0f0f0;">${req.user} ${req.lastname || ''}</td></tr>
-                <tr><td style="padding:10px 0; border-bottom:1px solid #f0f0f0; font-weight:600; color:#999; font-size:0.85rem;">Email</td><td style="padding:10px 0; border-bottom:1px solid #f0f0f0;">${req.email}</td></tr>
-                <tr><td style="padding:10px 0; border-bottom:1px solid #f0f0f0; font-weight:600; color:#999; font-size:0.85rem;">Période</td><td style="padding:10px 0; border-bottom:1px solid #f0f0f0;">Du ${formatDate(req.start)} au ${formatDate(req.end)} — <strong>${req.days} jour(s) ouvré(s)</strong></td></tr>
-                <tr><td style="padding:10px 0; border-bottom:1px solid #f0f0f0; font-weight:600; color:#999; font-size:0.85rem;">Type</td><td style="padding:10px 0; border-bottom:1px solid #f0f0f0;">${req.type}${req.note ? ' ('+req.note+')' : ''}</td></tr>
-                <tr><td style="padding:10px 0; font-weight:600; color:#999; font-size:0.85rem;">Solde avant congé</td><td style="padding:10px 0;">${req.solde_actuel || '—'} jours</td></tr>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:30px;">
+                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;width:40%;color:#999;font-size:0.85rem;">Salarié</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.user} ${req.lastname||''}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Email</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.email}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Période</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">Du ${formatDate(req.start)} au ${formatDate(req.end)} — <strong>${req.days} jour(s) ouvré(s)</strong></td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Type</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.type}${req.note?' ('+req.note+')':''}</td></tr>
+                <tr><td style="padding:10px 0;font-weight:600;color:#999;font-size:0.85rem;">Solde restant</td><td style="padding:10px 0;">${soldeFinal} jours</td></tr>
             </table>
-            <div style="background:${statusColor}18; border-left:4px solid ${statusColor}; border-radius:4px; padding:16px 20px; margin-bottom:30px;">
-                <p style="font-size:0.9rem; font-weight:700; color:${statusColor}; margin:0 0 4px;">STATUT : ${req.status.toUpperCase()}</p>
-                ${req.reason ? `<p style="font-size:0.82rem; color:#666; margin:0">Motif : ${req.reason}</p>` : ''}
+            <div style="background:${statusColor}18;border-left:4px solid ${statusColor};border-radius:4px;padding:16px 20px;margin-bottom:30px;">
+                <p style="font-size:0.9rem;font-weight:700;color:${statusColor};margin:0 0 4px;">STATUT : ${req.status.toUpperCase()}</p>
+                ${req.reason ? `<p style="font-size:0.82rem;color:#666;margin:0">Motif : ${req.reason}</p>` : ''}
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:60px; font-size:0.8rem; color:#999;">
-                <div style="text-align:center;"><div style="width:150px; border-top:1px solid #ccc; padding-top:8px; margin-top:40px;">Signature Salarié</div></div>
-                <div style="text-align:center;"><div style="width:150px; border-top:1px solid #ccc; padding-top:8px; margin-top:40px;">Signature Direction<br>${MGR_NAME}</div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:60px;font-size:0.8rem;color:#999;">
+                <div style="text-align:center;"><div style="width:150px;border-top:1px solid #ccc;padding-top:8px;margin-top:40px;">Signature Salarié</div></div>
+                <div style="text-align:center;"><div style="width:150px;border-top:1px solid #ccc;padding-top:8px;margin-top:40px;">Signature Direction<br>${MGR_NAME}</div></div>
             </div>
         </div>`;
     }
@@ -822,21 +856,23 @@
     async function downloadPDF(id) {
         try {
             const { db } = await fetchFromGitHub();
-            const r = db.find(x => x.id === id);
+            const r = db.requests.find(x => x.id===id);
             if (!r) return alert('Demande introuvable.');
-            document.getElementById('pdf_body').innerHTML = buildPDFHTML(r);
+            document.getElementById('pdf_body').innerHTML = buildPDFHTML(r, db);
             await makePDF(`${r.status}_${r.user}_${r.start}.pdf`);
-        } catch(e) { alert('Erreur PDF : ' + e.message); }
+        } catch(e) { alert('Erreur PDF : '+e.message); }
     }
 
     async function exportBackup() {
         try {
             const { db } = await fetchFromGitHub();
-            const blob = new Blob([JSON.stringify(db, null, 2)], { type:'application/json' });
+            const blob = new Blob([JSON.stringify(db,null,2)], { type:'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `RH_Backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
-        } catch(e) { alert('Erreur export : ' + e.message); }
+        } catch(e) { alert('Erreur export : '+e.message); }
     }
+
+    loadEmployeeSelector();
 </script>
 </body>
 </html>
