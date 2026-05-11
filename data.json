@@ -69,5 +69,19 @@
     "note": "Bébé 3",
     "status": "En attente",
     "date_demande": "2026-05-05"
+  },
+  {
+    "id": 1778490630133,
+    "user": "Alexandre",
+    "lastname": "Morel",
+    "email": "alexandre.morel@ruedustore.fr",
+    "start": "2026-05-04",
+    "end": "2026-05-30",
+    "days": 20,
+    "solde_actuel": "19",
+    "type": "Absence Exceptionnelle",
+    "note": "rsdf\"z'e",
+    "status": "En attente",
+    "date_demande": "2026-05-11"
   }
 ]
