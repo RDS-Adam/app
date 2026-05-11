@@ -81,7 +81,9 @@
     "solde_actuel": "19",
     "type": "Absence Exceptionnelle",
     "note": "rsdf\"z'e",
-    "status": "En attente",
-    "date_demande": "2026-05-11"
+    "status": "Validé",
+    "date_demande": "2026-05-11",
+    "reason": "regfe(t",
+    "date_decision": "2026-05-11"
   }
 ]
