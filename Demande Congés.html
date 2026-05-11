@@ -284,6 +284,7 @@
                 <div class="mgr-top-actions">
                     <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">↻ Actualiser</button>
                     <button class="btn btn-ghost btn-sm" onclick="exportBackup()">↓ Export JSON</button>
+                    <button class="btn btn-ghost-danger btn-sm" onclick="confirmClearAll()">🗑 Effacer tout</button>
                     <button class="btn btn-ghost-danger btn-sm" onclick="lockManager()">Verrouiller</button>
                 </div>
             </div>
@@ -896,6 +897,23 @@
             document.getElementById('pdf_body').innerHTML = buildPDFHTML(r, db);
             await makePDF(`${r.status}_${r.user}_${r.start}.pdf`);
         } catch(e) { alert('Erreur PDF : '+e.message); }
+    }
+
+    function confirmClearAll() {
+        const mot = prompt('Pour effacer TOUTES les demandes, tapez le mot "EFFACER" :');
+        if (mot === null) return;
+        if (mot.trim().toUpperCase() !== 'EFFACER') return alert('Mot incorrect — opération annulée.');
+        clearAllRequests();
+    }
+
+    async function clearAllRequests() {
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            db.requests = [];
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+            alert('Toutes les demandes ont été supprimées.');
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
 
     async function exportBackup() {
