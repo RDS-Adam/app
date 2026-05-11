@@ -196,8 +196,18 @@
                     </div>
                     <div class="card-body">
                         <div id="solde-info" style="margin-bottom:16px;display:none;">
-                            <div class="kpi-label">Solde congés disponible</div>
-                            <div id="solde-display" class="solde-display">— jours</div>
+                            <div class="kpi-label" style="margin-bottom:6px;">Solde congés disponible</div>
+                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                <div id="solde-display" class="solde-display">— jours</div>
+                                <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit()">✎ Modifier</button>
+                            </div>
+                            <div id="solde-edit" style="display:none;margin-top:8px;display:none;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <input type="number" id="solde-edit-input" step="0.5" min="0" style="width:90px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 25">
+                                    <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee()">Enregistrer</button>
+                                    <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit()">Annuler</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-grid">
                             <div class="form-group full">
@@ -528,6 +538,31 @@
         }
         document.getElementById('action-request').style.display = 'none';
         await renderEmployeeTable();
+    }
+
+    function toggleSoldeEdit() {
+        const edit = document.getElementById('solde-edit');
+        const visible = edit.style.display === 'flex';
+        edit.style.display = visible ? 'none' : 'flex';
+        if (!visible) {
+            const current = document.getElementById('solde-display').textContent.match(/[\d.]+/);
+            document.getElementById('solde-edit-input').value = current ? current[0] : '';
+            document.getElementById('solde-edit-input').focus();
+        }
+    }
+
+    async function saveSoldeEmployee() {
+        const val = parseFloat(document.getElementById('solde-edit-input').value);
+        if (isNaN(val) || val < 0) return alert('Valeur invalide.');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            db.soldes[currentUser] = val;
+            await saveToGitHub(db, sha);
+            const el = document.getElementById('solde-display');
+            el.textContent = `${val} jour(s) disponible(s)`;
+            el.className = 'solde-display' + (val <= 5 ? ' critical' : val <= 10 ? ' low' : '');
+            document.getElementById('solde-edit').style.display = 'none';
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
 
     function logoutEmployee() {
