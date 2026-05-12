@@ -1,177 +1,5 @@
 {
-  "requests": [
-    {
-      "id": 1777993308808,
-      "user": "Baptiste",
-      "lastname": "Chevance",
-      "email": "baptiste.chevance@ruedustore.fr",
-      "start": "2026-05-08",
-      "end": "2026-05-20",
-      "days": 9,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "status": "Refusé",
-      "date_demande": "2026-05-05",
-      "reason": ""
-    },
-    {
-      "id": 1777993483750,
-      "user": "Adam",
-      "lastname": "Audam",
-      "email": "adam.audam@ruedustore.fr",
-      "start": "2026-05-11",
-      "end": "2026-05-12",
-      "days": 2,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "status": "Refusé",
-      "date_demande": "2026-05-05",
-      "reason": "non"
-    },
-    {
-      "id": 1777993934198,
-      "user": "Camille",
-      "lastname": "Girard",
-      "email": "camille.girard@ruedustore.fr",
-      "start": "2026-06-01",
-      "end": "2026-10-02",
-      "days": 90,
-      "solde_actuel": "",
-      "type": "Absence Exceptionnelle",
-      "status": "Refusé",
-      "date_demande": "2026-05-05",
-      "reason": ""
-    },
-    {
-      "id": 1777994502714,
-      "user": "Camille",
-      "lastname": "Girard",
-      "email": "camille.girard@ruedustore.fr",
-      "start": "2026-05-21",
-      "end": "2026-05-22",
-      "days": 2,
-      "solde_actuel": "",
-      "type": "Absence Exceptionnelle",
-      "note": "Bébé 3",
-      "status": "Refusé",
-      "date_demande": "2026-05-05",
-      "reason": ""
-    },
-    {
-      "id": 1777994586247,
-      "user": "Camille",
-      "lastname": "Girard",
-      "email": "camille.girard@ruedustore.fr",
-      "start": "2026-07-31",
-      "end": "2026-10-31",
-      "days": 66,
-      "solde_actuel": "",
-      "type": "Absence Exceptionnelle",
-      "note": "Bébé 3",
-      "status": "En attente",
-      "date_demande": "2026-05-05"
-    },
-    {
-      "id": 1778490630133,
-      "user": "Alexandre",
-      "lastname": "Morel",
-      "email": "alexandre.morel@ruedustore.fr",
-      "start": "2026-05-04",
-      "end": "2026-05-30",
-      "days": 20,
-      "solde_actuel": "19",
-      "type": "Absence Exceptionnelle",
-      "note": "rsdf\"z'e",
-      "status": "Validé",
-      "date_demande": "2026-05-11",
-      "reason": "regfe(t",
-      "date_decision": "2026-05-11"
-    },
-    {
-      "id": 1778491311416,
-      "user": "Adam",
-      "lastname": "Audam",
-      "email": "adam.audam@ruedustore.fr",
-      "start": "2026-05-15",
-      "end": "2026-05-15",
-      "days": 1,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    },
-    {
-      "id": 1778491360493,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-05-01",
-      "end": "2026-05-20",
-      "days": 14,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    },
-    {
-      "id": 1778491704924,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-04-28",
-      "end": "2026-05-19",
-      "days": 16,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    },
-    {
-      "id": 1778491787273,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-04-27",
-      "end": "2026-05-20",
-      "days": 18,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    },
-    {
-      "id": 1778491837272,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-05-20",
-      "end": "2026-05-20",
-      "days": 1,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    },
-    {
-      "id": 1778492030387,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-05-20",
-      "end": "2026-05-22",
-      "days": 3,
-      "solde_actuel": "",
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-05-11"
-    }
-  ],
+  "requests": [],
   "soldes": {
     "Adam": 25,
     "Alexandre": 5,
@@ -183,13 +11,46 @@
     "Karine": 25
   },
   "employees": [
-    {"name": "Adam",      "lastname": "Audam",    "email": "adam.audam@ruedustore.fr"},
-    {"name": "Alexandre", "lastname": "Morel",    "email": "alexandre.morel@ruedustore.fr"},
-    {"name": "Axel",      "lastname": "Seigneury","email": "axel.seigneury@ruedustore.fr"},
-    {"name": "Baptiste",  "lastname": "Chevance", "email": "baptiste.chevance@ruedustore.fr"},
-    {"name": "Camille",   "lastname": "Girard",   "email": "camille.girard@ruedustore.fr"},
-    {"name": "Cindy",     "lastname": "Masson",   "email": "cindy.masson@ruedustore.fr"},
-    {"name": "Clarisse",  "lastname": "Guai",     "email": "clarisse.guai@ruedustore.fr"},
-    {"name": "Karine",    "lastname": "Paillard", "email": "karine.paillard@ruedustore.fr"}
-  ]
+    {
+      "name": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr"
+    },
+    {
+      "name": "Alexandre",
+      "lastname": "Morel",
+      "email": "alexandre.morel@ruedustore.fr"
+    },
+    {
+      "name": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr"
+    },
+    {
+      "name": "Baptiste",
+      "lastname": "Chevance",
+      "email": "baptiste.chevance@ruedustore.fr"
+    },
+    {
+      "name": "Camille",
+      "lastname": "Girard",
+      "email": "camille.girard@ruedustore.fr"
+    },
+    {
+      "name": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr"
+    },
+    {
+      "name": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr"
+    },
+    {
+      "name": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr"
+    }
+  ],
+  "config": {}
 }
