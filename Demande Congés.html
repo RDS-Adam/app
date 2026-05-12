@@ -373,6 +373,27 @@
                         <button class="btn btn-primary" style="margin-top:14px;" onclick="adjustSolde()">Mettre à jour</button>
                     </div>
                 </div>
+                <div class="card">
+                    <div class="card-header"><h2>Changer le mot de passe</h2></div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Mot de passe actuel</label>
+                                <input type="password" id="pwd_current" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Nouveau mot de passe</label>
+                                <input type="password" id="pwd_new" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmer le nouveau</label>
+                                <input type="password" id="pwd_confirm" placeholder="••••••••">
+                            </div>
+                        </div>
+                        <div id="pwd-feedback" style="display:none;margin-top:10px;"></div>
+                        <button class="btn btn-primary" style="margin-top:14px;" onclick="changePassword()">Changer le mot de passe</button>
+                    </div>
+                </div>
             </div>
 
             <div id="mgr-section-archive" class="mgr-section">
@@ -436,6 +457,7 @@
             if (!db.requests) db.requests = [];
             if (!db.soldes)   db.soldes   = {};
             if (!db.employees) db.employees = [];
+            if (!db.config)   db.config    = {};
         }
         cachedDB = { sha: data.sha, db };
         return cachedDB;
@@ -632,7 +654,9 @@
         const pass = document.getElementById('mgr_pass').value;
         if (!pass) return;
         const hash = await sha256(pass);
-        if (hash === PASS_HASH) {
+        const { db } = await fetchFromGitHub();
+        const expectedHash = db.config.passHash || PASS_HASH;
+        if (hash === expectedHash) {
             document.getElementById('manager-lock-wrap').style.display = 'none';
             document.getElementById('manager-content').style.display = 'block';
             await renderManagerDashboard();
@@ -840,6 +864,37 @@
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
         } catch(e) { alert('Erreur : '+e.message); }
+    }
+
+    async function changePassword() {
+        const current  = document.getElementById('pwd_current').value;
+        const newPwd   = document.getElementById('pwd_new').value;
+        const confirm  = document.getElementById('pwd_confirm').value;
+        const feedback = document.getElementById('pwd-feedback');
+
+        const showMsg = (msg, ok) => {
+            feedback.style.display = 'flex';
+            feedback.className = 'alert ' + (ok ? 'alert-success' : 'alert-warning');
+            feedback.textContent = msg;
+        };
+
+        if (!current || !newPwd || !confirm) return showMsg('Tous les champs sont requis.', false);
+        if (newPwd !== confirm) return showMsg('Les deux nouveaux mots de passe ne correspondent pas.', false);
+        if (newPwd.length < 4) return showMsg('Le nouveau mot de passe doit faire au moins 4 caractères.', false);
+
+        const currentHash = await sha256(current);
+        const { db, sha } = await fetchFromGitHub();
+        const expectedHash = db.config.passHash || PASS_HASH;
+
+        if (currentHash !== expectedHash) return showMsg('Mot de passe actuel incorrect.', false);
+
+        db.config.passHash = await sha256(newPwd);
+        await saveToGitHub(db, sha);
+
+        document.getElementById('pwd_current').value = '';
+        document.getElementById('pwd_new').value     = '';
+        document.getElementById('pwd_confirm').value = '';
+        showMsg('✓ Mot de passe changé avec succès.', true);
     }
 
     async function adjustSolde() {
