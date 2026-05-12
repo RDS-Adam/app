@@ -52,5 +52,7 @@
       "email": "karine.paillard@ruedustore.fr"
     }
   ],
-  "config": {}
+  "config": {
+    "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735"
+  }
 }
