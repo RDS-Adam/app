@@ -68,16 +68,36 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 18px; cursor: pointer; user-select: none;
         }
-        .msg-card-left { display: flex; align-items: center; gap: 12px; }
+        .msg-card-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
         .cat-badge {
             padding: 3px 9px; border-radius: 20px; font-size: 0.65rem; font-weight: 500;
-            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0;
         }
         .msg-titre { font-weight: 500; font-size: 0.88rem; color: var(--text); }
         .msg-excerpt { font-size: 0.74rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
         .msg-card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .chevron { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
         .msg-card.open .chevron { transform: rotate(180deg); }
+
+        /* QUICK COPY BUTTON (inline, always visible) */
+        .btn-quick-copy {
+            background: #f0f9fa;
+            border: 1.5px solid #b8dde1;
+            color: var(--bleu);
+            font-size: 0.72rem;
+            padding: 5px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: all 0.18s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .btn-quick-copy:hover { background: var(--bleu); color: white; border-color: var(--bleu); }
+        .btn-quick-copy.copied { background: var(--success); color: white; border-color: var(--success); }
 
         /* EXPANDED BODY */
         .msg-card-body { display: none; border-top: 1px solid var(--border); padding: 16px 18px; }
@@ -172,6 +192,7 @@
             .search-row { flex-direction: column; }
             .cat-select { width: 100%; }
             .msg-excerpt { display: none; }
+            .btn-quick-copy span.label { display: none; }
         }
     </style>
 </head>
@@ -357,6 +378,9 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
                         </div>
                     </div>
                     <div class="msg-card-right">
+                        <button class="btn-quick-copy" id="qcopy-btn-${m.id}" onclick="quickCopy(${m.id}, event)" title="Copier le message">
+                            📋 <span class="label">Copier</span>
+                        </button>
                         <button class="btn btn-ghost btn-sm" onclick="openEditModal(${m.id}, event)">✎ Modifier</button>
                         <button class="btn btn-ghost btn-sm" style="color:var(--danger); border-color:var(--border);" onclick="openConfirm(${m.id}, event)">✕</button>
                         <span class="chevron">▼</span>
@@ -381,7 +405,30 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
         return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── COPY ──
+    // ── QUICK COPY (header, sans dérouler) ──
+    async function quickCopy(id, e) {
+        e && e.stopPropagation();
+        const m = allMessages.find(x => x.id === id);
+        if (!m) return;
+        const btn = document.getElementById(`qcopy-btn-${id}`);
+        try {
+            await navigator.clipboard.writeText(m.contenu);
+        } catch(err) {
+            const ta = document.createElement('textarea');
+            ta.value = m.contenu; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+        }
+        btn.classList.add('copied');
+        btn.innerHTML = '✓ <span class="label">Copié !</span>';
+        showToast('Message copié dans le presse-papiers !');
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '📋 <span class="label">Copier</span>';
+        }, 2200);
+    }
+
+    // ── COPY (depuis le body déroulé) ──
     async function copyMessage(id) {
         const m = allMessages.find(x => x.id === id);
         if (!m) return;
@@ -393,7 +440,6 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
             showToast('Message copié dans le presse-papiers !');
             setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copier le message'; }, 2200);
         } catch(e) {
-            // Fallback
             const ta = document.createElement('textarea');
             ta.value = m.contenu; ta.style.position = 'fixed'; ta.style.opacity = '0';
             document.body.appendChild(ta); ta.select();
