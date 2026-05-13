@@ -1,6 +1,12 @@
 {
   "messages": [
     {
+      "id": 1778659763309,
+      "titre": "Store vélum EVADA",
+      "categorie": "Intérieur",
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de cotes définitive (largeur et avancée) et vérification de la configuration \n\nDépose : Démontage et retrait des équipements existants (si installation préalable).\n\nInstallation : Pose des rails de guidage, mise en place des profils porteurs, installation de la toile et raccordement de la manoeuvre (cordon, manivelle ou motorisation).\n\nMise en service : Réglage de la tension des câbles ou des coulisses, ajustement de l'alignement des plis de la toile et vérification de la fluidité du déploiement.\n\nRéception : Démonstration du fonctionnement, conseils pour le futur décrochage et l’entretien de la toile, et signature du PV de réception."
+    },
+    {
       "id": 1778143331632,
       "titre": "Enrouleurs Intérieurs",
       "categorie": "Intérieur",
