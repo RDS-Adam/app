@@ -187,6 +187,19 @@
         .cat-general    { background: #f3f3f3; color: #555; }
         .cat-devis      { background: #e8f5e9; color: #2e7d32; }
 
+        /* HISTORIQUE MODAL */
+        .hist-entry { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+        .hist-entry:last-child { border-bottom: none; }
+        .hist-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; flex-shrink: 0; }
+        .hist-icon.created  { background: #e8f5e9; }
+        .hist-icon.edited   { background: #e0eff0; }
+        .hist-icon.deleted  { background: #ffebee; }
+        .hist-body { flex: 1; min-width: 0; }
+        .hist-label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+        .hist-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+        .hist-meta { font-size: 0.63rem; color: #bbb; flex-shrink: 0; text-align: right; line-height: 1.5; }
+        .hist-empty { text-align: center; padding: 40px 0; color: var(--muted); font-size: 0.82rem; }
+
         /* RESPONSIVE */
         @media (max-width: 600px) {
             .search-row { flex-direction: column; }
@@ -223,7 +236,10 @@
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
             <div class="count-label" id="count-label">Chargement…</div>
-            <button class="btn btn-orange btn-sm" onclick="openAddModal()">+ Nouveau message</button>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-ghost btn-sm" onclick="openHistModal()">🕓 Historique</button>
+                <button class="btn btn-orange btn-sm" onclick="openAddModal()">+ Nouveau message</button>
+            </div>
         </div>
     </div>
 
@@ -290,6 +306,22 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
     </div>
 </div>
 
+<!-- MODAL HISTORIQUE -->
+<div class="modal-overlay" id="hist-modal">
+    <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+            <h3>Historique des modifications</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeHistModal()">✕</button>
+        </div>
+        <div class="modal-body" style="max-height:480px;overflow-y:auto;padding:14px 22px;">
+            <div id="hist-list"><p class="hist-empty">Chargement…</p></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeHistModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -301,9 +333,58 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
     const FILE_PATH   = "messages-type.json";
 
     let allMessages   = [];
+    let allLogs       = [];
     let editingId     = null;
     let deletingId    = null;
     let currentSha    = null;
+
+    // ── LOG ──
+    const LOG_ICONS = { created: '✚', edited: '✎', deleted: '✕' };
+    const LOG_LABELS = { created: 'Créé', edited: 'Modifié', deleted: 'Supprimé' };
+
+    function addLog(action, titre, categorie) {
+        const now = new Date();
+        allLogs.unshift({
+            ts:       now.getTime(),
+            date:     now.toISOString().split('T')[0],
+            heure:    now.toTimeString().slice(0, 5),
+            action,
+            titre,
+            categorie: categorie || ''
+        });
+        if (allLogs.length > 300) allLogs = allLogs.slice(0, 300);
+    }
+
+    function openHistModal() {
+        renderHistModal();
+        document.getElementById('hist-modal').classList.add('open');
+    }
+    function closeHistModal() {
+        document.getElementById('hist-modal').classList.remove('open');
+    }
+
+    function renderHistModal() {
+        const el = document.getElementById('hist-list');
+        if (!allLogs.length) {
+            el.innerHTML = '<p class="hist-empty">Aucune modification enregistrée pour l\'instant.</p>';
+            return;
+        }
+        el.innerHTML = allLogs.map(l => `
+            <div class="hist-entry">
+                <div class="hist-icon ${l.action}">${LOG_ICONS[l.action] || '•'}</div>
+                <div class="hist-body">
+                    <div class="hist-label">${LOG_LABELS[l.action] || l.action} — ${escHtml(l.titre)}</div>
+                    ${l.categorie ? `<div class="hist-detail">${l.categorie}</div>` : ''}
+                </div>
+                <div class="hist-meta">${formatDate(l.date)}<br>${l.heure}</div>
+            </div>`).join('');
+    }
+
+    function formatDate(d) {
+        if (!d) return '';
+        const [y, m, j] = d.split('-');
+        return `${j}/${m}/${y}`;
+    }
 
     // ── CATEGORIES ──
     const CAT_CLASS = {
@@ -322,11 +403,12 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
         const data = await res.json();
         currentSha = data.sha;
         const parsed = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+        allLogs = parsed.logs || [];
         return parsed.messages || [];
     }
 
-    async function saveData(messages) {
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify({ messages }, null, 2))));
+    async function saveData(messages, logs) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify({ messages, logs: logs || allLogs }, null, 2))));
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
             method: 'PUT', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "Update messages-type", content, sha: currentSha })
@@ -492,8 +574,10 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
             if (editingId !== null) {
                 const idx = allMessages.findIndex(x => x.id === editingId);
                 allMessages[idx] = { ...allMessages[idx], titre, categorie: cat, contenu };
+                addLog('edited', titre, cat);
             } else {
                 allMessages.unshift({ id: Date.now(), titre, categorie: cat, contenu });
+                addLog('created', titre, cat);
             }
             await saveData(allMessages);
             closeModal();
@@ -524,7 +608,9 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
     async function confirmDelete() {
         if (deletingId === null) return;
         try {
+            const m = allMessages.find(x => x.id === deletingId);
             allMessages = allMessages.filter(x => x.id !== deletingId);
+            if (m) addLog('deleted', m.titre, m.categorie);
             await saveData(allMessages);
             closeConfirm();
             filterMessages();
@@ -545,10 +631,11 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
     // ── CLOSE ON OVERLAY CLICK ──
     document.getElementById('edit-modal').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
     document.getElementById('confirm-modal').addEventListener('click', function(e) { if(e.target === this) closeConfirm(); });
+    document.getElementById('hist-modal').addEventListener('click', function(e) { if(e.target === this) closeHistModal(); });
 
     // ── KEYBOARD ──
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+        if (e.key === 'Escape') { closeModal(); closeConfirm(); closeHistModal(); }
         if (e.key === 'Enter' && document.getElementById('edit-modal').classList.contains('open') && e.ctrlKey) saveMessage();
     });
 
