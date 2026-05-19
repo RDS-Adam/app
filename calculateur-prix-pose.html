@@ -57,8 +57,22 @@
         
         .row-frais-fixes { background: #f1f8e9; font-style: italic; color: #555; }
         .details-row { background: #fdfefe; font-size: 0.85rem; color: #555; }
-        .details-row ul { margin: 5px 0; padding-left: 20px; }
-        .details-row li { margin-bottom: 3px; }
+
+        /* DÉTAIL CALCUL */
+        .detail-wrap { padding: 10px 8px 12px; }
+        .detail-calc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 0; min-width: auto; }
+        .detail-calc-table th { background: #ecf0f1; color: var(--primary); padding: 6px 10px; text-align: left; font-size: 0.69rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #dce0e0; }
+        .detail-calc-table td { padding: 5px 10px; border: 1px solid #eee; vertical-align: middle; color: #444; }
+        .detail-calc-table .col-r { text-align: right; min-width: 95px; font-variant-numeric: tabular-nums; }
+        .detail-step { color: #aaa; font-size: 0.68rem; margin-right: 5px; }
+        .detail-sub { background: #eaf4fb !important; font-weight: 600; }
+        .detail-sub td { border-top: 2px solid #aed6f1 !important; }
+        .detail-disc { background: #fef9e7 !important; font-style: italic; }
+        .detail-disc td { color: #d35400 !important; }
+        .detail-final td { background: var(--primary) !important; color: white !important; font-weight: bold; font-size: 0.85rem; border-color: #1a252f !important; }
+        .detail-marge td { background: #e9f7ef !important; color: #1e8449 !important; font-weight: 700; border-top: 2px solid #82e0aa !important; }
+        body.hide-achat .detail-col-a { display: none; }
+        body.hide-vente .detail-col-v { display: none; }
         
         .total-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
         .stat { padding: 15px; border-radius: 8px; text-align: center; color: white; }
@@ -881,27 +895,170 @@ function updateUI() {
         </tr>`;
 
         if (!item.isFrais) {
-            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;"><td colspan="6"><ul>
-                <li><em>Base unitaire : <span class="col-achat">Achat <span class="calc-number" data-val="${item.baseA}">${item.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.baseV}">${item.baseV.toFixed(2)}</span>€</span></em></li>`;
-            
-            if (item.options) {
-                item.options.forEach(opt => {
-                    let signA = opt.a > 0 ? '+' : ''; let signV = opt.v > 0 ? '+' : '';
-                    detailsHtml += `<li><em>Option ${opt.name} : <span class="col-achat">Achat ${signA}<span class="calc-number" data-val="${opt.a}">${Math.abs(opt.a).toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente ${signV}<span class="calc-number" data-val="${opt.v}">${Math.abs(opt.v).toFixed(2)}</span>€</span></em></li>`;
+            // ── Reconstruit chaque étape du calcul ──
+            const hasOpts  = item.options && item.options.length > 0;
+            const optSumA  = item.unitA - item.baseA;
+            const optSumV  = item.unitV - item.baseV;
+            const uA_zone  = item.unitA + zoneSuppA;
+            const uV_zone  = item.unitV + zoneSuppV;
+            const isBanne  = item.mainCat && item.mainCat.startsWith('banne');
+            const banneA   = (isBanne && applyBanneDiscount) ? TARIFS_OPTIONS.remise_banne.a : 0;
+            const banneV   = (isBanne && applyBanneDiscount) ? TARIFS_OPTIONS.remise_banne.v : 0;
+            const uA_net   = uA_zone + banneA;
+            const uV_net   = uV_zone + banneV;
+            const lineA_brut = uA_net * item.qty;
+            const lineV_brut = uV_net * item.qty;
+            const isExcl   = (item.baseA === 20 && item.baseV === 30);
+            const discAppl = applyGlobalDiscount && !isExcl;
+            const lineA    = discAppl ? lineA_brut * 0.85 : lineA_brut;
+            const lineV    = discAppl ? lineV_brut * 0.90 : lineV_brut;
+            const marge    = lineV - lineA;
+            const txMarge  = lineV > 0 ? (marge / lineV * 100).toFixed(1) : '0.0';
+            const txMarkup = lineA > 0 ? (marge / lineA * 100).toFixed(1) : '0.0';
+
+            const fA = (n) => `<span class="calc-number" data-val="${n}">${n.toFixed(2)} €</span>`;
+            const fS = (n) => { const s = Math.abs(n).toFixed(2) + ' €'; return n >= 0 ? `<span style="color:#27ae60">+${s}</span>` : `<span style="color:#e74c3c">−${Math.abs(n).toFixed(2)} €</span>`; };
+
+            let rows = '';
+
+            // ① Base unitaire
+            rows += `<tr>
+                <td><span class="detail-step">①</span> <strong>Base pose unitaire</strong></td>
+                <td class="col-r detail-col-a">${fA(item.baseA)}</td>
+                <td class="col-r detail-col-v">${fA(item.baseV)}</td>
+            </tr>`;
+
+            // ② Options
+            if (hasOpts) {
+                item.options.forEach((opt, i) => {
+                    rows += `<tr>
+                        <td style="padding-left:22px;"><span class="detail-step">+</span> Option <em>${opt.name}</em></td>
+                        <td class="col-r detail-col-a">${fS(opt.a)}</td>
+                        <td class="col-r detail-col-v">${fS(opt.v)}</td>
+                    </tr>`;
                 });
+                rows += `<tr class="detail-sub">
+                    <td><span class="detail-step">=</span> Sous-total unitaire <em>(pose + options)</em></td>
+                    <td class="col-r detail-col-a">${fA(item.unitA)}</td>
+                    <td class="col-r detail-col-v">${fA(item.unitV)}</td>
+                </tr>`;
             }
+
+            // ③ Supplément zone
             if (zoneSuppA > 0 || zoneSuppV > 0) {
-                let zoneName = zone === 'dep75_92' ? 'Dép. 75/92' : 'IDF/Métropole';
-                detailsHtml += `<li><em>Supplément auto ${zoneName} : <span class="col-achat">Achat +<span class="calc-number" data-val="${zoneSuppA}">${zoneSuppA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="${zoneSuppV}">${zoneSuppV.toFixed(2)}</span>€</span></em></li>`;
+                const zLabel = zone === 'dep75_92' ? 'Dép. 75/92' : 'IDF / Métropole';
+                rows += `<tr>
+                    <td><span class="detail-step">+</span> Supplément zone <em>${zLabel}</em></td>
+                    <td class="col-r detail-col-a">${fS(zoneSuppA)}</td>
+                    <td class="col-r detail-col-v">${fS(zoneSuppV)}</td>
+                </tr>
+                <tr class="detail-sub">
+                    <td><span class="detail-step">=</span> Prix unitaire après zone</td>
+                    <td class="col-r detail-col-a">${fA(uA_zone)}</td>
+                    <td class="col-r detail-col-v">${fA(uV_zone)}</td>
+                </tr>`;
             }
-            detailsHtml += `</ul></td></tr>`;
-            body.innerHTML += detailsHtml;
+
+            // ④ Remise bannes
+            if (banneA !== 0 || banneV !== 0) {
+                rows += `<tr class="detail-disc">
+                    <td><span class="detail-step">−</span> Remise bannes <em>(≥ 2 bannes dans le devis)</em></td>
+                    <td class="col-r detail-col-a">${fS(banneA)}</td>
+                    <td class="col-r detail-col-v">${fS(banneV)}</td>
+                </tr>`;
+            }
+
+            // Prix unitaire net
+            const needUnitNet = hasOpts || zoneSuppA > 0 || banneA !== 0;
+            if (needUnitNet) {
+                rows += `<tr class="detail-sub">
+                    <td><span class="detail-step">=</span> <strong>Prix unitaire net</strong></td>
+                    <td class="col-r detail-col-a"><strong>${fA(uA_net)}</strong></td>
+                    <td class="col-r detail-col-v"><strong>${fA(uV_net)}</strong></td>
+                </tr>`;
+            }
+
+            // ⑤ Quantité
+            if (item.qty > 1) {
+                rows += `<tr>
+                    <td><span class="detail-step">×</span> <strong>Quantité : ${item.qty} unités</strong></td>
+                    <td class="col-r detail-col-a">${uA_net.toFixed(2)} × ${item.qty} = ${fA(lineA_brut)}</td>
+                    <td class="col-r detail-col-v">${uV_net.toFixed(2)} × ${item.qty} = ${fA(lineV_brut)}</td>
+                </tr>`;
+            }
+
+            // ⑥ Remise globale
+            if (discAppl) {
+                rows += `<tr class="detail-disc">
+                    <td><span class="detail-step">%</span> Remise globale <em>(≥ 6 poses dans le devis)</em> — Achat ×0,85 / Vente ×0,90</td>
+                    <td class="col-r detail-col-a">${lineA_brut.toFixed(2)} × 0,85 = ${fA(lineA)}</td>
+                    <td class="col-r detail-col-v">${lineV_brut.toFixed(2)} × 0,90 = ${fA(lineV)}</td>
+                </tr>`;
+            }
+
+            // ══ Total ligne ══
+            rows += `<tr class="detail-final">
+                <td>🧾 TOTAL LIGNE</td>
+                <td class="col-r detail-col-a">${lineA.toFixed(2)} €</td>
+                <td class="col-r detail-col-v">${lineV.toFixed(2)} €</td>
+            </tr>`;
+
+            // ══ Marge ══
+            rows += `<tr class="detail-marge">
+                <td>📊 Marge brute — taux sur vente : <strong>${txMarge}%</strong> &nbsp;|&nbsp; markup sur achat : <strong>${txMarkup}%</strong></td>
+                <td class="col-r detail-col-a" style="background:#e9f7ef!important;color:#1e8449!important;" colspan="2">${marge.toFixed(2)} €</td>
+            </tr>`;
+
+            body.innerHTML += `<tr id="details-${idx}" class="details-row" style="display:none;">
+                <td colspan="6">
+                    <div class="detail-wrap">
+                        <table class="detail-calc-table">
+                            <thead><tr>
+                                <th>Étape de calcul</th>
+                                <th class="col-r detail-col-a">Achat HT</th>
+                                <th class="col-r detail-col-v">Vente HT</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>`;
+
         } else if (item.isFrais && item.isMesure && item.extraDetails) {
-            let detailsHtml = `<tr id="details-${idx}" class="details-row" style="display:none;"><td colspan="6"><ul>
-                <li><em>Forfait base (jusqu'à 5 stores) : <span class="col-achat">Achat <span class="calc-number" data-val="${item.extraDetails.baseA}">${item.extraDetails.baseA.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente <span class="calc-number" data-val="${item.extraDetails.baseV}">${item.extraDetails.baseV.toFixed(2)}</span>€</span></em></li>
-                <li><em>Supplément (${item.extraDetails.extraQty} stores) : <span class="col-achat">Achat +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span> <span class="col-vente" style="margin-left: 10px;">Vente +<span class="calc-number" data-val="${item.extraDetails.extraCost}">${item.extraDetails.extraCost.toFixed(2)}</span>€</span></em></li>
-                </ul></td></tr>`;
-            body.innerHTML += detailsHtml;
+            const d = item.extraDetails;
+            const extraA = d.extraQty * TARIFS_OPTIONS.frais_mesure_supp.a;
+            const extraV = d.extraQty * TARIFS_OPTIONS.frais_mesure_supp.v;
+            const fA = (n) => `<span class="calc-number" data-val="${n}">${n.toFixed(2)} €</span>`;
+            const rows = `
+                <tr>
+                    <td><span class="detail-step">①</span> Forfait de base <em>(jusqu'à 5 stores)</em></td>
+                    <td class="col-r detail-col-a">${fA(d.baseA)}</td>
+                    <td class="col-r detail-col-v">${fA(d.baseV)}</td>
+                </tr>
+                <tr>
+                    <td><span class="detail-step">+</span> Supplément <em>${d.extraQty} store(s) supplémentaire(s) × ${TARIFS_OPTIONS.frais_mesure_supp.a} €/store</em></td>
+                    <td class="col-r detail-col-a">+${fA(extraA)}</td>
+                    <td class="col-r detail-col-v">+${fA(extraV)}</td>
+                </tr>
+                <tr class="detail-final">
+                    <td>🧾 TOTAL MESURES</td>
+                    <td class="col-r detail-col-a">${item.a.toFixed(2)} €</td>
+                    <td class="col-r detail-col-v">${item.v.toFixed(2)} €</td>
+                </tr>`;
+            body.innerHTML += `<tr id="details-${idx}" class="details-row" style="display:none;">
+                <td colspan="6">
+                    <div class="detail-wrap">
+                        <table class="detail-calc-table">
+                            <thead><tr>
+                                <th>Étape de calcul</th>
+                                <th class="col-r detail-col-a">Achat HT</th>
+                                <th class="col-r detail-col-v">Vente HT</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>`;
         }
     });
 
