@@ -4,8 +4,15 @@
       "id": 1779183818299,
       "titre": "Devis fait sur plans",
       "categorie": "Devis",
-      "contenu": "La proposition tarifaire est basée sur les informations fournies (plans ou description), mais les dimensions et le prix pourront être ajustés après la prise de mesures sur place, sous réserve de validation de faisabilité par nos poseurs lors de leur visite technique. V1",
+      "contenu": "La proposition tarifaire est basée sur les informations fournies (plans ou description), mais les dimensions et le prix pourront être ajustés après la prise de mesures sur place, sous réserve de validation de faisabilité par nos poseurs lors de leur visite technique.",
       "versions": [
+        {
+          "date": "2026-05-19",
+          "heure": "14:34",
+          "titre": "Devis fait sur plans",
+          "categorie": "Devis",
+          "contenu": "La proposition tarifaire est basée sur les informations fournies (plans ou description), mais les dimensions et le prix pourront être ajustés après la prise de mesures sur place, sous réserve de validation de faisabilité par nos poseurs lors de leur visite technique. V1"
+        },
         {
           "date": "2026-05-19",
           "heure": "14:34",
@@ -65,6 +72,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1779194071858,
+      "date": "2026-05-19",
+      "heure": "14:34",
+      "action": "edited",
+      "titre": "Devis fait sur plans",
+      "categorie": "Devis"
+    },
     {
       "ts": 1779194060727,
       "date": "2026-05-19",
