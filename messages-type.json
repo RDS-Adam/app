@@ -4,7 +4,7 @@
       "id": 1779183818299,
       "titre": "Devis fait sur plans",
       "categorie": "Devis",
-      "contenu": "La proposition tarifaire est basée sur les informations fournies (plans ou description), mais les dimensions et le prix pourront être ajustés après la prise de mesures sur place, sous réserve de validation de faisabilité par nos poseurs lors de leur visite technique."
+      "contenu": "La proposition tarifaire est basée sur les informations fournies (plans ou description), mais les dimensions et le prix pourront être ajustés après la prise de mesures sur place, sous réserve de validation de faisabilité par nos poseurs lors de leur visite technique. V1"
     },
     {
       "id": 1779092096891,
@@ -53,6 +53,16 @@
       "titre": "Moustiquaires",
       "categorie": "Extérieur",
       "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures définitives avant lancement en fabrication.\n\nInstallation : Préparation du chantier et pose complète des moustiquaires.\n\nMise en service : Tests de manipulation et contrôle du bon verrouillage.\n\nNettoyage : Remise en état des lieux et évacuation des emballages et déchets.\n\nRéception : Démonstration, conseils d'entretien et signature du procès-verbal de réception."
+    }
+  ],
+  "logs": [
+    {
+      "ts": 1779185999143,
+      "date": "2026-05-19",
+      "heure": "12:19",
+      "action": "edited",
+      "titre": "Devis fait sur plans",
+      "categorie": "Devis"
     }
   ]
 }
