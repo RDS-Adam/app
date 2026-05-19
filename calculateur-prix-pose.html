@@ -552,8 +552,11 @@ let TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
 
 let panier = [];
 let calcValues = [];
-let calcMode = 'add'; 
+let calcMode = 'add';
 const STORAGE_KEY = 'pose_expert_saved_devis';
+
+// Stores intérieurs dont le baseA ≤ 30€ → exclus du −15% achat (remise globale)
+const INT_CATS = ['ven_alu','ven_bois','enr_easy','enr_sans','plis','novis','cal_chain','cal_sans','japonais','velum','tring_seule','rid_oeil','rid_ruf'];
 
 window.onload = async function() {
     const tarifs = await fetchTarifsFromGitHub();
@@ -872,11 +875,15 @@ function updateUI() {
             currentA = uA * item.qty;
             currentV = uV * item.qty;
 
-            let isExcludedBase = (item.baseA === 20 && item.baseV === 30);
-            if (applyGlobalDiscount && !isExcludedBase) {
-                currentA = currentA * 0.85;
+            // −15% achat exclu pour les intérieurs à tarif base ≤ 30€
+            const exclAchatGlobal = INT_CATS.includes(item.mainCat) && item.baseA <= 30;
+            if (applyGlobalDiscount) {
+                if (!exclAchatGlobal) {
+                    currentA = currentA * 0.85;
+                    discountBadge += `<span class="col-achat" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-15% Achat)</span>`;
+                }
                 currentV = currentV * 0.90;
-                discountBadge += `<span class="col-achat" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-15% Achat Globale)</span> <span class="col-vente" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-10% Vente Globale)</span>`;
+                discountBadge += `<span class="col-vente" style="color:#e74c3c; font-size:0.75rem; margin-left:5px;">(-10% Vente)</span>`;
             }
         } else {
             currentA = item.a; currentV = item.v;
@@ -908,10 +915,11 @@ function updateUI() {
             const uV_net   = uV_zone + banneV;
             const lineA_brut = uA_net * item.qty;
             const lineV_brut = uV_net * item.qty;
-            const isExcl   = (item.baseA === 20 && item.baseV === 30);
-            const discAppl = applyGlobalDiscount && !isExcl;
-            const lineA    = discAppl ? lineA_brut * 0.85 : lineA_brut;
-            const lineV    = discAppl ? lineV_brut * 0.90 : lineV_brut;
+            const exclAchat  = INT_CATS.includes(item.mainCat) && item.baseA <= 30;
+            const discApplA  = applyGlobalDiscount && !exclAchat;
+            const discApplV  = applyGlobalDiscount;
+            const lineA      = discApplA ? lineA_brut * 0.85 : lineA_brut;
+            const lineV      = discApplV ? lineV_brut * 0.90 : lineV_brut;
             const marge    = lineV - lineA;
             const txMarge  = lineV > 0 ? (marge / lineV * 100).toFixed(1) : '0.0';
             const txMarkup = lineA > 0 ? (marge / lineA * 100).toFixed(1) : '0.0';
@@ -988,10 +996,13 @@ function updateUI() {
             }
 
             // ⑥ Remise globale
-            if (discAppl) {
+            if (discApplA || discApplV) {
+                const cellA = discApplA
+                    ? `${lineA_brut.toFixed(2)} × 0,85 = ${fA(lineA)}`
+                    : `<span style="color:#7f8c8d;font-style:italic;">Non applicable (intérieur ≤ 30 €)</span>`;
                 rows += `<tr class="detail-disc">
-                    <td><span class="detail-step">%</span> Remise globale <em>(≥ 6 poses dans le devis)</em> — Achat ×0,85 / Vente ×0,90</td>
-                    <td class="col-r detail-col-a">${lineA_brut.toFixed(2)} × 0,85 = ${fA(lineA)}</td>
+                    <td><span class="detail-step">%</span> Remise globale <em>(≥ 6 poses)</em> — Achat ×0,85 / Vente ×0,90</td>
+                    <td class="col-r detail-col-a">${cellA}</td>
                     <td class="col-r detail-col-v">${lineV_brut.toFixed(2)} × 0,90 = ${fA(lineV)}</td>
                 </tr>`;
             }
