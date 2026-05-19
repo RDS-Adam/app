@@ -151,6 +151,35 @@
             .mgr-top { flex-direction: column; gap: 12px; }
         }
         #pdf-template { display: none; background: white; color: black; }
+
+        /* === Journal & Changelog === */
+        .log-list { padding: 4px 0; }
+        .log-entry { display: flex; gap: 14px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #f5f5f5; }
+        .log-entry:last-child { border-bottom: none; }
+        .log-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0; }
+        .log-icon.demande  { background: #e0eff0; }
+        .log-icon.validation { background: #e8f5e9; }
+        .log-icon.refus    { background: #ffebee; }
+        .log-icon.solde    { background: #fff3e0; }
+        .log-icon.employe  { background: #f3e5f5; }
+        .log-icon.systeme  { background: #f5f5f5; }
+        .log-body { flex: 1; min-width: 0; }
+        .log-label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+        .log-detail { font-size: 0.73rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .log-meta { font-size: 0.63rem; color: #bbb; flex-shrink: 0; text-align: right; line-height: 1.5; }
+        .log-actor { font-weight: 500; color: #aaa; font-size: 0.63rem; }
+        .changelog-item { padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+        .changelog-item:last-child { border-bottom: none; }
+        .changelog-ver { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .changelog-badge { background: var(--bleu); color: white; padding: 2px 9px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; }
+        .changelog-date { font-size: 0.68rem; color: var(--muted); }
+        .changelog-title { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+        .changelog-notes { list-style: none; padding: 0; margin: 6px 0 0; }
+        .changelog-notes li { font-size: 0.75rem; color: #555; padding: 2px 0; display: flex; gap: 6px; }
+        .changelog-notes li::before { content: '→'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+        .log-filter-bar { display: flex; gap: 8px; align-items: center; }
+        .log-filter-bar select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; color: var(--text); background: white; outline: none; cursor: pointer; }
+        .log-filter-bar select:focus { border-color: var(--bleu); }
     </style>
 </head>
 <body>
@@ -162,7 +191,7 @@
             <button class="nav-tab active" onclick="switchTab('employee')">Espace Salarié</button>
             <button class="nav-tab" onclick="switchTab('manager')">Espace Direction</button>
         </div>
-        <div class="header-ver">V3.0 — RH Rue du Store</div>
+        <div class="header-ver">V3.1 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -299,6 +328,7 @@
                 <button class="mgr-tab" onclick="switchMgrTab('calendrier')">Calendrier</button>
                 <button class="mgr-tab" onclick="switchMgrTab('equipe')">Équipe</button>
                 <button class="mgr-tab" onclick="switchMgrTab('archive')">Archive</button>
+                <button class="mgr-tab" onclick="switchMgrTab('journal')">Journal</button>
             </div>
 
             <div id="mgr-section-demandes" class="mgr-section active">
@@ -422,6 +452,95 @@
                     </div>
                 </div>
             </div>
+            <div id="mgr-section-journal" class="mgr-section">
+
+                <!-- Historique des versions -->
+                <div class="card" style="margin-bottom:18px;">
+                    <div class="card-header">
+                        <h2>Historique des versions</h2>
+                        <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.1</span>
+                                <span class="changelog-title">Journal des actions & Changelog</span>
+                                <span class="changelog-date">Mai 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Nouvel onglet "Journal" dans l'espace Direction</li>
+                                <li>Log automatique de toutes les actions (demandes, décisions, soldes, équipe)</li>
+                                <li>Filtrage du journal par type d'action</li>
+                                <li>Historique des versions (ce tableau)</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.0</span>
+                                <span class="changelog-title">Refonte complète RH</span>
+                                <span class="changelog-date">Mai 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Espace Salarié avec login prénom, solde personnalisé et historique personnel</li>
+                                <li>Espace Direction protégé par mot de passe (hash SHA-256)</li>
+                                <li>Calendrier des absences mensuel avec légende colorée</li>
+                                <li>Gestion d'équipe : ajout / suppression d'employés, ajustement des soldes</li>
+                                <li>Archive filtrée par salarié, statut et mois</li>
+                                <li>Export PDF de chaque demande, export JSON de sauvegarde</li>
+                                <li>Changement de mot de passe depuis l'interface</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V2.0</span>
+                                <span class="changelog-title">Validation & Notifications</span>
+                                <span class="changelog-date">2025</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Workflow validation / refus avec motif obligatoire</li>
+                                <li>Notification Gmail pré-remplie (salarié → direction et retour)</li>
+                                <li>Soldes individuels par collaborateur</li>
+                                <li>Déduction automatique du solde à la validation</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V1.0</span>
+                                <span class="changelog-title">Lancement</span>
+                                <span class="changelog-date">2024</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Formulaire de demande de congés (Congés Payés, Sans Solde, Absence Exceptionnelle)</li>
+                                <li>Stockage des données sur GitHub via API</li>
+                                <li>Calcul automatique des jours ouvrés</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Journal des actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Journal des actions</h2>
+                        <div class="log-filter-bar">
+                            <select id="log-filter-type" onchange="renderJournal()">
+                                <option value="">Toutes les actions</option>
+                                <option value="demande">Demandes</option>
+                                <option value="validation">Validations</option>
+                                <option value="refus">Refus</option>
+                                <option value="solde">Soldes</option>
+                                <option value="employe">Équipe</option>
+                                <option value="systeme">Système</option>
+                            </select>
+                            <button class="btn btn-ghost btn-sm" onclick="renderJournal()">↻</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding: 4px 22px 16px;">
+                        <div id="journal-list" class="log-list"><p style="color:var(--muted);font-size:0.82rem;padding:16px 0;">Chargement...</p></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -458,6 +577,7 @@
             if (!db.soldes)   db.soldes   = {};
             if (!db.employees) db.employees = [];
             if (!db.config)   db.config    = {};
+            if (!db.logs)     db.logs      = [];
         }
         cachedDB = { sha: data.sha, db };
         return cachedDB;
@@ -494,6 +614,7 @@
         document.querySelector(`.mgr-tab[onclick*="${name}"]`).classList.add('active');
         if (name === 'calendrier' && cachedDB) renderCalendar(cachedDB.db);
         if (name === 'equipe' && cachedDB) renderEmployeeManagement(cachedDB.db);
+        if (name === 'journal') renderJournal();
     }
 
     function formatDate(d) { if(!d) return ''; const [y,m,j] = d.split('-'); return `${j}/${m}/${y}`; }
@@ -615,6 +736,7 @@
             const emp     = db.employees.find(e => e.name === currentUser) || {};
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
             db.requests.push(req);
+            addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · Du ${formatDate(start)} au ${formatDate(end)} (${days} j)`);
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
             const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : du ${formatDate(start)} au ${formatDate(end)} (${days} jours)\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
@@ -772,6 +894,10 @@
             } else if (newStatus === 'Refusé' && prevStatus === 'Validé' && db.soldes[r.user] !== undefined) {
                 db.soldes[r.user] += (r.days||0);
             }
+            const logType = newStatus === 'Validé' ? 'validation' : 'refus';
+            const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
+            const logDetail = `${r.user} ${r.lastname} · Du ${formatDate(r.start)} au ${formatDate(r.end)} (${r.days} j)${r.reason?' — Motif : '+r.reason:''}`;
+            addLogEntry(db, logType, MGR_NAME, logLabel, logDetail);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés du ${formatDate(r.start)} au ${formatDate(r.end)} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${MGR_NAME}`;
             document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
@@ -846,6 +972,7 @@
             if (db.employees.find(e => e.name===name)) return alert('Ce prénom existe déjà.');
             db.employees.push({ name, lastname, email });
             db.soldes[name] = solde;
+            addLogEntry(db, 'employe', MGR_NAME, 'Salarié ajouté', `${name} ${lastname} · ${email} · Solde initial : ${solde} j`);
             await saveToGitHub(db, sha);
             document.getElementById('new_emp_name').value = '';
             document.getElementById('new_emp_lastname').value = '';
@@ -860,7 +987,9 @@
         if (!confirm(`Retirer ${name} de l'équipe ?`)) return;
         try {
             const { db, sha } = await fetchFromGitHub();
+            const removedEmp = db.employees.find(e => e.name===name);
             db.employees = db.employees.filter(e => e.name!==name);
+            addLogEntry(db, 'employe', MGR_NAME, 'Salarié retiré', `${name}${removedEmp?' '+removedEmp.lastname:''}`);
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
         } catch(e) { alert('Erreur : '+e.message); }
@@ -889,6 +1018,7 @@
         if (currentHash !== expectedHash) return showMsg('Mot de passe actuel incorrect.', false);
 
         db.config.passHash = await sha256(newPwd);
+        addLogEntry(db, 'systeme', MGR_NAME, 'Mot de passe modifié', 'Code d\'accès direction mis à jour');
         await saveToGitHub(db, sha);
 
         document.getElementById('pwd_current').value = '';
@@ -903,7 +1033,9 @@
         if (!name||isNaN(solde)) return alert('Salarié et solde requis.');
         try {
             const { db, sha } = await fetchFromGitHub();
+            const oldSolde = db.soldes[name] !== undefined ? db.soldes[name] : '?';
             db.soldes[name] = solde;
+            addLogEntry(db, 'solde', MGR_NAME, 'Solde ajusté', `${name} · ${oldSolde} j → ${solde} j`);
             await saveToGitHub(db, sha);
             document.getElementById('adjust_solde').value = '';
             await renderManagerDashboard();
@@ -964,7 +1096,9 @@
     async function clearAllRequests() {
         try {
             const { db, sha } = await fetchFromGitHub();
+            const count = db.requests.length;
             db.requests = [];
+            addLogEntry(db, 'systeme', MGR_NAME, 'Toutes les demandes supprimées', `${count} demande(s) effacée(s)`);
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
             alert('Toutes les demandes ont été supprimées.');
@@ -978,6 +1112,60 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `RH_Backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
         } catch(e) { alert('Erreur export : '+e.message); }
+    }
+
+    // ─── Journal ─────────────────────────────────────────────────────────────
+
+    const LOG_ICONS = {
+        demande:    '📋',
+        validation: '✅',
+        refus:      '❌',
+        solde:      '💰',
+        employe:    '👤',
+        systeme:    '⚙️'
+    };
+
+    function addLogEntry(db, type, actor, label, detail) {
+        if (!db.logs) db.logs = [];
+        const now = new Date();
+        db.logs.unshift({
+            ts:     now.getTime(),
+            date:   now.toISOString().split('T')[0],
+            heure:  now.toTimeString().slice(0, 5),
+            type,
+            actor:  actor || '—',
+            label,
+            detail: detail || ''
+        });
+        if (db.logs.length > 500) db.logs = db.logs.slice(0, 500);
+    }
+
+    async function renderJournal() {
+        const listEl = document.getElementById('journal-list');
+        if (!listEl) return;
+        listEl.innerHTML = '<p style="color:var(--muted);font-size:0.82rem;padding:16px 0;">Chargement...</p>';
+        try {
+            const { db } = await fetchFromGitHub();
+            const filter = document.getElementById('log-filter-type')?.value || '';
+            let logs = db.logs || [];
+            if (filter) logs = logs.filter(l => l.type === filter);
+            if (!logs.length) {
+                listEl.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">📭</div><strong>Aucune action enregistrée</strong><span>${filter ? 'Pour ce filtre.' : 'Le journal est vide.'}</span></div>`;
+                return;
+            }
+            listEl.innerHTML = logs.map(l => `
+                <div class="log-entry">
+                    <div class="log-icon ${l.type}">${LOG_ICONS[l.type] || '•'}</div>
+                    <div class="log-body">
+                        <div class="log-label">${l.label}</div>
+                        ${l.detail ? `<div class="log-detail" title="${l.detail}">${l.detail}</div>` : ''}
+                        <div class="log-actor">${l.actor}</div>
+                    </div>
+                    <div class="log-meta">${formatDate(l.date)}<br>${l.heure}</div>
+                </div>`).join('');
+        } catch(e) {
+            listEl.innerHTML = `<p style="color:var(--danger);font-size:0.82rem;">Erreur : ${e.message}</p>`;
+        }
     }
 
     loadEmployeeSelector();
