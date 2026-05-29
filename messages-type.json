@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1780032595705,
+      "titre": "Zip",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures finales et contrôle des fixations avant le passage en commande.\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants.\n\nInstallation : Fixation du coffre, pose des coulisses latérales ZIP et raccordement électrique (ou solaire).\n\nMise en service : Réglage de la course du store (haut et bas), programmation de la télécommande et test de bon fonctionnement.\n\nNettoyage : Aspiration des poussières de perçage et évacuation des déchets et emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'utilisation et signature du PV de fin de chantier.",
+      "versions": []
+    },
+    {
       "id": 1779183818299,
       "titre": "Devis fait sur plans",
       "categorie": "Devis",
@@ -81,6 +88,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1780032595706,
+      "date": "2026-05-29",
+      "heure": "07:29",
+      "action": "created",
+      "titre": "Zip",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1779529627432,
       "date": "2026-05-23",
