@@ -33,7 +33,16 @@
       "id": 1779092096891,
       "titre": "Toile de store banne - Projection",
       "categorie": "Extérieur",
-      "contenu": "Prestations incluses dans le forfait « Rentoilage » :\n1. Vérification technique\nPrise de cotes définitive de l'ancienne toile\n\nDiagnostic de l'armature : contrôle visuel des bras, du tube d'enroulement, de la visserie et des fixations existantes pour s'assurer qu'ils peuvent recevoir la nouvelle toile en toute sécurité.\n\n2. Dépose et préparation\nDéroulage contrôlé et sécurisation des bras sous tension.\nDémontage de l'ancienne toile (et du lambrequin si présent)\n\n3. Installation (Rentoilage)\nMise en place de la nouvelle toile \nMise en place du nouveau lambrequin.\nFixation définitive et mise sous tension progressive des bras.\n\n4. Mise en service et réglages\nRéglage de la tension de la toile et de l'alignement des bras\nAjustement des fins de course du moteur (si store motorisé) \n\n5. Nettoyage\nNettoyage de la zone d'intervention (poussières de fibres, résidus).\nÉvacuation et traitement de l'ancienne toile, des déchets et des emballages en centre de tri.\n\n6. Réception\nDémonstration du bon déploiement et de l'enroulement de la nouvelle toile.\nConseils d'entretien spécifiques (nettoyage de la toile, séchage, hivernage) pour maximiser sa durée de vie.\nSignature du procès-verbal de réception des travaux."
+      "contenu": "Prestations incluses dans le forfait « Rentoilage » :\n1. Vérification technique\nPrise de cotes définitive de l'ancienne toile\n\nDiagnostic de l'armature : contrôle visuel des bras, du tube d'enroulement, de la visserie et des fixations existantes pour s'assurer qu'ils peuvent recevoir la nouvelle toile en toute sécurité.\n\n2. Dépose et préparation\nDéroulage contrôlé et sécurisation des bras sous tension.\nDémontage de l'ancienne toile (et du lambrequin si présent)\n\n3. Installation (Rentoilage)\nMise en place de la nouvelle toile \nMise en place du nouveau lambrequin.\nFixation définitive et mise sous tension progressive des bras.\n\n4. Mise en service et réglages\nRéglage de la tension de la toile et de l'alignement des bras\nAjustement des fins de course du moteur (si store motorisé) \n\n5. Nettoyage\nNettoyage de la zone d'intervention (poussières de fibres, résidus).\nÉvacuation et traitement de l'ancienne toile, des déchets et des emballages en centre de tri.\n\n6. Réception\nDémonstration du bon déploiement et de l'enroulement de la nouvelle toile.\nConseils d'entretien spécifiques (nettoyage de la toile, séchage, hivernage) pour maximiser sa durée de vie.\nSignature du procès-verbal de réception des travaux.\n\nLe présent devis concerne exclusivement le remplacement de la toile de votre store banne ou store à projection.\nPar conséquent, la garantie est strictement limitée à la nouvelle toile fournie (garantie du fabricant sur la confection et la tenue des coutures). Cette intervention n’entraîne en aucun cas une extension de garantie ou une remise sous garantie de l'armature, du mécanisme, du moteur ou des fixations existantes du store banne.",
+      "versions": [
+        {
+          "date": "2026-06-03",
+          "heure": "14:23",
+          "titre": "Toile de store banne - Projection",
+          "categorie": "Extérieur",
+          "contenu": "Prestations incluses dans le forfait « Rentoilage » :\n1. Vérification technique\nPrise de cotes définitive de l'ancienne toile\n\nDiagnostic de l'armature : contrôle visuel des bras, du tube d'enroulement, de la visserie et des fixations existantes pour s'assurer qu'ils peuvent recevoir la nouvelle toile en toute sécurité.\n\n2. Dépose et préparation\nDéroulage contrôlé et sécurisation des bras sous tension.\nDémontage de l'ancienne toile (et du lambrequin si présent)\n\n3. Installation (Rentoilage)\nMise en place de la nouvelle toile \nMise en place du nouveau lambrequin.\nFixation définitive et mise sous tension progressive des bras.\n\n4. Mise en service et réglages\nRéglage de la tension de la toile et de l'alignement des bras\nAjustement des fins de course du moteur (si store motorisé) \n\n5. Nettoyage\nNettoyage de la zone d'intervention (poussières de fibres, résidus).\nÉvacuation et traitement de l'ancienne toile, des déchets et des emballages en centre de tri.\n\n6. Réception\nDémonstration du bon déploiement et de l'enroulement de la nouvelle toile.\nConseils d'entretien spécifiques (nettoyage de la toile, séchage, hivernage) pour maximiser sa durée de vie.\nSignature du procès-verbal de réception des travaux."
+        }
+      ]
     },
     {
       "id": 1778659763309,
@@ -88,6 +97,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1780489386585,
+      "date": "2026-06-03",
+      "heure": "14:23",
+      "action": "edited",
+      "titre": "Toile de store banne - Projection",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1780032595706,
       "date": "2026-05-29",
