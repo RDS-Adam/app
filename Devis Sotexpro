@@ -884,4 +884,101 @@ function render() {
   tbody.innerHTML = items.map((it,i) => {
     const tot = it.puC * it.qty;
     const bc  = it.type==="rideau" ? "rb-r" : it.type==="rail" ? "rb-rail" : "rb-tr";
-    const bt  = it.
+    const bt = it.type === "rideau" ? "Rideau" : (it.type === "rail" ? "Rail" : "Tringle");
+    return `
+      <div class="trow">
+        <div class="rn">${i + 1}</div>
+        <div>
+          <div class="rname">${it.name}</div>
+          <div class="rdetail">${it.detail}</div>
+          <span class="rbadge ${bc}">${bt}</span>
+        </div>
+        <div class="rnum-cell">${it.qty}</div>
+        <div class="rpu">${fmt(it.puC)}</div>
+        <div class="rtot">${fmt(tot)}</div>
+        <button class="btn-del" onclick="delItem(${i})" title="Supprimer">✕</button>
+      </div>
+    `;
+  }).join("");
+
+  renderTot();
+}
+
+// ─── CALCUL DES TOTAUX ───
+function renderTot() {
+  if (!items.length) return;
+  const totalFourn = items.reduce((acc, it) => acc + (it.puF * it.qty), 0);
+  const totalHT = items.reduce((acc, it) => acc + (it.puC * it.qty), 0);
+  const remisePct = parseFloat(document.getElementById("remise").value) || 0;
+  const remiseVal = totalHT * (remisePct / 100);
+  const totalHTRemise = totalHT - remiseVal;
+  const tva = totalHTRemise * 0.20;
+  const totalTTC = totalHTRemise + tva;
+
+  document.getElementById("t-fourn").innerText = fmt(totalFourn);
+  document.getElementById("t-htb").innerText = fmt(totalHT);
+  
+  if (remisePct > 0) {
+    document.getElementById("t-rem-row").style.display = "flex";
+    document.getElementById("t-rem-l").innerText = `Remise (${remisePct}%)`;
+    document.getElementById("t-rem-v").innerText = `−${fmt(remiseVal)}`;
+  } else {
+    document.getElementById("t-rem-row").style.display = "none";
+  }
+
+  document.getElementById("t-ht2").innerText = fmt(totalHTRemise);
+  document.getElementById("t-tva").innerText = fmt(tva);
+  document.getElementById("t-ttc").innerText = fmt(totalTTC);
+
+  // Marge
+  const marge = totalHTRemise - totalFourn;
+  const margePct = totalHTRemise > 0 ? (marge / totalHTRemise) * 100 : 0;
+  document.getElementById("t-marge-l").innerText = `Marge brute (${margePct.toFixed(1)}%)`;
+  document.getElementById("t-marge").innerText = fmt(marge);
+}
+
+// ─── ACTIONS SUR LE DEVIS ───
+function delItem(index) {
+  items.splice(index, 1);
+  render();
+}
+
+function clearQ() {
+  if (confirm("Vider le devis ?")) {
+    items = [];
+    render();
+  }
+}
+
+// (Remarque : Ajoutez vos propres fonctions exportPO() et exportTxt() ici si vous en avez besoin)
+function exportPO() { alert("Fonction Commande Usine à développer"); }
+function exportTxt() { alert("Fonction Exporter Client à développer"); }
+
+// ─── GESTION DE LA MODALE COEFFICIENT ───
+function openCoef() { document.getElementById("ov-coef").classList.add("show"); }
+function closeCoef() { document.getElementById("ov-coef").classList.remove("show"); }
+function closeCoefOut(e) { if(e.target.id === "ov-coef") closeCoef(); }
+
+function pickCoef(val, el) {
+  document.getElementById("coef-input").value = val.toFixed(2);
+  document.querySelectorAll(".coef-opt").forEach(c => c.classList.remove("on"));
+  el.classList.add("on");
+}
+
+function applyCoef() {
+  const val = parseFloat(document.getElementById("coef-input").value);
+  if (val && val >= 1) {
+    coef = val;
+    // Recalculer les items existants avec le nouveau coef
+    items.forEach(it => { it.puC = it.puF * coef; });
+    calcBoth();
+    render();
+  }
+  closeCoef();
+}
+
+// Initialisation de la date
+document.getElementById("q-date").innerText = today();
+</script>
+</body>
+</html>
