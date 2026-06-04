@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur — Rue du Store</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F4F0;--surf:#FFFFFF;--surf2:#ECEAE3;--surf3:#F9F8F5;
+  --bd:#DEDAD0;--bd2:#C8C5BA;
+  --tx:#1A1916;--tx2:#5C5A54;--tx3:#9E9C96;
+  --accent:#1B4F72;--accent-l:#E8F0F7;--accent-m:#2E86C1;
+  --green:#1A5C38;--green-l:#E8F5EE;
+  --amber:#7A5500;--amber-l:#FDF6E3;
+  --red:#7B2D1E;--red-l:#FAEAE7;
+  --r:8px;--r2:12px;
+}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* HEADER */
+header{background:var(--surf);border-bottom:1px solid var(--bd);height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
+.hlogo{display:flex;align-items:center;gap:10px}
+.hlogo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;letter-spacing:.3px}
+.hlogo-name{font-weight:600;font-size:14px}
+.hlogo-sub{font-size:11px;color:var(--tx3)}
+.hbadge{font-size:11px;font-weight:500;background:var(--amber-l);color:var(--amber);border:1px solid #E8D5A0;padding:3px 10px;border-radius:20px}
+
+/* LAYOUT */
+.wrap{display:flex;height:calc(100vh - 54px);overflow:hidden}
+.pane-l{width:480px;min-width:440px;background:var(--surf);border-right:1px solid var(--bd);overflow-y:auto;padding:20px 22px 48px;display:flex;flex-direction:column;gap:16px}
+.pane-r{flex:1;overflow-y:auto;padding:20px 22px 48px;background:var(--bg)}
+
+/* SECTION */
+.sec-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);margin-bottom:8px;display:block}
+.divider{height:1px;background:var(--bd);margin:4px 0 14px}
+
+/* FORM */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:4px}
+input[type=text],input[type=number],select,textarea{width:100%;height:36px;border:1px solid var(--bd);border-radius:var(--r);background:var(--surf);padding:0 11px;font-family:inherit;font-size:14px;color:var(--tx);outline:none;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none}
+input[type=number]{font-family:"DM Mono",monospace;letter-spacing:-.3px}
+input:focus,select:focus{border-color:var(--accent-m);box-shadow:0 0 0 3px rgba(46,134,193,.1)}
+input::placeholder{color:var(--tx3)}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239E9C96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{border:1px solid var(--bd);background:var(--surf);border-radius:16px;padding:4px 11px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--tx2);user-select:none}
+.chip:hover{border-color:var(--accent-m);color:var(--accent)}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* PRIX PREVIEW */
+.px-client{background:var(--green-l);border:1px solid #9FD0B4;border-radius:var(--r);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.px-client .lbl{font-size:11px;font-weight:500;color:var(--green)}
+.px-client .sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.px-client .val{font-family:"DM Mono",monospace;font-size:20px;font-weight:500;color:var(--green)}
+
+/* INFO MATCH */
+.match-card{background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--tx2);margin-top:8px;line-height:1.5}
+.match-card strong{color:var(--tx);font-weight:500}
+
+/* ALERT */
+.warn{background:var(--amber-l);border:1px solid #E8D5A0;border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--amber);margin-top:6px}
+.err{background:var(--red-l);border:1px solid #E8B8A8;border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--red);margin-top:6px}
+
+/* GAMME INFO */
+.ginfo-card{background:var(--surf3);border:1px solid var(--bd);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--tx2);margin-bottom:10px;line-height:1.55}
+
+/* ADD BUTTON */
+.btn-add{width:100%;height:40px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,transform .1s;margin-top:14px}
+.btn-add:hover{background:#163E5E}
+.btn-add:active{transform:scale(.98)}
+
+/* ── RIGHT PANEL ── */
+.qcard{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r2);padding:18px;margin-bottom:14px}
+.qtitle{font-size:17px;font-weight:600;letter-spacing:-.3px;margin-bottom:2px}
+.qmeta{font-size:11px;color:var(--tx3)}
+
+/* TABLE */
+.tcard{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;margin-bottom:12px}
+.thead{background:var(--surf2);display:grid;grid-template-columns:30px 1fr 55px 95px 95px 28px;gap:8px;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);border-bottom:1px solid var(--bd)}
+.trow{display:grid;grid-template-columns:30px 1fr 55px 95px 95px 28px;gap:8px;padding:10px 12px;border-bottom:1px solid var(--bd);align-items:center;transition:background .1s}
+.trow:last-child{border-bottom:none}
+.trow:hover{background:var(--surf2)}
+.rn{width:20px;height:20px;border-radius:4px;background:var(--surf2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--tx3)}
+.rname{font-size:12px;font-weight:500;line-height:1.3}
+.rdetail{font-size:10px;color:var(--tx3);margin-top:1px}
+.rbadge{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;display:inline-block;margin-top:2px}
+.rb-r{background:var(--green-l);color:var(--green)}
+.rb-rail{background:var(--accent-l);color:var(--accent)}
+.rb-tr{background:var(--amber-l);color:var(--amber)}
+.rnum-cell,.rpu,.rtot{font-size:12px;font-family:"DM Mono",monospace;text-align:right}
+.rtot{font-weight:600;color:var(--accent)}
+.btn-del{width:24px;height:24px;border-radius:5px;border:1px solid var(--bd);background:none;cursor:pointer;color:var(--tx3);font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-del:hover{background:var(--red-l);color:var(--red);border-color:#E8B8A8}
+.empty-state{text-align:center;padding:48px 20px;color:var(--tx3)}
+.empty-state .ico{font-size:32px;margin-bottom:10px}
+
+/* TOTAUX */
+.totcard{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px}
+.tl{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px}
+.tl .l{color:var(--tx2)}
+.tl .v{font-family:"DM Mono",monospace;font-weight:500}
+.tl.disc .v{color:var(--green)}
+.tl.main{border-top:2px solid var(--accent);margin-top:8px;padding-top:10px}
+.tl.main .l{font-size:14px;font-weight:600}
+.tl.main .v{font-size:20px;font-weight:600;color:var(--accent)}
+.tnote{font-size:10px;color:var(--tx3);margin-top:8px;line-height:1.5}
+
+/* REMISE */
+.remcard{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r2);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.remcard label{font-size:12px;color:var(--tx2);white-space:nowrap}
+.remcard input{width:64px;height:32px;font-size:13px;text-align:center;font-family:"DM Mono",monospace}
+.remcard span{font-size:11px;color:var(--tx3);flex:1}
+
+/* ACTIONS */
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-s{width:100%;height:36px;background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);transition:all .15s}
+.btn-s:hover{background:var(--surf2);color:var(--tx)}
+.btn-p{width:100%;height:36px;background:var(--accent);border:none;border-radius:var(--r);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:#fff;transition:background .15s}
+.btn-p:hover{background:#163E5E}
+.btn-o{width:100%;height:36px;background:var(--amber-l);border:1px solid #E8D5A0;border-radius:var(--r);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--amber);transition:all .15s}
+.btn-o:hover{background:#fde08b}
+
+/* COEF TRIGGER — discret en bas à droite */
+.coef-btn{position:fixed;bottom:10px;right:14px;font-size:9px;color:var(--tx3);cursor:pointer;opacity:.25;transition:opacity .2s;user-select:none;letter-spacing:.4px;z-index:500}
+.coef-btn:hover{opacity:.7}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:1000;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--surf);border-radius:var(--r2);padding:22px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.16)}
+.modal h3{font-size:14px;font-weight:600;margin-bottom:5px}
+.modal p{font-size:11px;color:var(--tx2);margin-bottom:14px;line-height:1.6}
+.coef-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.coef-opt{border:1px solid var(--bd);border-radius:var(--r);padding:9px 6px;text-align:center;cursor:pointer;transition:all .15s}
+.coef-opt:hover{border-color:var(--accent-m);background:var(--accent-l)}
+.coef-opt.on{border-color:var(--accent);background:var(--accent-l)}
+.coef-opt .cv{font-size:15px;font-weight:600;font-family:"DM Mono",monospace;color:var(--accent)}
+.coef-opt .cl{font-size:10px;color:var(--tx3);margin-top:2px}
+.coef-custom-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surf2);border-radius:var(--r);margin-bottom:14px}
+.coef-custom-row label{font-size:12px;color:var(--tx2);white-space:nowrap}
+.coef-custom-row input{width:80px;height:32px;text-align:center;font-size:14px;font-family:"DM Mono",monospace}
+.modal-btns{display:flex;gap:8px}
+.mbtn{flex:1;height:34px;border-radius:var(--r);font-family:inherit;font-size:12px;cursor:pointer;font-weight:500;transition:all .15s}
+.mbtn.cancel{background:none;border:1px solid var(--bd);color:var(--tx2)}
+.mbtn.apply{background:var(--accent);border:none;color:#fff}
+.mbtn.apply:hover{background:#163E5E}
+
+@media print{
+  .pane-l,.coef-btn,.overlay,header{display:none!important}
+  .wrap{display:block;height:auto;overflow:visible}
+  .pane-r{padding:0;overflow:visible}
+  .btn-del,.acts,.remcard{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">
+    <div class="hlogo-mark">RDS</div>
+    <div><div class="hlogo-name">Rue du Store</div><div class="hlogo-sub">Configurateur devis</div></div>
+  </div>
+  <span class="hbadge">Sotexpro · Tarif HT 2026</span>
+</header>
+
+<div class="wrap">
+
+<div class="pane-l">
+
+  <div>
+    <div id="tab-r">
+      <div class="fg">
+        <label>Gamme de tissu</label>
+        <select id="gamme" onchange="onGamme()">
+          <option value="">— Sans tissu (rail seul possible) —</option>
+          <optgroup label="Pare-solaires">
+            <option value="COLLEGE">College — pare-solaire thermique</option>
+            <option value="CORTE">Corte — pare-solaire acoustique</option>
+            <option value="COLLIOURE">Collioure — pare-solaire thermique</option>
+          </optgroup>
+          <optgroup label="Obscurcissants">
+            <option value="BOREAL">Boréal — obscurcissant 60–90%</option>
+            <option value="BORNEO">Borneo — occultant 95–99%</option>
+            <option value="BORA">Bora — obscurcissant</option>
+          </optgroup>
+          <optgroup label="Occultants">
+            <option value="OPALE2">Opale 2 — occultant blackout</option>
+            <option value="NOCTIS">Noctis — blackout antibactérien</option>
+            <option value="NOCTURNE">Nocturne — blackout thermique</option>
+          </optgroup>
+          <optgroup label="Voilages">
+            <option value="M140EC">M140EC — voilage léger</option>
+            <option value="ETAMINE">Etamine — voilage coloré</option>
+            <option value="LY">LY — voilage contemporain</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div id="g-info"></div>
+
+      <div class="fg">
+        <label>Type de tête</label>
+        <div class="chips" id="ch-tete">
+          <div class="chip on" data-val="PP70" onclick="setTete(this)">Plis pincés PP70</div>
+          <div class="chip" data-val="TO" onclick="setTete(this)">Œillets TO</div>
+          <div class="chip" data-val="PMPS" id="ch-pmps" style="display:none" onclick="setTete(this)">PMPS</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <span class="sec-label">Dimensions &amp; quantité</span>
+
+      <div class="r3">
+        <div class="fg" style="margin:0">
+          <label>Largeur rail (cm)</label>
+          <input type="number" id="r-l" min="50" max="600" placeholder="ex: 220" oninput="calcBoth()">
+        </div>
+        <div class="fg" style="margin:0">
+          <label>Hauteur finie (cm)</label>
+          <input type="number" id="r-h" min="50" max="400" placeholder="ex: 240" oninput="calcBoth()">
+        </div>
+        <div class="fg" style="margin:0">
+          <label>Quantité</label>
+          <input type="number" id="r-q" min="1" value="1" oninput="calcBoth()">
+        </div>
+      </div>
+
+      <div class="fg" style="margin-top:12px">
+        <label>Coloris (informatif)</label>
+        <input type="text" id="r-col" placeholder="ex: Marine 25, Nacre 04…">
+      </div>
+
+      <div id="r-match" style="display:none"></div>
+      <div id="r-px" style="display:none"></div>
+      <div id="r-alert" style="display:none"></div>
+
+      <div class="divider" style="margin-top:16px;"></div>
+      <span class="sec-label">Tringle / Rail (Optionnel)</span>
+
+      <div class="fg">
+        <select id="rail-type" onchange="onRailType()">
+          <option value="">— Sans tringle ni rail —</option>
+          <option value="KS">Rail KS blanc (pose face ou plafond)</option>
+          <option value="KSC">Rail KSC blanc renforcé (hôtels, bureaux)</option>
+          <option value="SHUTTLE">Rail Shuttle motorisé + télécommande</option>
+          <option value="TR20">Tringle ronde TR20 chromée Ø20mm</option>
+        </select>
+      </div>
+
+      <div id="rt-info"></div>
+
+      <div class="r2">
+        <div class="fg">
+          <label>Coloris rail</label>
+          <select id="t-col" onchange="calcBoth()">
+            <option value="blanc">Blanc (standard)</option>
+            <option value="gris">Gris (+8 % KS/KSC, +10 % Shuttle)</option>
+            <option value="noir">Noir (+8 % KS/KSC, +10 % Shuttle)</option>
+          </select>
+        </div>
+        <div class="fg" id="t-pose-wrap">
+          <label>Pose rail</label>
+          <select id="t-pose" onchange="calcBoth()">
+            <option value="face">Pose face (standard)</option>
+            <option value="plafond">Pose plafond (−1,55€/ml)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="t-match" style="display:none"></div>
+      <div id="t-px" style="display:none"></div>
+      <div id="t-alert" style="display:none"></div>
+
+      <button class="btn-add" onclick="addBoth()">＋ Ajouter au devis</button>
+    </div>
+
+  </div>
+</div><div class="pane-r">
+
+  <div class="qcard">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="qtitle">Calculateur</div><div class="qmeta" id="q-date"></div></div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--tx3)">PRIX HT — HORS POSE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcard" id="tcard">
+    <div class="empty-state" id="empty"><div class="ico">📋</div><div>Aucun article — configurez un produit à gauche</div></div>
+    <div class="thead" id="thead" style="display:none">
+      <div>#</div><div>Désignation</div>
+      <div style="text-align:right">Qté</div>
+      <div style="text-align:right">PU client</div>
+      <div style="text-align:right">Total HT</div>
+      <div></div>
+    </div>
+    <div id="tbody"></div>
+  </div>
+
+  <div class="remcard" id="remcard" style="display:none">
+    <label>Remise (%)</label>
+    <input type="number" id="remise" min="0" max="60" value="0" oninput="renderTot()">
+    <span>Appliquée sur le total HT client</span>
+  </div>
+
+  <div class="totcard" id="totcard" style="display:none">
+    <div class="tl" style="display:none"><span class="l">Sous-total HT fournisseur</span><span class="v" id="t-fourn">—</span></div>
+    <div class="tl disc" style="display:none"><span class="l" id="t-marge-l">Marge brute</span><span class="v" style="color:var(--green)" id="t-marge">—</span></div>
+    
+    <div class="tl"><span class="l">Sous-total HT client</span><span class="v" id="t-htb">—</span></div>
+    <div class="tl" id="t-rem-row" style="display:none"><span class="l" id="t-rem-l">Remise (0%)</span><span class="v" style="color:var(--green)" id="t-rem-v">—</span></div>
+    <div class="tl"><span class="l">Total HT après remise</span><span class="v" id="t-ht2">—</span></div>
+    <div class="tl"><span class="l">TVA 20 %</span><span class="v" id="t-tva">—</span></div>
+    <div class="tl main"><span class="l">TOTAL TTC</span><span class="v" id="t-ttc">—</span></div>
+    <div class="tnote">Commande &lt; 50 € HT : forfait préparation +15 € HT · Prix départ usine, hors frais de port et pose.</div>
+  </div>
+
+  <div class="acts" id="acts" style="display:none">
+    <button class="btn-s" onclick="clearQ()">🗑 Vider</button>
+    <button class="btn-s" onclick="window.print()">🖨 Imprimer</button>
+    <button class="btn-o" onclick="exportPO()">🏭 Commande Usine</button>
+    <button class="btn-p" onclick="exportTxt()">📄 Exporter Client</button>
+  </div>
+</div>
+</div>
+
+<div class="coef-btn" onclick="openCoef()" title="Paramètres de vente">⚙ tarification</div>
+
+<div class="overlay" id="ov-coef" onclick="closeCoefOut(event)">
+  <div class="modal">
+    <h3>Coefficient de vente</h3>
+    <p>Ce coefficient multiplie le tarif fournisseur HT pour calculer le prix de vente client. Il est confidentiel et n'apparaît jamais sur le document transmis au client.</p>
+    <div class="coef-presets" id="coef-presets">
+      <div class="coef-opt on" onclick="pickCoef(1.5,this)"><div class="cv">×1,50</div><div class="cl">Marge 33 %</div></div>
+      <div class="coef-opt" onclick="pickCoef(1.8,this)"><div class="cv">×1,80</div><div class="cl">Marge 44 %</div></div>
+      <div class="coef-opt" onclick="pickCoef(2.0,this)"><div class="cv">×2,00</div><div class="cl">Marge 50 %</div></div>
+      <div class="coef-opt" onclick="pickCoef(2.2,this)"><div class="cv">×2,20</div><div class="cl">Marge 55 %</div></div>
+      <div class="coef-opt" onclick="pickCoef(2.5,this)"><div class="cv">×2,50</div><div class="cl">Marge 60 %</div></div>
+      <div class="coef-opt" onclick="pickCoef(3.0,this)"><div class="cv">×3,00</div><div class="cl">Marge 67 %</div></div>
+    </div>
+    <div class="coef-custom-row">
+      <label>Valeur libre :</label>
+      <input type="number" id="coef-input" min="1.0" max="10" step="0.05" value="1.50">
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeCoef()">Annuler</button>
+      <button class="mbtn apply" onclick="applyCoef()">Appliquer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  TARIFS SOTEXPRO 2026
+// ═══════════════════════════════════════════════════════════════
+
+const TARIFS = {
+  COLLEGE:{
+    PP70:{amp:1.50,rows:[
+      {l:100,h:120,q1:80.06,q2:59.85,q5:52.24,q10:48.37,e:.14},{l:150,h:120,q1:107.51,q2:79.99,q5:66.91,q10:54.31,e:.14},{l:200,h:120,q1:135.10,q2:100.55,q5:87.73,q10:67.70,e:.14},{l:250,h:120,q1:162.45,q2:120.61,q5:105.18,q10:81.24,e:.16},{l:300,h:120,q1:189.59,q2:141.00,q5:122.74,q10:94.86,e:.20},{l:350,h:120,q1:217.09,q2:161.21,q5:140.58,q10:108.59,e:.23},
+      {l:100,h:190,q1:83.03,q2:79.03,q5:72.97,q10:58.06,e:.14},{l:150,h:190,q1:99.41,q2:95.33,q5:88.25,q10:70.80,e:.15},{l:200,h:190,q1:138.90,q2:134.74,q5:124.44,q10:99.01,e:.19},{l:250,h:190,q1:166.73,q2:158.64,q5:143.49,q10:113.64,e:.24},{l:300,h:190,q1:190.86,q2:185.32,q5:171.77,q10:138.35,e:.29},{l:350,h:190,q1:197.74,q2:192.10,q5:178.53,q10:144.91,e:.33},
+      {l:100,h:260,q1:85.88,q2:81.86,q5:75.77,q10:60.73,e:.14},{l:150,h:260,q1:114.18,q2:110.06,q5:101.88,q10:81.57,e:.19},{l:200,h:260,q1:142.63,q2:138.43,q5:128.15,q10:102.58,e:.25},{l:250,h:260,q1:170.87,q2:166.57,q5:154.19,q10:123.40,e:.32},{l:300,h:260,q1:198.87,q2:194.46,q5:180.00,q10:144.08,e:.38},{l:350,h:260,q1:227.20,q2:222.73,q5:205.71,q10:165.05,e:.44},
+      {l:100,h:300,q1:127.90,q2:123.84,q5:113.78,q10:89.17,e:.15},{l:150,h:300,q1:135.39,q2:131.24,q5:121.15,q10:96.25,e:.22},{l:200,h:300,q1:248.24,q2:212.35,q5:190.22,q10:147.83,e:.29},{l:250,h:300,q1:255.67,q2:219.70,q5:197.52,q10:154.93,e:.36},{l:300,h:300,q1:263.10,q2:257.44,q5:237.78,q10:189.56,e:.43},{l:350,h:300,q1:270.65,q2:264.89,q5:245.21,q10:196.76,e:.50},
+      {l:100,h:350,q1:144.12,q2:140.04,q5:128.58,q10:100.54,e:.17},{l:150,h:350,q1:151.91,q2:147.75,q5:136.24,q10:107.92,e:.25},{l:200,h:350,q1:280.47,q2:240.31,q5:214.56,q10:166.25,e:.33},{l:250,h:350,q1:288.18,q2:247.61,q5:222.16,q10:173.61,e:.41},{l:300,h:350,q1:295.90,q2:290.18,q5:267.74,q10:212.79,e:.49},{l:350,h:350,q1:303.73,q2:297.93,q5:275.49,q10:220.31,e:.57}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:87.01,q2:79.88,q5:74.32,q10:60.52,e:.14},{l:150,h:120,q1:97.76,q2:90.58,q5:84.98,q10:70.92,e:.14},{l:200,h:120,q1:158.35,q2:139.44,q5:128.20,q10:105.44,e:.17},{l:250,h:120,q1:168.65,q2:160.34,q5:150.83,q10:125.99,e:.26,p2:1},{l:300,h:120,q1:179.47,q2:171.00,q5:161.56,q10:136.50,e:.31,p2:1},{l:350,h:120,q1:190.10,q2:181.57,q5:172.08,q10:146.88,e:.35,p2:1},
+      {l:100,h:190,q1:94.91,q2:87.79,q5:82.68,q10:67.29,e:.14},{l:150,h:190,q1:120.54,q2:113.35,q5:105.81,q10:87.01,e:.17},{l:200,h:190,q1:162.06,q2:154.83,q5:145.53,q10:119.74,e:.23},{l:250,h:190,q1:205.15,q2:196.69,q5:186.71,q10:153.83,e:.33,p2:1},{l:300,h:190,q1:224.91,q2:216.42,q5:203.13,q10:168.69,e:.40,p2:1},{l:350,h:190,q1:236.00,q2:227.42,q5:214.10,q10:179.46,e:.46,p2:1},
+      {l:100,h:260,q1:131.93,q2:124.77,q5:115.35,q10:69.81,e:.15},{l:150,h:260,q1:143.58,q2:136.36,q5:126.91,q10:103.28,e:.22},{l:200,h:260,q1:251.83,q2:216.41,q5:196.30,q10:156.80,e:.29},{l:250,h:260,q1:259.22,q2:250.74,q5:233.64,q10:189.87,e:.41,p2:1},{l:300,h:260,q1:270.89,q2:262.33,q5:245.18,q10:201.21,e:.49,p2:1},{l:350,h:260,q1:282.37,q2:273.76,q5:256.57,q10:212.42,e:.57,p2:1},
+      {l:100,h:300,q1:144.76,q2:137.60,q5:127.09,q10:101.02,e:.16},{l:150,h:300,q1:156.65,q2:149.45,q5:138.89,q10:112.55,e:.24},{l:200,h:300,q1:277.56,q2:238.38,q5:215.74,q10:171.63,e:.32},{l:250,h:300,q1:285.12,q2:276.57,q5:257.27,q10:183.22,e:.46,p2:1},{l:300,h:300,q1:296.97,q2:288.41,q5:269.05,q10:219.71,e:.54,p2:1},{l:350,h:300,q1:308.72,q2:300.10,q5:280.68,q10:231.13,e:.63,p2:1},
+      {l:100,h:350,q1:160.69,q2:153.61,q5:141.62,q10:112.19,e:.19},{l:150,h:350,q1:172.86,q2:165.74,q5:153.68,q10:124.00,e:.27},{l:200,h:350,q1:309.78,q2:274.79,q5:240.04,q10:189.97,e:.37},{l:250,h:350,q1:317.19,q2:308.86,q5:286.59,q10:230.71,e:.51,p2:1},{l:300,h:350,q1:329.37,q2:321.02,q5:298.69,q10:242.65,e:.61,p2:1},{l:350,h:350,q1:341.39,q2:332.99,q5:310.61,q10:254.39,e:.70,p2:1}
+    ]}
+  },
+  CORTE:{
+    PP70:{amp:1.50,rows:[
+      {l:100,h:120,q1:80.25,q2:59.97,q5:52.35,q10:49.59,e:.14},{l:150,h:120,q1:107.78,q2:80.16,q5:67.05,q10:55.53,e:.14},{l:200,h:120,q1:135.46,q2:100.76,q5:87.94,q10:69.26,e:.14},{l:250,h:120,q1:162.90,q2:120.89,q5:105.46,q10:83.18,e:.17},{l:300,h:120,q1:190.12,q2:141.32,q5:123.05,q10:97.15,e:.20},{l:350,h:120,q1:217.71,q2:161.59,q5:140.95,q10:111.25,e:.23},
+      {l:100,h:190,q1:83.22,q2:79.21,q5:73.15,q10:59.60,e:.14},{l:150,h:190,q1:99.65,q2:95.55,q5:88.49,q10:72.65,e:.16},{l:200,h:190,q1:139.28,q2:135.08,q5:124.80,q10:101.90,e:.21},{l:250,h:190,q1:167.19,q2:159.02,q5:143.88,q10:116.57,e:.26},{l:300,h:190,q1:191.36,q2:185.77,q5:172.25,q10:142.16,e:.32},{l:350,h:190,q1:198.25,q2:192.57,q5:179.02,q10:148.72,e:.37},
+      {l:100,h:260,q1:86.07,q2:82.04,q5:75.96,q10:62.27,e:.14},{l:150,h:260,q1:114.48,q2:110.33,q5:102.16,q10:83.79,e:.21},{l:200,h:260,q1:143.02,q2:138.78,q5:128.52,q10:105.47,e:.28},{l:250,h:260,q1:171.34,q2:167.01,q5:154.64,q10:126.95,e:.35},{l:300,h:260,q1:199.42,q2:194.96,q5:180.53,q10:148.28,e:.41},{l:350,h:260,q1:227.84,q2:223.31,q5:206.77,q10:169.92,e:.48},
+      {l:100,h:300,q1:128.26,q2:124.17,q5:114.14,q10:91.99,e:.17},{l:150,h:300,q1:135.76,q2:131.58,q5:121.51,q10:99.07,e:.24},{l:200,h:300,q1:248.98,q2:212.92,q5:190.79,q10:152.27,e:.32},{l:250,h:300,q1:256.41,q2:220.26,q5:198.10,q10:159.37,e:.39},{l:300,h:300,q1:263.85,q2:258.12,q5:238.50,q10:195.30,e:.47},{l:350,h:300,q1:271.41,q2:265.58,q5:245.94,q10:202.51,e:.55},
+      {l:100,h:350,q1:144.55,q2:140.43,q5:128.99,q10:103.81,e:.19},{l:150,h:350,q1:152.35,q2:148.15,q5:136.66,q10:111.20,e:.28},{l:200,h:350,q1:281.33,q2:240.66,q5:215.23,q10:171.38,e:.37},{l:250,h:350,q1:289.04,q2:248.28,q5:222.84,q10:178.74,e:.46},{l:300,h:350,q1:296.77,q2:290.97,q5:268.58,q10:219.42,e:.54},{l:350,h:350,q1:304.61,q2:298.73,q5:276.34,q10:226.95,e:.63}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:87.18,q2:80.05,q5:74.47,q10:61.80,e:.14},{l:150,h:120,q1:97.92,q2:90.73,q5:85.13,q10:72.19,e:.14},{l:200,h:120,q1:158.73,q2:139.70,q5:128.45,q10:107.47,e:.18},{l:250,h:120,q1:168.99,q2:160.63,q5:151.13,q10:128.54,e:.27,p2:1},{l:300,h:120,q1:179.82,q2:171.29,q5:161.86,q10:139.06,e:.33,p2:1},{l:350,h:120,q1:190.47,q2:181.85,q5:172.38,q10:149.44,e:.38,p2:1},
+      {l:100,h:190,q1:95.10,q2:87.96,q5:82.85,q10:68.76,e:.14},{l:150,h:190,q1:120.79,q2:113.56,q5:106.04,q10:88.90,e:.18},{l:200,h:190,q1:162.44,q2:155.15,q5:145.86,q10:122.53,e:.25},{l:250,h:190,q1:205.64,q2:197.09,q5:187.14,q10:157.42,e:.36,p2:1},{l:300,h:190,q1:225.44,q2:216.85,q5:203.57,q10:172.47,e:.43,p2:1},{l:350,h:190,q1:236.53,q2:227.84,q5:214.55,q10:183.24,e:.50,p2:1},
+      {l:100,h:260,q1:132.27,q2:125.07,q5:115.65,q10:71.28,e:.16},{l:150,h:260,q1:143.93,q2:136.65,q5:127.21,q10:105.79,e:.24},{l:200,h:260,q1:252.53,q2:216.91,q5:196.78,q10:160.74,e:.32},{l:250,h:260,q1:259.92,q2:251.33,q5:234.23,q10:194.90,e:.45,p2:1},{l:300,h:260,q1:271.59,q2:262.90,q5:245.77,q10:206.23,e:.53,p2:1},{l:350,h:260,q1:283.06,q2:274.31,q5:257.16,q10:217.44,e:.61,p2:1},
+      {l:100,h:300,q1:145.15,q2:137.94,q5:127.43,q10:103.88,e:.18},{l:150,h:300,q1:157.05,q2:149.78,q5:139.22,q10:115.41,e:.27},{l:200,h:300,q1:278.35,q2:238.95,q5:216.29,q10:176.12,e:.35},{l:250,h:300,q1:285.91,q2:277.24,q5:257.95,q10:187.70,e:.50,p2:1},{l:300,h:300,q1:297.77,q2:289.06,q5:269.73,q10:225.44,e:.59,p2:1},{l:350,h:300,q1:309.52,q2:300.73,q5:281.35,q10:236.86,e:.68,p2:1},
+      {l:100,h:350,q1:161.14,q2:154.01,q5:142.01,q10:115.49,e:.21},{l:150,h:350,q1:173.33,q2:166.11,q5:154.07,q10:127.30,e:.30},{l:200,h:350,q1:310.68,q2:275.44,q5:240.67,q10:195.14,e:.40},{l:250,h:350,q1:318.11,q2:309.62,q5:287.37,q10:237.32,e:.56,p2:1},{l:300,h:350,q1:330.29,q2:321.76,q5:299.46,q10:249.25,e:.66,p2:1},{l:350,h:350,q1:342.32,q2:333.71,q5:311.39,q10:260.99,e:.76,p2:1}
+    ]}
+  },
+  COLLIOURE:{
+    PP70:{amp:1.50,rows:[
+      {l:100,h:120,q1:86.08,q2:63.89,q5:55.73,q10:51.89,e:.14},{l:150,h:120,q1:116.10,q2:85.72,q5:71.51,q10:57.83,e:.14},{l:200,h:120,q1:146.29,q2:108.03,q5:94.25,q10:72.24,e:.17},{l:250,h:120,q1:176.24,q2:129.82,q5:113.21,q10:86.84,e:.22},{l:300,h:120,q1:205.92,q2:151.93,q5:132.25,q10:101.50,e:.26},{l:350,h:120,q1:236.00,q2:173.85,q5:151.62,q10:116.28,e:.30},
+      {l:100,h:190,q1:89.05,q2:85.06,q5:78.79,q10:62.52,e:.14},{l:150,h:190,q1:106.64,q2:102.56,q5:95.26,q10:76.16,e:.19},{l:200,h:190,q1:150.14,q2:145.97,q5:135.31,q10:107.35,e:.26},{l:250,h:190,q1:180.55,q2:170.99,q5:154.98,q10:122.13,e:.32},{l:300,h:190,q1:205.66,q2:200.12,q5:186.10,q10:149.34,e:.38},{l:350,h:190,q1:212.56,q2:206.93,q5:192.88,q10:155.92,e:.44},
+      {l:100,h:260,q1:91.93,q2:87.91,q5:81.63,q10:65.22,e:.17},{l:150,h:260,q1:122.84,q2:118.72,q5:110.26,q10:88.00,e:.26},{l:200,h:260,q1:153.89,q2:149.68,q5:139.04,q10:110.94,e:.34},{l:250,h:260,q1:184.71,q2:180.42,q5:167.58,q10:133.68,e:.42},{l:300,h:260,q1:215.27,q2:210.86,q5:195.87,q10:156.25,e:.50},{l:350,h:260,q1:246.19,q2:241.72,q5:224.53,q10:179.15,e:.58},
+      {l:100,h:300,q1:138.88,q2:134.82,q5:124.42,q10:97.32,e:.20},{l:150,h:300,q1:146.39,q2:142.25,q5:131.80,q10:104.42,e:.29},{l:200,h:300,q1:270.57,q2:230.97,q5:207.51,q10:160.66,e:.39},{l:250,h:300,q1:278.02,q2:238.34,q5:214.84,q10:167.78,e:.48},{l:300,h:300,q1:285.47,q2:279.81,q5:259.43,q10:206.16,e:.57},{l:350,h:300,q1:293.05,q2:287.29,q5:266.89,q10:213.39,e:.67},
+      {l:100,h:350,q1:156.85,q2:152.77,q5:140.89,q10:109.98,e:.23},{l:150,h:350,q1:164.66,q2:160.50,q5:148.59,q10:117.39,e:.34},{l:200,h:350,q1:306.23,q2:261.50,q5:234.51,q10:181.04,e:.44},{l:250,h:350,q1:313.96,q2:269.14,q5:242.15,q10:188.43,e:.55},{l:300,h:350,q1:321.72,q2:316.00,q5:292.74,q10:231.96,e:.66},{l:350,h:350,q1:329.58,q2:323.78,q5:300.51,q10:239.51,e:.77}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:91.97,q2:84.83,q5:79.10,q10:64.19,e:.14},{l:150,h:120,q1:102.73,q2:95.54,q5:89.76,q10:74.58,e:.16},{l:200,h:120,q1:169.09,q2:147.95,q5:136.10,q10:111.27,e:.21},{l:250,h:120,q1:178.61,q2:170.25,q5:160.41,q10:133.31,e:.31,p2:1},{l:300,h:120,q1:189.44,q2:180.91,q5:171.13,q10:143.83,e:.37,p2:1},{l:350,h:120,q1:200.09,q2:191.48,q5:181.65,q10:154.21,e:.43,p2:1},
+      {l:100,h:190,q1:100.49,q2:93.36,q5:88.19,q10:71.51,e:.15},{l:150,h:190,q1:127.92,q2:120.68,q5:112.90,q10:92.43,e:.22},{l:200,h:190,q1:172.82,q2:165.52,q5:155.99,q10:127.74,e:.29},{l:250,h:190,q1:218.87,q2:210.32,q5:200.19,q10:164.14,e:.42,p2:1},{l:300,h:190,q1:239.68,q2:231.09,q5:217.30,q10:179.54,e:.50,p2:1},{l:350,h:190,q1:250.78,q2:242.09,q5:228.27,q10:190.30,e:.57,p2:1},
+      {l:100,h:260,q1:141.72,q2:134.52,q5:124.77,q10:74.03,e:.19},{l:150,h:260,q1:153.39,q2:146.11,q5:136.33,q10:110.49,e:.28},{l:200,h:260,q1:271.71,q2:232.91,q5:211.60,q10:168.10,e:.38},{l:250,h:260,q1:278.83,q2:270.24,q5:252.47,q10:204.29,e:.52,p2:1},{l:300,h:260,q1:290.52,q2:281.82,q5:264.01,q10:215.62,e:.62,p2:1},{l:350,h:260,q1:302.01,q2:293.26,q5:275.40,q10:226.83,e:.72,p2:1},
+      {l:100,h:300,q1:155.94,q2:148.72,q5:137.83,q10:109.24,e:.22},{l:150,h:300,q1:167.84,q2:160.57,q5:149.63,q10:120.77,e:.32},{l:200,h:300,q1:300.19,q2:257.16,q5:233.16,q10:184.50,e:.42},{l:250,h:300,q1:307.48,q2:298.80,q5:278.75,q10:196.09,e:.58,p2:1},{l:300,h:300,q1:319.36,q2:310.64,q5:290.53,q10:236.14,e:.69,p2:1},{l:350,h:300,q1:331.13,q2:322.33,q5:302.16,q10:247.57,e:.80,p2:1},
+      {l:100,h:350,q1:173.56,q2:166.43,q5:153.99,q10:121.66,e:.25},{l:150,h:350,q1:185.77,q2:178.55,q5:166.05,q10:133.47,e:.36},{l:200,h:350,q1:335.84,q2:296.43,q5:260.09,q10:204.79,e:.48},{l:250,h:350,q1:342.97,q2:334.48,q5:311.34,q10:249.66,e:.66,p2:1},{l:300,h:350,q1:355.18,q2:346.65,q5:323.44,q10:261.59,e:.79,p2:1},{l:350,h:350,q1:367.22,q2:358.61,q5:334.60,q10:273.33,e:.91,p2:1}
+    ]}
+  },
+  BOREAL:{
+    PP70:{amp:1.40,rows:[
+      {l:100,h:120,q1:72.88,q2:61.85,q5:49.43,q10:38.78,e:.14},{l:150,h:120,q1:79.07,q2:75.04,q5:63.71,q10:52.35,e:.14},{l:200,h:120,q1:85.02,q2:80.90,q5:69.57,q10:57.95,e:.15},{l:250,h:120,q1:144.34,q2:124.24,q5:103.09,q10:77.62,e:.19},{l:300,h:120,q1:150.48,q2:146.61,q5:115.37,q10:90.53,e:.22},{l:350,h:120,q1:156.75,q2:151.26,q5:131.86,q10:103.57,e:.26},
+      {l:100,h:190,q1:86.50,q2:82.55,q5:68.70,q10:55.53,e:.14},{l:150,h:190,q1:105.09,q2:101.01,q5:84.32,q10:68.63,e:.17},{l:200,h:190,q1:144.35,q2:107.25,q5:90.51,q10:74.56,e:.22},{l:250,h:190,q1:174.08,q2:168.21,q5:136.72,q10:109.99,e:.28},{l:300,h:190,q1:203.40,q2:196.81,q5:163.61,q10:133.84,e:.33},{l:350,h:190,q1:209.00,q2:203.41,q5:170.19,q10:140.19,e:.39},
+      {l:100,h:260,q1:89.41,q2:85.37,q5:71.51,q10:58.22,e:.16},{l:150,h:260,q1:118.85,q2:114.73,q5:95.58,q10:77.80,e:.23},{l:200,h:260,q1:148.74,q2:143.83,q5:120.00,q10:97.73,e:.30},{l:250,h:260,q1:178.17,q2:173.88,q5:143.98,q10:117.31,e:.37},{l:300,h:260,q1:207.85,q2:203.48,q5:168.22,q10:137.07,e:.44},{l:350,h:260,q1:237.38,q2:232.91,q5:192.34,q10:156.79,e:.52},
+      {l:100,h:300,q1:138.44,q2:134.38,q5:109.35,q10:87.19,e:.18},{l:150,h:300,q1:145.65,q2:141.51,q5:116.48,q10:94.01,e:.26},{l:200,h:300,q1:152.42,q2:148.22,q5:123.12,q10:100.41,e:.33},{l:250,h:300,q1:276.61,q2:236.92,q5:189.81,q10:151.14,e:.42},{l:300,h:300,q1:283.79,q2:278.18,q5:228.17,q10:184.90,e:.51},{l:350,h:300,q1:291.09,q2:285.37,q5:235.36,q10:191.86,e:.59},
+      {l:100,h:350,q1:156.78,q2:152.70,q5:123.84,q10:98.55,e:.20},{l:150,h:350,q1:164.30,q2:160.14,q5:131.22,q10:105.64,e:.30},{l:200,h:350,q1:171.29,q2:167.05,q5:138.13,q10:112.29,e:.39},{l:250,h:350,q1:313.34,q2:268.37,q5:213.92,q10:169.77,e:.49},{l:300,h:350,q1:320.84,q2:315.14,q5:257.52,q10:208.10,e:.59},{l:350,h:350,q1:328.37,q2:322.61,q5:264.96,q10:215.34,e:.68}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:91.40,q2:75.77,q5:63.07,q10:51.08,e:.14},{l:150,h:120,q1:102.15,q2:94.43,q5:82.71,q10:70.07,e:.15},{l:200,h:120,q1:173.90,q2:132.26,q5:109.61,q10:90.08,e:.20},{l:250,h:120,q1:177.43,q2:145.78,q5:129.31,q10:111.42,e:.29,p2:1},{l:300,h:120,q1:188.21,q2:168.78,q5:149.43,q10:129.07,e:.35,p2:1},{l:350,h:120,q1:198.83,q2:189.15,q5:168.91,q10:146.17,e:.41,p2:1},
+      {l:100,h:190,q1:104.16,q2:96.49,q5:82.42,q10:68.05,e:.14},{l:150,h:190,q1:128.24,q2:120.50,q5:103.44,q10:86.40,e:.21},{l:200,h:190,q1:177.67,q2:169.83,q5:144.43,q10:120.59,e:.28},{l:250,h:190,q1:227.32,q2:217.73,q5:185.82,q10:155.46,e:.40,p2:1},{l:300,h:190,q1:240.35,q2:230.71,q5:198.37,q10:167.50,e:.47,p2:1},{l:350,h:190,q1:251.38,q2:241.64,q5:209.32,q10:178.25,e:.55,p2:1},
+      {l:100,h:260,q1:107.05,q2:99.34,q5:85.32,q10:70.81,e:.18},{l:150,h:260,q1:142.97,q2:135.19,q5:115.46,q10:96.18,e:.27},{l:200,h:260,q1:181.42,q2:173.55,q5:148.19,q10:124.24,e:.36},{l:250,h:260,q1:233.47,q2:223.82,q5:191.95,q10:161.41,e:.50,p2:1},{l:300,h:260,q1:269.70,q2:259.94,q5:222.33,q10:186.98,e:.59,p2:1},{l:350,h:260,q1:304.54,q2:294.71,q5:251.62,q10:211.77,e:.69,p2:1},
+      {l:100,h:300,q1:157.03,q2:149.27,q5:123.89,q10:100.33,e:.21},{l:150,h:300,q1:168.86,q2:161.04,q5:135.69,q10:111.89,e:.30},{l:200,h:300,q1:301.71,q2:257.72,q5:210.19,q10:170.04,e:.40},{l:250,h:300,q1:309.60,q2:299.90,q5:250.95,q10:206.78,e:.55,p2:1},{l:300,h:300,q1:321.46,q2:311.69,q5:262.77,q10:218.44,e:.66,p2:1},{l:350,h:300,q1:333.12,q2:323.28,q5:274.40,q10:229.87,e:.76,p2:1},
+      {l:100,h:350,q1:175.41,q2:167.63,q5:138.41,q10:111.72,e:.24},{l:150,h:350,q1:187.55,q2:179.71,q5:150.54,q10:123.61,e:.34},{l:200,h:350,q1:338.24,q2:288.91,q5:234.09,q10:188.48,e:.46},{l:250,h:350,q1:346.59,q2:336.81,q5:280.23,q10:229.85,e:.63,p2:1},{l:300,h:350,q1:358.78,q2:348.93,q5:292.39,q10:241.83,e:.75,p2:1},{l:350,h:350,q1:370.75,q2:360.82,q5:304.32,q10:253.60,e:.87,p2:1}
+    ]}
+  },
+  BORNEO:{
+    PMPS:{amp:1.40,rows:[
+      {l:100,h:120,q1:96.95,q2:77.24,q5:67.52,q10:53.83,e:.14},{l:150,h:120,q1:103.42,q2:97.76,q5:91.47,q10:73.32,e:.19},{l:200,h:120,q1:183.14,q2:132.92,q5:115.88,q10:92.51,e:.25},{l:250,h:120,q1:189.56,q2:160.91,q5:140.22,q10:112.02,e:.30},{l:300,h:120,q1:196.02,q2:188.87,q5:164.95,q10:131.54,e:.36},{l:350,h:120,q1:202.07,q2:195.06,q5:183.42,q10:150.69,e:.42},
+      {l:100,h:190,q1:109.53,q2:103.92,q5:96.89,q10:81.19,e:.19},{l:150,h:190,q1:139.36,q2:133.68,q5:124.96,q10:105.16,e:.28},{l:200,h:190,q1:187.77,q2:182.01,q5:170.18,q10:143.09,e:.37},{l:250,h:190,q1:227.26,q2:221.46,q5:207.17,q10:166.62,e:.46},{l:300,h:190,q1:266.27,q2:260.40,q5:243.76,q10:205.33,e:.55},{l:350,h:190,q1:273.97,q2:266.87,q5:250.43,q10:212.52,e:.64},
+      {l:100,h:260,q1:112.41,q2:106.75,q5:99.73,q10:83.88,e:.26},{l:150,h:260,q1:152.34,q2:146.62,q5:137.18,q10:115.58,e:.38},{l:200,h:260,q1:191.47,q2:185.69,q5:173.85,q10:146.62,e:.50},{l:250,h:260,q1:231.35,q2:225.50,q5:211.24,q10:178.31,e:.61},{l:300,h:260,q1:270.80,q2:264.90,q5:248.22,q10:209.66,e:.74},{l:350,h:260,q1:310.32,q2:304.33,q5:285.26,q10:241.00,e:.85},
+      {l:100,h:300,q1:187.72,q2:182.02,q5:169.58,q10:141.20,e:.30},{l:150,h:300,q1:195.23,q2:189.47,q5:177.00,q10:148.40,e:.43},{l:200,h:300,q1:364.80,q2:308.81,q5:279.09,q10:228.10,e:.57},{l:250,h:300,q1:372.31,q2:316.24,q5:286.52,q10:235.36,e:.70},{l:300,h:300,q1:379.78,q2:372.63,q5:348.65,q10:293.35,e:.84},{l:350,h:300,q1:386.90,q2:379.68,q5:355.68,q10:300.22,e:.98},
+      {l:100,h:350,q1:213.14,q2:207.42,q5:193.23,q10:160.81,e:.34},{l:150,h:350,q1:220.95,q2:215.17,q5:200.96,q10:168.32,e:.50},{l:200,h:350,q1:415.27,q2:351.27,q5:317.49,q10:259.07,e:.66},{l:250,h:350,q1:423.01,q2:358.96,q5:325.14,q10:266.58,e:.81},{l:300,h:350,q1:430.81,q2:423.57,q5:396.15,q10:332.88,e:.97},{l:350,h:350,q1:438.22,q2:430.94,q5:403.50,q10:340.08,e:1.13}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:110.46,q2:91.37,q5:81.25,q10:65.90,e:.16},{l:150,h:120,q1:121.21,q2:113.49,q5:107.48,q10:92.37,e:.23},{l:200,h:120,q1:218.16,q2:161.85,q5:144.25,q10:118.30,e:.30},{l:250,h:120,q1:215.55,q2:174.31,q5:166.38,q10:144.78,e:.43,p2:1},{l:300,h:120,q1:226.34,q2:202.64,q5:193.42,q10:168.67,e:.52,p2:1},{l:350,h:120,q1:236.95,q2:227.28,q5:219.49,q10:191.69,e:.59,p2:1},
+      {l:100,h:190,q1:127.48,q2:119.82,q5:112.73,q10:95.33,e:.22},{l:150,h:190,q1:157.17,q2:149.43,q5:141.02,q10:120.23,e:.33},{l:200,h:190,q1:221.93,q2:214.09,q5:201.93,q10:172.35,e:.44},{l:250,h:190,q1:284.38,q2:274.78,q5:259.95,q10:222.19,e:.60,p2:1},{l:300,h:190,q1:298.21,q2:288.56,q5:273.53,q10:235.16,e:.72,p2:1},{l:350,h:190,q1:309.23,q2:299.49,q5:284.49,q10:245.91,e:.83,p2:1},
+      {l:100,h:260,q1:130.37,q2:122.67,q5:115.63,q10:98.09,e:.29},{l:150,h:260,q1:176.82,q2:169.05,q5:159.45,q10:135.78,e:.43},{l:200,h:260,q1:225.68,q2:217.81,q5:205.69,q10:176.00,e:.57},{l:250,h:260,q1:290.52,q2:280.87,q5:266.08,q10:228.13,e:.78,p2:1},{l:300,h:260,q1:337.42,q2:327.66,q5:310.31,q10:266.18,e:.92,p2:1},{l:350,h:260,q1:382.39,q2:372.56,q5:352.77,q10:302.81,e:1.07,p2:1},
+      {l:100,h:300,q1:201.28,q2:193.52,q5:181.39,q10:152.09,e:.33},{l:150,h:300,q1:213.12,q2:205.30,q5:193.19,q10:163.65,e:.49},{l:200,h:300,q1:391.68,q2:332.64,q5:303.72,q10:251.27,e:.65},{l:250,h:300,q1:398.12,q2:388.41,q5:365.95,q10:310.30,e:.87,p2:1},{l:300,h:300,q1:409.98,q2:400.20,q5:377.77,q10:321.96,e:1.04,p2:1},{l:350,h:300,q1:421.63,q2:411.79,q5:389.41,q10:333.39,e:1.20,p2:1},
+      {l:100,h:350,q1:226.74,q2:218.96,q5:205.09,q10:171.74,e:.38},{l:150,h:350,q1:238.87,q2:231.03,q5:217.22,q10:183.63,e:.56},{l:200,h:350,q1:442.21,q2:375.55,q5:342.16,q10:282.33,e:.75},{l:250,h:350,q1:449.23,q2:439.45,q5:413.59,q10:349.90,e:.99,p2:1},{l:300,h:350,q1:461.42,q2:451.57,q5:425.75,q10:361.88,e:1.18,p2:1},{l:350,h:350,q1:473.39,q2:463.46,q5:437.69,q10:373.65,e:1.37,p2:1}
+    ]}
+  },
+  BORA:{
+    PP70:{amp:1.40,rows:[
+      {l:100,h:120,q1:79.44,q2:67.32,q5:57.73,q10:45.81,e:.14},{l:150,h:120,q1:85.64,q2:81.60,q5:74.80,q10:62.64,e:.14},{l:200,h:120,q1:91.58,q2:87.46,q5:80.67,q10:68.24,e:.15},{l:250,h:120,q1:157.94,q2:135.57,q5:121.52,q10:93.53,e:.19},{l:300,h:120,q1:164.08,q2:161.34,q5:137.79,q10:109.40,e:.22},{l:350,h:120,q1:170.35,q2:164.85,q5:157.80,q10:125.40,e:.26},
+      {l:100,h:190,q1:94.72,q2:90.76,q5:82.59,q10:68.41,e:.14},{l:150,h:190,q1:115.15,q2:111.07,q5:101.32,q10:84.40,e:.17},{l:200,h:190,q1:159.41,q2:117.30,q5:107.51,q10:90.32,e:.22},{l:250,h:190,q1:192.67,q2:185.34,q5:164.49,q10:134.86,e:.28},{l:300,h:190,q1:225.48,q2:217.34,q5:198.32,q10:166.03,e:.33},{l:350,h:190,q1:229.54,q2:223.94,q5:204.90,q10:172.38,e:.39},
+      {l:100,h:260,q1:97.63,q2:93.59,q5:85.39,q10:71.09,e:.16},{l:150,h:260,q1:130.51,q2:126.39,q5:115.29,q10:96.08,e:.23},{l:200,h:260,q1:163.90,q2:158.89,q5:145.61,q10:121.48,e:.30},{l:250,h:260,q1:196.76,q2:192.48,q5:175.42,q10:146.47,e:.37},{l:300,h:260,q1:229.94,q2:225.57,q5:205.57,q10:171.71,e:.44},{l:350,h:260,q1:262.92,q2:258.45,q5:235.51,q10:196.83,e:.52},
+      {l:100,h:300,q1:153.92,q2:149.86,q5:135.52,q10:111.46,e:.18},{l:150,h:300,q1:161.14,q2:156.99,q5:142.66,q10:118.29,e:.26},{l:200,h:300,q1:167.90,q2:163.70,q5:149.30,q10:124.69,e:.33},{l:250,h:300,q1:308.05,q2:263.12,q5:232.34,q10:189.26,e:.42},{l:300,h:300,q1:315.23,q2:309.61,q5:281.32,q10:234.19,e:.51},{l:350,h:300,q1:322.52,q2:316.80,q5:288.51,q10:241.15,e:.59},
+      {l:100,h:350,q1:174.76,q2:170.68,q5:154.25,q10:126.75,e:.20},{l:150,h:350,q1:182.28,q2:178.12,q5:161.63,q10:133.84,e:.30},{l:200,h:350,q1:189.27,q2:185.03,q5:168.54,q10:140.48,e:.39},{l:250,h:350,q1:349.73,q2:298.72,q5:263.16,q10:213.88,e:.49},{l:300,h:350,q1:357.23,q2:351.53,q5:319.04,q10:265.16,e:.59},{l:350,h:350,q1:364.76,q2:359.00,q5:326.49,q10:272.40,e:.68}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:98.15,q2:81.29,q5:71.45,q10:58.11,e:.14},{l:150,h:120,q1:108.90,q2:101.18,q5:94.12,q10:80.65,e:.14},{l:200,h:120,q1:189.57,q2:142.73,q5:125.57,q10:103.48,e:.19},{l:250,h:120,q1:190.93,q2:155.88,q5:146.39,q10:127.26,e:.29,p2:1},{l:300,h:120,q1:201.71,q2:180.77,q5:169.70,q10:147.86,e:.34,p2:1},{l:350,h:120,q1:212.33,q2:202.65,q5:192.21,q10:167.78,e:.39,p2:1},
+      {l:100,h:190,q1:112.42,q2:104.75,q5:96.38,q10:81.00,e:.14},{l:150,h:190,q1:138.48,q2:130.74,q5:120.75,q10:102.46,e:.20},{l:200,h:190,q1:193.34,q2:185.50,q5:170.92,q10:145.16,e:.27},{l:250,h:190,q1:247.52,q2:237.93,q5:219.98,q10:187.14,e:.38,p2:1},{l:300,h:190,q1:260.84,q2:251.19,q5:233.00,q10:199.62,e:.46,p2:1},{l:350,h:190,q1:271.86,q2:262.12,q5:243.95,q10:210.36,e:.53,p2:1},
+      {l:100,h:260,q1:115.31,q2:107.60,q5:99.28,q10:83.76,e:.18},{l:150,h:260,q1:154.96,q2:147.18,q5:135.73,q10:114.98,e:.26},{l:200,h:260,q1:197.10,q2:189.22,q5:174.68,q10:148.81,e:.34},{l:250,h:260,q1:253.67,q2:244.02,q5:226.10,q10:193.08,e:.48,p2:1},{l:300,h:260,q1:293.68,q2:283.92,q5:262.87,q10:224.57,e:.57,p2:1},{l:350,h:260,q1:332.11,q2:322.28,q5:298.23,q10:254.98,e:.66,p2:1},
+      {l:100,h:300,q1:172.70,q2:164.94,q5:150.38,q10:124.90,e:.20},{l:150,h:300,q1:184.53,q2:176.71,q5:162.18,q10:136.46,e:.29},{l:200,h:300,q1:333.57,q2:284.25,q5:253.28,q10:208.60,e:.39},{l:250,h:300,q1:340.94,q2:331.24,q5:303.94,q10:255.92,e:.54,p2:1},{l:300,h:300,q1:352.80,q2:343.03,q5:315.75,q10:267.57,e:.64,p2:1},{l:350,h:300,q1:364.46,q2:354.62,q5:327.39,q10:279.01,e:.74,p2:1},
+      {l:100,h:350,q1:193.59,q2:185.81,q5:169.13,q10:140.21,e:.23},{l:150,h:350,q1:205.72,q2:197.88,q5:181.27,q10:152.10,e:.33},{l:200,h:350,q1:375.05,q2:319.59,q5:283.88,q10:233.03,e:.44},{l:250,h:350,q1:382.93,q2:373.15,q5:341.67,q10:286.83,e:.61,p2:1},{l:300,h:350,q1:395.13,q2:385.28,q5:353.84,q10:298.81,e:.72,p2:1},{l:350,h:350,q1:407.09,q2:397.16,q5:365.77,q10:310.58,e:.84,p2:1}
+    ]}
+  },
+  OPALE2:{
+    PP70:{amp:1.30,rows:[
+      {l:100,h:120,q1:60.99,q2:57.66,q5:53.68,q10:47.85,e:.14},{l:150,h:120,q1:87.36,q2:83.85,q5:77.97,q10:66.98,e:.14},{l:200,h:120,q1:111.79,q2:108.20,q5:100.61,q10:86.62,e:.17},{l:250,h:120,q1:133.93,q2:142.09,q5:121.15,q10:104.50,e:.21},{l:300,h:120,q1:156.03,q2:152.30,q5:141.67,q10:122.37,e:.25},{l:350,h:120,q1:178.25,q2:174.46,q5:162.28,q10:140.35,e:.29},
+      {l:100,h:190,q1:81.44,q2:77.99,q5:72.36,q10:61.94,e:.14},{l:150,h:190,q1:149.68,q2:144.97,q5:134.16,q10:114.94,e:.19},{l:200,h:190,q1:155.86,q2:151.00,q5:140.15,q10:120.70,e:.26},{l:250,h:190,q1:219.64,q2:197.51,q5:180.40,q10:153.72,e:.32},{l:300,h:190,q1:225.69,q2:220.64,q5:205.01,q10:177.28,e:.38},{l:350,h:190,q1:289.49,q2:267.07,q5:245.17,q10:210.28,e:.44},
+      {l:100,h:260,q1:102.07,q2:98.56,q5:91.30,q10:78.09,e:.17},{l:150,h:260,q1:190.22,q2:185.44,q5:171.37,q10:146.70,e:.25},{l:200,h:260,q1:197.04,q2:192.04,q5:177.94,q10:153.02,e:.34},{l:250,h:260,q1:280.94,q2:252.89,q5:230.34,q10:195.82,e:.43},{l:300,h:260,q1:287.37,q2:281.90,q5:261.69,q10:225.86,e:.51},{l:350,h:260,q1:371.48,q2:343.13,q5:313.92,q10:268.75,e:.59},
+      {l:100,h:300,q1:113.78,q2:110.25,q5:102.06,q10:87.30,e:.20},{l:150,h:300,q1:213.52,q2:208.70,q5:192.76,q10:165.24,e:.29},{l:200,h:300,q1:220.41,q2:215.51,q5:199.52,q10:171.52,e:.39},{l:250,h:300,q1:316.02,q2:284.51,q5:258.81,q10:219.89,e:.49},{l:300,h:300,q1:322.69,q2:317.10,q5:294.10,q10:253.65,e:.58},{l:350,h:300,q1:418.38,q2:386.54,q5:353.46,q10:302.12,e:.68},
+      {l:100,h:350,q1:128.27,q2:124.73,q5:115.39,q10:98.69,e:.23},{l:150,h:350,q1:242.95,q2:237.73,q5:219.77,q10:187.78,e:.34},{l:200,h:350,q1:249.75,q2:244.81,q5:226.49,q10:194.60,e:.46},{l:250,h:350,q1:360.02,q2:323.79,q5:294.39,q10:250.07,e:.57},{l:300,h:350,q1:366.91,q2:361.56,q5:334.76,q10:288.48,e:.68},{l:350,h:350,q1:476.91,q2:440.60,q5:402.61,q10:343.77,e:.79}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:87.06,q2:79.94,q5:74.19,q10:64.28,e:.14},{l:150,h:120,q1:116.09,q2:108.91,q5:101.50,q10:88.64,e:.17},{l:200,h:120,q1:148.19,q2:140.95,q5:131.85,q10:116.02,e:.23},{l:250,h:120,q1:202.85,q2:178.20,q5:159.32,q10:147.11,e:.33,p2:1},{l:300,h:120,q1:216.10,q2:207.64,q5:194.53,q10:171.89,e:.39,p2:1},{l:350,h:120,q1:245.00,q2:236.43,q5:221.71,q10:196.16,e:.45,p2:1},
+      {l:100,h:190,q1:163.89,q2:137.93,q5:124.63,q10:105.33,e:.17},{l:150,h:190,q1:174.48,q2:166.11,q5:154.33,q10:134.02,e:.25},{l:200,h:190,q1:247.48,q2:221.26,q5:203.06,q10:175.44,e:.33},{l:250,h:190,q1:266.85,q2:257.05,q5:240.19,q10:210.95,e:.46,p2:1},{l:300,h:190,q1:330.13,q2:320.27,q5:298.81,q10:261.85,e:.54,p2:1},{l:350,h:190,q1:340.61,q2:330.70,q5:309.19,q10:272.11,e:.63,p2:1},
+      {l:100,h:260,q1:204.42,q2:172.61,q5:155.36,q10:131.04,e:.22},{l:150,h:260,q1:215.44,q2:206.99,q5:192.10,q10:166.47,e:.32},{l:200,h:260,q1:308.61,q2:276.49,q5:253.01,q10:217.75,e:.43},{l:250,h:260,q1:330.33,q2:320.39,q5:298.83,q10:261.66,e:.58,p2:1},{l:300,h:260,q1:411.92,q2:401.89,q5:374.20,q10:326.73,e:.69,p2:1},{l:350,h:260,q1:422.82,q2:412.73,q5:385.00,q10:337.42,e:.81,p2:1},
+      {l:100,h:300,q1:227.56,q2:192.33,q5:172.97,q10:145.80,e:.25},{l:150,h:300,q1:238.83,q2:230.34,q5:213.66,q10:185.02,e:.37},{l:200,h:300,q1:343.61,q2:308.04,q5:281.51,q10:241.96,e:.49},{l:250,h:300,q1:366.66,q2:356.64,q5:332.41,q10:290.69,e:.66,p2:1},{l:300,h:300,q1:458.61,q2:448.52,q5:417.26,q10:363.81,e:.78,p2:1},{l:350,h:300,q1:489.78,q2:459.82,q5:428.33,q10:374.73,e:.91,p2:1},
+      {l:100,h:350,q1:256.51,q2:216.87,q5:194.96,q10:164.19,e:.29},{l:150,h:350,q1:268.09,q2:259.50,q5:240.64,q10:208.20,e:.42},{l:200,h:350,q1:387.45,q2:347.44,q5:317.30,q10:272.25,e:.56},{l:250,h:350,q1:412.21,q2:402.06,q5:374.48,q10:327.08,e:.75,p2:1},{l:300,h:350,q1:517.02,q2:506.81,q5:471.12,q10:410.16,e:.89,p2:1},{l:350,h:350,q1:528.47,q2:518.18,q5:482.45,q10:421.37,e:1.03,p2:1}
+    ]}
+  },
+  NOCTIS:{
+    PP70:{amp:1.30,rows:[
+      {l:100,h:120,q1:75.69,q2:72.36,q5:65.69,q10:55.25,e:.14},{l:150,h:120,q1:81.33,q2:77.82,q5:71.12,q10:60.40,e:.14},{l:200,h:120,q1:143.80,q2:123.89,q5:109.92,q10:91.32,e:.17},{l:250,h:120,q1:150.73,q2:145.94,q5:132.76,q10:112.81,e:.21},{l:300,h:120,q1:156.14,q2:151.28,q5:168.14,q10:141.08,e:.25},{l:350,h:120,q1:214.91,q2:193.80,q5:173.87,q10:146.64,e:.29},
+      {l:100,h:190,q1:85.92,q2:82.47,q5:74.89,q10:63.12,e:.14},{l:150,h:190,q1:109.93,q2:106.41,q5:96.61,q10:81.66,e:.19},{l:200,h:190,q1:147.36,q2:143.75,q5:130.23,q10:110.06,e:.26},{l:250,h:190,q1:177.20,q2:173.51,q5:157.11,q10:132.89,e:.32},{l:300,h:190,q1:207.06,q2:203.29,q5:189.54,q10:160.92,e:.38},{l:350,h:190,q1:237.03,q2:233.15,q5:211.00,q10:178.71,e:.44},
+      {l:100,h:260,q1:132.75,q2:129.24,q5:116.35,q10:97.38,e:.18},{l:150,h:260,q1:138.90,q2:135.34,q5:122.41,q10:103.18,e:.25},{l:200,h:260,q1:259.22,q2:220.77,q5:193.42,q10:159.18,e:.34},{l:250,h:260,q1:265.66,q2:260.70,q5:235.14,q10:198.26,e:.43},{l:300,h:260,q1:304.60,q2:299.54,q5:270.38,q10:228.50,e:.57},{l:350,h:260,q1:386.94,q2:348.45,q5:308.90,q10:257.66,e:.59},
+      {l:100,h:300,q1:149.04,q2:145.52,q5:130.88,q10:109.46,e:.20},{l:150,h:300,q1:155.37,q2:151.74,q5:137.07,q10:115.42,e:.29},{l:200,h:300,q1:291.82,q2:248.44,q5:217.19,q10:178.59,e:.39},{l:250,h:300,q1:298.48,q2:293.50,q5:264.38,q10:222.68,e:.49},{l:300,h:300,q1:304.60,q2:299.54,q5:270.38,q10:228.50,e:.57},{l:350,h:300,q1:436.07,q2:392.60,q5:347.40,q10:289.41,e:.68},
+      {l:100,h:350,q1:169.22,q2:165.68,q5:148.82,q10:124.42,e:.24},{l:150,h:350,q1:175.73,q2:172.10,q5:155.24,q10:130.57,e:.33},{l:200,h:350,q1:332.58,q2:283.21,q5:247.02,q10:202.80,e:.46},{l:250,h:350,q1:339.49,q2:334.47,q5:300.91,q10:253.19,e:.57},{l:300,h:350,q1:345.81,q2:340.69,q5:388.59,q10:322.46,e:.68},{l:350,h:350,q1:497.65,q2:447.84,q5:395.52,q10:329.19,e:.79}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:94.62,q2:87.50,q5:79.87,q10:67.96,e:.14},{l:150,h:120,q1:142.23,q2:135.06,q5:123.20,q10:104.12,e:.17},{l:200,h:120,q1:182.63,q2:168.83,q5:154.94,q10:133.46,e:.23},{l:250,h:120,q1:183.37,q2:174.96,q5:164.98,q10:140.34,e:.33,p2:1},{l:300,h:120,q1:259.02,q2:249.35,q5:229.33,q10:198.57,e:.39,p2:1},{l:350,h:120,q1:269.06,q2:259.30,q5:239.27,q10:208.38,e:.45,p2:1},
+      {l:100,h:190,q1:120.86,q2:116.02,q5:105.49,q10:89.28,e:.17},{l:150,h:190,q1:220.57,q2:183.74,q5:165.82,q10:137.93,e:.25},{l:200,h:190,q1:234.03,q2:225.56,q5:205.94,q10:176.00,e:.33},{l:250,h:190,q1:240.79,q2:232.32,q5:212.97,q10:183.39,e:.46,p2:1},{l:300,h:190,q1:346.78,q2:336.92,q5:308.26,q10:264.65,e:.54,p2:1},{l:350,h:190,q1:357.26,q2:347.36,q5:318.64,q10:274.90,e:.63,p2:1},
+      {l:100,h:260,q1:151.37,q2:144.20,q5:130.81,q10:110.36,e:.22},{l:150,h:260,q1:276.97,q2:234.91,q5:207.17,q10:171.48,e:.32},{l:200,h:260,q1:290.87,q2:282.34,q5:256.96,q10:218.54,e:.43},{l:250,h:260,q1:297.53,q2:288.96,q5:263.93,q10:225.92,e:.58,p2:1},{l:300,h:260,q1:433.80,q2:423.78,q5:386.51,q10:330.21,e:.69,p2:1},{l:350,h:260,q1:444.70,q2:434.61,q5:397.30,q10:340.91,e:.81,p2:1},
+      {l:100,h:300,q1:167.58,q2:160.38,q5:145.38,q10:122.49,e:.25},{l:150,h:300,q1:309.18,q2:262.23,q5:230.83,q10:190.77,e:.37},{l:200,h:300,q1:323.31,q2:314.74,q5:286.11,q10:242.84,e:.49},{l:250,h:300,q1:330.16,q2:321.53,q5:293.24,q10:250.41,e:.66,p2:1},{l:300,h:300,q1:483.58,q2:473.49,q5:431.29,q10:367.75,e:.78,p2:1},{l:350,h:300,q1:494.75,q2:484.58,q5:442.36,q10:378.68,e:.91,p2:1},
+      {l:100,h:350,q1:187.99,q2:180.77,q5:163.70,q10:137.74,e:.29},{l:150,h:350,q1:349.47,q2:296.18,q5:260.50,q10:214.80,e:.42},{l:200,h:350,q1:363.91,q2:355.28,q5:322.56,q10:273.23,e:.56},{l:250,h:350,q1:371.26,q2:362.59,q5:330.16,q10:281.23,e:.75,p2:1},{l:300,h:350,q1:546.02,q2:535.81,q5:487.45,q10:414.81,e:.89,p2:1},{l:350,h:350,q1:557.47,q2:547.18,q5:498.78,q10:426.02,e:1.03,p2:1}
+    ]}
+  },
+  NOCTURNE:{
+    PP70:{amp:1.30,rows:[
+      {l:100,h:120,q1:87.59,q2:70.69,q5:62.16,q10:49.86,e:.14},{l:150,h:120,q1:93.33,q2:89.82,q5:80.54,q10:71.92,e:.14},{l:200,h:120,q1:99.27,q2:95.68,q5:90.09,q10:77.44,e:.15},{l:250,h:120,q1:175.39,q2:148.69,q5:129.38,q10:104.11,e:.18},{l:300,h:120,q1:181.10,q2:155.65,q5:142.77,q10:122.25,e:.22},{l:350,h:120,q1:186.89,q2:181.95,q5:173.81,q10:140.16,e:.25},
+      {l:100,h:190,q1:99.67,q2:96.22,q5:89.97,q10:76.30,e:.14},{l:150,h:190,q1:128.64,q2:125.12,q5:117.09,q10:99.59,e:.17},{l:200,h:190,q1:134.74,q2:131.11,q5:123.08,q10:105.32,e:.22},{l:250,h:190,q1:209.24,q2:205.55,q5:190.80,q10:158.95,e:.27},{l:300,h:190,q1:245.09,q2:215.84,q5:196.78,q10:164.75,e:.33},{l:350,h:190,q1:258.04,q2:253.02,q5:237.23,q10:203.23,e:.38},
+      {l:100,h:260,q1:102.43,q2:98.92,q5:92.65,q10:78.85,e:.15},{l:150,h:260,q1:136.79,q2:133.23,q5:124.79,q10:106.36,e:.22},{l:200,h:260,q1:176.97,q2:173.32,q5:156.43,q10:133.51,e:.29},{l:250,h:260,q1:213.16,q2:209.43,q5:196.11,q10:167.35,e:.36},{l:300,h:260,q1:249.37,q2:242.25,q5:229.96,q10:196.32,e:.44},{l:350,h:260,q1:285.70,q2:281.81,q5:263.90,q10:225.43,e:.51},
+      {l:100,h:300,q1:177.57,q2:174.05,q5:162.17,q10:136.82,e:.17},{l:150,h:300,q1:184.14,q2:180.53,q5:168.59,q10:143.28,e:.25},{l:200,h:300,q1:191.02,q2:187.35,q5:175.37,q10:149.50,e:.34},{l:250,h:300,q1:356.41,q2:303.27,q5:274.55,q10:227.82,e:.42},{l:300,h:300,q1:363.09,q2:309.55,q5:290.00,q10:234.18,e:.50},{l:350,h:300,q1:369.83,q2:364.66,q5:341.12,q10:291.03,e:.58},
+      {l:100,h:350,q1:202.34,q2:198.79,q5:185.14,q10:156.16,e:.20},{l:150,h:350,q1:209.45,q2:205.50,q5:192.14,q10:162.60,e:.29},{l:200,h:350,q1:216.27,q2:212.56,q5:198.88,q10:169.36,e:.39},{l:250,h:350,q1:406.66,q2:346.04,q5:312.71,q10:259.12,e:.48},{l:300,h:350,q1:413.59,q2:352.88,q5:319.54,q10:265.74,e:.58},{l:350,h:350,q1:420.61,q2:415.42,q5:388.31,q10:330.93,e:.67}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:107.98,q2:100.86,q5:78.61,q10:64.23,e:.14},{l:150,h:120,q1:118.38,q2:111.20,q5:104.29,q10:88.76,e:.15},{l:200,h:120,q1:204.78,q2:158.55,q5:140.08,q10:116.13,e:.21},{l:250,h:120,q1:210.30,q2:170.37,q5:169.35,q10:141.16,e:.31,p2:1},{l:300,h:120,q1:220.70,q2:198.23,q5:187.18,q10:164.74,e:.36,p2:1},{l:350,h:120,q1:230.99,q2:222.42,q5:210.32,q10:187.51,e:.42,p2:1},
+      {l:100,h:190,q1:123.99,q2:116.86,q5:108.93,q10:93.14,e:.15},{l:150,h:190,q1:154.11,q2:146.89,q5:137.47,q10:118.42,e:.22},{l:200,h:190,q1:217.28,q2:209.98,q5:196.74,q10:169.74,e:.29},{l:250,h:190,q1:275.95,q2:267.48,q5:250.78,q10:216.85,e:.41,p2:1},{l:300,h:190,q1:292.04,q2:283.50,q5:266.42,q10:231.46,e:.49,p2:1},{l:350,h:190,q1:302.76,q2:294.15,q5:277.01,q10:241.89,e:.57,p2:1},
+      {l:100,h:260,q1:126.90,q2:119.73,q5:111.78,q10:95.84,e:.19},{l:150,h:260,q1:172.31,q2:165.08,q5:154.49,q10:132.98,e:.28},{l:200,h:260,q1:221.02,q2:213.70,q5:200.44,q10:173.34,e:.38},{l:250,h:260,q1:282.08,q2:273.51,q5:256.82,q10:222.66,e:.52,p2:1},{l:300,h:260,q1:328.40,q2:319.77,q5:300.37,q10:260.59,e:.62,p2:1},{l:350,h:260,q1:373.66,q2:364.94,q5:342.90,q10:297.61,e:.72,p2:1},
+      {l:100,h:300,q1:198.16,q2:190.97,q5:177.70,q10:150.83,e:.22},{l:150,h:300,q1:209.66,q2:202.40,q5:189.10,q10:161.98,e:.32},{l:200,h:300,q1:385.36,q2:328.20,q5:297.51,q10:249.27,e:.42},{l:250,h:300,q1:391.54,q2:382.90,q5:358.08,q10:307.31,e:.58,p2:1},{l:300,h:300,q1:403.07,q2:394.38,q5:369.53,q10:318.57,e:.69,p2:1},{l:350,h:300,q1:414.39,q2:405.65,q5:380.77,q10:329.65,e:.80,p2:1},
+      {l:100,h:350,q1:223.40,q2:216.19,q5:201.12,q10:170.56,e:.25},{l:150,h:350,q1:235.22,q2:227.94,q5:212.85,q10:182.02,e:.36},{l:200,h:350,q1:435.53,q2:370.43,q5:335.60,q10:280.46,e:.48},{l:250,h:350,q1:442.31,q2:433.64,q5:405.23,q10:347.08,e:.66,p2:1},{l:300,h:350,q1:454.15,q2:445.39,q5:416.96,q10:358.66,e:.79,p2:1},{l:350,h:350,q1:465.76,q2:456.99,q5:428.52,q10:370.03,e:.91,p2:1}
+    ]}
+  },
+  M140EC:{
+    PP70:{amp:1.80,rows:[
+      {l:100,h:120,q1:39.76,q2:37.43,q5:34.05,q10:28.41,e:.14},{l:150,h:120,q1:51.27,q2:48.89,q5:44.86,q10:37.70,e:.14},{l:200,h:120,q1:62.92,q2:60.50,q5:55.85,q10:47.15,e:.14},{l:250,h:120,q1:74.36,q2:71.88,q5:66.60,q10:56.41,e:.14},{l:300,h:120,q1:85.81,q2:83.31,q5:77.40,q10:65.72,e:.14},{l:350,h:120,q1:97.35,q2:94.79,q5:88.25,q10:75.13,e:.14},
+      {l:100,h:190,q1:46.05,q2:43.67,q5:39.69,q10:33.78,e:.14},{l:150,h:190,q1:59.38,q2:56.96,q5:52.13,q10:44.64,e:.14},{l:200,h:190,q1:72.92,q2:70.44,q5:64.72,q10:55.66,e:.14},{l:250,h:190,q1:86.20,q2:83.70,q5:77.10,q10:66.49,e:.14},{l:300,h:190,q1:99.57,q2:97.01,q5:89.57,q10:77.41,e:.14},{l:350,h:190,q1:113.00,q2:110.42,q5:102.10,q10:88.42,e:.17},
+      {l:100,h:260,q1:53.60,q2:51.20,q5:46.20,q10:39.69,e:.14},{l:150,h:260,q1:69.42,q2:66.98,q5:60.68,q10:52.38,e:.14},{l:200,h:260,q1:85.43,q2:82.94,q5:75.31,q10:65.24,e:.14},{l:250,h:260,q1:101.20,q2:98.67,q5:89.72,q10:77.91,e:.15},{l:300,h:260,q1:117.09,q2:114.51,q5:104.24,q10:90.70,e:.18},{l:350,h:260,q1:132.96,q2:130.36,q5:118.77,q10:103.51,e:.21},
+      {l:100,h:300,q1:68.18,q2:65.76,q5:59.15,q10:50.43,e:.14},{l:150,h:300,q1:89.90,q2:87.42,q5:78.84,q10:67.40,e:.14},{l:200,h:300,q1:111.90,q2:109.40,q5:98.76,q10:84.60,e:.14},{l:250,h:300,q1:133.58,q2:131.04,q5:118.39,q10:101.54,e:.17},{l:300,h:300,q1:155.41,q2:152.83,q5:138.18,q10:118.63,e:.21},{l:350,h:300,q1:177.25,q2:174.63,q5:157.97,q10:135.76,e:.24},
+      {l:100,h:350,q1:70.37,q2:67.93,q5:61.35,q10:52.50,e:.14},{l:150,h:350,q1:92.42,q2:89.94,q5:81.34,q10:69.79,e:.14},{l:200,h:350,q1:114.78,q2:112.26,q5:101.62,q10:87.36,e:.16},{l:250,h:350,q1:136.86,q2:134.30,q5:121.65,q10:104.68,e:.19},{l:300,h:350,q1:159.03,q2:156.45,q5:141.76,q10:122.11,e:.23},{l:350,h:350,q1:223.83,q2:220.79,q5:203.72,q10:181.21,e:.27}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:55.63,q2:48.53,q5:45.30,q10:39.00,e:.14},{l:150,h:120,q1:71.23,q2:64.07,q5:60.33,q10:52.73,e:.14},{l:200,h:120,q1:89.72,q2:82.49,q5:78.22,q10:69.36,e:.14},{l:250,h:120,q1:110.59,q2:102.19,q5:96.96,q10:86.10,e:.17,p2:1},{l:300,h:120,q1:126.32,q2:117.87,q5:112.11,q10:99.99,e:.20,p2:1},{l:350,h:120,q1:141.82,q2:133.27,q5:127.02,q10:113.68,e:.23,p2:1},
+      {l:100,h:190,q1:60.99,q2:53.86,q5:50.16,q10:43.64,e:.14},{l:150,h:190,q1:78.17,q2:70.97,q5:66.56,q10:58.69,e:.14},{l:200,h:190,q1:98.21,q2:90.96,q5:85.82,q10:76.60,e:.14},{l:250,h:190,q1:124.12,q2:114.33,q5:107.98,q10:96.66,e:.19,p2:1},{l:300,h:190,q1:141.70,q2:131.57,q5:124.51,q10:111.85,e:.23,p2:1},{l:350,h:190,q1:158.97,q2:148.55,q5:140.75,q10:126.86,e:.26,p2:1},
+      {l:100,h:260,q1:67.43,q2:60.28,q5:55.75,q10:48.73,e:.14},{l:150,h:260,q1:86.66,q2:79.42,q5:73.84,q10:65.28,e:.14},{l:200,h:260,q1:108.79,q2:101.49,q5:94.80,q10:84.74,e:.14},{l:250,h:260,q1:137.62,q2:129.05,q5:120.74,q10:108.33,e:.22,p2:1},{l:300,h:260,q1:157.05,q2:148.44,q5:138.99,q10:125.10,e:.27,p2:1},{l:350,h:260,q1:176.12,q2:167.43,q5:156.93,q10:141.60,e:.31,p2:1},
+      {l:100,h:300,q1:79.34,q2:72.14,q5:66.33,q10:57.52,e:.14},{l:150,h:300,q1:103.42,q2:96.16,q5:88.73,q10:77.62,e:.14},{l:200,h:300,q1:130.53,q2:123.21,q5:114.07,q10:100.67,e:.15},{l:250,h:300,q1:166.07,q2:157.48,q5:146.06,q10:129.35,e:.24,p2:1},{l:300,h:300,q1:190.56,q2:181.91,q5:168.78,q10:149.76,e:.29,p2:1},{l:350,h:300,q1:214.53,q2:205.82,q5:191.03,q10:169.84,e:.33,p2:1},
+      {l:100,h:350,q1:81.37,q2:74.15,q5:68.34,q10:59.42,e:.14},{l:150,h:350,q1:105.74,q2:98.46,q5:91.01,q10:79.82,e:.14},{l:200,h:350,q1:133.16,q2:125.80,q5:116.65,q10:100.67,e:.17},{l:250,h:350,q1:170.36,q2:161.73,q5:150.28,q10:133.43,e:.26,p2:1},{l:300,h:350,q1:195.15,q2:186.44,q5:173.29,q10:154.17,e:.31,p2:1},{l:350,h:350,q1:219.42,q2:210.65,q5:195.86,q10:174.51,e:.36,p2:1}
+    ]}
+  },
+  ETAMINE:{
+    PP70:{amp:1.80,rows:[
+      {l:100,h:120,q1:56.73,q2:42.97,q5:37.82,q10:30.96,e:.14},{l:150,h:120,q1:75.69,q2:57.32,q5:50.39,q10:41.31,e:.14},{l:200,h:120,q1:94.87,q2:71.76,q5:63.08,q10:51.90,e:.14},{l:250,h:120,q1:113.76,q2:86.05,q5:75.46,q10:62.24,e:.14},{l:300,h:120,q1:132.74,q2:100.28,q5:87.96,q10:72.69,e:.14},{l:350,h:120,q1:151.74,q2:114.68,q5:100.57,q10:83.17,e:.14},
+      {l:100,h:190,q1:59.87,q2:56.45,q5:52.17,q10:44.37,e:.14},{l:150,h:190,q1:79.27,q2:75.81,q5:70.09,q10:59.87,e:.14},{l:200,h:190,q1:98.95,q2:95.41,q5:88.22,q10:75.59,e:.14},{l:250,h:190,q1:118.29,q2:114.71,q5:106.08,q10:91.07,e:.14},{l:300,h:190,q1:137.84,q2:134.20,q5:124.12,q10:106.72,e:.17},{l:350,h:190,q1:157.32,q2:153.64,q5:142.11,q10:122.36,e:.19},
+      {l:100,h:260,q1:62.92,q2:59.46,q5:55.19,q10:47.24,e:.14},{l:150,h:260,q1:82.84,q2:79.34,q5:73.62,q10:63.24,e:.14},{l:200,h:260,q1:103.00,q2:99.44,q5:92.25,q10:79.45,e:.15},{l:250,h:260,q1:122.89,q2:119.24,q5:110.63,q10:95.46,e:.18},{l:300,h:260,q1:142.93,q2:139.25,q5:129.15,q10:111.61,e:.22},{l:350,h:260,q1:162.90,q2:159.18,q5:147.63,q10:127.73,e:.25}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:69.19,q2:53.74,q5:48.41,q10:40.98,e:.14},{l:150,h:120,q1:90.97,q2:71.66,q5:64.86,q10:55.66,e:.14},{l:200,h:120,q1:115.73,q2:92.53,q5:84.11,q10:73.21,e:.14},{l:250,h:120,q1:113.28,q2:104.87,q5:99.09,q10:89.06,e:.18,p2:1},{l:300,h:120,q1:129.50,q2:121.05,q5:114.63,q10:103.51,e:.22,p2:1},{l:350,h:120,q1:145.33,q2:136.78,q5:129.77,q10:117.61,e:.25,p2:1},
+      {l:100,h:190,q1:72.04,q2:64.90,q5:60.13,q10:52.08,e:.14},{l:150,h:190,q1:94.25,q2:87.06,q5:81.08,q10:70.99,e:.14},{l:200,h:190,q1:119.40,q2:112.15,q5:104.94,q10:92.80,e:.14},{l:250,h:190,q1:149.81,q2:141.34,q5:132.36,q10:117.32,e:.21,p2:1},{l:300,h:190,q1:172.31,q2:163.76,q5:153.56,q10:136.47,e:.26,p2:1},{l:350,h:190,q1:194.38,q2:185.79,q5:174.36,q10:155.35,e:.30,p2:1},
+      {l:100,h:260,q1:74.89,q2:67.73,q5:62.94,q10:54.75,e:.14},{l:150,h:260,q1:97.51,q2:90.28,q5:84.30,q10:74.04,e:.14},{l:200,h:260,q1:123.11,q2:115.82,q5:108.59,q10:96.31,e:.16},{l:250,h:260,q1:155.87,q2:147.31,q5:138.32,q10:123.08,e:.25,p2:1},{l:300,h:260,q1:178.79,q2:170.18,q5:159.94,q10:142.66,e:.30,p2:1},{l:350,h:260,q1:201.27,q2:192.57,q5:181.15,q10:161.91,e:.34,p2:1}
+    ]}
+  },
+  LY:{
+    PP70:{amp:1.80,rows:[
+      {l:100,h:120,q1:54.38,q2:41.40,q5:37.02,q10:29.97,e:.14},{l:150,h:120,q1:72.30,q2:55.06,q5:49.23,q10:39.89,e:.14},{l:200,h:120,q1:90.44,q2:68.80,q5:61.56,q10:50.04,e:.14},{l:250,h:120,q1:108.31,q2:82.40,q5:73.58,q10:59.95,e:.14},{l:300,h:120,q1:126.24,q2:95.94,q5:85.73,q10:69.96,e:.14},{l:350,h:120,q1:144.20,q2:109.64,q5:97.97,q10:80.00,e:.14},
+      {l:100,h:190,q1:57.52,q2:54.09,q5:50.82,q10:42.56,e:.14},{l:150,h:190,q1:75.89,q2:72.43,q5:68.15,q10:57.27,e:.14},{l:200,h:190,q1:94.52,q2:90.98,q5:85.68,q10:72.18,e:.14},{l:250,h:190,q1:112.84,q2:109.25,q5:102.94,q10:86.87,e:.14},{l:300,h:190,q1:131.34,q2:127.69,q5:120.38,q10:101.71,e:.17},{l:350,h:190,q1:149.79,q2:146.10,q5:137.79,q10:116.56,e:.20},
+      {l:100,h:260,q1:60.57,q2:57.11,q5:53.84,q10:45.43,e:.14},{l:150,h:260,q1:79.46,q2:75.95,q5:71.67,q10:60.63,e:.14},{l:200,h:260,q1:98.57,q2:95.01,q5:89.71,q10:76.05,e:.15},{l:250,h:260,q1:117.43,q2:113.78,q5:107.49,q10:91.26,e:.18},{l:300,h:260,q1:136.43,q2:132.74,q5:125.42,q10:106.60,e:.22},{l:350,h:260,q1:155.37,q2:151.63,q5:143.30,q10:121.94,e:.25}
+    ]},
+    TO:{amp:1.50,rows:[
+      {l:100,h:120,q1:67.31,q2:52.49,q5:47.76,q10:40.20,e:.14},{l:150,h:120,q1:88.23,q2:69.83,q5:63.91,q10:54.52,e:.14},{l:200,h:120,q1:112.12,q2:90.12,q5:82.87,q10:71.71,e:.14},{l:250,h:120,q1:110.97,q2:102.56,q5:97.77,q10:87.30,e:.18,p2:1},{l:300,h:120,q1:126.75,q2:118.30,q5:113.05,q10:101.41,e:.22,p2:1},{l:350,h:120,q1:142.16,q2:133.61,q5:127.96,q10:115.19,e:.25,p2:1},
+      {l:100,h:190,q1:70.16,q2:63.02,q5:59.05,q10:50.65,e:.14},{l:150,h:190,q1:91.52,q2:84.32,q5:79.51,q10:68.89,e:.14},{l:200,h:190,q1:115.79,q2:108.54,q5:102.88,q10:90.05,e:.14},{l:250,h:190,q1:145.21,q2:136.74,q5:129.72,q10:113.81,e:.22,p2:1},{l:300,h:190,q1:166.83,q2:158.28,q5:150.43,q10:132.29,e:.26,p2:1},{l:350,h:190,q1:188.04,q2:179.45,q5:170.73,q10:150.51,e:.30,p2:1},
+      {l:100,h:260,q1:73.01,q2:65.85,q5:61.86,q10:53.31,e:.14},{l:150,h:260,q1:94.78,q2:87.54,q5:82.73,q10:71.95,e:.14},{l:200,h:260,q1:119.51,q2:112.21,q5:106.52,q10:93.55,e:.16},{l:250,h:260,q1:151.28,q2:142.71,q5:135.69,q10:119.57,e:.25,p2:1},{l:300,h:260,q1:173.31,q2:164.70,q5:156.80,q10:138.48,e:.30,p2:1},{l:350,h:260,q1:194.93,q2:186.24,q5:177.52,q10:157.07,e:.35,p2:1}
+    ]}
+  }
+};
+
+// Rails & tringles
+const RAILS = {
+  KS:{label:"Rail KS blanc",rows:[{l:100,q1:37.59,q2:30.12,q5:25.63,q10:24.00,e:.10},{l:150,q1:44.65,q2:36.60,q5:31.76,q10:30.02,e:.10},{l:200,q1:47.13,q2:39.08,q5:34.25,q10:32.49,e:.10},{l:250,q1:54.24,q2:46.21,q5:41.37,q10:39.61,e:.10},{l:300,q1:60.18,q2:52.12,q5:47.23,q10:45.53,e:.10},{l:350,q1:71.34,q2:63.30,q5:58.46,q10:56.70,e:.10}]},
+  KSC:{label:"Rail KSC blanc renforcé",rows:[{l:100,q1:41.75,q2:34.25,q5:29.79,q10:28.16,e:.10},{l:150,q1:49.84,q2:41.79,q5:36.96,q10:35.21,e:.10},{l:200,q1:53.42,q2:45.36,q5:40.52,q10:38.77,e:.10},{l:250,q1:62.08,q2:54.03,q5:49.20,q10:47.44,e:.10},{l:300,q1:69.04,q2:60.99,q5:56.15,q10:54.40,e:.10},{l:350,q1:82.79,q2:74.75,q5:69.91,q10:68.15,e:.10}]},
+  SHUTTLE:{label:"Rail Shuttle motorisé",rows:[{l:100,q1:620.69,q2:608.28,q5:596.11,q10:584.19,e:.10},{l:200,q1:651.56,q2:638.53,q5:625.76,q10:613.24,e:.10},{l:300,q1:679.66,q2:666.07,q5:652.75,q10:639.69,e:.10},{l:400,q1:707.77,q2:693.61,q5:679.74,q10:666.15,e:.10}]},
+  TR20:{label:"Tringle TR20 chromée Ø20mm",rows:[{l:100,q1:28.48,q2:25.63,q5:19.94,q10:18.74,e:.10},{l:150,q1:29.12,q2:26.21,q5:20.38,q10:19.16,e:.10},{l:200,q1:29.56,q2:26.60,q5:20.69,q10:19.45,e:.10},{l:250,q1:40.35,q2:36.32,q5:28.25,q10:26.56,e:.10,s3:1},{l:300,q1:40.78,q2:36.70,q5:28.55,q10:26.84,e:.10,s3:1}]}
+};
+
+// ═══════════════════════════════════════════════════
+//  UTILITAIRES
+// ═══════════════════════════════════════════════════
+
+function qpx(row, qty) {
+  if (qty > 10) return row.q10;
+  if (qty >= 5)  return row.q5;
+  if (qty >= 2)  return row.q2;
+  return row.q1;
+}
+
+function qlabel(qty) {
+  if (qty > 10) return ">10"; if (qty >= 5) return "5–10"; if (qty >= 2) return "2–4"; return "1";
+}
+
+function fmt(v) { return v.toFixed(2).replace(".", ",") + " €"; }
+function today() { return new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"}); }
+function clamp(v,mn,mx){ return Math.min(mx,Math.max(mn,v)); }
+
+function findRideauRow(rows, larg, haut) {
+  const Ls = [...new Set(rows.map(r=>r.l))].sort((a,b)=>a-b);
+  const Hs = [...new Set(rows.map(r=>r.h))].sort((a,b)=>a-b);
+  const l = clamp(larg, Ls[0], Ls[Ls.length-1]);
+  const h = clamp(haut, Hs[0], Hs[Hs.length-1]);
+
+  let L1=Ls[0], L2=Ls[Ls.length-1];
+  for (let i=0;i<Ls.length-1;i++) { if(Ls[i]<=l&&l<=Ls[i+1]){L1=Ls[i];L2=Ls[i+1];break;} }
+  let H1=Hs[0], H2=Hs[Hs.length-1];
+  for (let i=0;i<Hs.length-1;i++) { if(Hs[i]<=h&&h<=Hs[i+1]){H1=Hs[i];H2=Hs[i+1];break;} }
+
+  const g = (lv,hv) => rows.find(r=>r.l===lv&&r.h===hv);
+  const r11=g(L1,H1), r12=g(L1,H2), r21=g(L2,H1), r22=g(L2,H2);
+  if (!r11||!r12||!r21||!r22) return null;
+
+  const tl = L1===L2 ? 0 : (l-L1)/(L2-L1);
+  const th = H1===H2 ? 0 : (h-H1)/(H2-H1);
+
+  const interp = f => r11[f]*(1-tl)*(1-th) + r21[f]*tl*(1-th) + r12[f]*(1-tl)*th + r22[f]*tl*th;
+
+  return {
+    l, h, L1, L2, H1, H2,
+    refL: tl===0?L1:(tl===1?L2:`${L1}–${L2}`),
+    refH: th===0?H1:(th===1?H2:`${H1}–${H2}`),
+    q1:interp("q1"), q2:interp("q2"), q5:interp("q5"), q10:interp("q10"),
+    e:interp("e"),
+    p2: r22.p2||r21.p2||r12.p2||r11.p2||0,
+    interp: (tl>0&&tl<1)||(th>0&&th<1)
+  };
+}
+
+function findRailRow(rows, larg) {
+  const Ls = [...new Set(rows.map(r=>r.l))].sort((a,b)=>a-b);
+  const l = clamp(larg, Ls[0], Ls[Ls.length-1]);
+  let L1=Ls[0], L2=Ls[Ls.length-1];
+  for (let i=0;i<Ls.length-1;i++) { if(Ls[i]<=l&&l<=Ls[i+1]){L1=Ls[i];L2=Ls[i+1];break;} }
+  const r1=rows.find(r=>r.l===L1), r2=rows.find(r=>r.l===L2);
+  if(!r1||!r2) return null;
+  const t = L1===L2 ? 0 : (l-L1)/(L2-L1);
+  return {
+    l, refL: t===0?L1:(t===1?L2:`${L1}–${L2}`),
+    q1:r1.q1*(1-t)+r2.q1*t, q2:r1.q2*(1-t)+r2.q2*t,
+    q5:r1.q5*(1-t)+r2.q5*t, q10:r1.q10*(1-t)+r2.q10*t,
+    e:r1.e*(1-t)+r2.e*t, s3:r2.s3||r1.s3,
+    interp: t>0&&t<1
+  };
+}
+
+// ═══════════════════════════════════════════════════
+//  ÉTAT APPLICATION
+// ═══════════════════════════════════════════════════
+let tete = "PP70";
+let coef = 1.50;
+let items = [];
+
+function setTete(el) {
+  tete = el.dataset.val;
+  document.querySelectorAll("#ch-tete .chip").forEach(c => c.classList.remove("on"));
+  el.classList.add("on");
+  calcBoth();
+}
+
+const GINFOS = {
+  COLLEGE:"Pare-solaire thermique · Ampleur PP70: ×1,50 · Certifié M1 TEST IMO",
+  CORTE:"Pare-solaire acoustique · Ampleur ×1,50 · M1 · BS Type C 5867",
+  COLLIOURE:"Pare-solaire thermique · Ampleur ×1,50 · M1",
+  BOREAL:"Obscurcissant 60–90% · Ampleur PP70: ×1,40 / TO: ×1,50 · M1",
+  BORNEO:"Occultant 95–99% · Tête PMPS ou TO uniquement · M1",
+  BORA:"Obscurcissant envers brillant · Ampleur PP70: ×1,40 / TO: ×1,50 · M1",
+  OPALE2:"Occultant Blackout M1 · Ampleur PP70: ×1,30 / TO: ×1,50",
+  NOCTIS:"Occultant Blackout antibactérien · Ampleur PP70: ×1,30 / TO: ×1,50",
+  NOCTURNE:"Occultant Blackout thermique · Ampleur PP70: ×1,30 / TO: ×1,50",
+  M140EC:"Voilage léger · Ampleur PP70: ×1,80 / TO: ×1,50 · Disponible jusqu'à HF 350cm",
+  ETAMINE:"Voilage coloré M1 · Ampleur PP70: ×1,80 / TO: ×1,50 · HF max 260cm",
+  LY:"Voilage contemporain · Ampleur PP70: ×1,80 / TO: ×1,50 · HF max 260cm"
+};
+
+function onGamme() {
+  const g = document.getElementById("gamme").value;
+  const pmps = document.getElementById("ch-pmps");
+  const gi = document.getElementById("g-info");
+  
+  pmps.style.display = g === "BORNEO" ? "inline-block" : "none";
+  
+  // Bascule automatique de la tête selon le tissu choisi
+  if (g === "BORNEO" && tete === "PP70") {
+    // Borneo n'accepte pas PP70, on force PMPS
+    setTete(document.querySelector('.chip[data-val="PMPS"]'));
+  } else if (g !== "BORNEO" && tete === "PMPS") {
+    // Si on quitte Borneo, on remet PP70 par défaut car PMPS est caché
+    setTete(document.querySelector('.chip[data-val="PP70"]'));
+  }
+
+  gi.innerHTML = g && GINFOS[g] ? `<div class="ginfo-card">${GINFOS[g]}</div>` : "";
+  calcBoth();
+}
+
+function calcBoth() {
+  calcR();
+  calcT();
+}
+
+function calcR() {
+  const g   = document.getElementById("gamme").value;
+  const larg = parseFloat(document.getElementById("r-l").value) || 0;
+  const haut = parseFloat(document.getElementById("r-h").value) || 0;
+  const qty  = parseInt(document.getElementById("r-q").value)   || 1;
+
+  const mbox = document.getElementById("r-match");
+  const pbox = document.getElementById("r-px");
+  const abox = document.getElementById("r-alert");
+  mbox.style.display = pbox.style.display = abox.style.display = "none";
+
+  if (!g || larg < 50 || haut < 50) return;
+
+  let tk = tete;
+  if (g==="BORNEO" && tk==="PP70") tk = "PMPS";
+
+  const tdata = TARIFS[g] && TARIFS[g][tk];
+  if (!tdata) { showMsg(abox,"err","Combinaison tissu/tête indisponible."); return; }
+
+  const row = findRideauRow(tdata.rows, larg, haut);
+  if (!row) { showMsg(abox,"err","Données introuvables pour ces dimensions."); return; }
+
+  const puF = qpx(row, qty);
+  const puC = puF * coef;
+  const tot = puC * qty;
+
+  mbox.innerHTML = `<div class="match-card">Tarif interpolé sur <strong>${row.refL}×${row.refH} cm</strong>${row.interp?" (interpolation linéaire)":""} · bracket qté : <strong>${qlabel(qty)}</strong>${row.p2?" · <span style='color:#B45309'>⚠ livraison 2 pans</span>":""}</div>`;
+  mbox.style.display = "";
+
+  pbox.innerHTML = `
+    <div class="px-client" style="margin-top:0">
+      <div><div class="lbl">PU HT (dont écopart ${row.e.toFixed(2)} €)</div><div class="sub">Total ${qty} u. = <strong>${fmt(tot)}</strong></div></div>
+      <div class="val">${fmt(puC)}</div>
+    </div>`;
+  pbox.style.display = "";
+
+  if (row.p2) showMsg(abox,"warn","⚠ Pour cette largeur et tête TO, le rideau est livré en 2 pans.");
+}
+
+const RINFOS = {
+  KS:"Rail KS alu 15×20mm · max 600cm · Idéal pose plafond silencieuse · coloris blanc/gris/noir",
+  KSC:"Rail KSC alu 20×20mm · max 600cm · Rideaux lourds 12kg/ml · Hôtels/bureaux/écoles",
+  SHUTTLE:"Rail Shuttle motorisé · Touch Control · Télécommande incluse · max 40kg rideau",
+  TR20:"Tringle ronde acier chromé Ø20mm · max 300cm · Décorative · TO ou anneaux STAN"
+};
+
+function onRailType() {
+  const r = document.getElementById("rail-type").value;
+  document.getElementById("rt-info").innerHTML = r&&RINFOS[r] ? `<div class="ginfo-card">${RINFOS[r]}</div>` : "";
+  document.getElementById("t-pose-wrap").style.display = (r==="SHUTTLE"||r==="TR20") ? "none" : "";
+  calcBoth();
+}
+
+function calcT() {
+  const r    = document.getElementById("rail-type").value;
+  const larg = parseFloat(document.getElementById("r-l").value) || 0; // Valeur partagée
+  const qty  = parseInt(document.getElementById("r-q").value)  || 1;  // Valeur partagée
+  const col  = document.getElementById("t-col").value;
+  const pose = document.getElementById("t-pose").value;
+
+  const mbox = document.getElementById("t-match");
+  const pbox = document.getElementById("t-px");
+  const abox = document.getElementById("t-alert");
+  mbox.style.display = pbox.style.display = abox.style.display = "none";
+
+  if (!r || larg < 50) return;
+  const rd = RAILS[r];
+  if (!rd) return;
+
+  if (r==="KSC" && col!=="blanc") { showMsg(abox,"err","Rail KSC disponible en blanc uniquement."); return; }
+  if (r==="TR20" && larg > 300)   { showMsg(abox,"warn","⚠ Tringle TR20 : max 300cm sans raccord. Nous consulter au-delà."); }
+  if (r==="SHUTTLE" && larg > 400){ showMsg(abox,"err","Rail Shuttle : max 400cm."); return; }
+
+  const row = findRailRow(rd.rows, larg);
+  if (!row) return;
+
+  let puF = qpx(row, qty);
+  const notes = [];
+  if (col !== "blanc") {
+    const pct = r==="SHUTTLE" ? .10 : .08;
+    puF *= (1 + pct);
+    notes.push(`+${r==="SHUTTLE"?"10":"8"} % coloris ${col}`);
+  }
+  let minsv = 0;
+  if (pose==="plafond" && r!=="TR20" && r!=="SHUTTLE") {
+    minsv = 1.55 * (larg / 100);
+    puF = Math.max(0, puF - minsv);
+    notes.push(`−${minsv.toFixed(2)} € pose plafond`);
+  }
+
+  const puC = puF * coef;
+  const tot = puC * qty;
+
+  mbox.innerHTML = `<div class="match-card">Tarif sur <strong>${row.refL} cm</strong>${row.interp?" (interpolation)":""} · bracket : <strong>${qlabel(qty)}</strong>${notes.length?" · "+notes.join(", "):""}</div>`;
+  mbox.style.display = "";
+
+  pbox.innerHTML = `
+    <div class="px-client" style="margin-top:0">
+      <div><div class="lbl">PU HT (dont écopart ${row.e.toFixed(2)} €)</div><div class="sub">Total ${qty} u. = <strong>${fmt(tot)}</strong></div></div>
+      <div class="val">${fmt(puC)}</div>
+    </div>`;
+  pbox.style.display = "";
+
+  if (row.s3) showMsg(abox, "warn", "3 supports nécessaires pour cette longueur.");
+}
+
+function showMsg(el, type, msg) {
+  el.innerHTML = msg;
+  el.className = type==="err" ? "err" : "warn";
+  el.style.display = "";
+}
+
+function addBoth() {
+  const g = document.getElementById("gamme").value;
+  const r = document.getElementById("rail-type").value;
+
+  if (!g && !r) { alert("Sélectionnez au moins un tissu ou un rail."); return; }
+
+  const larg = parseFloat(document.getElementById("r-l").value) || 0;
+  const qty  = parseInt(document.getElementById("r-q").value)   || 1;
+  let added = false;
+
+  // AJOUT RIDEAU
+  if (g) {
+    const haut = parseFloat(document.getElementById("r-h").value) || 0;
+    const col  = document.getElementById("r-col").value.trim();
+
+    if (larg < 50 || haut < 50) { alert("Rideau : Saisir des dimensions valides (min 50 cm)."); return; }
+    
+    let tk = tete;
+    if (g==="BORNEO" && tk==="PP70") tk = "PMPS";
+    const tdata = TARIFS[g] && TARIFS[g][tk];
+    if (!tdata) { alert("Rideau : Combinaison indisponible."); return; }
+
+    const row = findRideauRow(tdata.rows, larg, haut);
+    if (!row) { alert("Rideau : Données introuvables."); return; }
+
+    const puF = qpx(row, qty);
+    const puC = puF * coef;
+
+    items.push({
+      type:"rideau",
+      name:`${g} ${tk} — ${larg}×${haut} cm${col?" — "+col:""}`,
+      detail:`Ampleur ×${tdata.amp} · bracket: ${qlabel(qty)}${row.interp?" · interpolé":""}${row.p2?" · 2 pans":""}`,
+      qty, puF, puC, eco:row.e
+    });
+    added = true;
+  }
+
+  // AJOUT RAIL
+  if (r) {
+    const col  = document.getElementById("t-col").value;
+    const pose = document.getElementById("t-pose").value;
+
+    if (larg < 50){ alert("Rail : Saisir une largeur valide."); return; }
+    const rd = RAILS[r];
+    const row = findRailRow(rd.rows, larg);
+    if (!row) { alert("Rail : Largeur hors plage."); return; }
+    if (r==="KSC" && col!=="blanc") { alert("Rail KSC disponible en blanc uniquement."); return; }
+
+    let puF = qpx(row, qty);
+    const notes = [];
+    if (col !== "blanc") {
+      const pct = r==="SHUTTLE" ? .10 : .08;
+      puF *= (1 + pct);
+      notes.push(`coloris ${col}`);
+    }
+    if (pose==="plafond" && r!=="TR20" && r!=="SHUTTLE") {
+      const m = 1.55 * (larg / 100);
+      puF = Math.max(0, puF - m);
+      notes.push("pose plafond");
+    }
+
+    const puC = puF * coef;
+    items.push({
+      type: r==="TR20" ? "tringle" : "rail",
+      name:`${rd.label} — ${larg} cm${col!=="blanc"?" "+col:""}`,
+      detail:`Pose ${pose} · bracket: ${qlabel(qty)}${notes.length?" · "+notes.join(", "):""}${row.interp?" · interpolé":""}`,
+      qty, puF, puC, eco:row.e
+    });
+    added = true;
+  }
+
+  if (added) {
+    render();
+  }
+}
+
+// ─── RENDU DEVIS ───
+function render() {
+  const tbody  = document.getElementById("tbody");
+  const thead  = document.getElementById("thead");
+  const empty  = document.getElementById("empty");
+  const totc   = document.getElementById("totcard");
+  const acts   = document.getElementById("acts");
+  const remc   = document.getElementById("remcard");
+
+  if (!items.length) {
+    empty.style.display=""; thead.style.display="none"; totc.style.display="none"; acts.style.display="none"; remc.style.display="none";
+    tbody.innerHTML="";
+    return;
+  }
+  empty.style.display="none"; thead.style.display="grid"; totc.style.display=""; acts.style.display="grid"; remc.style.display="flex";
+
+  tbody.innerHTML = items.map((it,i) => {
+    const tot = it.puC * it.qty;
+    const bc  = it.type==="rideau" ? "rb-r" : it.type==="rail" ? "rb-rail" : "rb-tr";
+    const bt  = it.
