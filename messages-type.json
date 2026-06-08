@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1780912683142,
+      "titre": "Validation technique",
+      "categorie": "Général",
+      "contenu": "Le présent devis est soumis à la validation technique de nos poseurs lors de la prise de cotes définitive effectuée sur site après réception du bon pour accord du client. En cas de contrainte ou de modification constatée lors de cette visite, le devis pourra être ajusté en conséquence après validation du client.",
+      "versions": []
+    },
+    {
       "id": 1780032595705,
       "titre": "Zip",
       "categorie": "Extérieur",
@@ -97,6 +104,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1780912683142,
+      "date": "2026-06-08",
+      "heure": "11:58",
+      "action": "created",
+      "titre": "Validation technique",
+      "categorie": "Général"
+    },
     {
       "ts": 1780489386585,
       "date": "2026-06-03",
