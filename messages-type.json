@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1781125558883,
+      "titre": "Store projection",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses – Forfait pose store à projection\n\nVérification technique : Prise de mesures finales et contrôle des supports de fixation.\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants.\n\nInstallation : Pose des supports (ou du coffre), fixation des bras de projection et raccordement (motorisé ou manuel).\n\nMise en service : Réglage de la tension des bras, des fins de course et programmation de la commande.\n\nNettoyage : Aspiration du chantier et évacuation des déchets/emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'utilisation et signature du PV de fin de chantier.",
+      "versions": []
+    },
+    {
       "id": 1780912683142,
       "titre": "Validation technique",
       "categorie": "Général",
@@ -104,6 +111,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1781125558883,
+      "date": "2026-06-10",
+      "heure": "23:05",
+      "action": "created",
+      "titre": "Store projection",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1780912683142,
       "date": "2026-06-08",
