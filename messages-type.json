@@ -3,9 +3,17 @@
     {
       "id": 1781516460496,
       "titre": "Stores génériques",
-      "categorie": "Extérieur",
+      "categorie": "Général",
       "contenu": "Prestations incluses dans le forfait de pose :\n\nVérification technique : prise de cotes définitive et contrôle de la faisabilité de l’installation ainsi que de la conformité des supports.\nPréparation du chantier : protection de la zone d’intervention et organisation des travaux.\nDépose (si applicable) : démontage et évacuation des équipements existants.\nInstallation : pose et fixation du ou des équipements, ainsi que les raccordements nécessaires selon la configuration retenue.\nMise en service : réglages, essais de fonctionnement et paramétrage des équipements ou automatismes éventuellement prévus.\nNettoyage : remise en état de la zone d’intervention et évacuation des déchets et emballages liés à la prestation.\nRéception des travaux : vérification du bon fonctionnement avec le client, présentation des conditions d’utilisation et conseils d’entretien.",
-      "versions": []
+      "versions": [
+        {
+          "date": "2026-06-15",
+          "heure": "11:41",
+          "titre": "Stores génériques",
+          "categorie": "Extérieur",
+          "contenu": "Prestations incluses dans le forfait de pose :\n\nVérification technique : prise de cotes définitive et contrôle de la faisabilité de l’installation ainsi que de la conformité des supports.\nPréparation du chantier : protection de la zone d’intervention et organisation des travaux.\nDépose (si applicable) : démontage et évacuation des équipements existants.\nInstallation : pose et fixation du ou des équipements, ainsi que les raccordements nécessaires selon la configuration retenue.\nMise en service : réglages, essais de fonctionnement et paramétrage des équipements ou automatismes éventuellement prévus.\nNettoyage : remise en état de la zone d’intervention et évacuation des déchets et emballages liés à la prestation.\nRéception des travaux : vérification du bon fonctionnement avec le client, présentation des conditions d’utilisation et conseils d’entretien."
+        }
+      ]
     },
     {
       "id": 1781125558883,
@@ -118,6 +126,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1781516467211,
+      "date": "2026-06-15",
+      "heure": "11:41",
+      "action": "edited",
+      "titre": "Stores génériques",
+      "categorie": "Général"
+    },
     {
       "ts": 1781516460496,
       "date": "2026-06-15",
