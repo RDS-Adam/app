@@ -10,7 +10,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 15px; font-size: 13px; color: #333; margin: 0; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
         .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; position: relative; }
-        
+
         /* BOUTON ADMIN */
         .btn-admin-login { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-admin-login:hover { opacity: 1; transform: rotate(45deg); }
@@ -23,38 +23,38 @@
         .btn-del { background: var(--danger); }
         .btn-export { background: #8e44ad; }
         .btn-import { background: #d35400; }
-        
+
         .config-area { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
         .selection-box { border: 2px solid var(--primary); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .product-inputs { display: grid; grid-template-columns: 1.5fr 1.5fr 80px; gap: 15px; }
         .options-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        
+
         .opt-group { padding: 10px; border-radius: 6px; border: 1px solid #ddd; }
-        .opt-yellow { background: #fff9c4; border-color: #fbc02d; } 
-        .opt-blue { background: #e3f2fd; border-color: #2196f3; }   
+        .opt-yellow { background: #fff9c4; border-color: #fbc02d; }
+        .opt-blue { background: #e3f2fd; border-color: #2196f3; }
         .opt-green { background: #e8f5e9; border-color: #4caf50; }
         .opt-orange { background: #fff3e0; border-color: #ff9800; }
-        
+
         h4 { margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
         label { font-weight: bold; display: block; margin-bottom: 5px; }
         select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; box-sizing: border-box; font-size: 14px; }
-        
+
         .check-item { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
         .check-item input { width: auto; margin-right: 10px; margin-bottom: 0; transform: scale(1.2); }
-        
+
         .btn-add { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; }
         .btn-add-frais { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; width: 100%; height: 42px; }
-        
+
         .btn-print { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; float: right; font-size: 1rem; }
         .btn-reset { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; float: left; font-size: 1rem; }
         .btn-details { background: #ecf0f1; border: 1px solid #bdc3c7; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-left: 10px; color: #333; }
         .btn-details:hover { background: #d5dbdb; }
-        
+
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; min-width: 600px; }
         th { background: var(--primary); color: white; padding: 10px; text-align: left; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
-        
+
         .row-frais-fixes { background: #f1f8e9; font-style: italic; color: #555; }
         .details-row { background: #fdfefe; font-size: 0.85rem; color: #555; }
 
@@ -73,19 +73,19 @@
         .detail-marge td { background: #e9f7ef !important; color: #1e8449 !important; font-weight: 700; border-top: 2px solid #82e0aa !important; }
         body.hide-achat .detail-col-a { display: none; }
         body.hide-vente .detail-col-v { display: none; }
-        
+
         .total-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
         .stat { padding: 15px; border-radius: 8px; text-align: center; color: white; }
         .stat-a { background: #7f8c8d; } .stat-v { background: #2980b9; } .stat-m { background: var(--success); }
         .stat span { display: block; font-size: 22px; font-weight: bold; margin-top: 5px; }
-        
+
         .delete-btn { color: var(--danger); cursor: pointer; border: 1px solid var(--danger); padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; text-align: center; display: inline-block; }
 
         /* GESTION AFFICHAGE (MASQUER COLONNES) */
         .display-toggles { background: #e3f2fd; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #90caf9; display: flex; gap: 20px; align-items: center; font-size: 0.9rem; flex-wrap: wrap; }
         .display-toggles label { cursor: pointer; display: inline-flex; align-items: center; font-weight: bold; margin-bottom: 0; color: var(--primary); }
         .display-toggles input { width: auto; margin: 0 8px 0 0; transform: scale(1.2); }
-        
+
         body.hide-achat .col-achat, body.hide-achat .stat-a { display: none !important; }
         body.hide-vente .col-vente, body.hide-vente .stat-v { display: none !important; }
         body.hide-marge .col-marge, body.hide-marge .stat-m { display: none !important; }
@@ -96,19 +96,19 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
         .admin-header h2 { margin: 0; color: var(--primary); }
         .btn-close { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
-        
+
         /* ACCORDEONS ADMIN */
         .accordion-btn { background-color: #f1f5f9; color: var(--primary); cursor: pointer; padding: 15px 20px; width: 100%; border: 1px solid #e2e8f0; text-align: left; outline: none; font-size: 1.05rem; font-weight: bold; transition: 0.2s; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
         .accordion-btn:hover { background-color: #e2e8f0; }
         .accordion-btn.active { background-color: var(--primary); color: white; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-color: var(--primary); }
         .accordion-content { padding: 20px; display: none; background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-bottom: 15px; }
-        
+
         /* GRILLES ET CARTES ADMIN */
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
         .admin-card { border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; background: #fdfdfd; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.2s; }
         .admin-card:hover { border-color: #94a3b8; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         .admin-card p { margin: 0 0 12px 0; font-weight: bold; font-size: 0.95rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
-        
+
         .admin-input-group { display: flex; gap: 15px; }
         .admin-input-wrapper { flex: 1; display: flex; flex-direction: column; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .admin-input-wrapper span { font-size: 0.75rem; font-weight: bold; color: #64748b; margin-bottom: 4px; text-transform: uppercase; }
@@ -156,7 +156,7 @@
             .table-responsive { overflow-x: visible; }
             table { min-width: 100%; }
             .calc-number { padding: 0; }
-            .details-row { display: table-row !important; } 
+            .details-row { display: table-row !important; }
         }
     </style>
 </head>
@@ -178,7 +178,7 @@
         </select>
         <button class="btn-sl btn-load" onclick="loadDevis()">Charger</button>
         <button class="btn-sl btn-del" onclick="deleteDevis()">Supprimer</button>
-        
+
         <button class="btn-sl btn-export" onclick="exportDevisFile()">📥 Exporter</button>
         <button class="btn-sl btn-import" onclick="document.getElementById('importDevisFile').click()">📤 Importer</button>
         <input type="file" id="importDevisFile" style="display:none" accept=".json" onchange="importDevisFile(event)">
@@ -364,7 +364,7 @@
     </div>
 
     <div class="global-margin-box" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #90caf9;">
-        <h4 style="margin-top: 0; border-bottom: 1px solid #90caf9; padding-bottom: 5px; color: var(--primary); cursor: pointer; user-select: none;" 
+        <h4 style="margin-top: 0; border-bottom: 1px solid #90caf9; padding-bottom: 5px; color: var(--primary); cursor: pointer; user-select: none;"
             onclick="const content = document.getElementById('globalMarginContent'); const icon = document.getElementById('globalMarginIcon'); if(content.style.display === 'none') { content.style.display = 'block'; icon.innerText = '▼'; } else { content.style.display = 'none'; icon.innerText = '▶'; }">
             📊 Calcul de la Marge Globale (Pose + Produit) <span id="globalMarginIcon" style="float: right; font-size: 14px;">▶</span>
         </h4>
@@ -414,7 +414,7 @@
             <h2>⚙️ Interface Administrateur (Base de prix)</h2>
             <button class="btn-close" onclick="closeAdmin()">Fermer</button>
         </div>
-        
+
         <div style="margin-bottom: 25px; display:flex; gap:10px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
             <button class="btn-sl btn-import" onclick="document.getElementById('importDBFile').click()">📤 Importer Tarifs JSON</button>
             <input type="file" id="importDBFile" style="display:none" accept=".json" onchange="importDatabase(event)">
@@ -679,12 +679,12 @@ function populateSub() {
     const main = document.getElementById('pMain').value;
     const sub = document.getElementById('pSub');
     sub.innerHTML = "";
-    
+
     let bExt = document.getElementById('block-opt-ext');
     let bBanne = document.getElementById('block-opt-banne');
     let bVr = document.getElementById('block-opt-vr');
     let bInt = document.getElementById('block-opt-int');
-    
+
     if(bExt) bExt.style.display = 'none';
     if(bBanne) bBanne.style.display = 'none';
     if(bVr) bVr.style.display = 'none';
@@ -693,7 +693,7 @@ function populateSub() {
     document.querySelectorAll('#block-opt-ext input, #block-opt-banne input, #block-opt-vr input, #block-opt-int input').forEach(cb => cb.checked = false);
 
     if (!main) return;
-    
+
     if (main.startsWith('proj_') || main.startsWith('zip_bso_')) if(bExt) bExt.style.display = 'block';
     if (main.startsWith('banne_') || main === 'veraclim') if(bBanne) bBanne.style.display = 'block';
     if (main.startsWith('vr_')) if(bVr) bVr.style.display = 'block';
@@ -753,8 +753,8 @@ function addFrais() {
         let extraCostA = 0, extraCostV = 0;
         let extraDetails = null;
         if (mQty > 5) {
-            extraCostA = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.a; 
-            extraCostV = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.v; 
+            extraCostA = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.a;
+            extraCostV = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.v;
             extraDetails = { baseA: mesA, baseV: mesV, extraQty: (mQty - 5), extraCost: extraCostV };
         }
         let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures (jusqu\'à 5 stores)';
@@ -811,13 +811,13 @@ function addItem() {
         let depKey = 'depose_base';
         if (mSelect.value.startsWith('banne')) depKey = 'depose_banne';
         else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso')) depKey = 'depose_ext';
-        
+
         let a = TARIFS_OPTIONS[depKey].a;
         let v = TARIFS_OPTIONS[depKey].v;
         optList.push({ name: TARIFS_OPTIONS[depKey].name, a: a, v: v });
         totA += a; totV += v;
     }
-    
+
     panier.push({ isFrais: false, mainCat: mSelect.value, name: baseName, baseA: baseA, baseV: baseV, options: optList, qty: qty, unitA: totA, unitV: totV });
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
@@ -833,8 +833,8 @@ function updateUI() {
     const numInput = document.getElementById('devisNum').value;
     const displayNum = document.getElementById('displayDevisNum');
     body.innerHTML = "";
-    
-    if(numInput) { displayNum.style.display = "block"; document.getElementById('numVal').innerText = numInput; } 
+
+    if(numInput) { displayNum.style.display = "block"; document.getElementById('numVal').innerText = numInput; }
     else { displayNum.style.display = "none"; }
 
     let sumA = 0, sumV = 0, baseSumA = 0, baseSumV = 0, depA = 0, depV = 0;
@@ -848,7 +848,7 @@ function updateUI() {
     panier.forEach((item, idx) => {
         let trClass = item.isFrais ? "row-frais-fixes" : "";
         let btnHtml = (!item.isFrais || (item.isFrais && item.isMesure && item.extraDetails)) ? `<button class="btn-details" onclick="toggleDetails(${idx})"> Détails</button>` : '';
-        let currentA = item.a, currentV = item.v; 
+        let currentA = item.a, currentV = item.v;
         let discountBadge = "";
         let zoneSuppA = 0, zoneSuppV = 0;
 
@@ -889,7 +889,7 @@ function updateUI() {
             currentA = item.a; currentV = item.v;
         }
 
-        if (item.name === 'Déplacement') { depA += currentA; depV += currentV; } 
+        if (item.name === 'Déplacement') { depA += currentA; depV += currentV; }
         else { baseSumA += currentA; baseSumV += currentV; }
 
         body.innerHTML += `<tr class="${trClass}">
@@ -920,9 +920,6 @@ function updateUI() {
             const discApplV  = applyGlobalDiscount;
             const lineA      = discApplA ? lineA_brut * 0.85 : lineA_brut;
             const lineV      = discApplV ? lineV_brut * 0.90 : lineV_brut;
-            const marge    = lineV - lineA;
-            const txMarge  = lineV > 0 ? (marge / lineV * 100).toFixed(1) : '0.0';
-            const txMarkup = lineA > 0 ? (marge / lineA * 100).toFixed(1) : '0.0';
 
             const fA = (n) => `<span class="calc-number" data-val="${n}">${n.toFixed(2)} €</span>`;
             const fS = (n) => { const s = Math.abs(n).toFixed(2) + ' €'; return n >= 0 ? `<span style="color:#27ae60">+${s}</span>` : `<span style="color:#e74c3c">−${Math.abs(n).toFixed(2)} €</span>`; };
@@ -1014,12 +1011,6 @@ function updateUI() {
                 <td class="col-r detail-col-v">${lineV.toFixed(2)} €</td>
             </tr>`;
 
-            // ══ Marge ══
-            rows += `<tr class="detail-marge">
-                <td>📊 Marge brute — taux sur vente : <strong>${txMarge}%</strong> &nbsp;|&nbsp; markup sur achat : <strong>${txMarkup}%</strong></td>
-                <td class="col-r detail-col-a" style="background:#e9f7ef!important;color:#1e8449!important;" colspan="2">${marge.toFixed(2)} €</td>
-            </tr>`;
-
             body.innerHTML += `<tr id="details-${idx}" class="details-row" style="display:none;">
                 <td colspan="6">
                     <div class="detail-wrap">
@@ -1074,7 +1065,7 @@ function updateUI() {
     });
 
     if (panier.length > 0) {
-        if (zone === 'dep75_92' || zone === 'idf_metro') { 
+        if (zone === 'dep75_92' || zone === 'idf_metro') {
             let minAdjA = 0, minAdjV = 0;
             let totalForMinA = baseSumA + depA;
             let totalForMinV = baseSumV + depV;
@@ -1123,7 +1114,7 @@ function setCalcMode(mode) {
 }
 document.addEventListener('dblclick', function(e) {
     if(e.target && e.target.classList.contains('calc-number')) {
-        window.getSelection().removeAllRanges(); 
+        window.getSelection().removeAllRanges();
         let rawVal = parseFloat(e.target.getAttribute('data-val'));
         let val = (calcMode === 'add') ? rawVal : -rawVal;
         calcValues.push(val);
@@ -1131,7 +1122,7 @@ document.addEventListener('dblclick', function(e) {
         document.getElementById('calculatorPanel').style.display = 'block';
         let formula = calcValues.map((v, i) => (i===0?v.toFixed(2):(v<0?`- ${Math.abs(v).toFixed(2)}`:`+ ${v.toFixed(2)}`))).join(' ');
         document.getElementById('calcDisplay').innerText = formula;
-        document.getElementById('calcResult').innerText = ""; 
+        document.getElementById('calcResult').innerText = "";
     }
 });
 function runCalc() {
