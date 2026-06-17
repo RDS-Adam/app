@@ -7,9 +7,8 @@
   
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGugAD5jwy5zeDaKn3oL5NllbqzYqhimw&libraries=places&callback=Function.prototype"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGugAD5jwy5zeDaKn3oL5NllbqzYqhimw&libraries=places&callback=initMap"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,7 +41,6 @@
     .job-block { background: #f9fafb; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative; }
     .remove-job { position: absolute; top: 15px; right: 15px; }
 
-    /* Map container style */
     #map-container { width: 100%; height: 450px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 25px; overflow: hidden; background: #e5e7eb; display: flex; align-items: center; justify-content: center; color: #6b7280;}
 
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -75,67 +73,99 @@
 <body>
   <div id="root"></div>
 
-<script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+  <script>
+    var googleMapsReady = false;
+    var appMountPending = false;
 
-    const timeToMinutes = (hhmm) => { const [h, m] = hhmm.split(/[h:]/).map(Number); return h * 60 + m; };
-    const minutesToTime = (total) => {
-      const h = Math.floor(Math.round(total) / 60) % 24;
-      const m = Math.round(total) % 60;
-      return `${String(h).padStart(2, "0")}h${String(m).padStart(2, "0")}`;
+    window.initMap = function() {
+      googleMapsReady = true;
+      if (appMountPending) window.mountApp();
     };
 
-    const getVagueTimeLabel = (timeStr) => {
-      if(!timeStr) return "dans la journée";
-      const [h, m] = timeStr.split('h').map(Number);
-      const timeDecimal = h + (m / 60);
-      
-      if (timeDecimal < 13) return "dans la matinée";
-      if (timeDecimal >= 13 && timeDecimal < 15) return "en début d'après-midi";
+    document.addEventListener('DOMContentLoaded', function() {
+
+    var e = React.createElement;
+    var useState = React.useState;
+    var useEffect = React.useEffect;
+    var useRef = React.useRef;
+
+    function timeToMinutes(hhmm) {
+      var parts = hhmm.split(/[h:]/);
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    function minutesToTime(total) {
+      total = Math.round(total);
+      var h = Math.floor(total / 60) % 24;
+      var m = total % 60;
+      return String(h).padStart(2, "0") + "h" + String(m).padStart(2, "0");
+    }
+
+    function getVagueTimeLabel(timeStr) {
+      if (!timeStr) return "dans la journée";
+      var parts = timeStr.split('h').map(Number);
+      var h = parts[0], m = parts[1];
+      var dec = h + (m / 60);
+      if (dec < 13) return "dans la matinée";
+      if (dec >= 13 && dec < 15) return "en début d'après-midi";
       return "dans l'après-midi";
-    };
+    }
 
-    function GoogleAddressInput({ value, onChange, onPick, placeholder }) {
-      const inputRef = useRef(null);
-      const autocompleteRef = useRef(null);
-      
-      const callbacks = useRef({ onChange, onPick });
-      useEffect(() => { callbacks.current = { onChange, onPick }; }, [onChange, onPick]);
+    function getTransitEmoji(type) {
+      var t = (type || "").toUpperCase();
+      if (t.includes("SUBWAY")) return "🚇";
+      if (t.includes("BUS")) return "🚌";
+      if (t.includes("TRAM")) return "🚋";
+      if (t.includes("TRAIN") || t.includes("RAIL")) return "🚆";
+      return "🚍";
+    }
 
-      useEffect(() => {
+    // GoogleAddressInput
+    function GoogleAddressInput(props) {
+      var value = props.value, onChange = props.onChange, onPick = props.onPick, placeholder = props.placeholder;
+      var inputRef = useRef(null);
+      var autocompleteRef = useRef(null);
+      var cbRef = useRef({ onChange: onChange, onPick: onPick });
+
+      useEffect(function() { cbRef.current = { onChange: onChange, onPick: onPick }; }, [onChange, onPick]);
+
+      useEffect(function() {
         if (window.google && inputRef.current && !autocompleteRef.current) {
           autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, { fields: ["formatted_address", "geometry"] });
-          autocompleteRef.current.addListener("place_changed", () => {
-            const place = autocompleteRef.current.getPlace();
+          autocompleteRef.current.addListener("place_changed", function() {
+            var place = autocompleteRef.current.getPlace();
             if (place.geometry) {
-              const lat = place.geometry.location.lat();
-              const lon = place.geometry.location.lng();
-              const label = place.formatted_address;
-              callbacks.current.onChange(label);
-              callbacks.current.onPick({ label, lat, lon });
+              var lat = place.geometry.location.lat();
+              var lon = place.geometry.location.lng();
+              var label = place.formatted_address;
+              cbRef.current.onChange(label);
+              cbRef.current.onPick({ label: label, lat: lat, lon: lon });
             }
           });
         }
       }, []);
 
-      const handleKeyDown = (e) => { if (e.key === 'Enter') e.preventDefault(); };
-
-      return (
-        <input ref={inputRef} type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} />
-      );
+      return e('input', {
+        ref: inputRef,
+        type: 'text',
+        value: value || "",
+        onChange: function(ev) { onChange(ev.target.value); },
+        onKeyDown: function(ev) { if (ev.key === 'Enter') ev.preventDefault(); },
+        placeholder: placeholder
+      });
     }
 
-    // --- COMPOSANT CARTE 100% GOOGLE MAPS ---
-    function GoogleMapComponent({ points, routeGeometry }) {
-      const mapDivRef = useRef(null);
-      const mapInstanceRef = useRef(null);
-      const markersRef = useRef([]);
-      const polylineRef = useRef(null);
+    // GoogleMapComponent
+    function GoogleMapComponent(props) {
+      var points = props.points, routeGeometry = props.routeGeometry;
+      var mapDivRef = useRef(null);
+      var mapInstanceRef = useRef(null);
+      var markersRef = useRef([]);
+      var polylineRef = useRef(null);
 
-      useEffect(() => {
+      useEffect(function() {
         if (!window.google) return;
 
-        // Initialisation de la carte
         if (!mapInstanceRef.current) {
           mapInstanceRef.current = new window.google.maps.Map(mapDivRef.current, {
             center: { lat: 46.6, lng: 2.2 },
@@ -146,25 +176,22 @@
           });
         }
 
-        const map = mapInstanceRef.current;
-
-        // Nettoyage des éléments
-        markersRef.current.forEach(m => m.setMap(null));
+        var map = mapInstanceRef.current;
+        markersRef.current.forEach(function(m) { m.setMap(null); });
         markersRef.current = [];
         if (polylineRef.current) polylineRef.current.setMap(null);
 
-        const activePoints = points.filter(p => p.lat && p.lon);
+        var activePoints = points.filter(function(p) { return p.lat && p.lon; });
         if (activePoints.length === 0) return;
 
-        const bounds = new window.google.maps.LatLngBounds();
+        var bounds = new window.google.maps.LatLngBounds();
 
-        // Marqueurs
-        activePoints.forEach((p, index) => {
-          const isExtremity = p.isDepot || p.isArrival || p.client === "Départ" || p.client === "Retour";
-          const markerLabel = isExtremity ? (p.client === "Départ" ? "D" : "R") : String(index);
-          const markerColor = isExtremity ? "#10b981" : "#3b82f6";
+        activePoints.forEach(function(p, index) {
+          var isExtremity = p.isDepot || p.isArrival || p.client === "Départ" || p.client === "Retour";
+          var markerLabel = isExtremity ? (p.client === "Départ" ? "D" : "R") : String(index);
+          var markerColor = isExtremity ? "#10b981" : "#3b82f6";
 
-          const marker = new window.google.maps.Marker({
+          var marker = new window.google.maps.Marker({
             position: { lat: p.lat, lng: p.lon },
             map: map,
             title: p.client || p.address,
@@ -176,519 +203,540 @@
             }
           });
 
-          const infoWindow = new window.google.maps.InfoWindow({
-            content: `<div style="font-family: sans-serif; padding: 5px;"><strong>${p.client || (isExtremity ? p.client : "Client")}</strong><br/>${p.address}</div>`
+          var infoWindow = new window.google.maps.InfoWindow({
+            content: '<div style="font-family:sans-serif;padding:5px"><strong>' + (p.client || "Client") + '</strong><br/>' + p.address + '</div>'
           });
 
-          marker.addListener("click", () => infoWindow.open({ anchor: marker, map, shouldFocus: false }));
+          marker.addListener("click", function() { infoWindow.open({ anchor: marker, map: map, shouldFocus: false }); });
           markersRef.current.push(marker);
           bounds.extend({ lat: p.lat, lng: p.lon });
         });
 
-        // Tracé (vérification stricte du format pour éviter l'écran blanc)
         if (routeGeometry && Array.isArray(routeGeometry) && routeGeometry.length > 0 && routeGeometry[0].lat !== undefined) {
           polylineRef.current = new window.google.maps.Polyline({
             path: routeGeometry, geodesic: true,
             strokeColor: "#2563eb", strokeOpacity: 0.8, strokeWeight: 5,
             map: map
           });
-          routeGeometry.forEach(coord => bounds.extend(coord));
+          routeGeometry.forEach(function(coord) { bounds.extend(coord); });
         }
 
         if (!bounds.isEmpty()) {
           map.fitBounds(bounds);
           if (activePoints.length === 1 && (!routeGeometry || routeGeometry.length === 0)) {
-            setTimeout(() => map.setZoom(13), 100);
+            setTimeout(function() { map.setZoom(13); }, 100);
           }
         }
       }, [points, routeGeometry]);
 
-      return <div ref={mapDivRef} id="map-container" className="no-print">Chargement de la carte...</div>;
+      return e('div', { ref: mapDivRef, id: 'map-container', className: 'no-print' }, 'Chargement de la carte...');
     }
 
+    // App principal
     function App() {
-      // CHANGEMENT DU NOM DE LA SAUVEGARDE POUR ÉVITER LE CONFLIT (v2)
-      const savedState = JSON.parse(localStorage.getItem('rueDuStore_autosave_v2') || 'null');
+      var savedState = JSON.parse(localStorage.getItem('rueDuStore_autosave_v2') || 'null');
 
-      const [depot, setDepot] = useState(savedState?.depot || { address: "Orléans", lat: 47.902964, lon: 1.909251 });
-      const [arrival, setArrival] = useState(savedState?.arrival || { address: "", lat: null, lon: null });
-      const [sameAsStart, setSameAsStart] = useState(savedState?.sameAsStart ?? true);
-      const [tourDate, setTourDate] = useState(savedState?.tourDate || new Date().toISOString().split('T')[0]);
-      const [startTime, setStartTime] = useState(savedState?.startTime || "08:00");
-      const [transportMode, setTransportMode] = useState(savedState?.transportMode || "DRIVING"); 
-      const [jobs, setJobs] = useState(savedState?.jobs || [{ id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null, lon: null }]);
-      const [result, setResult] = useState(savedState?.result || null);
-      const [routeGeo, setRouteGeo] = useState(savedState?.routeGeo || []);
-      
-      const [loading, setLoading] = useState(false);
-      const [calModalOpen, setCalModalOpen] = useState(false);
-      const [calModalText, setCalModalText] = useState("");
-      const [calModalJob, setCalModalJob] = useState(null);
-      const [expandedRows, setExpandedRows] = useState({});
+      var depotState = useState(savedState && savedState.depot || { address: "Orléans", lat: 47.902964, lon: 1.909251 });
+      var depot = depotState[0], setDepot = depotState[1];
 
-      useEffect(() => {
-        const stateToSave = { depot, arrival, sameAsStart, tourDate, startTime, transportMode, jobs, result, routeGeo };
+      var arrivalState = useState(savedState && savedState.arrival || { address: "", lat: null, lon: null });
+      var arrival = arrivalState[0], setArrival = arrivalState[1];
+
+      var sameState = useState(savedState ? savedState.sameAsStart : true);
+      var sameAsStart = sameState[0], setSameAsStart = sameState[1];
+
+      var dateState = useState(savedState && savedState.tourDate || new Date().toISOString().split('T')[0]);
+      var tourDate = dateState[0], setTourDate = dateState[1];
+
+      var startState = useState(savedState && savedState.startTime || "08:00");
+      var startTime = startState[0], setStartTime = startState[1];
+
+      var modeState = useState(savedState && savedState.transportMode || "DRIVING");
+      var transportMode = modeState[0], setTransportMode = modeState[1];
+
+      var jobsState = useState(savedState && savedState.jobs || [{ id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null, lon: null }]);
+      var jobs = jobsState[0], setJobs = jobsState[1];
+
+      var resultState = useState(savedState && savedState.result || null);
+      var result = resultState[0], setResult = resultState[1];
+
+      var routeGeoState = useState(savedState && savedState.routeGeo || []);
+      var routeGeo = routeGeoState[0], setRouteGeo = routeGeoState[1];
+
+      var loadingState = useState(false);
+      var loading = loadingState[0], setLoading = loadingState[1];
+
+      var calModalState = useState(false);
+      var calModalOpen = calModalState[0], setCalModalOpen = calModalState[1];
+
+      var calTextState = useState("");
+      var calModalText = calTextState[0], setCalModalText = calTextState[1];
+
+      var calJobState = useState(null);
+      var calModalJob = calJobState[0], setCalModalJob = calJobState[1];
+
+      var expandedState = useState({});
+      var expandedRows = expandedState[0], setExpandedRows = expandedState[1];
+
+      var draggedState = useState(null);
+      var draggedIdx = draggedState[0], setDraggedIdx = draggedState[1];
+
+      var dragOverState = useState(null);
+      var dragOverIdx = dragOverState[0], setDragOverIdx = dragOverState[1];
+
+      useEffect(function() {
+        var stateToSave = { depot: depot, arrival: arrival, sameAsStart: sameAsStart, tourDate: tourDate, startTime: startTime, transportMode: transportMode, jobs: jobs, result: result, routeGeo: routeGeo };
         localStorage.setItem('rueDuStore_autosave_v2', JSON.stringify(stateToSave));
       }, [depot, arrival, sameAsStart, tourDate, startTime, transportMode, jobs, result, routeGeo]);
 
-      const exportJSON = () => {
-        const data = { depot, arrival, sameAsStart, tourDate, startTime, transportMode, jobs, result, routeGeo };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; 
-        a.download = `Tournee_RueDuStore_${tourDate}.json`;
-        a.click(); 
+      function exportJSON() {
+        var data = { depot: depot, arrival: arrival, sameAsStart: sameAsStart, tourDate: tourDate, startTime: startTime, transportMode: transportMode, jobs: jobs, result: result, routeGeo: routeGeo };
+        var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'Tournee_RueDuStore_' + tourDate + '.json';
+        a.click();
         URL.revokeObjectURL(url);
-      };
+      }
 
-      const importJSON = (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
+      function importJSON(ev) {
+        var file = ev.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e2) {
           try {
-            const data = JSON.parse(ev.target.result);
+            var data = JSON.parse(e2.target.result);
             setDepot(data.depot); setArrival(data.arrival); setSameAsStart(data.sameAsStart);
             setTourDate(data.tourDate); setStartTime(data.startTime); setTransportMode(data.transportMode);
             setJobs(data.jobs); setResult(data.result); setRouteGeo(data.routeGeo);
             setExpandedRows({});
-          } catch(err) { 
-            alert("Erreur: Ce fichier n'est pas une sauvegarde valide."); 
-          }
+          } catch(err) { alert("Erreur: Ce fichier n'est pas une sauvegarde valide."); }
         };
         reader.readAsText(file);
-        e.target.value = null; 
-      };
+        ev.target.value = null;
+      }
 
-      const geocodeIfNeeded = async (addr, existingLat) => {
-        if (existingLat || !addr) return null;
-        const geocoder = new window.google.maps.Geocoder();
-        return new Promise((resolve, reject) => {
-          geocoder.geocode({ address: addr }, (results, status) => {
+      function geocodeIfNeeded(addr, existingLat) {
+        if (existingLat || !addr) return Promise.resolve(null);
+        var geocoder = new window.google.maps.Geocoder();
+        return new Promise(function(resolve, reject) {
+          geocoder.geocode({ address: addr }, function(results, status) {
             if (status === 'OK') resolve({ lat: results[0].geometry.location.lat(), lon: results[0].geometry.location.lng() });
-            else reject(new Error(`Adresse introuvable : ${addr}`));
+            else reject(new Error('Adresse introuvable : ' + addr));
           });
         });
-      };
+      }
 
-      const getTransitEmoji = (type) => {
-        const t = (type || "").toUpperCase();
-        if(t.includes("SUBWAY")) return "🚇";
-        if(t.includes("BUS")) return "🚌";
-        if(t.includes("TRAM")) return "🚋";
-        if(t.includes("TRAIN") || t.includes("RAIL")) return "🚆";
-        return "🚍";
-      };
+      function toggleRow(idx) {
+        setExpandedRows(function(prev) {
+          var next = Object.assign({}, prev);
+          next[idx] = !prev[idx];
+          return next;
+        });
+      }
 
-      const toggleRow = (idx) => {
-        setExpandedRows(prev => ({ ...prev, [idx]: !prev[idx] }));
-      };
-
-      const updateTimesAndRoute = async (currentOrder) => {
+      function updateTimesAndRoute(currentOrder) {
         setLoading(true);
-        try {
-          const directionsService = new window.google.maps.DirectionsService();
-          const returnPoint = sameAsStart ? depot : arrival;
-          
-          const sequence = [
-            {...depot, isDepot:true, client:"Départ"}, 
-            ...currentOrder, 
-            {...returnPoint, isDepot:true, isArrival:true, client:"Retour", duration: 0}
-          ];
+        var directionsService = new window.google.maps.DirectionsService();
+        var returnPoint = sameAsStart ? depot : arrival;
 
-          let newPlan = [];
-          let fullRouteGeo = [];
-          let currentTime = timeToMinutes(startTime);
-          let lastPhysicalPoint = sequence[0];
+        var sequence = [Object.assign({}, depot, { isDepot: true, client: "Départ" })].concat(currentOrder).concat([Object.assign({}, returnPoint, { isDepot: true, isArrival: true, client: "Retour", duration: 0 })]);
 
-          for (let i = 1; i < sequence.length; i++) {
-            const currentItem = sequence[i];
+        var newPlan = [];
+        var fullRouteGeo = [];
+        var currentTime = timeToMinutes(startTime);
+        var lastPhysicalPoint = sequence[0];
+        var i = 1;
 
-            if (currentItem.isLunch) {
-              const buffer = currentItem.eatOnSite ? 0 : 15;
-              const arriveLunch = currentTime + buffer;
-              const dur = currentItem.duration || 60;
-              newPlan.push({ ...currentItem, arrive: minutesToTime(arriveLunch), depart: minutesToTime(arriveLunch + dur) });
-              currentTime = arriveLunch + dur + buffer;
-            } else {
-              const request = {
-                origin: new window.google.maps.LatLng(lastPhysicalPoint.lat, lastPhysicalPoint.lon),
-                destination: new window.google.maps.LatLng(currentItem.lat, currentItem.lon),
-                travelMode: transportMode
-              };
+        function processNext() {
+          if (i >= sequence.length) {
+            setResult({ plan: newPlan });
+            setRouteGeo(fullRouteGeo);
+            setLoading(false);
+            return;
+          }
 
-              const routeResult = await new Promise((resolve, reject) => {
-                directionsService.route(request, (res, status) => {
-                  if (status === 'OK') resolve(res);
-                  else reject(new Error(`Calcul impossible entre ${lastPhysicalPoint.client||lastPhysicalPoint.address} et ${currentItem.client||currentItem.address}`));
-                });
-              });
+          var currentItem = sequence[i];
+          i++;
 
-              let transitStepsInfo = [];
-              let detailedSteps = [];
-              
+          if (currentItem.isLunch) {
+            var buffer = currentItem.eatOnSite ? 0 : 15;
+            var arriveLunch = currentTime + buffer;
+            var dur = currentItem.duration || 60;
+            newPlan.push(Object.assign({}, currentItem, { arrive: minutesToTime(arriveLunch), depart: minutesToTime(arriveLunch + dur) }));
+            currentTime = arriveLunch + dur + buffer;
+            processNext();
+          } else {
+            var request = {
+              origin: new window.google.maps.LatLng(lastPhysicalPoint.lat, lastPhysicalPoint.lon),
+              destination: new window.google.maps.LatLng(currentItem.lat, currentItem.lon),
+              travelMode: transportMode
+            };
+
+            directionsService.route(request, function(routeResult, status) {
+              if (status !== 'OK') {
+                alert('Calcul impossible entre ' + (lastPhysicalPoint.client || lastPhysicalPoint.address) + ' et ' + (currentItem.client || currentItem.address));
+                setLoading(false);
+                return;
+              }
+
+              var transitStepsInfo = [];
+              var detailedSteps = [];
+
               if (transportMode === 'TRANSIT') {
-                routeResult.routes[0].legs[0].steps.forEach(step => {
+                routeResult.routes[0].legs[0].steps.forEach(function(step) {
                   if (step.travel_mode === 'TRANSIT' && step.transit) {
-                    const t = step.transit;
-                    const emoji = getTransitEmoji(t.line?.vehicle?.type);
-                    transitStepsInfo.push(`${emoji} ${t.line.short_name || t.line.name} (${t.departure_stop.name} ➔ ${t.arrival_stop.name})`);
+                    var t = step.transit;
+                    var emoji = getTransitEmoji(t.line && t.line.vehicle && t.line.vehicle.type);
+                    transitStepsInfo.push(emoji + ' ' + (t.line.short_name || t.line.name) + ' (' + t.departure_stop.name + ' ➔ ' + t.arrival_stop.name + ')');
                   } else if (step.travel_mode === 'WALKING' && step.distance.value > 300) {
-                    transitStepsInfo.push(`🚶 Marche (${step.distance.text})`);
+                    transitStepsInfo.push('🚶 Marche (' + step.distance.text + ')');
                   }
-                  
-                  let instructionHTML = step.instructions || "";
                   detailedSteps.push({
                     mode: step.travel_mode,
-                    instruction: instructionHTML,
-                    distance: step.distance?.text || "",
-                    duration: step.duration?.text || "",
+                    instruction: step.instructions || "",
+                    distance: step.distance ? step.distance.text : "",
+                    duration: step.duration ? step.duration.text : "",
                     transitDetails: step.transit || null
                   });
                 });
               }
 
-              const travelDuration = Math.ceil(routeResult.routes[0].legs[0].duration.value / 60);
+              var travelDuration = Math.ceil(routeResult.routes[0].legs[0].duration.value / 60);
               currentTime += travelDuration;
+              var dur2 = currentItem.duration || 0;
 
-              const dur = currentItem.duration || 0;
-              newPlan.push({
-                ...currentItem,
+              newPlan.push(Object.assign({}, currentItem, {
                 arrive: minutesToTime(currentTime),
-                depart: currentItem.isArrival ? "-" : minutesToTime(currentTime + dur),
+                depart: currentItem.isArrival ? "-" : minutesToTime(currentTime + dur2),
                 transitSteps: transitStepsInfo,
                 detailedSteps: detailedSteps
-              });
-              
-              currentTime += dur;
+              }));
+
+              currentTime += dur2;
               lastPhysicalPoint = currentItem;
 
-              const path = routeResult.routes[0].overview_path.map(p => ({ lat: p.lat(), lng: p.lng() }));
+              var path = routeResult.routes[0].overview_path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
               fullRouteGeo = fullRouteGeo.concat(path);
-            }
+
+              processNext();
+            });
           }
+        }
 
-          setResult({ plan: newPlan });
-          setRouteGeo(fullRouteGeo);
+        processNext();
+      }
 
-        } catch (e) { alert(e.message); }
-        setLoading(false);
-      };
-
-      const computePlan = async () => {
+      function computePlan() {
         setLoading(true);
-        try {
-          let currentDepot = { ...depot };
-          const depGeo = await geocodeIfNeeded(currentDepot.address, currentDepot.lat);
+        var currentDepot = Object.assign({}, depot);
+        var currentArrival = sameAsStart ? Object.assign({}, currentDepot) : Object.assign({}, arrival);
+        var allJobs = jobs.map(function(j) { return Object.assign({}, j); });
+
+        geocodeIfNeeded(currentDepot.address, currentDepot.lat).then(function(depGeo) {
           if (depGeo) Object.assign(currentDepot, depGeo);
-          
-          let currentArrival = sameAsStart ? { ...currentDepot } : { ...arrival };
-          const arrGeo = await geocodeIfNeeded(currentArrival.address, currentArrival.lat);
+          return geocodeIfNeeded(currentArrival.address, currentArrival.lat);
+        }).then(function(arrGeo) {
           if (!sameAsStart && arrGeo) Object.assign(currentArrival, arrGeo);
-
-          const allJobs = [...jobs];
-          for (let job of allJobs) {
-            const jobGeo = await geocodeIfNeeded(job.address, job.lat);
-            if (jobGeo) Object.assign(job, jobGeo);
+          var idx = 0;
+          function geocodeJob() {
+            if (idx >= allJobs.length) return Promise.resolve();
+            var job = allJobs[idx++];
+            return geocodeIfNeeded(job.address, job.lat).then(function(geo) {
+              if (geo) Object.assign(job, geo);
+              return geocodeJob();
+            });
           }
-
-          let currentPoint = currentDepot;
-          let unvisited = allJobs.filter(j => j.lat);
-          let orderedJobs = [];
-          
-          while(unvisited.length) {
-            unvisited.sort((a,b) => (Math.pow(a.lat - currentPoint.lat, 2) + Math.pow(a.lon - currentPoint.lon, 2)) - (Math.pow(b.lat - currentPoint.lat, 2) + Math.pow(b.lon - currentPoint.lon, 2)));
+          return geocodeJob();
+        }).then(function() {
+          var currentPoint = currentDepot;
+          var unvisited = allJobs.filter(function(j) { return j.lat; });
+          var orderedJobs = [];
+          while (unvisited.length) {
+            unvisited.sort(function(a, b) {
+              return (Math.pow(a.lat - currentPoint.lat, 2) + Math.pow(a.lon - currentPoint.lon, 2)) -
+                     (Math.pow(b.lat - currentPoint.lat, 2) + Math.pow(b.lon - currentPoint.lon, 2));
+            });
             currentPoint = unvisited.shift();
             orderedJobs.push(currentPoint);
           }
+          setExpandedRows({});
+          updateTimesAndRoute(orderedJobs);
+        }).catch(function(err) {
+          alert(err.message);
+          setLoading(false);
+        });
+      }
 
-          await updateTimesAndRoute(orderedJobs);
-          setExpandedRows({}); 
+      function addLunch() {
+        if (!result || !result.plan) { alert("Veuillez d'abord calculer la tournée avant d'ajouter une pause."); return; }
+        var lunch = { id: 'lunch-' + Date.now(), client: "PAUSE DÉJEUNER", isLunch: true, eatOnSite: false, duration: 60, address: "Sur place", lat: null, lon: null };
+        var newPlan = result.plan.filter(function(p) { return !p.isArrival; });
+        newPlan.push(lunch);
+        updateTimesAndRoute(newPlan);
+      }
 
-        } catch (e) { alert(e.message); setLoading(false); }
-      };
+      function updateJob(id, field, value) {
+        setJobs(function(prev) { return prev.map(function(j) { return j.id === id ? Object.assign({}, j, { [field]: value }) : j; }); });
+      }
+      function updateJobData(id, updates) {
+        setJobs(function(prev) { return prev.map(function(j) { return j.id === id ? Object.assign({}, j, updates) : j; }); });
+      }
+      function removeJob(id) { setJobs(function(prev) { return prev.filter(function(j) { return j.id !== id; }); }); }
+      function addJob() { setJobs(function(prev) { return prev.concat([{ id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null, lon: null }]); }); }
 
-      const addLunch = () => {
-        const lunch = { id: 'lunch-' + Date.now(), client: "PAUSE DÉJEUNER", isLunch: true, eatOnSite: false, duration: 60, address: "Sur place", lat: null, lon: null };
-        if (result && result.plan) {
-            const newPlan = [...result.plan.filter(p => !p.isArrival)];
-            newPlan.push(lunch);
-            updateTimesAndRoute(newPlan);
-        } else {
-            alert("Veuillez d'abord calculer la tournée avant d'ajouter une pause.");
-        }
-      };
-
-      const updateJob = (id, field, value) => { setJobs(prev => prev.map(j => j.id === id ? { ...j, [field]: value } : j)); };
-      const updateJobData = (id, updates) => { setJobs(prev => prev.map(j => j.id === id ? { ...j, ...updates } : j)); };
-      const removeJob = (id) => setJobs(prev => prev.filter(j => j.id !== id));
-      const addJob = () => setJobs(prev => [...prev, { id: Date.now(), client: "", email: "", address: "", duration: 60, notes: "", lat: null, lon: null }]);
-
-      const [draggedIdx, setDraggedIdx] = useState(null);
-      const [dragOverIdx, setDragOverIdx] = useState(null);
-      
-      const onDrop = (idx) => {
+      function onDrop(idx) {
         setDragOverIdx(null);
         if (draggedIdx === null || draggedIdx === idx) return;
-        const currentPlan = [...result.plan.filter(p => !p.isArrival)];
-        const item = currentPlan.splice(draggedIdx, 1)[0];
+        var currentPlan = result.plan.filter(function(p) { return !p.isArrival; }).slice();
+        var item = currentPlan.splice(draggedIdx, 1)[0];
         currentPlan.splice(idx, 0, item);
         updateTimesAndRoute(currentPlan);
         setDraggedIdx(null);
-      };
+      }
 
-      const sendEmail = (p) => {
-        const d = new Date(tourDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const poseObj = p.notes ? p.notes : "votre installation";
-        const timeLabel = getVagueTimeLabel(p.arrive); 
-        
-        const subject = encodeURIComponent(`Confirmation d'intervention Rue du Store - ${d}`);
-        const body = encodeURIComponent(
-          `Bonjour,\n\n` +
-          `Nous vous confirmons par la présente le passage de nos techniciens pour l'intervention suivante :\n\n` +
-          `• Objet : ${poseObj}\n` +
-          `• Date : ${d}\n` +
-          `• Créneau d'arrivée indicatif : ${timeLabel}\n\n` +
-          `Nos équipes font le maximum pour respecter nos horaires, toutefois ceux-ci restent dépendants des aléas de circulation ou de chantiers précédents. En cas de retard important, nous ne manquerons pas de vous prévenir.\n\n` +
-          `Cordialement,\n\nL'équipe Rue du Store\nwww.ruedustore.fr`
+      function sendEmail(p) {
+        var d = new Date(tourDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        var poseObj = p.notes ? p.notes : "votre installation";
+        var timeLabel = getVagueTimeLabel(p.arrive);
+        var subject = encodeURIComponent("Confirmation d'intervention Rue du Store - " + d);
+        var body = encodeURIComponent(
+          "Bonjour,\n\n" +
+          "Nous vous confirmons par la présente le passage de nos techniciens pour l'intervention suivante :\n\n" +
+          "• Objet : " + poseObj + "\n" +
+          "• Date : " + d + "\n" +
+          "• Créneau d'arrivée indicatif : " + timeLabel + "\n\n" +
+          "Nos équipes font le maximum pour respecter nos horaires, toutefois ceux-ci restent dépendants des aléas de circulation ou de chantiers précédents. En cas de retard important, nous ne manquerons pas de vous prévenir.\n\n" +
+          "Cordialement,\n\nL'équipe Rue du Store\nwww.ruedustore.fr"
         );
-        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${p.email}&su=${subject}&body=${body}`, '_blank');
-      };
+        window.open("https://mail.google.com/mail/?view=cm&fs=1&to=" + p.email + "&su=" + subject + "&body=" + body, '_blank');
+      }
 
-      const openCalendarModal = (p) => {
-        setCalModalText(`Notes : ${p.notes || 'Aucune'}\nClient : ${p.client}\nEmail : ${p.email || 'Non renseigné'}`);
+      function openCalendarModal(p) {
+        setCalModalText("Notes : " + (p.notes || 'Aucune') + "\nClient : " + p.client + "\nEmail : " + (p.email || 'Non renseigné'));
         setCalModalJob(p);
         setCalModalOpen(true);
-      };
+      }
 
-      const confirmAddToCalendar = () => {
+      function confirmAddToCalendar() {
         if (!calModalJob) return;
-        const p = calModalJob;
-        const [y, m, d] = tourDate.split('-');
-        const arriveTime = p.arrive.replace('h', '') + '00';
-        const departTime = p.depart.replace('h', '') + '00';
-        
-        const dates = `${y}${m}${d}T${arriveTime}/${y}${m}${d}T${departTime}`;
-        const title = encodeURIComponent(`Intervention - ${p.client}`);
-        const details = encodeURIComponent(calModalText);
-        const location = encodeURIComponent(p.address || '');
-
-        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+        var p = calModalJob;
+        var parts = tourDate.split('-');
+        var y = parts[0], m = parts[1], d = parts[2];
+        var arriveTime = p.arrive.replace('h', '') + '00';
+        var departTime = p.depart.replace('h', '') + '00';
+        var dates = y + m + d + 'T' + arriveTime + '/' + y + m + d + 'T' + departTime;
+        var title = encodeURIComponent('Intervention - ' + p.client);
+        var details = encodeURIComponent(calModalText);
+        var location = encodeURIComponent(p.address || '');
+        var url = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + title + "&dates=" + dates + "&details=" + details + "&location=" + location;
         window.open(url, '_blank');
         setCalModalOpen(false);
-      };
+      }
 
-      return (
-        <div className="container">
-          
-          <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h1 style={{ fontSize: '24px', color: '#111827', margin: 0 }}>📍 Planificateur de Tournées</h1>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input type="file" id="json-upload" style={{ display: 'none' }} accept=".json" onChange={importJSON} />
-              <button className="btn btn-secondary" onClick={() => document.getElementById('json-upload').click()}>📂 Importer</button>
-              <button className="btn btn-secondary" onClick={exportJSON}>💾 Exporter JSON</button>
-            </div>
-          </div>
+      // RENDER
+      return e('div', { className: 'container' },
 
-          <div className="no-print card">
-            <div className="card-title">Configuration de la journée</div>
-            <div className="grid-3" style={{ marginBottom: '15px' }}>
-              <div><label>Date</label><input type="date" value={tourDate} onChange={e => setTourDate(e.target.value)} /></div>
-              <div><label>Heure de départ</label><input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} /></div>
-              <div>
-                <label>Mode de transport</label>
-                <select value={transportMode} onChange={e => { setTransportMode(e.target.value); setResult(null); }}>
-                  <option value="DRIVING">🚗 Voiture</option>
-                  <option value="BICYCLING">🚲 Vélo</option>
-                  <option value="WALKING">🚶 Marche</option>
-                  <option value="TRANSIT">🚇 Transports en commun</option>
-                </select>
-              </div>
-            </div>
+        // Header
+        e('div', { className: 'no-print', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' } },
+          e('h1', { style: { fontSize: '24px', color: '#111827', margin: 0 } }, '📍 Planificateur de Tournées'),
+          e('div', { style: { display: 'flex', gap: '10px' } },
+            e('input', { type: 'file', id: 'json-upload', style: { display: 'none' }, accept: '.json', onChange: importJSON }),
+            e('button', { className: 'btn btn-secondary', onClick: function() { document.getElementById('json-upload').click(); } }, '📂 Importer'),
+            e('button', { className: 'btn btn-secondary', onClick: exportJSON }, '💾 Exporter JSON')
+          )
+        ),
 
-            <div className="grid-2">
-              <div>
-                <label>Départ</label>
-                <GoogleAddressInput placeholder="Adresse de départ" value={depot.address} onChange={v => setDepot(prev => ({...prev, address: v, lat: null}))} onPick={s => setDepot(prev => ({...prev, address: s.label, lat: s.lat, lon: s.lon}))} />
-              </div>
-              <div>
-                <label style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  Retour <span style={{ fontWeight: 'normal', fontSize: '12px' }}><input type="checkbox" checked={sameAsStart} onChange={e => setSameAsStart(e.target.checked)} /> Identique</span>
-                </label>
-                {!sameAsStart && <GoogleAddressInput placeholder="Adresse de fin" value={arrival.address} onChange={v => setArrival(prev => ({...prev, address: v, lat: null}))} onPick={s => setArrival(prev => ({...prev, address: s.label, lat: s.lat, lon: s.lon}))} />}
-              </div>
-            </div>
-          </div>
+        // Config
+        e('div', { className: 'no-print card' },
+          e('div', { className: 'card-title' }, 'Configuration de la journée'),
+          e('div', { className: 'grid-3', style: { marginBottom: '15px' } },
+            e('div', null, e('label', null, 'Date'), e('input', { type: 'date', value: tourDate, onChange: function(ev) { setTourDate(ev.target.value); } })),
+            e('div', null, e('label', null, 'Heure de départ'), e('input', { type: 'time', value: startTime, onChange: function(ev) { setStartTime(ev.target.value); } })),
+            e('div', null, e('label', null, 'Mode de transport'),
+              e('select', { value: transportMode, onChange: function(ev) { setTransportMode(ev.target.value); setResult(null); } },
+                e('option', { value: 'DRIVING' }, '🚗 Voiture'),
+                e('option', { value: 'BICYCLING' }, '🚲 Vélo'),
+                e('option', { value: 'WALKING' }, '🚶 Marche'),
+                e('option', { value: 'TRANSIT' }, '🚇 Transports en commun')
+              )
+            )
+          ),
+          e('div', { className: 'grid-2' },
+            e('div', null,
+              e('label', null, 'Départ'),
+              e(GoogleAddressInput, { placeholder: 'Adresse de départ', value: depot.address, onChange: function(v) { setDepot(function(prev) { return Object.assign({}, prev, { address: v, lat: null }); }); }, onPick: function(s) { setDepot(function(prev) { return Object.assign({}, prev, { address: s.label, lat: s.lat, lon: s.lon }); }); } })
+            ),
+            e('div', null,
+              e('label', { style: { display: 'flex', justifyContent: 'space-between' } },
+                'Retour',
+                e('span', { style: { fontWeight: 'normal', fontSize: '12px' } },
+                  e('input', { type: 'checkbox', checked: sameAsStart, onChange: function(ev) { setSameAsStart(ev.target.checked); } }),
+                  ' Identique'
+                )
+              ),
+              !sameAsStart && e(GoogleAddressInput, { placeholder: 'Adresse de fin', value: arrival.address, onChange: function(v) { setArrival(function(prev) { return Object.assign({}, prev, { address: v, lat: null }); }); }, onPick: function(s) { setArrival(function(prev) { return Object.assign({}, prev, { address: s.label, lat: s.lat, lon: s.lon }); }); } })
+            )
+          )
+        ),
 
-          <div className="no-print card">
-            <div className="card-title">Liste des chantiers</div>
-            {jobs.map((j, index) => (
-              <div key={j.id} className="job-block">
-                <button className="btn btn-danger remove-job" onClick={() => removeJob(j.id)}>✖</button>
-                <h4 style={{ marginBottom: '10px', color: '#3b82f6' }}>Chantier {index + 1}</h4>
-                <div className="grid-2" style={{ marginBottom: '10px' }}>
-                  <div><label>Client</label><input type="text" value={j.client} onChange={e => updateJob(j.id, 'client', e.target.value)} /></div>
-                  <div><label>Adresse</label><GoogleAddressInput value={j.address} onChange={v => updateJob(j.id, 'address', v)} onPick={s => updateJobData(j.id, { address: s.label, lat: s.lat, lon: s.lon })} /></div>
-                </div>
-                <div className="grid-3">
-                  <div><label>Durée (min)</label><input type="number" step="15" min="15" value={j.duration} onChange={e => updateJob(j.id, 'duration', parseInt(e.target.value) || 0)} /></div>
-                  <div><label>Email</label><input type="text" value={j.email} onChange={e => updateJob(j.id, 'email', e.target.value)} /></div>
-                  <div><label>Notes</label><input type="text" value={j.notes} onChange={e => updateJob(j.id, 'notes', e.target.value)} /></div>
-                </div>
-              </div>
-            ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-              <button className="btn btn-secondary" onClick={addJob}>+ Ajouter un chantier</button>
-              <button className="btn btn-primary" onClick={computePlan} disabled={loading || jobs.length === 0}>{loading ? "Calcul en cours..." : "🚀 Calculer l'itinéraire"}</button>
-            </div>
-          </div>
+        // Jobs
+        e('div', { className: 'no-print card' },
+          e('div', { className: 'card-title' }, 'Liste des chantiers'),
+          jobs.map(function(j, index) {
+            return e('div', { key: j.id, className: 'job-block' },
+              e('button', { className: 'btn btn-danger remove-job', onClick: function() { removeJob(j.id); } }, '✖'),
+              e('h4', { style: { marginBottom: '10px', color: '#3b82f6' } }, 'Chantier ' + (index + 1)),
+              e('div', { className: 'grid-2', style: { marginBottom: '10px' } },
+                e('div', null, e('label', null, 'Client'), e('input', { type: 'text', value: j.client, onChange: function(ev) { updateJob(j.id, 'client', ev.target.value); } })),
+                e('div', null, e('label', null, 'Adresse'), e(GoogleAddressInput, { value: j.address, onChange: function(v) { updateJob(j.id, 'address', v); }, onPick: function(s) { updateJobData(j.id, { address: s.label, lat: s.lat, lon: s.lon }); } }))
+              ),
+              e('div', { className: 'grid-3' },
+                e('div', null, e('label', null, 'Durée (min)'), e('input', { type: 'number', step: '15', min: '15', value: j.duration, onChange: function(ev) { updateJob(j.id, 'duration', parseInt(ev.target.value) || 0); } })),
+                e('div', null, e('label', null, 'Email'), e('input', { type: 'text', value: j.email, onChange: function(ev) { updateJob(j.id, 'email', ev.target.value); } })),
+                e('div', null, e('label', null, 'Notes'), e('input', { type: 'text', value: j.notes, onChange: function(ev) { updateJob(j.id, 'notes', ev.target.value); } }))
+              )
+            );
+          }),
+          e('div', { style: { display: 'flex', justifyContent: 'space-between', marginTop: '20px' } },
+            e('button', { className: 'btn btn-secondary', onClick: addJob }, '+ Ajouter un chantier'),
+            e('button', { className: 'btn btn-primary', onClick: computePlan, disabled: loading || jobs.length === 0 }, loading ? 'Calcul en cours...' : "🚀 Calculer l'itinéraire")
+          )
+        ),
 
-          <GoogleMapComponent points={result ? [{...depot, isDepot:true, client:"Départ"}, ...result.plan] : [{...depot, isDepot:true, client:"Départ"}, ...jobs]} routeGeometry={routeGeo} />
+        // Map
+        e(GoogleMapComponent, {
+          points: result ? [Object.assign({}, depot, { isDepot: true, client: "Départ" })].concat(result.plan) : [Object.assign({}, depot, { isDepot: true, client: "Départ" })].concat(jobs),
+          routeGeometry: routeGeo
+        }),
 
-          {result && (
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: 0 }}>Feuille de route</h2>
-                <div className="no-print" style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn" style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }} onClick={addLunch}>🍴 Ajouter pause déj.</button>
-                    <button className="btn btn-secondary" onClick={() => window.print()}>🖨️ Imprimer</button>
-                </div>
-              </div>
-              
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Client / Lieu</th>
-                    <th>Arrivée</th>
-                    <th>Durée</th>
-                    <th>Départ</th>
-                    <th className="no-print">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.plan.map((p, i) => (
-                    <React.Fragment key={p.id || i}>
-                      <tr className={`${p.isLunch ? "lunch-row" : ""} ${!p.isArrival ? "draggable-row" : ""} ${dragOverIdx === i ? "drag-over" : ""}`}
-                          draggable={!p.isArrival} 
-                          onDragStart={() => setDraggedIdx(i)} 
-                          onDragOver={(e) => { e.preventDefault(); setDragOverIdx(i); }} 
-                          onDragLeave={() => setDragOverIdx(null)}
-                          onDrop={() => onDrop(i)}>
-                        <td>
-                          {!p.isArrival && <span className="drag-handle no-print" title="Glisser pour déplacer">☰</span>}
-                          {p.isLunch ? "🍴" : (p.isArrival ? "🏁" : i + 1)}
-                        </td>
-                        <td>
-                          <strong>{p.client}</strong>
-                          {p.isLunch ? (
-                            <div className="no-print" style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px' }}>
-                              <input type="checkbox" checked={p.eatOnSite} onChange={(e) => {
-                                const newPlan = [...result.plan.filter(x => !x.isArrival)];
-                                newPlan[i].eatOnSite = e.target.checked;
-                                updateTimesAndRoute(newPlan); 
-                              }} style={{ width: 'auto', margin: 0 }} />
-                              <span>Mange sur place (supprime le trajet)</span>
-                            </div>
-                          ) : (
-                            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{p.address}</div>
-                          )}
-                          
-                          {p.transitSteps && p.transitSteps.length > 0 && (
-                             <div style={{ marginTop: '6px' }}>
-                                {p.transitSteps.map((step, idx) => (
-                                   <span key={idx} className="transit-step">{step}</span>
-                                ))}
-                             </div>
-                          )}
+        // Result
+        result && e('div', { className: 'card' },
+          e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' } },
+            e('h2', { style: { margin: 0 } }, 'Feuille de route'),
+            e('div', { className: 'no-print', style: { display: 'flex', gap: '10px' } },
+              e('button', { className: 'btn', style: { background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }, onClick: addLunch }, '🍴 Ajouter pause déj.'),
+              e('button', { className: 'btn btn-secondary', onClick: function() { window.print(); } }, '🖨️ Imprimer')
+            )
+          ),
+          e('table', null,
+            e('thead', null,
+              e('tr', null,
+                e('th', null, '#'), e('th', null, 'Client / Lieu'), e('th', null, 'Arrivée'),
+                e('th', null, 'Durée'), e('th', null, 'Départ'), e('th', { className: 'no-print' }, 'Action')
+              )
+            ),
+            e('tbody', null,
+              result.plan.map(function(p, i) {
+                return e(React.Fragment, { key: p.id || i },
+                  e('tr', {
+                    className: (p.isLunch ? 'lunch-row ' : '') + (!p.isArrival ? 'draggable-row ' : '') + (dragOverIdx === i ? 'drag-over' : ''),
+                    draggable: !p.isArrival,
+                    onDragStart: function() { setDraggedIdx(i); },
+                    onDragOver: function(ev) { ev.preventDefault(); setDragOverIdx(i); },
+                    onDragLeave: function() { setDragOverIdx(null); },
+                    onDrop: function() { onDrop(i); }
+                  },
+                    e('td', null,
+                      !p.isArrival && e('span', { className: 'drag-handle no-print', title: 'Glisser pour déplacer' }, '☰'),
+                      p.isLunch ? '🍴' : (p.isArrival ? '🏁' : i + 1)
+                    ),
+                    e('td', null,
+                      e('strong', null, p.client),
+                      p.isLunch ? e('div', { className: 'no-print', style: { marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px' } },
+                        e('input', { type: 'checkbox', checked: p.eatOnSite, onChange: function(ev) {
+                          var newPlan = result.plan.filter(function(x) { return !x.isArrival; }).slice();
+                          newPlan[i] = Object.assign({}, newPlan[i], { eatOnSite: ev.target.checked });
+                          updateTimesAndRoute(newPlan);
+                        }, style: { width: 'auto', margin: 0 } }),
+                        e('span', null, 'Mange sur place (supprime le trajet)')
+                      ) : e('div', { style: { fontSize: '12px', color: '#6b7280', marginTop: '4px' } }, p.address),
+                      p.transitSteps && p.transitSteps.length > 0 && e('div', { style: { marginTop: '6px' } },
+                        p.transitSteps.map(function(step, idx) { return e('span', { key: idx, className: 'transit-step' }, step); })
+                      ),
+                      p.detailedSteps && p.detailedSteps.length > 0 && e('div', { className: 'no-print', style: { marginTop: '10px' } },
+                        e('button', { onClick: function() { toggleRow(i); }, className: 'btn-secondary', style: { fontSize: '11px', padding: '4px 8px', borderRadius: '4px' } },
+                          expandedRows[i] ? 'Masquer le détail ▲' : "Détail de l'itinéraire ▼"
+                        )
+                      )
+                    ),
+                    e('td', { style: { fontWeight: 'bold', color: '#16a34a' } }, p.arrive),
+                    e('td', null,
+                      p.isArrival ? '-' : e('select', { className: 'no-print', style: { width: 80, padding: 2, margin: 0 }, value: p.duration, onChange: function(ev) {
+                        var newPlan = result.plan.filter(function(x) { return !x.isArrival; }).slice();
+                        newPlan[i] = Object.assign({}, newPlan[i], { duration: parseInt(ev.target.value) });
+                        updateTimesAndRoute(newPlan);
+                      }},
+                        [15,30,45,60,75,90,105,120,150,180,210,240].map(function(m2) {
+                          return e('option', { key: m2, value: m2 }, Math.floor(m2/60) + 'h' + String(m2%60).padStart(2,'0'));
+                        })
+                      ),
+                      e('span', { className: 'print-only' }, p.isArrival ? '-' : (Math.floor(p.duration/60) + 'h' + String(p.duration%60).padStart(2,'0')))
+                    ),
+                    e('td', { style: { fontWeight: 'bold', color: '#dc2626' } }, p.depart),
+                    e('td', { className: 'no-print' },
+                      !p.isArrival && !p.isLunch && e('div', { style: { display: 'flex', gap: '5px' } },
+                        p.email && e('button', { onClick: function() { sendEmail(p); }, className: 'btn-mail' }, '📧 Mail'),
+                        e('button', { onClick: function() { openCalendarModal(p); }, className: 'btn-cal' }, '📅 Agenda')
+                      ),
+                      p.isLunch && e('button', { onClick: function() { updateTimesAndRoute(result.plan.filter(function(_, idx2) { return idx2 !== i && !result.plan[idx2].isArrival; })); }, className: 'btn-del-lunch' }, 'Supprimer')
+                    )
+                  ),
+                  expandedRows[i] && p.detailedSteps && e('tr', { className: 'transit-detail-row no-print' },
+                    e('td', null),
+                    e('td', { colSpan: '5', style: { padding: '15px', color: '#4b5563', fontSize: '13px' } },
+                      e('h4', { style: { margin: '0 0 10px 0', fontSize: '14px', color: '#1f2937' } }, 'Itinéraire détaillé :'),
+                      e('ul', { style: { listStyleType: 'none', padding: 0, margin: 0 } },
+                        p.detailedSteps.map(function(ds, idx3) {
+                          return e('li', { key: idx3, style: { display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'center' } },
+                            e('span', { style: { fontSize: '16px', minWidth: '20px', textAlign: 'center' } },
+                              ds.mode === 'WALKING' ? '🚶' : getTransitEmoji(ds.transitDetails && ds.transitDetails.line && ds.transitDetails.line.vehicle && ds.transitDetails.line.vehicle.type)
+                            ),
+                            e('div', null,
+                              e('span', { dangerouslySetInnerHTML: { __html: ds.instruction } }),
+                              e('span', { style: { color: '#9ca3af', marginLeft: '8px' } }, '(' + ds.distance + ' - ' + ds.duration + ')')
+                            )
+                          );
+                        })
+                      )
+                    )
+                  )
+                );
+              })
+            )
+          ),
+          loading && e('div', { style: { textAlign: 'center', padding: '10px', color: '#3b82f6', fontWeight: 'bold' } }, "Recalcul de l'itinéraire en cours...")
+        ),
 
-                          {p.detailedSteps && p.detailedSteps.length > 0 && (
-                            <div className="no-print" style={{ marginTop: '10px' }}>
-                              <button onClick={() => toggleRow(i)} className="btn-secondary" style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '4px' }}>
-                                {expandedRows[i] ? "Masquer le détail ▲" : "Détail de l'itinéraire ▼"}
-                              </button>
-                            </div>
-                          )}
-
-                        </td>
-                        <td style={{ fontWeight: 'bold', color: '#16a34a' }}>{p.arrive}</td>
-                        <td>
-                           {p.isArrival ? "-" : (
-                            <select className="no-print" style={{ width: 80, padding: 2, margin: 0 }} value={p.duration} onChange={(e) => {
-                              const newPlan = [...result.plan.filter(x => !x.isArrival)];
-                              newPlan[i].duration = parseInt(e.target.value);
-                              updateTimesAndRoute(newPlan); 
-                            }}>
-                              {[15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 210, 240].map(m => <option key={m} value={m}>{Math.floor(m/60)}h{String(m%60).padStart(2,'0')}</option>)}
-                            </select>
-                          )}
-                          <span className="print-only">{p.isArrival ? "-" : `${Math.floor(p.duration/60)}h${String(p.duration%60).padStart(2,'0')}`}</span>
-                        </td>
-                        <td style={{ fontWeight: 'bold', color: '#dc2626' }}>{p.depart}</td>
-                        <td className="no-print">
-                          {!p.isArrival && !p.isLunch && (
-                            <div style={{ display: 'flex', gap: '5px' }}>
-                              {p.email && <button onClick={() => sendEmail(p)} className="btn-mail">📧 Mail</button>}
-                              <button onClick={() => openCalendarModal(p)} className="btn-cal">📅 Agenda</button>
-                            </div>
-                          )}
-                          {p.isLunch && <button onClick={() => updateTimesAndRoute(result.plan.filter((_,idx) => idx !== i && !_.isArrival))} className="btn-del-lunch">Supprimer</button>}
-                        </td>
-                      </tr>
-
-                      {expandedRows[i] && p.detailedSteps && (
-                        <tr className="transit-detail-row no-print">
-                          <td></td>
-                          <td colSpan="5" style={{ padding: '15px', color: '#4b5563', fontSize: '13px' }}>
-                            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#1f2937' }}>Itinéraire détaillé :</h4>
-                            <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
-                              {p.detailedSteps.map((ds, idx) => (
-                                <li key={idx} style={{ display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '16px', minWidth: '20px', textAlign: 'center' }}>
-                                    {ds.mode === 'WALKING' ? '🚶' : getTransitEmoji(ds.transitDetails?.line?.vehicle?.type)}
-                                  </span>
-                                  <div>
-                                    <span dangerouslySetInnerHTML={{ __html: ds.instruction }} />
-                                    <span style={{ color: '#9ca3af', marginLeft: '8px' }}>({ds.distance} - {ds.duration})</span>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-              {loading && <div style={{ textAlign: 'center', padding: '10px', color: '#3b82f6', fontWeight: 'bold' }}>Recalcul de l'itinéraire en cours...</div>}
-            </div>
-          )}
-
-          {calModalOpen && (
-            <div className="no-print modal-overlay">
-              <div className="modal-content">
-                <h3 style={{ marginTop: 0, marginBottom: 15 }}>Détails pour l'Agenda</h3>
-                <p style={{ fontSize: 13, color: '#4b5563', marginBottom: 10 }}>Modifiez la description du rendez-vous :</p>
-                <textarea 
-                  value={calModalText} 
-                  onChange={(e) => setCalModalText(e.target.value)}
-                  style={{ height: '120px', resize: 'vertical', marginBottom: 15 }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                  <button className="btn btn-secondary" onClick={() => setCalModalOpen(false)}>Annuler</button>
-                  <button className="btn btn-primary" onClick={confirmAddToCalendar}>Ouvrir l'Agenda</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
+        // Modal calendrier
+        calModalOpen && e('div', { className: 'no-print modal-overlay' },
+          e('div', { className: 'modal-content' },
+            e('h3', { style: { marginTop: 0, marginBottom: 15 } }, "Détails pour l'Agenda"),
+            e('p', { style: { fontSize: 13, color: '#4b5563', marginBottom: 10 } }, 'Modifiez la description du rendez-vous :'),
+            e('textarea', { value: calModalText, onChange: function(ev) { setCalModalText(ev.target.value); }, style: { height: '120px', resize: 'vertical', marginBottom: 15 } }),
+            e('div', { style: { display: 'flex', justifyContent: 'flex-end', gap: 10 } },
+              e('button', { className: 'btn btn-secondary', onClick: function() { setCalModalOpen(false); } }, 'Annuler'),
+              e('button', { className: 'btn btn-primary', onClick: confirmAddToCalendar }, "Ouvrir l'Agenda")
+            )
+          )
+        )
       );
     }
 
-    ReactDOM.render(<App />, document.getElementById('root'));
+    window.mountApp = function() {
+      var root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(e(App));
+    };
+
+    // Si Google Maps déjà prêt au moment où le script s'exécute
+    if (googleMapsReady) {
+      window.mountApp();
+    } else {
+      appMountPending = true;
+    }
+
+    }); // fin DOMContentLoaded
   </script>
 </body>
 </html>
