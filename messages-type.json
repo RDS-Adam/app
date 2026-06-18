@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1781767930058,
+      "titre": "Changement moteur VR",
+      "categorie": "Motorisation",
+      "contenu": "Prestations incluses dans le forfait :\nDiagnostic et préparation : vérification des supports, de l'alimentation et protection de la zone d'intervention.\n\nOuverture et dépose : ouverture du coffre, déblocage et détachement du tablier, retrait de l'ancien moteur.\n\nInstallation : pose du nouveau moteur radio dans l'axe, remontage du volet et raccordement électrique.\n\nMise en service : réglage des fins de course (haut/bas) et programmation de la télécommande.\n\nNettoyage et réception : fermeture du coffre, nettoyage du chantier, évacuation des déchets et démonstration au client.",
+      "versions": []
+    },
+    {
       "id": 1781516460496,
       "titre": "Stores génériques",
       "categorie": "Général",
@@ -135,6 +142,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1781767930059,
+      "date": "2026-06-18",
+      "heure": "09:32",
+      "action": "created",
+      "titre": "Changement moteur VR",
+      "categorie": "Motorisation"
+    },
     {
       "ts": 1781679727508,
       "date": "2026-06-17",
