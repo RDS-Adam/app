@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1782222681702,
+      "titre": "Enrouleur Vélum",
+      "categorie": "Intérieur",
+      "contenu": "Prestations incluses dans le forfait pose : Store enrouleur vélum intérieur\nVérification technique\nPrise de cotes définitive (largeur, pente) et contrôle des fixations sur la structure du vitrage.\n\nVérification de l'accès électrique (pour la version motorisée).\n\nDépose\nDémontage et retrait de l'ancien store ou équipement existant.\n\nInstallation\nFixation du coffre (ou tube d'enroulement) et pose de la toile.\n\nInstallation des coulisses ou câbles de guidage pour maintenir la toile parallèle au vitrage.\n\nVersion manuelle : Pose de la manœuvre (perche, cordon ou manivelle).\n\nVersion motorisée : Raccordement électrique et programmation de la télécommande.\n\nMise en service\nRéglage de la tension de la toile pour éviter tout affaissement sous le vitrage.\n\nAjustement des butées d'ouverture et de fermeture (fins de course).\n\nTest de bon fonctionnement et de fluidité.\n\nRéception\nDémonstration d'utilisation, conseils d'entretien et signature du PV de réception.",
+      "versions": []
+    },
+    {
       "id": 1781767930058,
       "titre": "Changement moteur VR",
       "categorie": "Motorisation",
@@ -142,6 +149,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1782222681702,
+      "date": "2026-06-23",
+      "heure": "15:51",
+      "action": "created",
+      "titre": "Enrouleur Vélum",
+      "categorie": "Intérieur"
+    },
     {
       "ts": 1781767930059,
       "date": "2026-06-18",
