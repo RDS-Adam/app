@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1782293975851,
+      "titre": "Devis dépannage VR",
+      "categorie": "Motorisation",
+      "contenu": "Diagnostic et dépannage de votre volet roulant (manuel ou motorisé)\nNotre objectif est d’identifier rapidement l’origine de la panne et, si possible, de réparer votre volet directement sur place.\n\nCe qui est inclus dans notre Forfait Diagnostic + Dépannage :\nDéplacement d'un technicien à votre domicile.\n\nDiagnostic complet du mécanisme et de la motorisation.\n\nMain-d’œuvre pour les réparations simples immédiates.\n\nSi la panne nécessite une réparation complexe :\nDans le cas où le diagnostic révèle un besoin de pièces de rechange ou une intervention plus lourde, nous vous transmettons un devis complémentaire gratuit sous 24 h.",
+      "versions": []
+    },
+    {
       "id": 1782222681702,
       "titre": "Enrouleur Vélum",
       "categorie": "Intérieur",
@@ -149,6 +156,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1782293975851,
+      "date": "2026-06-24",
+      "heure": "11:39",
+      "action": "created",
+      "titre": "Devis dépannage VR",
+      "categorie": "Motorisation"
+    },
     {
       "ts": 1782222681702,
       "date": "2026-06-23",
