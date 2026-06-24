@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1782301464664,
+      "titre": "Volet roulant Manivelle",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose : Volet roulant à manivelle\n\nVérification technique : Prise de cotes définitive, détermination de l'emplacement du passage de la tringle de manivelle à travers le mur ou la menuiserie.\n\nDépose : Démontage et retrait des anciens équipements (battants, roulants ou persiennes) si nécessaire.\n\nInstallation : Fixation du coffre, des coulisses et du tablier. Perçage pour le passage du cardan et fixation du support de la manivelle à l'intérieur.\n\nMise en service : Réglage mécanique des butées (haute et basse) et vérification de la fluidité de la manœuvre à l'ouverture et à la fermeture.\n\nNettoyage : Remise en état des lieux (aspiration des poussières de perçage) et évacuation des anciens volets et emballages.\n\nRéception : Démonstration du geste de manipulation (pour éviter de forcer sur le mécanisme), conseils d'entretien et signature du PV de réception.",
+      "versions": []
+    },
+    {
       "id": 1782293975851,
       "titre": "Devis dépannage VR",
       "categorie": "Motorisation",
@@ -156,6 +163,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1782301464664,
+      "date": "2026-06-24",
+      "heure": "13:44",
+      "action": "created",
+      "titre": "Volet roulant Manivelle",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1782293975851,
       "date": "2026-06-24",
