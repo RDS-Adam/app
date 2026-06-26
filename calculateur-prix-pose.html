@@ -85,6 +85,11 @@
         .accordion-btn:hover { background-color: #e2e8f0; }
         .accordion-btn.active { background-color: var(--primary); color: white; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-color: var(--primary); }
         .accordion-content { padding: 20px; display: none; background-color: #ffffff; border: 1px solid #e2e8f0; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; margin-bottom: 15px; }
+        /* CHAMP NOM DE CATÉGORIE (ADMIN) */
+        .admin-cat-name-box { display: flex; align-items: center; gap: 10px; background: #eef2ff; padding: 12px 15px; border-radius: 8px; border: 1px solid #c7d2fe; margin-bottom: 18px; }
+        .admin-cat-name-box .admin-name-tag { font-size: 0.72rem; color: #4338ca; white-space: nowrap; font-weight: bold; text-transform: uppercase; }
+        .admin-cat-name-box input { flex: 1; margin: 0; padding: 8px 10px; font-size: 1rem; font-weight: bold; color: #1e293b; border: 1px solid #a5b4fc; border-radius: 5px; background: white; }
+        .admin-cat-name-box input:focus { border-color: var(--primary); outline: none; }
         /* GRILLES ET CARTES ADMIN */
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
         .admin-card { border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; background: #fdfdfd; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.2s; }
@@ -202,58 +207,6 @@
                 <label>1. Produit</label>
                 <select id="pMain" onchange="populateSub()">
                     <option value="">-- Sélectionner --</option>
-                    <optgroup label="STORES BANNES">
-                        <option value="banne_man">Store Banne Manuel</option>
-                        <option value="banne_elec">Store Banne Électrique / Solaire</option>
-                        <option value="banne_ult">Store Banne Ultima / Pure</option>
-                        <option value="veraclim">Véraclim</option>
-                    </optgroup>
-                    <optgroup label="TOILES DE STORE">
-                        <option value="toile_classique">Toile classique</option>
-                        <option value="toile_face_jonc">Toile (Entoilage face / Jonc magn.)</option>
-                    </optgroup>
-                    <optgroup label="VOLETS ROULANTS">
-                        <option value="vr_man">VR Manuel / Solaire</option>
-                        <option value="vr_elec">VR Élec / Solaire déporté</option>
-                        <option value="vr_trad">VR Traditionnel (dans coffre)</option>
-                    </optgroup>
-                    <optgroup label="MOUSTIQUAIRES">
-                        <option value="moust_man">Moustiquaire Manuelle/Solaire</option>
-                        <option value="moust_elec">Moustiquaire Élec/Solaire déporté</option>
-                        <option value="moust_p">Moustiquaire Porte-fenêtre</option>
-                        <option value="moust_e">Moustiquaire Easy-Clic</option>
-                    </optgroup>
-                    <optgroup label="STORES EXTÉRIEURS">
-                        <option value="proj_cord">Store Proj / Vertical Cordon</option>
-                        <option value="proj_man">Store Proj / Vertical Manivelle</option>
-                        <option value="proj_elec">Store Proj / Vertical Électrique</option>
-                        <option value="zip_bso_man">Store ZIP / BSO Manivelle</option>
-                        <option value="zip_bso_elec">Store ZIP / BSO Électrique</option>
-                    </optgroup>
-                    <optgroup label="STORES INTÉRIEURS">
-                        <option value="ven_alu">Vénitien Aluminium</option>
-                        <option value="ven_bois">Vénitien Bois</option>
-                        <option value="enr_easy">Enrouleur Easy</option>
-                        <option value="enr_sans">Enrouleur sans coffre ni coulisse</option>
-                        <option value="plis">Plissé / Bateau</option>
-                        <option value="novis">Fitbox et Plissé No'vis</option>
-                        <option value="cal_chain">Californien AVEC chaînette</option>
-                        <option value="cal_sans">Californien SANS chaînette</option>
-                        <option value="japonais">Panneaux Japonais</option>
-                        <option value="velum">Vélum (Plissé, Oasis, Evada, Véga)</option>
-                    </optgroup>
-                    <optgroup label="MOTORISATIONS">
-                        <option value="moto_vr_bois">Moteur VR (Coffre bois)</option>
-                        <option value="moto_vr_pvc">Moteur VR (PVC/Tunnel)</option>
-                        <option value="moto_vr_rdc">Moteur VR (Réno RDC)</option>
-                        <option value="moto_banne_c">Moteur Banne (Coffre)</option>
-                        <option value="moto_banne_s">Moteur Banne (Sans coffre)</option>
-                    </optgroup>
-                    <optgroup label="RIDEAUX & TRINGLES">
-                        <option value="tring_seule">Tringles seules</option>
-                        <option value="rid_oeil">Rideaux seuls (Oeillets)</option>
-                        <option value="rid_ruf">Rideaux seuls (Ruflettes/Waves)</option>
-                    </optgroup>
                 </select>
             </div>
             <div>
@@ -428,6 +381,45 @@ async function saveTarifsToGitHub(tarifs) {
 /* =========================================================
    BASE DE DONNÉES PAR DÉFAUT (NE PAS MODIFIER DIRECTEMENT)
 ========================================================= */
+// Noms et regroupement des catégories (la CLÉ est stable, seul le nom est modifiable)
+const DEFAULT_CATEGORIES = {
+    banne_man:       { name: "Store Banne Manuel",                group: "STORES BANNES" },
+    banne_elec:      { name: "Store Banne Électrique / Solaire",  group: "STORES BANNES" },
+    banne_ult:       { name: "Store Banne Ultima / Pure",         group: "STORES BANNES" },
+    veraclim:        { name: "Véraclim",                          group: "STORES BANNES" },
+    toile_classique: { name: "Toile classique",                              group: "TOILES DE STORE" },
+    toile_face_jonc: { name: "Toile (Entoilage face / Jonc magn.)",          group: "TOILES DE STORE" },
+    vr_man:          { name: "VR Manuel / Solaire",              group: "VOLETS ROULANTS" },
+    vr_elec:         { name: "VR Élec / Solaire déporté",        group: "VOLETS ROULANTS" },
+    vr_trad:         { name: "VR Traditionnel (dans coffre)",    group: "VOLETS ROULANTS" },
+    moust_man:       { name: "Moustiquaire Manuelle/Solaire",        group: "MOUSTIQUAIRES" },
+    moust_elec:      { name: "Moustiquaire Élec/Solaire déporté",    group: "MOUSTIQUAIRES" },
+    moust_p:         { name: "Moustiquaire Porte-fenêtre",           group: "MOUSTIQUAIRES" },
+    moust_e:         { name: "Moustiquaire Easy-Clic",               group: "MOUSTIQUAIRES" },
+    proj_cord:       { name: "Store Proj / Vertical Cordon",     group: "STORES EXTÉRIEURS" },
+    proj_man:        { name: "Store Proj / Vertical Manivelle",  group: "STORES EXTÉRIEURS" },
+    proj_elec:       { name: "Store Proj / Vertical Électrique", group: "STORES EXTÉRIEURS" },
+    zip_bso_man:     { name: "Store ZIP / BSO Manivelle",        group: "STORES EXTÉRIEURS" },
+    zip_bso_elec:    { name: "Store ZIP / BSO Électrique",       group: "STORES EXTÉRIEURS" },
+    ven_alu:         { name: "Vénitien Aluminium",                       group: "STORES INTÉRIEURS" },
+    ven_bois:        { name: "Vénitien Bois",                            group: "STORES INTÉRIEURS" },
+    enr_easy:        { name: "Enrouleur Easy",                           group: "STORES INTÉRIEURS" },
+    enr_sans:        { name: "Enrouleur sans coffre ni coulisse",        group: "STORES INTÉRIEURS" },
+    plis:            { name: "Plissé / Bateau",                          group: "STORES INTÉRIEURS" },
+    novis:           { name: "Fitbox et Plissé No'vis",                  group: "STORES INTÉRIEURS" },
+    cal_chain:       { name: "Californien AVEC chaînette",               group: "STORES INTÉRIEURS" },
+    cal_sans:        { name: "Californien SANS chaînette",               group: "STORES INTÉRIEURS" },
+    japonais:        { name: "Panneaux Japonais",                        group: "STORES INTÉRIEURS" },
+    velum:           { name: "Vélum (Plissé, Oasis, Evada, Véga)",       group: "STORES INTÉRIEURS" },
+    moto_vr_bois:    { name: "Moteur VR (Coffre bois)",          group: "MOTORISATIONS" },
+    moto_vr_pvc:     { name: "Moteur VR (PVC/Tunnel)",           group: "MOTORISATIONS" },
+    moto_vr_rdc:     { name: "Moteur VR (Réno RDC)",             group: "MOTORISATIONS" },
+    moto_banne_c:    { name: "Moteur Banne (Coffre)",            group: "MOTORISATIONS" },
+    moto_banne_s:    { name: "Moteur Banne (Sans coffre)",       group: "MOTORISATIONS" },
+    tring_seule:     { name: "Tringles seules",                  group: "RIDEAUX & TRINGLES" },
+    rid_oeil:        { name: "Rideaux seuls (Oeillets)",         group: "RIDEAUX & TRINGLES" },
+    rid_ruf:         { name: "Rideaux seuls (Ruflettes/Waves)",  group: "RIDEAUX & TRINGLES" }
+};
 const DEFAULT_TARIFS_PRODUITS = {
     banne_man: { "Avancée < 3m": [170, 230], "Avancée 3m50 - 4m": [260, 360] },
     banne_elec: { "Avancée < 3m": [220, 270], "Avancée 3m50 - 4m": [310, 400] },
@@ -507,19 +499,50 @@ const DEFAULT_TARIFS_OPTIONS = {
 ========================================================= */
 let TARIFS_PRODUITS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
 let TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
+let TARIFS_CATEGORIES = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
 let panier = [];
 let calcValues = [];
 let calcMode = 'add';
 const STORAGE_KEY = 'pose_expert_saved_devis';
 // Stores intérieurs dont le baseA ≤ 30€ → exclus du −15% achat (remise globale)
 const INT_CATS = ['ven_alu','ven_bois','enr_easy','enr_sans','plis','novis','cal_chain','cal_sans','japonais','velum','tring_seule','rid_oeil','rid_ruf'];
+// Retourne le nom affiché d'une catégorie (fallback sur la clé)
+function getCatName(key) {
+    return (TARIFS_CATEGORIES[key] && TARIFS_CATEGORIES[key].name) ? TARIFS_CATEGORIES[key].name : key;
+}
+function getCatGroup(key) {
+    return (TARIFS_CATEGORIES[key] && TARIFS_CATEGORIES[key].group) ? TARIFS_CATEGORIES[key].group : "AUTRES";
+}
+// Construit dynamiquement le menu déroulant Produit, groupé par optgroup
+function buildMainSelect() {
+    const sel = document.getElementById('pMain');
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">-- Sélectionner --</option>';
+    let groups = {};   // group -> optgroup element (réutilisé si on recroise le même groupe)
+    for (let key in TARIFS_PRODUITS) {
+        const grpLabel = getCatGroup(key);
+        if (!groups[grpLabel]) {
+            const og = document.createElement('optgroup');
+            og.label = grpLabel;
+            sel.appendChild(og);
+            groups[grpLabel] = og;
+        }
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.text = getCatName(key);
+        groups[grpLabel].appendChild(opt);
+    }
+    if (prev) sel.value = prev;
+}
 window.onload = async function() {
     const tarifs = await fetchTarifsFromGitHub();
     if (tarifs) {
         if (tarifs.options) TARIFS_OPTIONS = tarifs.options;
         if (tarifs.produits) TARIFS_PRODUITS = tarifs.produits;
+        if (tarifs.categories) TARIFS_CATEGORIES = tarifs.categories;
     }
     refreshDevisList();
+    buildMainSelect();
     populateSub();
 };
 /* ===== GESTION DES SAUVEGARDES DEVIS ===== */
@@ -701,7 +724,7 @@ function addItem() {
     if (!mSelect.value || !sub) return;
     let baseA = TARIFS_PRODUITS[mSelect.value][sub][0];
     let baseV = TARIFS_PRODUITS[mSelect.value][sub][1];
-    let baseName = mSelect.options[mSelect.selectedIndex].text + " (" + sub + ")";
+    let baseName = getCatName(mSelect.value) + " (" + sub + ")";
     let optList = [];
     let totA = baseA;
     let totV = baseV;
@@ -1095,8 +1118,14 @@ function renderAdminPanel() {
     // 2. Accordéons pour Produits
     html += `<h3 style="margin:25px 0 10px 0; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px;">📦 Grilles Tarifaires des Produits</h3>`;
     for (let main in TARIFS_PRODUITS) {
-        html += `<button class="accordion-btn" onclick="toggleAccordion(this)">▶ CATÉGORIE : ${formatKeyName(main)}</button>`;
-        html += `<div class="accordion-content"><div class="admin-grid">`;
+        html += `<button class="accordion-btn" onclick="toggleAccordion(this)">▶ ${escAttr(getCatName(main))}</button>`;
+        html += `<div class="accordion-content">`;
+        // Champ d'édition du NOM DE LA CATÉGORIE
+        html += `<div class="admin-cat-name-box">
+            <span class="admin-name-tag">🏷️ Nom de la catégorie</span>
+            <input type="text" id="adm_cat_name_${main}" value="${escAttr(getCatName(main))}" title="Nom affiché de la catégorie">
+        </div>`;
+        html += `<div class="admin-grid">`;
         for (let sub in TARIFS_PRODUITS[main]) {
             let prices = TARIFS_PRODUITS[main][sub];
             html += `<div class="admin-card">
@@ -1134,6 +1163,14 @@ async function saveAdminChanges() {
         TARIFS_OPTIONS[key].a = a;
         TARIFS_OPTIONS[key].v = v;
     }
+    // Catégories : nom affiché (la clé reste stable)
+    for (let main in TARIFS_PRODUITS) {
+        let catEl = document.getElementById(`adm_cat_name_${main}`);
+        if (catEl && catEl.value.trim()) {
+            if (!TARIFS_CATEGORIES[main]) TARIFS_CATEGORIES[main] = { name: main, group: getCatGroup(main) };
+            TARIFS_CATEGORIES[main].name = catEl.value.trim();
+        }
+    }
     // Produits : prix + nom du produit (la clé est reconstruite si le nom change)
     for (let main in TARIFS_PRODUITS) {
         let rebuilt = {};
@@ -1148,8 +1185,9 @@ async function saveAdminChanges() {
         }
         TARIFS_PRODUITS[main] = rebuilt;
     }
-    const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
+    const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
     alert(ok ? "✅ Nouveaux tarifs enregistrés sur GitHub !" : "⚠️ Tarifs mis à jour localement (erreur GitHub).");
+    buildMainSelect();
     populateSub();
     updateUI();
     closeAdmin();
@@ -1158,14 +1196,17 @@ async function resetDatabaseToDefault() {
     if(confirm("ATTENTION : Cela va écraser toutes vos modifications et remettre les prix d'origine. Confirmer ?")) {
         TARIFS_PRODUITS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_PRODUITS));
         TARIFS_OPTIONS = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS));
-        await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
+        TARIFS_CATEGORIES = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+        await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
+        buildMainSelect();
+        populateSub();
         renderAdminPanel();
         updateUI();
         alert("✅ Les prix par défaut ont été restaurés et sauvegardés sur GitHub.");
     }
 }
 function exportDatabase() {
-    let db = { options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS };
+    let db = { options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES };
     downloadJSON(JSON.stringify(db), "base_de_prix_pose_expert.json");
 }
 function importDatabase(event) {
@@ -1178,7 +1219,10 @@ function importDatabase(event) {
             if (importedData.options && importedData.produits) {
                 TARIFS_OPTIONS = importedData.options;
                 TARIFS_PRODUITS = importedData.produits;
-                const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS });
+                if (importedData.categories) TARIFS_CATEGORIES = importedData.categories;
+                const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
+                buildMainSelect();
+                populateSub();
                 renderAdminPanel();
                 updateUI();
                 alert(ok ? "✅ Base de prix importée et sauvegardée sur GitHub !" : "✅ Base de prix importée (erreur GitHub).");
