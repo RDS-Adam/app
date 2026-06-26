@@ -658,5 +658,151 @@
         110
       ]
     }
+  },
+  "categories": {
+    "banne_man": {
+      "name": "Store Banne Manuel",
+      "group": "STORES BANNES"
+    },
+    "banne_elec": {
+      "name": "Store Banne Électrique / Solaire",
+      "group": "STORES BANNES"
+    },
+    "banne_ult": {
+      "name": "Store Banne Ultima / Pure (Elec et Solaire)",
+      "group": "STORES BANNES"
+    },
+    "veraclim": {
+      "name": "Véraclim",
+      "group": "STORES BANNES"
+    },
+    "toile_classique": {
+      "name": "Toile classique",
+      "group": "TOILES DE STORE"
+    },
+    "toile_face_jonc": {
+      "name": "Toile (Entoilage face / Jonc magn.)",
+      "group": "TOILES DE STORE"
+    },
+    "vr_man": {
+      "name": "VR Manuel / Solaire",
+      "group": "VOLETS ROULANTS"
+    },
+    "vr_elec": {
+      "name": "VR Élec / Solaire déporté",
+      "group": "VOLETS ROULANTS"
+    },
+    "vr_trad": {
+      "name": "VR Traditionnel (dans coffre)",
+      "group": "VOLETS ROULANTS"
+    },
+    "moust_man": {
+      "name": "Moustiquaire Manuelle/Solaire",
+      "group": "MOUSTIQUAIRES"
+    },
+    "moust_elec": {
+      "name": "Moustiquaire Élec/Solaire déporté",
+      "group": "MOUSTIQUAIRES"
+    },
+    "moust_p": {
+      "name": "Moustiquaire Porte-fenêtre",
+      "group": "MOUSTIQUAIRES"
+    },
+    "moust_e": {
+      "name": "Moustiquaire Easy-Clic",
+      "group": "MOUSTIQUAIRES"
+    },
+    "proj_cord": {
+      "name": "Store Proj / Vertical Cordon",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "proj_man": {
+      "name": "Store Proj / Vertical Manivelle",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "proj_elec": {
+      "name": "Store Proj / Vertical Électrique",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "zip_bso_man": {
+      "name": "Store ZIP / BSO Manivelle",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "zip_bso_elec": {
+      "name": "Store ZIP / BSO Électrique",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "ven_alu": {
+      "name": "Vénitien Aluminium",
+      "group": "STORES INTÉRIEURS"
+    },
+    "ven_bois": {
+      "name": "Vénitien Bois",
+      "group": "STORES INTÉRIEURS"
+    },
+    "enr_easy": {
+      "name": "Enrouleur Easy",
+      "group": "STORES INTÉRIEURS"
+    },
+    "enr_sans": {
+      "name": "Enrouleur sans coffre ni coulisse",
+      "group": "STORES INTÉRIEURS"
+    },
+    "plis": {
+      "name": "Plissé / Bateau",
+      "group": "STORES INTÉRIEURS"
+    },
+    "novis": {
+      "name": "Fitbox et Plissé No'vis",
+      "group": "STORES INTÉRIEURS"
+    },
+    "cal_chain": {
+      "name": "Californien AVEC chaînette",
+      "group": "STORES INTÉRIEURS"
+    },
+    "cal_sans": {
+      "name": "Californien SANS chaînette",
+      "group": "STORES INTÉRIEURS"
+    },
+    "japonais": {
+      "name": "Panneaux Japonais",
+      "group": "STORES INTÉRIEURS"
+    },
+    "velum": {
+      "name": "Vélum (Plissé, Oasis, Evada, Véga)",
+      "group": "STORES INTÉRIEURS"
+    },
+    "moto_vr_bois": {
+      "name": "Moteur VR (Coffre bois)",
+      "group": "MOTORISATIONS"
+    },
+    "moto_vr_pvc": {
+      "name": "Moteur VR (PVC/Tunnel)",
+      "group": "MOTORISATIONS"
+    },
+    "moto_vr_rdc": {
+      "name": "Moteur VR (Réno RDC)",
+      "group": "MOTORISATIONS"
+    },
+    "moto_banne_c": {
+      "name": "Moteur Banne (Coffre)",
+      "group": "MOTORISATIONS"
+    },
+    "moto_banne_s": {
+      "name": "Moteur Banne (Sans coffre)",
+      "group": "MOTORISATIONS"
+    },
+    "tring_seule": {
+      "name": "Tringles seules",
+      "group": "RIDEAUX & TRINGLES"
+    },
+    "rid_oeil": {
+      "name": "Rideaux seuls (Oeillets)",
+      "group": "RIDEAUX & TRINGLES"
+    },
+    "rid_ruf": {
+      "name": "Rideaux seuls (Ruflettes/Waves)",
+      "group": "RIDEAUX & TRINGLES"
+    }
   }
 }
