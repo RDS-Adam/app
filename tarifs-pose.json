@@ -51,7 +51,7 @@
       "v": -30
     },
     "o_elec": {
-      "name": "Électricité",
+      "name": "Électricité - Solaire Déporté - Banne Solaire",
       "a": 20,
       "v": 40
     },
@@ -732,30 +732,6 @@
       "name": "Store ZIP / BSO Électrique",
       "group": "STORES EXTÉRIEURS"
     },
-    "ven_alu": {
-      "name": "Vénitien Aluminium",
-      "group": "STORES INTÉRIEURS"
-    },
-    "ven_bois": {
-      "name": "Vénitien Bois",
-      "group": "STORES INTÉRIEURS"
-    },
-    "enr_easy": {
-      "name": "Enrouleur Easy",
-      "group": "STORES INTÉRIEURS"
-    },
-    "enr_sans": {
-      "name": "Enrouleur sans coffre ni coulisse",
-      "group": "STORES INTÉRIEURS"
-    },
-    "plis": {
-      "name": "Plissé / Bateau",
-      "group": "STORES INTÉRIEURS"
-    },
-    "novis": {
-      "name": "Fitbox et Plissé No'vis",
-      "group": "STORES INTÉRIEURS"
-    },
     "cal_chain": {
       "name": "Californien AVEC chaînette",
       "group": "STORES INTÉRIEURS"
@@ -764,8 +740,8 @@
       "name": "Californien SANS chaînette",
       "group": "STORES INTÉRIEURS"
     },
-    "japonais": {
-      "name": "Panneaux Japonais",
+    "novis": {
+      "name": "Fitbox et Plissé No'vis",
       "group": "STORES INTÉRIEURS"
     },
     "velum": {
@@ -803,6 +779,30 @@
     "rid_ruf": {
       "name": "Rideaux seuls (Ruflettes/Waves)",
       "group": "RIDEAUX & TRINGLES"
+    },
+    "ven_alu": {
+      "name": "Vénitien Aluminium",
+      "group": "STORES INTÉRIEURS"
+    },
+    "ven_bois": {
+      "name": "Vénitien Bois",
+      "group": "STORES INTÉRIEURS"
+    },
+    "enr_easy": {
+      "name": "Enrouleur Easy",
+      "group": "STORES INTÉRIEURS"
+    },
+    "enr_sans": {
+      "name": "Enrouleur sans coffre ni coulisse",
+      "group": "STORES INTÉRIEURS"
+    },
+    "plis": {
+      "name": "Plissé / Bateau",
+      "group": "STORES INTÉRIEURS"
+    },
+    "japonais": {
+      "name": "Panneaux Japonais",
+      "group": "STORES INTÉRIEURS"
     }
   }
 }
