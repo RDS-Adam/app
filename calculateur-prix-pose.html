@@ -110,6 +110,24 @@
         .btn-admin-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2); }
         .btn-admin-save:hover { background: #219653; }
         .btn-admin-reset { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* BARRE DE RECHERCHE ADMIN */
+        .admin-search-bar { position: sticky; top: -25px; z-index: 5; background: white; padding: 10px 0 15px; margin-bottom: 5px; }
+        .admin-search-wrap { display: flex; align-items: center; gap: 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 8px; padding: 8px 14px; transition: 0.2s; }
+        .admin-search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44,62,80,0.08); }
+        .admin-search-wrap span.search-icon { font-size: 1.1rem; }
+        .admin-search-wrap input { flex: 1; border: none; background: transparent; margin: 0; padding: 4px; font-size: 1rem; outline: none; }
+        .btn-search-clear { background: #94a3b8; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 0.9rem; line-height: 1; flex-shrink: 0; }
+        .btn-search-clear:hover { background: #64748b; }
+        .admin-no-results { display: none; text-align: center; color: #94a3b8; font-style: italic; padding: 30px 10px; font-size: 1rem; }
+        /* BOUTONS AJOUT / SUPPRESSION CATÉGORIES */
+        .btn-add-cat { background: var(--success); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; white-space: nowrap; }
+        .btn-add-cat:hover { background: #219653; }
+        .btn-cat-del { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.82rem; white-space: nowrap; }
+        .btn-cat-del:hover { background: #c0392b; }
+        .btn-add-line { background: #2980b9; color: white; border: none; padding: 9px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; margin-top: 15px; }
+        .btn-add-line:hover { background: #2471a3; }
+        .btn-row-del { background: #f8d7da; color: var(--danger); border: 1px solid var(--danger); width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 0.78rem; line-height: 1; flex-shrink: 0; }
+        .btn-row-del:hover { background: var(--danger); color: white; }
         /* CALCULATRICE */
         .calc-number { cursor: pointer; border-radius: 3px; padding: 0 4px; user-select: none; font-weight: bold; display: inline-block; }
         .calc-number.highlighted { background-color: #ffeb3b; color: #000; box-shadow: 0 0 0 2px #ffeb3b; }
@@ -341,8 +359,16 @@
             <div style="flex-grow: 1;"></div>
             <button class="btn-admin-reset" onclick="resetDatabaseToDefault()">⚠️ Restaurer Prix par Défaut</button>
         </div>
+        <div class="admin-search-bar">
+            <div class="admin-search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="adminSearch" placeholder="Rechercher une catégorie ou une option…" oninput="filterAdminPanel()">
+                <button class="btn-search-clear" title="Effacer" onclick="clearAdminSearch()">✕</button>
+            </div>
+        </div>
         <div id="adminContainer">
             </div>
+        <div id="adminNoResults" class="admin-no-results">Aucun résultat pour cette recherche.</div>
         <div class="admin-actions">
             <button class="btn-admin-save" onclick="saveAdminChanges()">💾 Enregistrer les Modifications</button>
         </div>
@@ -1116,75 +1142,197 @@ function renderAdminPanel() {
     }
     html += `</div></div>`;
     // 2. Accordéons pour Produits
-    html += `<h3 style="margin:25px 0 10px 0; color:var(--primary); border-bottom:2px solid var(--primary); padding-bottom:5px;">📦 Grilles Tarifaires des Produits</h3>`;
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin:25px 0 10px 0; border-bottom:2px solid var(--primary); padding-bottom:8px;">
+        <h3 style="margin:0; color:var(--primary);">📦 Grilles Tarifaires des Produits</h3>
+        <button class="btn-add-cat" onclick="addCategory()">➕ Ajouter une catégorie</button>
+    </div>`;
     for (let main in TARIFS_PRODUITS) {
-        html += `<button class="accordion-btn" onclick="toggleAccordion(this)">▶ ${escAttr(getCatName(main))}</button>`;
-        html += `<div class="accordion-content">`;
-        // Champ d'édition du NOM DE LA CATÉGORIE
-        html += `<div class="admin-cat-name-box">
-            <span class="admin-name-tag">🏷️ Nom de la catégorie</span>
-            <input type="text" id="adm_cat_name_${main}" value="${escAttr(getCatName(main))}" title="Nom affiché de la catégorie">
-        </div>`;
-        html += `<div class="admin-grid">`;
-        for (let sub in TARIFS_PRODUITS[main]) {
-            let prices = TARIFS_PRODUITS[main][sub];
-            html += `<div class="admin-card">
-                <div class="admin-name-row">
-                    <span class="admin-name-tag">✏️ Nom</span>
-                    <input type="text" id="adm_prod_name_${main}_${CSS.escape(sub)}" value="${escAttr(sub)}" title="Nom du produit / de la dimension">
-                </div>
-                <div class="admin-input-group">
-                    <div class="admin-input-wrapper">
-                        <span>Achat</span>
-                        <div class="input-euro-container">
-                            <input type="number" id="adm_prod_a_${main}_${CSS.escape(sub)}" value="${prices[0]}"><strong>€</strong>
-                        </div>
-                    </div>
-                    <div class="admin-input-wrapper">
-                        <span>Vente</span>
-                        <div class="input-euro-container">
-                            <input type="number" id="adm_prod_v_${main}_${CSS.escape(sub)}" value="${prices[1]}"><strong>€</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        }
-        html += `</div></div>`;
+        html += categoryBlockHTML(main, getCatName(main), getCatGroup(main), TARIFS_PRODUITS[main]);
     }
     container.innerHTML = html;
+    // Réinitialise la recherche à chaque (ré)affichage du panneau
+    const sb = document.getElementById('adminSearch');
+    if (sb) sb.value = "";
+    const nr = document.getElementById('adminNoResults');
+    if (nr) nr.style.display = "none";
+}
+// Normalise un texte pour la recherche (minuscules + sans accents)
+function normalizeTxt(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+// Ouvre / ferme un accordéon en synchronisant la flèche
+function setAccordionState(btn, open) {
+    const content = btn.nextElementSibling;
+    if (open) {
+        btn.classList.add('active');
+        content.style.display = 'block';
+        btn.innerHTML = btn.innerHTML.replace('▶', '▼');
+    } else {
+        btn.classList.remove('active');
+        content.style.display = 'none';
+        btn.innerHTML = btn.innerHTML.replace('▼', '▶');
+    }
+}
+// Filtre les accordéons / cartes admin selon la recherche
+function filterAdminPanel() {
+    const q = normalizeTxt(document.getElementById('adminSearch').value.trim());
+    const container = document.getElementById('adminContainer');
+    let totalVisible = 0;
+    container.querySelectorAll('.accordion-btn').forEach(btn => {
+        const content = btn.nextElementSibling;
+        const catInput = content.querySelector('.admin-cat-name-box input');
+        const isCategory = !!catInput;
+        const catMatch = !!q && isCategory && normalizeTxt(catInput.value).includes(q);
+        let anyVisible = false;
+        content.querySelectorAll('.admin-card').forEach(card => {
+            const nameInput = card.querySelector('input[type="text"]');
+            const txt = normalizeTxt(nameInput ? nameInput.value : '');
+            const show = !q || catMatch || txt.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) anyVisible = true;
+        });
+        if (!q) {
+            // Pas de recherche : état par défaut (Frais/Options ouvert, catégories fermées)
+            btn.style.display = '';
+            setAccordionState(btn, !isCategory);
+        } else {
+            const sectionShow = anyVisible || catMatch;
+            btn.style.display = sectionShow ? '' : 'none';
+            setAccordionState(btn, sectionShow);
+            if (sectionShow) totalVisible++;
+        }
+    });
+    const nr = document.getElementById('adminNoResults');
+    if (nr) nr.style.display = (q && totalVisible === 0) ? 'block' : 'none';
+}
+function clearAdminSearch() {
+    const sb = document.getElementById('adminSearch');
+    sb.value = "";
+    filterAdminPanel();
+    sb.focus();
+}
+// Clé technique unique pour une nouvelle catégorie
+function newCatKey() {
+    return 'cat_' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+}
+// Carte d'une ligne produit / dimension
+function productCardHTML(name, a, v) {
+    return `<div class="admin-card" data-prodrow>
+        <div class="admin-name-row">
+            <span class="admin-name-tag">✏️ Nom</span>
+            <input type="text" class="prod-name" value="${escAttr(name)}" title="Nom du produit / de la dimension">
+            <button class="btn-row-del" title="Supprimer cette ligne" onclick="deleteProductRow(this)">✕</button>
+        </div>
+        <div class="admin-input-group">
+            <div class="admin-input-wrapper">
+                <span>Achat</span>
+                <div class="input-euro-container"><input type="number" class="prod-a" value="${a}"><strong>€</strong></div>
+            </div>
+            <div class="admin-input-wrapper">
+                <span>Vente</span>
+                <div class="input-euro-container"><input type="number" class="prod-v" value="${v}"><strong>€</strong></div>
+            </div>
+        </div>
+    </div>`;
+}
+// Bloc complet d'une catégorie (bouton accordéon + contenu)
+function categoryBlockHTML(key, catName, catGroup, productsObj) {
+    let cards = "";
+    for (let sub in productsObj) cards += productCardHTML(sub, productsObj[sub][0], productsObj[sub][1]);
+    return `<button class="accordion-btn" onclick="toggleAccordion(this)">▶ ${escAttr(catName)}</button>
+    <div class="accordion-content" data-catkey="${escAttr(key)}" data-catgroup="${escAttr(catGroup)}">
+        <div class="admin-cat-name-box">
+            <span class="admin-name-tag">🏷️ Nom de la catégorie</span>
+            <input type="text" class="cat-name" value="${escAttr(catName)}" title="Nom affiché de la catégorie">
+            <span style="font-size:0.72rem; color:#94a3b8; font-weight:bold; white-space:nowrap;">Groupe : ${escAttr(catGroup)}</span>
+            <button class="btn-cat-del" onclick="deleteCategory(this)">🗑 Supprimer</button>
+        </div>
+        <div class="admin-grid">${cards}</div>
+        <button class="btn-add-line" onclick="addProductRow(this)">➕ Ajouter une ligne / dimension</button>
+    </div>`;
+}
+function addCategory() {
+    const name = prompt("Nom de la nouvelle catégorie :");
+    if (name === null || !name.trim()) return;
+    const groups = [...new Set(Object.keys(TARIFS_CATEGORIES).map(k => getCatGroup(k)))];
+    let group = prompt("Groupe de la catégorie (regroupement dans le menu déroulant).\nGroupes existants : " + groups.join(' | '), groups[0] || 'AUTRES');
+    if (group === null) return;
+    group = group.trim() || 'AUTRES';
+    const key = newCatKey();
+    const container = document.getElementById('adminContainer');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = categoryBlockHTML(key, name.trim(), group, { "Nouvelle dimension": [0, 0] });
+    while (tmp.firstChild) container.appendChild(tmp.firstChild);
+    const btns = container.querySelectorAll('.accordion-btn');
+    const newBtn = btns[btns.length - 1];
+    setAccordionState(newBtn, true);
+    newBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const ci = newBtn.nextElementSibling.querySelector('.cat-name');
+    if (ci) { ci.focus(); ci.select(); }
+    alert("ℹ️ Catégorie ajoutée. N'oubliez pas de cliquer sur « 💾 Enregistrer les Modifications » pour la sauvegarder.");
+}
+function deleteCategory(btn) {
+    const content = btn.closest('.accordion-content');
+    if (!content) return;
+    const accBtn = content.previousElementSibling;
+    const nameEl = content.querySelector('.cat-name');
+    const name = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : 'cette catégorie';
+    if (!confirm(`Supprimer la catégorie « ${name} » et tous ses tarifs ?\n(Définitif après « Enregistrer les Modifications ».)`)) return;
+    if (accBtn && accBtn.classList.contains('accordion-btn')) accBtn.remove();
+    content.remove();
+}
+function addProductRow(btn) {
+    const grid = btn.previousElementSibling; // .admin-grid
+    if (!grid) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = productCardHTML('Nouvelle dimension', 0, 0);
+    grid.appendChild(tmp.firstElementChild);
+}
+function deleteProductRow(btn) {
+    const card = btn.closest('.admin-card');
+    if (!card) return;
+    const grid = card.parentElement;
+    if (grid.querySelectorAll('.admin-card').length <= 1) {
+        alert("⚠️ Une catégorie doit conserver au moins une ligne.\nPour tout retirer, supprimez la catégorie entière.");
+        return;
+    }
+    card.remove();
 }
 async function saveAdminChanges() {
-    // Options / Frais : prix + nom de la prestation
+    // Options / Frais : prix + nom de la prestation (ensemble fixe)
     for (let key in TARIFS_OPTIONS) {
-        let a = parseFloat(document.getElementById(`adm_opt_a_${key}`).value) || 0;
-        let v = parseFloat(document.getElementById(`adm_opt_v_${key}`).value) || 0;
+        let aEl = document.getElementById(`adm_opt_a_${key}`);
+        if (!aEl) continue;
+        TARIFS_OPTIONS[key].a = parseFloat(aEl.value) || 0;
+        TARIFS_OPTIONS[key].v = parseFloat(document.getElementById(`adm_opt_v_${key}`).value) || 0;
         let nameEl = document.getElementById(`adm_opt_name_${key}`);
         if (nameEl && nameEl.value.trim()) TARIFS_OPTIONS[key].name = nameEl.value.trim();
-        TARIFS_OPTIONS[key].a = a;
-        TARIFS_OPTIONS[key].v = v;
     }
-    // Catégories : nom affiché (la clé reste stable)
-    for (let main in TARIFS_PRODUITS) {
-        let catEl = document.getElementById(`adm_cat_name_${main}`);
-        if (catEl && catEl.value.trim()) {
-            if (!TARIFS_CATEGORIES[main]) TARIFS_CATEGORIES[main] = { name: main, group: getCatGroup(main) };
-            TARIFS_CATEGORIES[main].name = catEl.value.trim();
-        }
-    }
-    // Produits : prix + nom du produit (la clé est reconstruite si le nom change)
-    for (let main in TARIFS_PRODUITS) {
-        let rebuilt = {};
-        for (let sub in TARIFS_PRODUITS[main]) {
-            let a = parseFloat(document.getElementById(`adm_prod_a_${main}_${CSS.escape(sub)}`).value) || 0;
-            let v = parseFloat(document.getElementById(`adm_prod_v_${main}_${CSS.escape(sub)}`).value) || 0;
-            let nameEl = document.getElementById(`adm_prod_name_${main}_${CSS.escape(sub)}`);
-            let newName = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : sub;
-            // En cas de doublon de nom, on garde l'ancienne clé pour ne pas écraser
-            if (rebuilt.hasOwnProperty(newName)) newName = sub;
-            rebuilt[newName] = [a, v];
-        }
-        TARIFS_PRODUITS[main] = rebuilt;
-    }
+    // Catégories + Produits : reconstruits intégralement depuis le DOM
+    // (prend en compte les ajouts / suppressions de catégories et de lignes)
+    const newCats = {};
+    const newProds = {};
+    document.querySelectorAll('#adminContainer .accordion-content[data-catkey]').forEach(content => {
+        const key = content.dataset.catkey;
+        const catNameEl = content.querySelector('.cat-name');
+        const group = content.dataset.catgroup || 'AUTRES';
+        const cname = (catNameEl && catNameEl.value.trim()) ? catNameEl.value.trim() : key;
+        newCats[key] = { name: cname, group: group };
+        const prod = {};
+        content.querySelectorAll('.admin-card[data-prodrow]').forEach(card => {
+            const nm = (card.querySelector('.prod-name').value || '').trim();
+            if (!nm) return;
+            const a = parseFloat(card.querySelector('.prod-a').value) || 0;
+            const v = parseFloat(card.querySelector('.prod-v').value) || 0;
+            let finalNm = nm;
+            // Évite d'écraser une dimension portant déjà ce nom
+            while (prod.hasOwnProperty(finalNm)) finalNm += ' (2)';
+            prod[finalNm] = [a, v];
+        });
+        newProds[key] = prod;
+    });
+    TARIFS_CATEGORIES = newCats;
+    TARIFS_PRODUITS = newProds;
     const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
     alert(ok ? "✅ Nouveaux tarifs enregistrés sur GitHub !" : "⚠️ Tarifs mis à jour localement (erreur GitHub).");
     buildMainSelect();
