@@ -72,8 +72,8 @@
     },
     "o_escal": {
       "name": "Montée Escalier",
-      "a": 20,
-      "v": 60
+      "a": 0,
+      "v": 0
     },
     "o_syam": {
       "name": "SYAM / Étage Int.",
@@ -159,6 +159,11 @@
       "name": "Dépose Banne",
       "a": 60,
       "v": 90
+    },
+    "o_escal_etage_supp": {
+      "name": "Supplément par étage (à partir du 3e)",
+      "a": 10,
+      "v": 30
     }
   },
   "produits": {
