@@ -162,7 +162,7 @@
     },
     "o_escal_etage_supp": {
       "name": "Supplément par étage (à partir du 3e)",
-      "a": 10,
+      "a": 20,
       "v": 30
     }
   },
