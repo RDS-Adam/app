@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -33,8 +34,9 @@
         h4 { margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
         label { font-weight: bold; display: block; margin-bottom: 5px; }
         select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; box-sizing: border-box; font-size: 14px; }
-        .check-item { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
-        .check-item input { width: auto; margin-right: 10px; margin-bottom: 0; transform: scale(1.2); }
+        .check-item { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
+        .check-item input[type="checkbox"] { width: auto; margin-right: 10px; margin-bottom: 0; transform: scale(1.2); flex-shrink: 0; }
+        .check-item input[type="number"] { width: auto; margin-bottom: 0; }
         .btn-add { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; }
         .btn-add-frais { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; width: 100%; height: 42px; }
         .btn-print { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; float: right; font-size: 1rem; }
@@ -244,7 +246,14 @@
                     <div class="check-item"><input type="checkbox" id="o_perc"> Perçage mur/tuiles/passage tube > 1m</div>
                     <div class="check-item"><input type="checkbox" id="o_vr_perc"> Perçage mur VR (boîte dérivation)</div>
                     <div class="check-item"><input type="checkbox" id="o_corde"> Montée à la corde</div>
-                    <div class="check-item"><input type="checkbox" id="o_escal"> Montée étage escalier</div>
+                    <div class="check-item">
+                        <input type="checkbox" id="o_escal" onchange="document.getElementById('o_escal_floor_wrap').style.display=this.checked?'inline-flex':'none'">
+                        Montée étage escalier
+                        <span id="o_escal_floor_wrap" style="display:none; align-items:center; margin-left:8px; gap:4px;">
+                            <label style="font-weight:normal; margin:0; font-size:0.8rem; white-space:nowrap;">Étage :</label>
+                            <input type="number" id="o_escal_floor" min="1" max="20" value="1" style="width:55px; margin:0; padding:4px 6px; font-size:0.85rem;">
+                        </span>
+                    </div>
                     <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur</div>
                     <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50</div>
                     <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Loc)</div>
@@ -407,7 +416,6 @@ async function saveTarifsToGitHub(tarifs) {
 /* =========================================================
    BASE DE DONNÉES PAR DÉFAUT (NE PAS MODIFIER DIRECTEMENT)
 ========================================================= */
-// Noms et regroupement des catégories (la CLÉ est stable, seul le nom est modifiable)
 const DEFAULT_CATEGORIES = {
     banne_man:       { name: "Store Banne Manuel",                group: "STORES BANNES" },
     banne_elec:      { name: "Store Banne Électrique / Solaire",  group: "STORES BANNES" },
@@ -502,6 +510,7 @@ const DEFAULT_TARIFS_OPTIONS = {
     o_vr_perc: { name: "Perçage VR", a: 20, v: 30 },
     o_corde: { name: "Montée à la corde", a: 60, v: 100 },
     o_escal: { name: "Montée Escalier", a: 20, v: 60 },
+    o_escal_etage_supp: { name: "Supplément par étage (à partir du 3e)", a: 10, v: 30 },
     o_syam: { name: "SYAM / Étage Int.", a: 50, v: 70 },
     o_echelle: { name: "Pose Échelle > 3m50", a: 10, v: 30 },
     o_echa_inst: { name: "Inst. Échafaudage", a: 150, v: 250 },
@@ -530,21 +539,18 @@ let panier = [];
 let calcValues = [];
 let calcMode = 'add';
 const STORAGE_KEY = 'pose_expert_saved_devis';
-// Stores intérieurs dont le baseA ≤ 30€ → exclus du −15% achat (remise globale)
 const INT_CATS = ['ven_alu','ven_bois','enr_easy','enr_sans','plis','novis','cal_chain','cal_sans','japonais','velum','tring_seule','rid_oeil','rid_ruf'];
-// Retourne le nom affiché d'une catégorie (fallback sur la clé)
 function getCatName(key) {
     return (TARIFS_CATEGORIES[key] && TARIFS_CATEGORIES[key].name) ? TARIFS_CATEGORIES[key].name : key;
 }
 function getCatGroup(key) {
     return (TARIFS_CATEGORIES[key] && TARIFS_CATEGORIES[key].group) ? TARIFS_CATEGORIES[key].group : "AUTRES";
 }
-// Construit dynamiquement le menu déroulant Produit, groupé par optgroup
 function buildMainSelect() {
     const sel = document.getElementById('pMain');
     const prev = sel.value;
     sel.innerHTML = '<option value="">-- Sélectionner --</option>';
-    let groups = {};   // group -> optgroup element (réutilisé si on recroise le même groupe)
+    let groups = {};
     for (let key in TARIFS_PRODUITS) {
         const grpLabel = getCatGroup(key);
         if (!groups[grpLabel]) {
@@ -566,6 +572,10 @@ window.onload = async function() {
         if (tarifs.options) TARIFS_OPTIONS = tarifs.options;
         if (tarifs.produits) TARIFS_PRODUITS = tarifs.produits;
         if (tarifs.categories) TARIFS_CATEGORIES = tarifs.categories;
+        // S'assure que le supplément étage existe même dans une base importée ancienne
+        if (!TARIFS_OPTIONS.o_escal_etage_supp) {
+            TARIFS_OPTIONS.o_escal_etage_supp = DEFAULT_TARIFS_OPTIONS.o_escal_etage_supp;
+        }
     }
     refreshDevisList();
     buildMainSelect();
@@ -694,6 +704,12 @@ function populateSub() {
         sub.appendChild(opt);
     }
 }
+function resetEscalFloor() {
+    const floorInput = document.getElementById('o_escal_floor');
+    const floorWrap = document.getElementById('o_escal_floor_wrap');
+    if (floorInput) floorInput.value = 1;
+    if (floorWrap) floorWrap.style.display = 'none';
+}
 function resetDevis() {
     if(confirm("Attention, cela va effacer tout le devis en cours. Confirmer ?")) {
         panier = []; clearCalc();
@@ -702,6 +718,7 @@ function resetDevis() {
         document.getElementById('trajet').value = "standard"; document.getElementById('zone').value = "province";
         document.getElementById('globalAchatProd').value = ""; document.getElementById('globalVenteProd').value = "";
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
+        resetEscalFloor();
         populateSub(); updateUI();
     }
 }
@@ -767,7 +784,21 @@ function addItem() {
     addOpt('o_perc', 'o_perc');
     addOpt('o_vr_perc', 'o_vr_perc');
     addOpt('o_corde', 'o_corde');
-    addOpt('o_escal', 'o_escal');
+    // Montée escalier avec supplément étage à partir du 3e
+    let escalEl = document.getElementById('o_escal');
+    if (escalEl && escalEl.checked) {
+        let a = TARIFS_OPTIONS.o_escal.a;
+        let v = TARIFS_OPTIONS.o_escal.v;
+        const floor = parseInt(document.getElementById('o_escal_floor').value) || 1;
+        const extraFloors = Math.max(0, floor - 2);
+        if (extraFloors > 0) {
+            a += extraFloors * (TARIFS_OPTIONS.o_escal_etage_supp ? TARIFS_OPTIONS.o_escal_etage_supp.a : 10);
+            v += extraFloors * (TARIFS_OPTIONS.o_escal_etage_supp ? TARIFS_OPTIONS.o_escal_etage_supp.v : 30);
+        }
+        const floorLabel = floor > 1 ? ` (${floor}e étage)` : '';
+        optList.push({ name: TARIFS_OPTIONS.o_escal.name + floorLabel, a, v });
+        totA += a; totV += v;
+    }
     addOpt('o_syam', 'o_syam');
     addOpt('o_echelle', 'o_echelle');
     addOpt('o_echa_inst', 'o_echa_inst');
@@ -794,6 +825,7 @@ function addItem() {
     panier.push({ isFrais: false, mainCat: mSelect.value, name: baseName, baseA: baseA, baseV: baseV, options: optList, qty: qty, unitA: totA, unitV: totV });
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
+    resetEscalFloor();
 }
 function toggleDetails(index) {
     const row = document.getElementById(`details-${index}`);
@@ -836,7 +868,6 @@ function updateUI() {
             }
             currentA = uA * item.qty;
             currentV = uV * item.qty;
-            // −15% achat exclu pour les intérieurs à tarif base ≤ 30€
             const exclAchatGlobal = INT_CATS.includes(item.mainCat) && item.baseA <= 30;
             if (applyGlobalDiscount) {
                 if (!exclAchatGlobal) {
@@ -860,7 +891,6 @@ function updateUI() {
             <td class="col-action"><span class="delete-btn" onclick="panier.splice(${idx},1);updateUI()">X</span></td>
         </tr>`;
         if (!item.isFrais) {
-            // ── Reconstruit chaque étape du calcul ──
             const hasOpts  = item.options && item.options.length > 0;
             const optSumA  = item.unitA - item.baseA;
             const optSumV  = item.unitV - item.baseV;
@@ -881,13 +911,11 @@ function updateUI() {
             const fA = (n) => `<span class="calc-number" data-val="${n}">${n.toFixed(2)} €</span>`;
             const fS = (n) => { const s = Math.abs(n).toFixed(2) + ' €'; return n >= 0 ? `<span style="color:#27ae60">+${s}</span>` : `<span style="color:#e74c3c">−${Math.abs(n).toFixed(2)} €</span>`; };
             let rows = '';
-            // ① Base unitaire
             rows += `<tr>
                 <td><span class="detail-step">①</span> <strong>Base pose unitaire</strong></td>
                 <td class="col-r detail-col-a">${fA(item.baseA)}</td>
                 <td class="col-r detail-col-v">${fA(item.baseV)}</td>
             </tr>`;
-            // ② Options
             if (hasOpts) {
                 item.options.forEach((opt, i) => {
                     rows += `<tr>
@@ -902,7 +930,6 @@ function updateUI() {
                     <td class="col-r detail-col-v">${fA(item.unitV)}</td>
                 </tr>`;
             }
-            // ③ Supplément zone
             if (zoneSuppA > 0 || zoneSuppV > 0) {
                 const zLabel = zone === 'dep75_92' ? 'Dép. 75/92' : 'IDF / Métropole';
                 rows += `<tr>
@@ -916,7 +943,6 @@ function updateUI() {
                     <td class="col-r detail-col-v">${fA(uV_zone)}</td>
                 </tr>`;
             }
-            // ④ Remise bannes
             if (banneA !== 0 || banneV !== 0) {
                 rows += `<tr class="detail-disc">
                     <td><span class="detail-step">−</span> Remise bannes <em>(≥ 2 bannes dans le devis)</em></td>
@@ -924,7 +950,6 @@ function updateUI() {
                     <td class="col-r detail-col-v">${fS(banneV)}</td>
                 </tr>`;
             }
-            // Prix unitaire net
             const needUnitNet = hasOpts || zoneSuppA > 0 || banneA !== 0;
             if (needUnitNet) {
                 rows += `<tr class="detail-sub">
@@ -933,7 +958,6 @@ function updateUI() {
                     <td class="col-r detail-col-v"><strong>${fA(uV_net)}</strong></td>
                 </tr>`;
             }
-            // ⑤ Quantité
             if (item.qty > 1) {
                 rows += `<tr>
                     <td><span class="detail-step">×</span> <strong>Quantité : ${item.qty} unités</strong></td>
@@ -941,7 +965,6 @@ function updateUI() {
                     <td class="col-r detail-col-v">${uV_net.toFixed(2)} × ${item.qty} = ${fA(lineV_brut)}</td>
                 </tr>`;
             }
-            // ⑥ Remise globale
             if (discApplA || discApplV) {
                 const cellA = discApplA
                     ? `${lineA_brut.toFixed(2)} × 0,85 = ${fA(lineA)}`
@@ -952,7 +975,6 @@ function updateUI() {
                     <td class="col-r detail-col-v">${lineV_brut.toFixed(2)} × 0,90 = ${fA(lineV)}</td>
                 </tr>`;
             }
-            // ══ Total ligne ══
             rows += `<tr class="detail-final">
                 <td>🧾 TOTAL LIGNE</td>
                 <td class="col-r detail-col-a">${lineA.toFixed(2)} €</td>
@@ -1107,14 +1129,12 @@ function toggleAccordion(btn) {
 function formatKeyName(str) {
     return str.replace(/_/g, ' ').toUpperCase();
 }
-// Échappe les guillemets pour insertion dans un attribut value=""
 function escAttr(str) {
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 function renderAdminPanel() {
     let container = document.getElementById('adminContainer');
     let html = "";
-    // 1. Accordéon pour Options / Frais
     html += `<button class="accordion-btn active" onclick="toggleAccordion(this)">▼ FRAIS FIXES ET OPTIONS GLOBALES</button>`;
     html += `<div class="accordion-content" style="display:block;"><div class="admin-grid">`;
     for (let key in TARIFS_OPTIONS) {
@@ -1141,7 +1161,6 @@ function renderAdminPanel() {
         </div>`;
     }
     html += `</div></div>`;
-    // 2. Accordéons pour Produits
     html += `<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin:25px 0 10px 0; border-bottom:2px solid var(--primary); padding-bottom:8px;">
         <h3 style="margin:0; color:var(--primary);">📦 Grilles Tarifaires des Produits</h3>
         <button class="btn-add-cat" onclick="addCategory()">➕ Ajouter une catégorie</button>
@@ -1150,17 +1169,14 @@ function renderAdminPanel() {
         html += categoryBlockHTML(main, getCatName(main), getCatGroup(main), TARIFS_PRODUITS[main]);
     }
     container.innerHTML = html;
-    // Réinitialise la recherche à chaque (ré)affichage du panneau
     const sb = document.getElementById('adminSearch');
     if (sb) sb.value = "";
     const nr = document.getElementById('adminNoResults');
     if (nr) nr.style.display = "none";
 }
-// Normalise un texte pour la recherche (minuscules + sans accents)
 function normalizeTxt(s) {
     return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
-// Ouvre / ferme un accordéon en synchronisant la flèche
 function setAccordionState(btn, open) {
     const content = btn.nextElementSibling;
     if (open) {
@@ -1173,7 +1189,6 @@ function setAccordionState(btn, open) {
         btn.innerHTML = btn.innerHTML.replace('▼', '▶');
     }
 }
-// Filtre les accordéons / cartes admin selon la recherche
 function filterAdminPanel() {
     const q = normalizeTxt(document.getElementById('adminSearch').value.trim());
     const container = document.getElementById('adminContainer');
@@ -1192,7 +1207,6 @@ function filterAdminPanel() {
             if (show) anyVisible = true;
         });
         if (!q) {
-            // Pas de recherche : état par défaut (Frais/Options ouvert, catégories fermées)
             btn.style.display = '';
             setAccordionState(btn, !isCategory);
         } else {
@@ -1211,11 +1225,9 @@ function clearAdminSearch() {
     filterAdminPanel();
     sb.focus();
 }
-// Clé technique unique pour une nouvelle catégorie
 function newCatKey() {
     return 'cat_' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
 }
-// Carte d'une ligne produit / dimension
 function productCardHTML(name, a, v) {
     return `<div class="admin-card" data-prodrow>
         <div class="admin-name-row">
@@ -1235,7 +1247,6 @@ function productCardHTML(name, a, v) {
         </div>
     </div>`;
 }
-// Bloc complet d'une catégorie (bouton accordéon + contenu)
 function categoryBlockHTML(key, catName, catGroup, productsObj) {
     let cards = "";
     for (let sub in productsObj) cards += productCardHTML(sub, productsObj[sub][0], productsObj[sub][1]);
@@ -1282,7 +1293,7 @@ function deleteCategory(btn) {
     content.remove();
 }
 function addProductRow(btn) {
-    const grid = btn.previousElementSibling; // .admin-grid
+    const grid = btn.previousElementSibling;
     if (!grid) return;
     const tmp = document.createElement('div');
     tmp.innerHTML = productCardHTML('Nouvelle dimension', 0, 0);
@@ -1299,7 +1310,6 @@ function deleteProductRow(btn) {
     card.remove();
 }
 async function saveAdminChanges() {
-    // Options / Frais : prix + nom de la prestation (ensemble fixe)
     for (let key in TARIFS_OPTIONS) {
         let aEl = document.getElementById(`adm_opt_a_${key}`);
         if (!aEl) continue;
@@ -1308,8 +1318,6 @@ async function saveAdminChanges() {
         let nameEl = document.getElementById(`adm_opt_name_${key}`);
         if (nameEl && nameEl.value.trim()) TARIFS_OPTIONS[key].name = nameEl.value.trim();
     }
-    // Catégories + Produits : reconstruits intégralement depuis le DOM
-    // (prend en compte les ajouts / suppressions de catégories et de lignes)
     const newCats = {};
     const newProds = {};
     document.querySelectorAll('#adminContainer .accordion-content[data-catkey]').forEach(content => {
@@ -1325,7 +1333,6 @@ async function saveAdminChanges() {
             const a = parseFloat(card.querySelector('.prod-a').value) || 0;
             const v = parseFloat(card.querySelector('.prod-v').value) || 0;
             let finalNm = nm;
-            // Évite d'écraser une dimension portant déjà ce nom
             while (prod.hasOwnProperty(finalNm)) finalNm += ' (2)';
             prod[finalNm] = [a, v];
         });
@@ -1368,6 +1375,10 @@ function importDatabase(event) {
                 TARIFS_OPTIONS = importedData.options;
                 TARIFS_PRODUITS = importedData.produits;
                 if (importedData.categories) TARIFS_CATEGORIES = importedData.categories;
+                // Compatibilité ascendante : assure que le supplément étage existe
+                if (!TARIFS_OPTIONS.o_escal_etage_supp) {
+                    TARIFS_OPTIONS.o_escal_etage_supp = DEFAULT_TARIFS_OPTIONS.o_escal_etage_supp;
+                }
                 const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
                 buildMainSelect();
                 populateSub();
