@@ -4,8 +4,16 @@
       "id": 1782767566804,
       "titre": "changement de tablier",
       "categorie": "Extérieur",
-      "contenu": "Prestations incluses dans le forfait pose : Changement de tablier (Manivelle ou Électrique)\nVérification technique : Prise de cotes précises de l'ancien tablier, vérification de la compatibilité des nouvelles lames avec les coulisses en place. Contrôle de l'état de l'axe d'enroulement et, selon le modèle, du mécanisme manuel ou de la puissance du moteur existant.\n\nDépose : Ouverture du coffre, détachement des attaches du tablier sur l'axe, extraction et retrait de l'ancien tablier.\n\nInstallation : Enfilement du nouveau tablier dans les coulisses, mise en place des nouvelles attaches (ou verrous de sécurité) sur l'axe d'enroulement et pose des butées.\n\nMise en service : * Pour les volets à manivelle : Réglage mécanique de la course et test de fluidité.\n\nPour les volets électriques : Programmation et réglage des fins de course (moteur filaire ou radio) via l'inverseur ou la télécommande.\n\nNettoyage : Nettoyage de la zone d'intervention (aspiration des poussières) et évacuation de l'ancien tablier et des emballages vers un centre de tri.\n\nRéception : Démonstration du bon fonctionnement (manipulation de la manivelle ou usage de la commande électrique), conseils d'entretien pour les lames et signature du PV de réception.",
-      "versions": []
+      "contenu": "Prestations incluses dans le forfait pose : Changement de tablier (Manivelle ou Électrique)\nVérification technique : Prise de cotes précises de l'ancien tablier, vérification de la compatibilité des nouvelles lames avec les coulisses en place. \n\nDépose : Ouverture du coffre, détachement des attaches du tablier sur l'axe, extraction et retrait de l'ancien tablier.\n\nInstallation : Enfilement du nouveau tablier dans les coulisses, mise en place des nouvelles attaches (ou verrous de sécurité) sur l'axe d'enroulement et pose des butées.\n\nMise en service : * Pour les volets à manivelle : Réglage mécanique de la course et test de fluidité.\n\nPour les volets électriques : Programmation et réglage des fins de course (moteur filaire ou radio) via l'inverseur ou la télécommande.\n\nNettoyage : Nettoyage de la zone d'intervention (aspiration des poussières) et évacuation de l'ancien tablier et des emballages vers un centre de tri.\n\nRéception : Démonstration du bon fonctionnement (manipulation de la manivelle ou usage de la commande électrique), conseils d'entretien pour les lames et signature du PV de réception.",
+      "versions": [
+        {
+          "date": "2026-06-29",
+          "heure": "23:15",
+          "titre": "changement de tablier",
+          "categorie": "Extérieur",
+          "contenu": "Prestations incluses dans le forfait pose : Changement de tablier (Manivelle ou Électrique)\nVérification technique : Prise de cotes précises de l'ancien tablier, vérification de la compatibilité des nouvelles lames avec les coulisses en place. Contrôle de l'état de l'axe d'enroulement et, selon le modèle, du mécanisme manuel ou de la puissance du moteur existant.\n\nDépose : Ouverture du coffre, détachement des attaches du tablier sur l'axe, extraction et retrait de l'ancien tablier.\n\nInstallation : Enfilement du nouveau tablier dans les coulisses, mise en place des nouvelles attaches (ou verrous de sécurité) sur l'axe d'enroulement et pose des butées.\n\nMise en service : * Pour les volets à manivelle : Réglage mécanique de la course et test de fluidité.\n\nPour les volets électriques : Programmation et réglage des fins de course (moteur filaire ou radio) via l'inverseur ou la télécommande.\n\nNettoyage : Nettoyage de la zone d'intervention (aspiration des poussières) et évacuation de l'ancien tablier et des emballages vers un centre de tri.\n\nRéception : Démonstration du bon fonctionnement (manipulation de la manivelle ou usage de la commande électrique), conseils d'entretien pour les lames et signature du PV de réception."
+        }
+      ]
     },
     {
       "id": 1782301464664,
@@ -170,6 +178,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1782767745667,
+      "date": "2026-06-29",
+      "heure": "23:15",
+      "action": "edited",
+      "titre": "changement de tablier",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1782767566804,
       "date": "2026-06-29",
