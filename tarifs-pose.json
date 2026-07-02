@@ -21,7 +21,7 @@
       "v": 40
     },
     "frais_dep_1h": {
-      "name": "Déplacement (< 1h)",
+      "name": "Déplacement (>1h)",
       "a": 75,
       "v": 80
     },
