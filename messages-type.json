@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1782997376212,
+      "titre": "Plissé vélum",
+      "categorie": "Intérieur",
+      "contenu": "Vérification technique\nPrise de cotes définitive (largeur, pente, encombrement du repli) et contrôle des supports.\n\nDépose\nDémontage et retrait de l'ancien équipement.\n\nInstallation\nFixation du profil haut et mise sous tension des câbles de guidage (maintien des plis).\n\nPose de la commande manuelle (perche ou cordon).\n\nMise en service\nRéglage de la tension des cordons pour éviter l'affaissement du tissu.\n\nAjustement des butées et tests de fluidité de la manœuvre.\n\nRéception\nDémonstration, conseils d'entretien et signature du PV de réception.",
+      "versions": []
+    },
+    {
       "id": 1782767566804,
       "titre": "changement de tablier",
       "categorie": "Extérieur",
@@ -178,6 +185,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1782997376212,
+      "date": "2026-07-02",
+      "heure": "15:02",
+      "action": "created",
+      "titre": "Plissé vélum",
+      "categorie": "Intérieur"
+    },
     {
       "ts": 1782767745667,
       "date": "2026-06-29",
