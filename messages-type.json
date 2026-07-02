@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1783029057010,
+      "titre": "Voile d'ombrage",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose : Voile d'ombrage\n\nVérification technique : Prise de cotes définitive, étude de l'implantation (angles d'ombrage) et vérification de la solidité des supports (murs, charpente ou nature du sol pour l'implantation des mâts).\n\nDépose : Démontage et retrait de l'ancienne voile ou des systèmes de fixation existants (si installation existante).\n\nInstallation : Fixation des ancrages muraux, scellement ou ancrage des mâts, pose des systèmes de tension (haubans, palans ou ridoirs) et accrochage de la voile.\n\nMise en service : Réglage de la tension de la toile, ajustement des hauteurs (pour l'évacuation de l'eau de pluie et l'inclinaison) et vérification de la stabilité de l'ensemble.\n\nNettoyage : Nettoyage de la zone d'intervention (évacuation des gravats de perçage/scellement) et évacuation des déchets et emballages.\n\nRéception : Démonstration du système de mise en tension/décrochage rapide, conseils d'entretien, consignes de sécurité en cas de vents forts et signature du bon de fin de travaux.",
+      "versions": []
+    },
+    {
       "id": 1782997376212,
       "titre": "Plissé vélum",
       "categorie": "Intérieur",
@@ -209,6 +216,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1783029057011,
+      "date": "2026-07-02",
+      "heure": "23:50",
+      "action": "created",
+      "titre": "Voile d'ombrage",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1783025523513,
       "date": "2026-07-02",
