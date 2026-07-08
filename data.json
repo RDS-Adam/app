@@ -77,6 +77,15 @@
   },
   "logs": [
     {
+      "ts": 1783504299338,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N-1 modifié",
+      "detail": "Axel · nouveau solde N-1 : 9.5 j"
+    },
+    {
       "ts": 1783504290503,
       "date": "2026-07-08",
       "heure": "11:51",
@@ -122,5 +131,7 @@
       "detail": "Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)"
     }
   ],
-  "soldesN1": {}
+  "soldesN1": {
+    "Axel": 9.5
+  }
 }
