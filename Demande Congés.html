@@ -45,6 +45,17 @@
         .form-group textarea { resize: vertical; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-top: 2px; }
         .form-group textarea:focus { border-color: var(--orange); outline: none; }
         .input-hint { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
+        .pwd-field { display: flex; align-items: center; border-bottom: 1px solid #ddd; transition: border-color 0.2s; }
+        .pwd-field input[type="password"], .pwd-field input[type="text"] { border-bottom: none; flex: 1; min-width: 0; }
+        .pwd-field:focus-within { border-bottom-color: var(--orange); }
+        .pwd-toggle-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.78rem; padding: 4px 2px; flex-shrink: 0; font-family: 'Poppins', sans-serif; }
+        .pwd-toggle-btn:hover { color: var(--bleu); }
+        .pwd-input-wrap .pwd-field input { text-align: center; }
+        .pwd-checklist { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-direction: column; gap: 2px; }
+        .pwd-checklist li { font-size: 0.68rem; color: var(--danger); display: flex; align-items: center; gap: 5px; transition: color 0.15s; }
+        .pwd-checklist li::before { content: '✕'; font-size: 0.6rem; width: 12px; text-align: center; flex-shrink: 0; }
+        .pwd-checklist li.ok { color: var(--success); }
+        .pwd-checklist li.ok::before { content: '✓'; }
         .btn { cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 9px 18px; border: none; }
         .btn-primary { background: var(--bleu); color: white; }
         .btn-primary:hover { background: #1d5f68; }
@@ -102,7 +113,7 @@
         .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
         .filter-row select, .filter-row input { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.75rem; background: white; color: var(--text); outline: none; }
         .filter-row select:focus, .filter-row input:focus { border-color: var(--bleu); }
-        .gmail-btn { display: inline-flex; align-items: center; gap: 6px; background: #ea4335; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 0.78rem; text-decoration: none; margin-top: 10px; }
+        .gmail-btn { display: inline-flex; align-items: center; gap: 6px; background: #ea4335; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 0.78rem; text-decoration: none; }
         .days-preview { margin: 14px 0; padding: 10px 14px; background: #e0eff0; border-radius: 6px; font-size: 0.8rem; color: var(--bleu); font-weight: 500; display: none; }
         .mgr-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
         .mgr-top h1 { font-size: 1.1rem; font-weight: 600; color: var(--text); }
@@ -180,6 +191,7 @@
         .log-filter-bar { display: flex; gap: 8px; align-items: center; }
         .log-filter-bar select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; color: var(--text); background: white; outline: none; cursor: pointer; }
         .log-filter-bar select:focus { border-color: var(--bleu); }
+        .post-submit-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     </style>
 </head>
 <body>
@@ -188,10 +200,10 @@
     <div class="app-header">
         <div class="logo-text">Congés <span>|</span> RDS</div>
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('employee')">Espace Salarié</button>
-            <button class="nav-tab" onclick="switchTab('manager')">Espace Direction</button>
+            <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
+            <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
         </div>
-        <div class="header-ver">V3.1 — RH Rue du Store</div>
+        <div class="header-ver">V3.6 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -201,11 +213,89 @@
                 <div class="card-body">
                     <div class="login-title">Espace Salarié</div>
                     <p class="login-sub">Sélectionnez votre prénom pour accéder à votre espace</p>
-                    <div class="form-group" style="margin-bottom:22px;">
+                    <div class="form-group" style="margin-bottom:18px;">
                         <label>Votre prénom</label>
-                        <select id="user-selector"><option value="">— Chargement... —</option></select>
+                        <select id="user-selector" onchange="onUserSelected()"><option value="">— Chargement... —</option></select>
                     </div>
-                    <button class="btn btn-primary btn-full" onclick="loginEmployee()">Accéder à mon espace →</button>
+
+                    <div id="emp-pwd-wrap" style="display:none;margin-bottom:6px;">
+                        <div class="form-group" style="margin-bottom:8px;">
+                            <label>Mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_login_pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter') loginEmployee()">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_login_pwd', this)">👁</button>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <a href="#" style="font-size:0.7rem;color:var(--muted);" onclick="showForgotPassword();return false;">Mot de passe oublié ?</a>
+                        </div>
+                    </div>
+
+                    <div id="emp-setup-wrap" style="display:none;margin-bottom:6px;">
+                        <div class="alert alert-warning">Première connexion — définissez votre mot de passe et une question secrète de récupération.</div>
+                        <div class="form-group" style="margin:14px 0;">
+                            <label>Nouveau mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_setup_pwd" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_setup_pwd-checklist')">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd', this)">👁</button>
+                            </div>
+                            <ul class="pwd-checklist" id="emp_setup_pwd-checklist">
+                                <li data-rule="length">8 caractères minimum</li>
+                                <li data-rule="upper">Une majuscule</li>
+                                <li data-rule="digit">Un chiffre</li>
+                                <li data-rule="special">Un caractère spécial</li>
+                            </ul>
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Confirmer le mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_setup_pwd2" placeholder="••••••••">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd2', this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Votre question secrète</label>
+                            <input type="text" id="emp_setup_question" placeholder="Ex: Nom de mon premier animal ?">
+                        </div>
+                        <div class="form-group">
+                            <label>Votre réponse</label>
+                            <input type="text" id="emp_setup_answer" placeholder="Ex: Abou">
+                        </div>
+                    </div>
+
+                    <div id="emp-forgot-wrap" style="display:none;margin-bottom:6px;">
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label id="emp_forgot_question_label">Question secrète</label>
+                            <input type="text" id="emp_forgot_answer" placeholder="Votre réponse">
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Nouveau mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_forgot_pwd" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_forgot_pwd-checklist')">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd', this)">👁</button>
+                            </div>
+                            <ul class="pwd-checklist" id="emp_forgot_pwd-checklist">
+                                <li data-rule="length">8 caractères minimum</li>
+                                <li data-rule="upper">Une majuscule</li>
+                                <li data-rule="digit">Un chiffre</li>
+                                <li data-rule="special">Un caractère spécial</li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmer le mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_forgot_pwd2" placeholder="••••••••">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd2', this)">👁</button>
+                            </div>
+                        </div>
+                        <div style="text-align:right;margin-top:6px;">
+                            <a href="#" style="font-size:0.7rem;color:var(--muted);" onclick="cancelForgot();return false;">← Retour</a>
+                        </div>
+                    </div>
+
+                    <div id="emp-login-feedback" style="display:none;margin-bottom:14px;"></div>
+
+                    <button class="btn btn-primary btn-full" id="emp-login-btn" onclick="loginEmployee()" style="margin-top:8px;">Accéder à mon espace →</button>
                 </div>
             </div>
         </div>
@@ -226,19 +316,47 @@
                     <div class="card-body">
                         <div id="solde-info" style="margin-bottom:16px;display:none;">
                             <div class="kpi-label" style="margin-bottom:6px;">Solde congés disponible</div>
-                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                                <div id="solde-display" class="solde-display">— jours</div>
-                                <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit()">✎ Modifier</button>
-                            </div>
-                            <div id="solde-edit" style="display:none;margin-top:8px;display:none;">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <input type="number" id="solde-edit-input" step="0.5" min="0" style="width:90px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 25">
-                                    <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee()">Enregistrer</button>
-                                    <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit()">Annuler</button>
+                            <div style="display:flex;gap:22px;flex-wrap:wrap;">
+                                <div>
+                                    <div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">N-1 (reliquat)</div>
+                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                        <div id="solde-n1-display" class="solde-display">— j</div>
+                                        <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n1')">✎</button>
+                                    </div>
+                                    <div id="solde-n1-edit" style="display:none;margin-top:8px;">
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <input type="number" id="solde-n1-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 5">
+                                            <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee('n1')">OK</button>
+                                            <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n1')">Annuler</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">N (année en cours)</div>
+                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                                        <div id="solde-n-display" class="solde-display">— j</div>
+                                        <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n')">✎</button>
+                                    </div>
+                                    <div id="solde-n-edit" style="display:none;margin-top:8px;">
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <input type="number" id="solde-n-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 25">
+                                            <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee('n')">OK</button>
+                                            <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n')">Annuler</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div style="margin-top:10px;font-size:0.72rem;color:var(--muted);">Total disponible : <strong id="solde-total-display">— j</strong></div>
                         </div>
                         <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nom</label>
+                                <input type="text" id="emp_nom" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Prénom</label>
+                                <input type="text" id="emp_prenom" disabled>
+                            </div>
                             <div class="form-group full">
                                 <label>Email professionnel</label>
                                 <input type="email" id="emp_email" disabled>
@@ -269,7 +387,10 @@
                         <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">Soumettre la demande →</button>
                         <div id="action-request" style="display:none;margin-top:14px;">
                             <div class="alert alert-success">✓ Demande enregistrée avec succès !</div>
-                            <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier Nicolas Decoster</a>
+                            <div class="post-submit-actions">
+                                <button class="btn btn-ghost" onclick="printLastRequest()">🖨 Imprimer / PDF de la demande</button>
+                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier Nicolas Decoster</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -288,33 +409,65 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-header"><h2>Sécurité de mon compte</h2></div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>Mot de passe actuel</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_pwd_current" placeholder="••••••••">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_current', this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nouveau mot de passe</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_pwd_new" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_pwd_new-checklist')">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_new', this)">👁</button>
+                            </div>
+                            <ul class="pwd-checklist" id="emp_pwd_new-checklist">
+                                <li data-rule="length">8 caractères minimum</li>
+                                <li data-rule="upper">Une majuscule</li>
+                                <li data-rule="digit">Un chiffre</li>
+                                <li data-rule="special">Un caractère spécial</li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmer le nouveau</label>
+                            <div class="pwd-field">
+                                <input type="password" id="emp_pwd_confirm" placeholder="••••••••">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_confirm', this)">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nouvelle question secrète (optionnel)</label>
+                            <input type="text" id="emp_question_new" placeholder="Ex: Nom de mon premier animal ?">
+                        </div>
+                        <div class="form-group">
+                            <label>Nouvelle réponse</label>
+                            <input type="text" id="emp_answer_new" placeholder="Ex: Abou">
+                        </div>
+                    </div>
+                    <p class="input-hint" style="margin-top:-8px;margin-bottom:4px;">Laissez la question et la réponse vides pour ne pas changer votre question secrète.</p>
+                    <div id="emp-pwd-feedback" style="display:none;margin-top:10px;"></div>
+                    <button class="btn btn-primary" style="margin-top:14px;" onclick="changeEmployeePassword()">Mettre à jour</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- ESPACE DIRECTION -->
     <div id="page-manager" class="page">
-        <div id="manager-lock-wrap" class="login-wrap">
-            <div class="card">
-                <div class="card-body">
-                    <div class="login-title">Espace Direction</div>
-                    <p class="login-sub">Accès réservé — code confidentiel requis</p>
-                    <div class="pwd-input-wrap">
-                        <label style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Code d'accès</label>
-                        <input type="password" id="mgr_pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') unlockManager()">
-                    </div>
-                    <button class="btn btn-primary btn-full" onclick="unlockManager()">Accéder au tableau de bord →</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="manager-content" style="display:none;">
+        <div id="manager-content">
             <div class="mgr-top">
                 <div><h1>Tableau de bord RH</h1><p>Vue d'ensemble des demandes de congés</p></div>
                 <div class="mgr-top-actions">
                     <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">↻ Actualiser</button>
-                    <button class="btn btn-ghost btn-sm" onclick="exportBackup()">↓ Export JSON</button>
-                    <button class="btn btn-ghost-danger btn-sm" onclick="confirmClearAll()">🗑 Effacer tout</button>
-                    <button class="btn btn-ghost-danger btn-sm" onclick="lockManager()">Verrouiller</button>
+                    <button class="btn btn-ghost btn-sm" id="btn-export-backup" style="display:none;" onclick="exportBackup()">↓ Export JSON</button>
+                    <button class="btn btn-ghost-danger btn-sm" id="btn-clear-all" style="display:none;" onclick="confirmClearAll()">🗑 Effacer tout</button>
+                    <button class="btn btn-ghost btn-sm" onclick="switchTab('employee')">← Mon espace</button>
                 </div>
             </div>
             <div class="kpi-row">
@@ -381,14 +534,15 @@
                     <div class="card-header"><h2>Gestion de l'équipe</h2></div>
                     <div class="card-body" style="padding:0;"><div id="emp-management-list"></div></div>
                 </div>
-                <div class="card">
+                <div class="card" id="card-add-employee" style="display:none;">
                     <div class="card-header"><h2>Ajouter un salarié</h2></div>
                     <div class="card-body">
                         <div class="form-grid">
                             <div class="form-group"><label>Prénom</label><input type="text" id="new_emp_name" placeholder="Ex: Marie"></div>
                             <div class="form-group"><label>Nom</label><input type="text" id="new_emp_lastname" placeholder="Ex: Dupont"></div>
                             <div class="form-group"><label>Email</label><input type="email" id="new_emp_email" placeholder="marie.dupont@ruedustore.fr"></div>
-                            <div class="form-group"><label>Solde initial (jours)</label><input type="number" id="new_emp_solde" placeholder="25" step="0.5" min="0"></div>
+                            <div class="form-group"><label>Solde initial N (jours)</label><input type="number" id="new_emp_solde" placeholder="25" step="0.5" min="0"></div>
+                            <div class="form-group"><label>Solde initial N-1 (jours, si reliquat)</label><input type="number" id="new_emp_solde_n1" placeholder="0" step="0.5" min="0"></div>
                         </div>
                         <button class="btn btn-primary" style="margin-top:14px;" onclick="addEmployee()">+ Ajouter</button>
                     </div>
@@ -397,31 +551,11 @@
                     <div class="card-header"><h2>Ajuster un solde</h2></div>
                     <div class="card-body">
                         <div class="form-grid">
-                            <div class="form-group"><label>Salarié</label><select id="adjust_emp"></select></div>
-                            <div class="form-group"><label>Nouveau solde (jours)</label><input type="number" id="adjust_solde" placeholder="25" step="0.5" min="0"></div>
+                            <div class="form-group full"><label>Salarié</label><select id="adjust_emp" onchange="prefillAdjustSolde()"></select></div>
+                            <div class="form-group"><label>Nouveau solde N (jours)</label><input type="number" id="adjust_solde" placeholder="25" step="0.5" min="0"></div>
+                            <div class="form-group"><label>Nouveau solde N-1 (jours)</label><input type="number" id="adjust_solde_n1" placeholder="0" step="0.5" min="0"></div>
                         </div>
                         <button class="btn btn-primary" style="margin-top:14px;" onclick="adjustSolde()">Mettre à jour</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header"><h2>Changer le mot de passe</h2></div>
-                    <div class="card-body">
-                        <div class="form-grid">
-                            <div class="form-group full">
-                                <label>Mot de passe actuel</label>
-                                <input type="password" id="pwd_current" placeholder="••••••••">
-                            </div>
-                            <div class="form-group">
-                                <label>Nouveau mot de passe</label>
-                                <input type="password" id="pwd_new" placeholder="••••••••">
-                            </div>
-                            <div class="form-group">
-                                <label>Confirmer le nouveau</label>
-                                <input type="password" id="pwd_confirm" placeholder="••••••••">
-                            </div>
-                        </div>
-                        <div id="pwd-feedback" style="display:none;margin-top:10px;"></div>
-                        <button class="btn btn-primary" style="margin-top:14px;" onclick="changePassword()">Changer le mot de passe</button>
                     </div>
                 </div>
             </div>
@@ -461,6 +595,71 @@
                         <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
                     </div>
                     <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.6</span>
+                                <span class="changelog-title">Accès direction fusionné par rôle</span>
+                                <span class="changelog-date">Juillet 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Un seul écran de connexion pour tout le monde (fin du mot de passe direction séparé)</li>
+                                <li>Chaque salarié a un rôle : Salarié, Administrateur RH ou Direction</li>
+                                <li>Nicolas (Direction) : accès complet — validation, équipe, soldes, export, suppression</li>
+                                <li>Camille (Administrateur RH) : voit tout le monde, valide/refuse les demandes, ajuste les soldes N/N-1 — sans gestion d'équipe ni export/suppression globale</li>
+                                <li>Salariés : accès inchangé à leur espace personnel uniquement</li>
+                                <li>Le rôle de chacun est modifiable par la Direction depuis l'onglet Équipe</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.5</span>
+                                <span class="changelog-title">Acquisition mensuelle & solde N-1</span>
+                                <span class="changelog-date">Juillet 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>+2,08 j ajoutés automatiquement au solde N de chaque salarié chaque mois (rattrapage à l'ouverture de l'app si le 1er est passé)</li>
+                                <li>Solde scindé en deux compteurs modifiables : N-1 (reliquat) et N (année en cours)</li>
+                                <li>Une demande validée consomme d'abord le solde N-1, puis le solde N</li>
+                                <li>Formulaires "Ajouter un salarié" et "Ajuster un solde" mis à jour pour saisir les deux compteurs</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.4</span>
+                                <span class="changelog-title">Mots de passe robustes & visibilité</span>
+                                <span class="changelog-date">Juillet 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Bouton "👁 voir le mot de passe" sur tous les champs mot de passe (salarié et direction)</li>
+                                <li>Exigence de robustesse : 8 caractères min., 1 majuscule, 1 chiffre, 1 caractère spécial</li>
+                                <li>Message détaillant les critères manquants en cas de mot de passe trop faible</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.3</span>
+                                <span class="changelog-title">Mot de passe salarié & récupération</span>
+                                <span class="changelog-date">Juillet 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Chaque salarié définit son propre mot de passe à la première connexion</li>
+                                <li>Question secrète personnalisée (choisie par le salarié) pour réinitialiser le mot de passe en cas d'oubli</li>
+                                <li>Changement de mot de passe / question secrète depuis l'espace salarié</li>
+                                <li>Réinitialisation d'accès par la direction (onglet Équipe) en cas de double oubli</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.2</span>
+                                <span class="changelog-title">Fiche de demande conforme au modèle RH</span>
+                                <span class="changelog-date">Juillet 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Nom / Prénom pré-remplis automatiquement à la connexion du salarié</li>
+                                <li>PDF de la demande recalé sur le modèle officiel "DEMANDE DE CONGES"</li>
+                                <li>Bouton "Imprimer / PDF" proposé juste après l'envoi d'une demande, en plus de la notification par email</li>
+                            </ul>
+                        </div>
                         <div class="changelog-item">
                             <div class="changelog-ver">
                                 <span class="changelog-badge">V3.1</span>
@@ -551,17 +750,24 @@
     const REPO_OWNER = "RDS-Adam";
     const REPO_NAME  = "app";
     const FILE_PATH  = "data.json";
-    const PASS_HASH  = "cc96be4e13481f9efff57228a0a414c2b110225d4636760b8053a4c212452a4c";
     const MGR_NAME   = "Nicolas Decoster";
     const MGR_EMAIL  = "nicolas.decoster@ruedustore.fr";
     const CAL_COLORS = ["#25737d","#ff7200","#2d9e6b","#9c27b0","#e53935","#0288d1","#f57c00","#00695c"];
+    const BOOTSTRAP_ROLES = { 'nicolas': 'superadmin', 'camille': 'admin' };
 
     let currentUser = null;
+    let currentRole = 'employee'; // 'employee' | 'admin' | 'superadmin'
     let selectedRequestId = null;
+    let lastRequestId = null;
     let allArchiveData = [];
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth();
     let cachedDB = null;
+    let empLoginMode = 'password'; // 'password' | 'setup' | 'forgot'
+
+    function isAdmin() { return currentRole === 'admin' || currentRole === 'superadmin'; }
+    function isSuperAdmin() { return currentRole === 'superadmin'; }
+    function actorName() { return currentUser ? currentUser : MGR_NAME; }
 
     async function fetchFromGitHub() {
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, { headers: { 'Cache-Control': 'no-cache' } });
@@ -575,6 +781,7 @@
             db = parsed;
             if (!db.requests) db.requests = [];
             if (!db.soldes)   db.soldes   = {};
+            if (!db.soldesN1) db.soldesN1 = {};
             if (!db.employees) db.employees = [];
             if (!db.config)   db.config    = {};
             if (!db.logs)     db.logs      = [];
@@ -599,12 +806,42 @@
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
+    function togglePwdVisibility(id, btn) {
+        const input = document.getElementById(id);
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.textContent = show ? '🙈' : '👁';
+    }
+
+    const PWD_RULES = [
+        { key: 'length',  label: '8 caractères minimum', test: pwd => pwd.length >= 8 },
+        { key: 'upper',   label: 'une majuscule',         test: pwd => /[A-Z]/.test(pwd) },
+        { key: 'digit',   label: 'un chiffre',            test: pwd => /[0-9]/.test(pwd) },
+        { key: 'special', label: 'un caractère spécial',  test: pwd => /[^A-Za-z0-9]/.test(pwd) }
+    ];
+
+    function passwordIssues(pwd) {
+        pwd = pwd || '';
+        return PWD_RULES.filter(rule => !rule.test(pwd)).map(rule => rule.label);
+    }
+
+    function updatePasswordChecklist(pwd, listId) {
+        const list = document.getElementById(listId);
+        if (!list) return;
+        pwd = pwd || '';
+        PWD_RULES.forEach(rule => {
+            const li = list.querySelector(`[data-rule="${rule.key}"]`);
+            if (li) li.classList.toggle('ok', rule.test(pwd));
+        });
+    }
+
     function switchTab(tab) {
+        if (tab === 'manager' && !isAdmin()) return;
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
         document.getElementById('page-' + tab).classList.add('active');
         document.querySelector(`.nav-tab[onclick*="${tab}"]`).classList.add('active');
-        if (tab === 'manager') lockManager();
+        if (tab === 'manager') renderManagerDashboard();
     }
 
     function switchMgrTab(name) {
@@ -655,6 +892,7 @@
 
     async function loadEmployeeSelector() {
         try {
+            await ensureRoleBootstrap();
             const { db } = await fetchFromGitHub();
             const sel = document.getElementById('user-selector');
             if (db.employees.length > 0) {
@@ -663,59 +901,291 @@
         } catch(e) { console.error('loadEmployeeSelector:', e.message); }
     }
 
+    async function ensureRoleBootstrap() {
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (!db.config) db.config = {};
+            if (db.config.rolesBootstrapped) return;
+            let changed = false;
+            db.employees.forEach(e => {
+                const preset = BOOTSTRAP_ROLES[e.name.trim().toLowerCase()];
+                if (preset && !e.role) { e.role = preset; changed = true; }
+            });
+            db.config.rolesBootstrapped = true;
+            if (changed) addLogEntry(db, 'systeme', 'Système', 'Rôles initialisés', 'Attribution automatique des rôles direction (Nicolas → Direction, Camille → Administrateur RH)');
+            await saveToGitHub(db, sha);
+        } catch(e) { console.error('ensureRoleBootstrap:', e.message); }
+    }
+
+    async function onUserSelected() {
+        hideLoginFeedback();
+        const name = document.getElementById('user-selector').value;
+        if (!name) {
+            document.getElementById('emp-pwd-wrap').style.display = 'none';
+            document.getElementById('emp-setup-wrap').style.display = 'none';
+            document.getElementById('emp-forgot-wrap').style.display = 'none';
+            return;
+        }
+        const { db } = cachedDB || await fetchFromGitHub();
+        const emp = db.employees.find(e => e.name === name);
+        setEmpLoginMode(emp && emp.passHash ? 'password' : 'setup');
+    }
+
+    function setEmpLoginMode(mode) {
+        empLoginMode = mode;
+        document.getElementById('emp-pwd-wrap').style.display    = mode === 'password' ? 'block' : 'none';
+        document.getElementById('emp-setup-wrap').style.display  = mode === 'setup'    ? 'block' : 'none';
+        document.getElementById('emp-forgot-wrap').style.display = mode === 'forgot'   ? 'block' : 'none';
+        const btn = document.getElementById('emp-login-btn');
+        btn.textContent = mode === 'setup' ? 'Créer mon mot de passe →' : mode === 'forgot' ? 'Réinitialiser le mot de passe →' : 'Accéder à mon espace →';
+    }
+
+    async function showForgotPassword() {
+        const name = document.getElementById('user-selector').value;
+        if (!name) return;
+        const { db } = cachedDB || await fetchFromGitHub();
+        const emp = db.employees.find(e => e.name === name);
+        if (!emp || !emp.recoveryQuestion) {
+            hideLoginFeedback();
+            return showLoginFeedback('Aucune question secrète enregistrée — demandez à la direction de réinitialiser votre accès.', false);
+        }
+        document.getElementById('emp_forgot_question_label').textContent = emp.recoveryQuestion;
+        document.getElementById('emp_forgot_answer').value = '';
+        document.getElementById('emp_forgot_pwd').value = '';
+        document.getElementById('emp_forgot_pwd2').value = '';
+        updatePasswordChecklist('', 'emp_forgot_pwd-checklist');
+        hideLoginFeedback();
+        setEmpLoginMode('forgot');
+    }
+
+    async function cancelForgot() {
+        await onUserSelected();
+    }
+
+    function hideLoginFeedback() {
+        document.getElementById('emp-login-feedback').style.display = 'none';
+    }
+
+    function showLoginFeedback(msg, ok) {
+        const el = document.getElementById('emp-login-feedback');
+        el.style.display = 'flex';
+        el.className = 'alert ' + (ok ? 'alert-success' : 'alert-warning');
+        el.textContent = msg;
+    }
+
+    function resetEmpLoginForm() {
+        document.getElementById('user-selector').value = '';
+        document.getElementById('emp-pwd-wrap').style.display = 'none';
+        document.getElementById('emp-setup-wrap').style.display = 'none';
+        document.getElementById('emp-forgot-wrap').style.display = 'none';
+        document.getElementById('emp_login_pwd').value = '';
+        hideLoginFeedback();
+    }
+
     async function loginEmployee() {
-        const val = document.getElementById('user-selector').value;
-        if (!val) return alert('Veuillez sélectionner votre prénom.');
-        currentUser = val;
+        const name = document.getElementById('user-selector').value;
+        if (!name) return alert('Veuillez sélectionner votre prénom.');
+        const { db, sha } = await fetchFromGitHub();
+        const emp = db.employees.find(e => e.name === name);
+        if (!emp) return alert('Salarié introuvable.');
+
+        if (empLoginMode === 'setup') {
+            const pwd  = document.getElementById('emp_setup_pwd').value;
+            const pwd2 = document.getElementById('emp_setup_pwd2').value;
+            const question = document.getElementById('emp_setup_question').value.trim();
+            const answer   = document.getElementById('emp_setup_answer').value.trim();
+            const issues = passwordIssues(pwd);
+            if (issues.length) return showLoginFeedback('Mot de passe trop faible — il manque : ' + issues.join(', ') + '.', false);
+            if (pwd !== pwd2) return showLoginFeedback('Les mots de passe ne correspondent pas.', false);
+            if (!question) return showLoginFeedback('Indiquez votre question secrète.', false);
+            if (!answer || answer.length < 2) return showLoginFeedback('Indiquez une réponse (2 caractères min.).', false);
+            emp.passHash = await sha256(pwd);
+            emp.recoveryQuestion = question;
+            emp.recoveryHash = await sha256(answer.toLowerCase());
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe défini', 'Première connexion — mot de passe et question secrète enregistrés');
+            await saveToGitHub(db, sha);
+            currentUser = name;
+            return enterEmployeeSpace(db, emp);
+        }
+
+        if (empLoginMode === 'forgot') {
+            const answer = document.getElementById('emp_forgot_answer').value.trim();
+            const pwd  = document.getElementById('emp_forgot_pwd').value;
+            const pwd2 = document.getElementById('emp_forgot_pwd2').value;
+            if (!emp.recoveryHash) return showLoginFeedback('Aucune question secrète enregistrée — demandez à la direction de réinitialiser votre accès.', false);
+            const answerHash = await sha256(answer.toLowerCase());
+            if (answerHash !== emp.recoveryHash) return showLoginFeedback('Réponse incorrecte.', false);
+            const forgotIssues = passwordIssues(pwd);
+            if (forgotIssues.length) return showLoginFeedback('Mot de passe trop faible — il manque : ' + forgotIssues.join(', ') + '.', false);
+            if (pwd !== pwd2) return showLoginFeedback('Les mots de passe ne correspondent pas.', false);
+            emp.passHash = await sha256(pwd);
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe réinitialisé', 'Réinitialisation via question secrète');
+            await saveToGitHub(db, sha);
+            showLoginFeedback('✓ Mot de passe mis à jour. Vous pouvez vous connecter.', true);
+            setEmpLoginMode('password');
+            document.getElementById('emp_login_pwd').value = '';
+            return;
+        }
+
+        // empLoginMode === 'password'
+        if (!emp.passHash) { setEmpLoginMode('setup'); return showLoginFeedback('Veuillez définir votre mot de passe.', false); }
+        const pwd = document.getElementById('emp_login_pwd').value;
+        if (!pwd) return showLoginFeedback('Mot de passe requis.', false);
+        const hash = await sha256(pwd);
+        if (hash !== emp.passHash) return showLoginFeedback('Mot de passe incorrect.', false);
+        currentUser = name;
+        enterEmployeeSpace(db, emp);
+    }
+
+    async function enterEmployeeSpace(db, emp) {
+        currentRole = (emp && emp.role) ? emp.role : 'employee';
         document.getElementById('emp-login').style.display = 'none';
         document.getElementById('emp-content').style.display = 'block';
         document.getElementById('welcome-msg').innerText = `Bonjour ${currentUser}`;
-        const { db } = cachedDB || await fetchFromGitHub();
-        const emp = db.employees.find(e => e.name === currentUser);
+        document.getElementById('emp_prenom').value = currentUser;
+        document.getElementById('emp_nom').value = emp ? (emp.lastname || '') : '';
         if (emp) document.getElementById('emp_email').value = emp.email;
-        const solde = db.soldes[currentUser];
-        if (solde !== undefined) {
-            const el = document.getElementById('solde-display');
-            el.textContent = `${solde} jour(s) disponible(s)`;
-            el.className = 'solde-display' + (solde <= 5 ? ' critical' : solde <= 10 ? ' low' : '');
-            document.getElementById('solde-info').style.display = 'block';
-        }
+        document.getElementById('nav-tab-manager').style.display = isAdmin() ? 'inline-flex' : 'none';
+        document.getElementById('card-add-employee').style.display = isSuperAdmin() ? 'block' : 'none';
+        document.getElementById('btn-export-backup').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
+        document.getElementById('btn-clear-all').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
+        await checkMonthlyAccrual();
+        const fresh = await fetchFromGitHub();
+        renderEmployeeSoldeUI(fresh.db);
         document.getElementById('action-request').style.display = 'none';
-        await renderEmployeeTable();
+        renderEmployeeTable();
     }
 
-    function toggleSoldeEdit() {
-        const edit = document.getElementById('solde-edit');
+    function soldeBadgeClass(val) {
+        return 'solde-display' + (val <= 5 ? ' critical' : val <= 10 ? ' low' : '');
+    }
+
+    function renderEmployeeSoldeUI(db) {
+        const hasN  = db.soldes[currentUser] !== undefined;
+        const hasN1 = db.soldesN1 && db.soldesN1[currentUser] !== undefined;
+        if (!hasN && !hasN1) { document.getElementById('solde-info').style.display = 'none'; return; }
+        const n1 = hasN1 ? db.soldesN1[currentUser] : 0;
+        const n  = hasN ? db.soldes[currentUser] : 0;
+        const n1El = document.getElementById('solde-n1-display');
+        n1El.textContent = `${n1} j`;
+        n1El.className = soldeBadgeClass(n1);
+        const nEl = document.getElementById('solde-n-display');
+        nEl.textContent = `${n} j`;
+        nEl.className = soldeBadgeClass(n);
+        document.getElementById('solde-total-display').textContent = `${+(n1 + n).toFixed(2)} j`;
+        document.getElementById('solde-info').style.display = 'block';
+    }
+
+    function toggleSoldeEdit(bucket) {
+        const edit = document.getElementById(`solde-${bucket}-edit`);
         const visible = edit.style.display === 'flex';
         edit.style.display = visible ? 'none' : 'flex';
         if (!visible) {
-            const current = document.getElementById('solde-display').textContent.match(/[\d.]+/);
-            document.getElementById('solde-edit-input').value = current ? current[0] : '';
-            document.getElementById('solde-edit-input').focus();
+            const current = document.getElementById(`solde-${bucket}-display`).textContent.match(/[\d.]+/);
+            document.getElementById(`solde-${bucket}-edit-input`).value = current ? current[0] : '';
+            document.getElementById(`solde-${bucket}-edit-input`).focus();
         }
     }
 
-    async function saveSoldeEmployee() {
-        const val = parseFloat(document.getElementById('solde-edit-input').value);
+    async function saveSoldeEmployee(bucket) {
+        const val = parseFloat(document.getElementById(`solde-${bucket}-edit-input`).value);
         if (isNaN(val) || val < 0) return alert('Valeur invalide.');
         try {
             const { db, sha } = await fetchFromGitHub();
-            db.soldes[currentUser] = val;
+            if (bucket === 'n1') {
+                if (!db.soldesN1) db.soldesN1 = {};
+                db.soldesN1[currentUser] = val;
+            } else {
+                db.soldes[currentUser] = val;
+            }
+            addLogEntry(db, 'solde', currentUser, `Solde ${bucket === 'n1' ? 'N-1' : 'N'} modifié`, `${currentUser} · nouveau solde ${bucket === 'n1' ? 'N-1' : 'N'} : ${val} j`);
             await saveToGitHub(db, sha);
-            const el = document.getElementById('solde-display');
-            el.textContent = `${val} jour(s) disponible(s)`;
-            el.className = 'solde-display' + (val <= 5 ? ' critical' : val <= 10 ? ' low' : '');
-            document.getElementById('solde-edit').style.display = 'none';
+            renderEmployeeSoldeUI(db);
+            document.getElementById(`solde-${bucket}-edit`).style.display = 'none';
         } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
+    function monthKey(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
+
+    function monthsBetween(fromKey, toKey) {
+        const [fy, fm] = fromKey.split('-').map(Number);
+        const [ty, tm] = toKey.split('-').map(Number);
+        return (ty - fy) * 12 + (tm - fm);
+    }
+
+    async function checkMonthlyAccrual() {
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (!db.config) db.config = {};
+            const currentMonth = monthKey(new Date());
+            const last = db.config.lastAccrualMonth;
+            if (last === currentMonth) return;
+            const monthsToApply = last ? monthsBetween(last, currentMonth) : 1;
+            if (monthsToApply <= 0) { db.config.lastAccrualMonth = currentMonth; await saveToGitHub(db, sha); return; }
+            const credit = +(2.08 * monthsToApply).toFixed(2);
+            db.employees.forEach(e => {
+                if (db.soldes[e.name] === undefined) db.soldes[e.name] = 0;
+                db.soldes[e.name] = +(db.soldes[e.name] + credit).toFixed(2);
+            });
+            db.config.lastAccrualMonth = currentMonth;
+            addLogEntry(db, 'solde', 'Système', 'Accrual mensuel congés (N)', `+${credit} j pour ${db.employees.length} salarié(s) — ${monthsToApply} mois appliqué(s), à jour au ${currentMonth}`);
+            await saveToGitHub(db, sha);
+        } catch(e) { console.error('checkMonthlyAccrual:', e.message); }
     }
 
     function logoutEmployee() {
         currentUser = null;
+        currentRole = 'employee';
+        document.getElementById('nav-tab-manager').style.display = 'none';
+        switchTab('employee');
         document.getElementById('emp-login').style.display = 'block';
         document.getElementById('emp-content').style.display = 'none';
         document.getElementById('action-request').style.display = 'none';
-        document.getElementById('user-selector').value = '';
         document.getElementById('solde-info').style.display = 'none';
+        resetEmpLoginForm();
+    }
+
+    async function changeEmployeePassword() {
+        const current     = document.getElementById('emp_pwd_current').value;
+        const newPwd       = document.getElementById('emp_pwd_new').value;
+        const confirmPwd   = document.getElementById('emp_pwd_confirm').value;
+        const newQuestion  = document.getElementById('emp_question_new').value.trim();
+        const newAnswer    = document.getElementById('emp_answer_new').value.trim();
+        const feedback = document.getElementById('emp-pwd-feedback');
+        const showMsg = (msg, ok) => {
+            feedback.style.display = 'flex';
+            feedback.className = 'alert ' + (ok ? 'alert-success' : 'alert-warning');
+            feedback.textContent = msg;
+        };
+        if (!current || !newPwd || !confirmPwd) return showMsg('Tous les champs mot de passe sont requis.', false);
+        if (newPwd !== confirmPwd) return showMsg('Les deux nouveaux mots de passe ne correspondent pas.', false);
+        const empPwdIssues = passwordIssues(newPwd);
+        if (empPwdIssues.length) return showMsg('Mot de passe trop faible — il manque : ' + empPwdIssues.join(', ') + '.', false);
+        if (!!newQuestion !== !!newAnswer) return showMsg('Renseignez à la fois la question et la réponse (ou laissez les deux vides).', false);
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === currentUser);
+            if (!emp) return showMsg('Salarié introuvable.', false);
+            const currentHash = await sha256(current);
+            if (!emp.passHash || currentHash !== emp.passHash) return showMsg('Mot de passe actuel incorrect.', false);
+            emp.passHash = await sha256(newPwd);
+            let detail = "Changement depuis l'espace salarié";
+            if (newQuestion && newAnswer) {
+                if (newAnswer.length < 2) return showMsg('La nouvelle réponse doit faire au moins 2 caractères.', false);
+                emp.recoveryQuestion = newQuestion;
+                emp.recoveryHash = await sha256(newAnswer.toLowerCase());
+                detail += ' (+ question secrète mise à jour)';
+            }
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe modifié', detail);
+            await saveToGitHub(db, sha);
+            document.getElementById('emp_pwd_current').value = '';
+            document.getElementById('emp_pwd_new').value = '';
+            document.getElementById('emp_pwd_confirm').value = '';
+            document.getElementById('emp_question_new').value = '';
+            document.getElementById('emp_answer_new').value = '';
+            updatePasswordChecklist('', 'emp_pwd_new-checklist');
+            showMsg('✓ Mot de passe mis à jour avec succès.', true);
+        } catch(e) { showMsg('Erreur : '+e.message, false); }
     }
 
     async function processRequest() {
@@ -739,6 +1209,7 @@
             addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · Du ${formatDate(start)} au ${formatDate(end)} (${days} j)`);
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
+            lastRequestId = req.id;
             const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : du ${formatDate(start)} au ${formatDate(end)} (${days} jours)\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
             document.getElementById('gmail_link').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(MGR_EMAIL)}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-request').style.display = 'block';
@@ -746,7 +1217,13 @@
             document.getElementById('date_start').value = '';
             document.getElementById('date_end').value = '';
             document.getElementById('days-preview').style.display = 'none';
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }, 2000);
         } catch(e) { alert('Erreur : '+e.message); btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }
+    }
+
+    async function printLastRequest() {
+        if (!lastRequestId) return;
+        await downloadPDF(lastRequestId);
     }
 
     async function renderEmployeeTable() {
@@ -772,27 +1249,10 @@
         } catch(e) { console.error(e.message); }
     }
 
-    async function unlockManager() {
-        const pass = document.getElementById('mgr_pass').value;
-        if (!pass) return;
-        const hash = await sha256(pass);
-        const { db } = await fetchFromGitHub();
-        const expectedHash = db.config.passHash || PASS_HASH;
-        if (hash === expectedHash) {
-            document.getElementById('manager-lock-wrap').style.display = 'none';
-            document.getElementById('manager-content').style.display = 'block';
-            await renderManagerDashboard();
-        } else { alert('Code incorrect.'); }
-    }
-
-    function lockManager() {
-        document.getElementById('manager-lock-wrap').style.display = 'block';
-        document.getElementById('manager-content').style.display = 'none';
-        document.getElementById('mgr_pass').value = '';
-    }
-
     async function renderManagerDashboard() {
+        if (!isAdmin()) return;
         try {
+            await checkMonthlyAccrual();
             const { db } = await fetchFromGitHub();
             const pending   = db.requests.filter(r => r.status === 'En attente');
             const validated = db.requests.filter(r => r.status === 'Validé');
@@ -808,7 +1268,7 @@
                     <div class="req-card-top">
                         <div style="display:flex;gap:12px;align-items:flex-start;">
                             <div class="req-avatar">${initials(r.user)}</div>
-                            <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? db.soldes[r.user]+' j' : '?'}</div></div>
+                            <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? (+((db.soldesN1&&db.soldesN1[r.user]||0)+db.soldes[r.user]).toFixed(2))+' j (dont '+(db.soldesN1&&db.soldesN1[r.user]||0)+' j N-1)' : '?'}</div></div>
                         </div>
                         <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
@@ -870,6 +1330,7 @@
     }
 
     async function selectForDecision(id) {
+        if (!isAdmin()) return;
         selectedRequestId = id;
         const { db } = await fetchFromGitHub();
         const r = db.requests.find(x => x.id === id);
@@ -880,7 +1341,24 @@
         document.getElementById('approval-form').scrollIntoView({ behavior: 'smooth' });
     }
 
+    function deductLeave(db, user, days) {
+        if (!db.soldesN1) db.soldesN1 = {};
+        const n1 = db.soldesN1[user] !== undefined ? db.soldesN1[user] : 0;
+        const fromN1 = +Math.min(n1, days).toFixed(2);
+        const fromN  = +(days - fromN1).toFixed(2);
+        db.soldesN1[user] = +(n1 - fromN1).toFixed(2);
+        if (db.soldes[user] !== undefined) db.soldes[user] = Math.max(0, +(db.soldes[user] - fromN).toFixed(2));
+        return { fromN1, fromN };
+    }
+
+    function restoreLeave(db, user, fromN1, fromN) {
+        if (!db.soldesN1) db.soldesN1 = {};
+        db.soldesN1[user] = +((db.soldesN1[user] || 0) + fromN1).toFixed(2);
+        db.soldes[user] = +((db.soldes[user] || 0) + fromN).toFixed(2);
+    }
+
     async function processDecision(newStatus) {
+        if (!isAdmin()) return;
         try {
             const { db, sha } = await fetchFromGitHub();
             const idx = db.requests.findIndex(x => x.id === selectedRequestId);
@@ -890,16 +1368,20 @@
             r.reason = document.getElementById('refusal_reason').value;
             r.date_decision = new Date().toISOString().split('T')[0];
             if (newStatus === 'Validé' && prevStatus !== 'Validé' && db.soldes[r.user] !== undefined) {
-                db.soldes[r.user] = Math.max(0, db.soldes[r.user] - (r.days||0));
-            } else if (newStatus === 'Refusé' && prevStatus === 'Validé' && db.soldes[r.user] !== undefined) {
-                db.soldes[r.user] += (r.days||0);
+                const result = deductLeave(db, r.user, r.days || 0);
+                r.fromN1 = result.fromN1;
+                r.fromN = result.fromN;
+            } else if (newStatus === 'Refusé' && prevStatus === 'Validé') {
+                const fromN1 = r.fromN1 || 0;
+                const fromN  = r.fromN !== undefined ? r.fromN : (r.days || 0);
+                restoreLeave(db, r.user, fromN1, fromN);
             }
             const logType = newStatus === 'Validé' ? 'validation' : 'refus';
             const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
             const logDetail = `${r.user} ${r.lastname} · Du ${formatDate(r.start)} au ${formatDate(r.end)} (${r.days} j)${r.reason?' — Motif : '+r.reason:''}`;
-            addLogEntry(db, logType, MGR_NAME, logLabel, logDetail);
+            addLogEntry(db, logType, actorName(), logLabel, logDetail);
             await saveToGitHub(db, sha);
-            const body = `Bonjour ${r.user},\n\nVotre demande de congés du ${formatDate(r.start)} au ${formatDate(r.end)} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${MGR_NAME}`;
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés du ${formatDate(r.start)} au ${formatDate(r.end)} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${actorName()}`;
             document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-decision').style.display = 'block';
             document.getElementById('approval-form').style.display = 'none';
@@ -944,128 +1426,196 @@
         ).join('');
     }
 
+    const ROLE_LABELS = { employee: 'Salarié', admin: 'Administrateur RH', superadmin: 'Direction' };
+
     function renderEmployeeManagement(db) {
         document.getElementById('adjust_emp').innerHTML = db.employees.map(e => `<option value="${e.name}">${e.name} ${e.lastname}</option>`).join('');
         document.getElementById('emp-management-list').innerHTML = db.employees.length
             ? db.employees.map(e => {
-                const solde = db.soldes[e.name]!==undefined ? db.soldes[e.name] : '?';
-                const cls = solde<=5 ? 'background:#ffebee;color:#c62828' : solde<=10 ? 'background:#fff3e0;color:#e65100' : 'background:#e8f5e9;color:#2e7d32';
+                const n  = db.soldes[e.name]!==undefined ? db.soldes[e.name] : 0;
+                const n1 = (db.soldesN1 && db.soldesN1[e.name]!==undefined) ? db.soldesN1[e.name] : 0;
+                const total = +(n + n1).toFixed(2);
+                const cls = total<=5 ? 'background:#ffebee;color:#c62828' : total<=10 ? 'background:#fff3e0;color:#e65100' : 'background:#e8f5e9;color:#2e7d32';
+                const accessNote = e.passHash ? '' : ' · mot de passe non défini';
+                const role = e.role || 'employee';
+                const roleControl = isSuperAdmin()
+                    ? `<select style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.7rem;color:var(--text);background:white;cursor:pointer;" onchange="setEmployeeRole('${e.name}', this.value)">
+                        <option value="employee" ${role==='employee'?'selected':''}>Salarié</option>
+                        <option value="admin" ${role==='admin'?'selected':''}>Administrateur RH</option>
+                        <option value="superadmin" ${role==='superadmin'?'selected':''}>Direction</option>
+                       </select>`
+                    : (role !== 'employee' ? `<span class="chip">${ROLE_LABELS[role]}</span>` : '');
+                const adminActions = isSuperAdmin()
+                    ? `<button class="btn btn-ghost btn-sm" onclick="resetEmployeePassword('${e.name}')">🔑 Réinitialiser accès</button>
+                       <button class="btn btn-ghost-danger btn-sm" onclick="removeEmployee('${e.name}')">Retirer</button>`
+                    : '';
                 return `<div class="emp-list-item">
-                    <div><div class="emp-list-name">${e.name} ${e.lastname}</div><div class="emp-list-meta">${e.email}</div></div>
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <span class="emp-solde-badge" style="${cls}">${solde} j</span>
-                        <button class="btn btn-ghost-danger btn-sm" onclick="removeEmployee('${e.name}')">Retirer</button>
+                    <div><div class="emp-list-name">${e.name} ${e.lastname}</div><div class="emp-list-meta">${e.email}${accessNote}</div></div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <span class="emp-solde-badge" style="${cls}" title="dont ${n1} j N-1">${total} j (${n} N / ${n1} N-1)</span>
+                        ${roleControl}
+                        ${adminActions}
                     </div>
                 </div>`;
             }).join('')
             : `<div class="empty-state"><span>Aucun salarié enregistré.</span></div>`;
     }
 
+    async function setEmployeeRole(name, role) {
+        if (!isSuperAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === name);
+            if (!emp) return;
+            const oldRole = emp.role || 'employee';
+            emp.role = role;
+            addLogEntry(db, 'employe', actorName(), 'Rôle modifié', `${name}${emp.lastname?' '+emp.lastname:''} · ${ROLE_LABELS[oldRole]} → ${ROLE_LABELS[role]}`);
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : '+e.message); }
+    }
+
     async function addEmployee() {
+        if (!isSuperAdmin()) return;
         const name = document.getElementById('new_emp_name').value.trim();
         const lastname = document.getElementById('new_emp_lastname').value.trim();
         const email = document.getElementById('new_emp_email').value.trim();
         const solde = parseFloat(document.getElementById('new_emp_solde').value)||25;
+        const soldeN1 = parseFloat(document.getElementById('new_emp_solde_n1').value)||0;
         if (!name||!email) return alert('Prénom et email requis.');
         try {
             const { db, sha } = await fetchFromGitHub();
             if (db.employees.find(e => e.name===name)) return alert('Ce prénom existe déjà.');
             db.employees.push({ name, lastname, email });
             db.soldes[name] = solde;
-            addLogEntry(db, 'employe', MGR_NAME, 'Salarié ajouté', `${name} ${lastname} · ${email} · Solde initial : ${solde} j`);
+            if (!db.soldesN1) db.soldesN1 = {};
+            db.soldesN1[name] = soldeN1;
+            addLogEntry(db, 'employe', actorName(), 'Salarié ajouté', `${name} ${lastname} · ${email} · Solde initial : ${solde} j (N)${soldeN1 ? ' + '+soldeN1+' j (N-1)' : ''}`);
             await saveToGitHub(db, sha);
             document.getElementById('new_emp_name').value = '';
             document.getElementById('new_emp_lastname').value = '';
             document.getElementById('new_emp_email').value = '';
             document.getElementById('new_emp_solde').value = '';
+            document.getElementById('new_emp_solde_n1').value = '';
             await renderManagerDashboard();
             alert(`${name} ${lastname} ajouté(e).`);
         } catch(e) { alert('Erreur : '+e.message); }
     }
 
+    async function resetEmployeePassword(name) {
+        if (!isSuperAdmin()) return;
+        if (!confirm(`Réinitialiser le mot de passe et la question secrète de ${name} ? Il/elle devra en redéfinir au prochain accès.`)) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === name);
+            if (!emp) return;
+            delete emp.passHash;
+            delete emp.recoveryHash;
+            delete emp.recoveryQuestion;
+            addLogEntry(db, 'employe', actorName(), 'Accès salarié réinitialisé', `${name}${emp.lastname?' '+emp.lastname:''} — mot de passe et question secrète effacés`);
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+            alert(`Accès de ${name} réinitialisé.`);
+        } catch(e) { alert('Erreur : '+e.message); }
+    }
+
     async function removeEmployee(name) {
+        if (!isSuperAdmin()) return;
         if (!confirm(`Retirer ${name} de l'équipe ?`)) return;
         try {
             const { db, sha } = await fetchFromGitHub();
             const removedEmp = db.employees.find(e => e.name===name);
             db.employees = db.employees.filter(e => e.name!==name);
-            addLogEntry(db, 'employe', MGR_NAME, 'Salarié retiré', `${name}${removedEmp?' '+removedEmp.lastname:''}`);
+            addLogEntry(db, 'employe', actorName(), 'Salarié retiré', `${name}${removedEmp?' '+removedEmp.lastname:''}`);
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
         } catch(e) { alert('Erreur : '+e.message); }
     }
 
-    async function changePassword() {
-        const current  = document.getElementById('pwd_current').value;
-        const newPwd   = document.getElementById('pwd_new').value;
-        const confirm  = document.getElementById('pwd_confirm').value;
-        const feedback = document.getElementById('pwd-feedback');
-
-        const showMsg = (msg, ok) => {
-            feedback.style.display = 'flex';
-            feedback.className = 'alert ' + (ok ? 'alert-success' : 'alert-warning');
-            feedback.textContent = msg;
-        };
-
-        if (!current || !newPwd || !confirm) return showMsg('Tous les champs sont requis.', false);
-        if (newPwd !== confirm) return showMsg('Les deux nouveaux mots de passe ne correspondent pas.', false);
-        if (newPwd.length < 4) return showMsg('Le nouveau mot de passe doit faire au moins 4 caractères.', false);
-
-        const currentHash = await sha256(current);
-        const { db, sha } = await fetchFromGitHub();
-        const expectedHash = db.config.passHash || PASS_HASH;
-
-        if (currentHash !== expectedHash) return showMsg('Mot de passe actuel incorrect.', false);
-
-        db.config.passHash = await sha256(newPwd);
-        addLogEntry(db, 'systeme', MGR_NAME, 'Mot de passe modifié', 'Code d\'accès direction mis à jour');
-        await saveToGitHub(db, sha);
-
-        document.getElementById('pwd_current').value = '';
-        document.getElementById('pwd_new').value     = '';
-        document.getElementById('pwd_confirm').value = '';
-        showMsg('✓ Mot de passe changé avec succès.', true);
+    async function prefillAdjustSolde() {
+        if (!isAdmin()) return;
+        const name = document.getElementById('adjust_emp').value;
+        if (!name) return;
+        const { db } = cachedDB || await fetchFromGitHub();
+        document.getElementById('adjust_solde').value = db.soldes[name] !== undefined ? db.soldes[name] : '';
+        document.getElementById('adjust_solde_n1').value = (db.soldesN1 && db.soldesN1[name] !== undefined) ? db.soldesN1[name] : 0;
     }
 
     async function adjustSolde() {
+        if (!isAdmin()) return;
         const name = document.getElementById('adjust_emp').value;
         const solde = parseFloat(document.getElementById('adjust_solde').value);
-        if (!name||isNaN(solde)) return alert('Salarié et solde requis.');
+        const soldeN1 = parseFloat(document.getElementById('adjust_solde_n1').value);
+        if (!name||isNaN(solde)||isNaN(soldeN1)) return alert('Salarié, solde N et solde N-1 requis.');
         try {
             const { db, sha } = await fetchFromGitHub();
             const oldSolde = db.soldes[name] !== undefined ? db.soldes[name] : '?';
+            if (!db.soldesN1) db.soldesN1 = {};
+            const oldSoldeN1 = db.soldesN1[name] !== undefined ? db.soldesN1[name] : '?';
             db.soldes[name] = solde;
-            addLogEntry(db, 'solde', MGR_NAME, 'Solde ajusté', `${name} · ${oldSolde} j → ${solde} j`);
+            db.soldesN1[name] = soldeN1;
+            addLogEntry(db, 'solde', actorName(), 'Solde ajusté', `${name} · N : ${oldSolde} j → ${solde} j · N-1 : ${oldSoldeN1} j → ${soldeN1} j`);
             await saveToGitHub(db, sha);
             document.getElementById('adjust_solde').value = '';
+            document.getElementById('adjust_solde_n1').value = '';
             await renderManagerDashboard();
-            alert(`Solde de ${name} mis à jour : ${solde} jours.`);
+            alert(`Solde de ${name} mis à jour : ${solde} j (N) / ${soldeN1} j (N-1).`);
         } catch(e) { alert('Erreur : '+e.message); }
     }
 
+    // Modèle recalé sur "DEMANDE DE CONGES" fourni par la direction (Nom, Prénom, dates,
+    // solde avant/après, type coché, blocs signature Salarié / Responsable).
     function buildPDFHTML(req, db) {
-        const statusColor = req.status==='Validé' ? '#2d9e6b' : req.status==='Refusé' ? '#e53935' : '#e08c00';
-        const soldeFinal = db&&db.soldes[req.user]!==undefined ? db.soldes[req.user] : '—';
-        return `<div style="padding:50px;font-family:Arial;max-width:700px;">
-            <div style="border-bottom:2px solid #25737d;padding-bottom:20px;margin-bottom:30px;display:flex;justify-content:space-between;align-items:flex-end;">
-                <div><h1 style="font-size:1.3rem;font-weight:700;color:#25737d;margin:0;">DEMANDE DE CONGÉS</h1><p style="color:#999;margin:4px 0 0;font-size:0.85rem;">Rue du Store</p></div>
-                <div style="font-size:0.75rem;color:#999;text-align:right;">Réf. #${req.id}<br>${formatDate(req.date_demande)}</div>
-            </div>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:30px;">
-                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;width:40%;color:#999;font-size:0.85rem;">Salarié</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.user} ${req.lastname||''}</td></tr>
-                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Email</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.email}</td></tr>
-                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Période</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">Du ${formatDate(req.start)} au ${formatDate(req.end)} — <strong>${req.days} jour(s) ouvré(s)</strong></td></tr>
-                <tr><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#999;font-size:0.85rem;">Type</td><td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">${req.type}${req.note?' ('+req.note+')':''}</td></tr>
-                <tr><td style="padding:10px 0;font-weight:600;color:#999;font-size:0.85rem;">Solde restant</td><td style="padding:10px 0;">${soldeFinal} jours</td></tr>
+        const nCur = db && db.soldes[req.user] !== undefined ? db.soldes[req.user] : null;
+        const n1Cur = db && db.soldesN1 && db.soldesN1[req.user] !== undefined ? db.soldesN1[req.user] : 0;
+        const totalCur = nCur === null ? null : +(nCur + n1Cur).toFixed(2);
+        let soldeAvant, soldeApres;
+        if (totalCur === null) { soldeAvant = '—'; soldeApres = '—'; }
+        else if (req.status === 'Validé') {
+            const used = (req.fromN1 || 0) + (req.fromN !== undefined ? req.fromN : (req.days || 0));
+            soldeApres = totalCur;
+            soldeAvant = +(totalCur + used).toFixed(2);
+        } else {
+            soldeAvant = totalCur;
+            soldeApres = Math.max(0, +(totalCur - (req.days||0)).toFixed(2));
+        }
+        const isPayes = req.type === 'Congés Payés';
+        const isSansSolde = req.type === 'Congés Sans Solde';
+        const isAutres = req.type === 'Absence Exceptionnelle';
+        const dDemande = req.date_demande ? formatDate(req.date_demande).replace(/\//g, ' / ') : '….. / ….. / …….';
+        return `<div style="padding:55px 60px;font-family:Arial, sans-serif;color:#000;max-width:750px;line-height:1.7;">
+            <h1 style="font-size:2.2rem;font-weight:800;letter-spacing:0.5px;margin:0 0 45px;">DEMANDE DE CONGES</h1>
+
+            <p style="font-size:0.95rem;margin:0 0 6px;">NOM : <strong>${(req.lastname||'').toUpperCase()}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 26px;">PRÉNOM : <strong>${req.user||''}</strong></p>
+
+            <p style="font-size:0.95rem;font-weight:700;text-decoration:underline;margin:0 0 10px;">DATE CONGÉS SOUHAITÉS</p>
+            <p style="font-size:0.95rem;margin:0 0 2px;">DATE DÉBUT : <strong>${formatDate(req.start)}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 26px;">DATE FIN : <strong>${formatDate(req.end)}</strong></p>
+
+            <p style="font-size:0.95rem;margin:0 0 10px;">SOLDE DE CONGÉS : <strong>${soldeAvant}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 10px;">NOMBRE DE CONGÉS SOUHAITÉS (jours ouvrés) : <strong>${req.days}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 30px;">SOLDE DE CONGÉS RESTANT : <strong>${soldeApres}</strong></p>
+
+            <p style="font-size:0.95rem;font-weight:700;text-decoration:underline;margin:0 0 10px;">TYPE CONGES</p>
+            <p style="font-size:0.95rem;margin:0 0 45px;">
+                CONGES PAYES ${isPayes ? '☒' : '☐'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                CONGES SANS SOLDE ${isSansSolde ? '☒' : '☐'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                AUTRES ${isAutres ? '☒' : '☐'} ${isAutres && req.note ? req.note : '…………………'}
+            </p>
+
+            <table style="width:100%;border-collapse:collapse;">
+                <tr>
+                    <td style="width:50%;font-size:0.95rem;font-weight:700;text-decoration:underline;">SALARIÉ</td>
+                    <td style="width:50%;font-size:0.95rem;font-weight:700;text-decoration:underline;">RESPONSABLE</td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.95rem;padding-top:4px;">DATE ET SIGNATURE</td>
+                    <td style="font-size:0.95rem;padding-top:4px;">DATE ET SIGNATURE</td>
+                </tr>
             </table>
-            <div style="background:${statusColor}18;border-left:4px solid ${statusColor};border-radius:4px;padding:16px 20px;margin-bottom:30px;">
-                <p style="font-size:0.9rem;font-weight:700;color:${statusColor};margin:0 0 4px;">STATUT : ${req.status.toUpperCase()}</p>
-                ${req.reason ? `<p style="font-size:0.82rem;color:#666;margin:0">Motif : ${req.reason}</p>` : ''}
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:60px;font-size:0.8rem;color:#999;">
-                <div style="text-align:center;"><div style="width:150px;border-top:1px solid #ccc;padding-top:8px;margin-top:40px;">Signature Salarié</div></div>
-                <div style="text-align:center;"><div style="width:150px;border-top:1px solid #ccc;padding-top:8px;margin-top:40px;">Signature Direction<br>${MGR_NAME}</div></div>
-            </div>
+            <p style="font-size:0.95rem;margin-top:40px;">${dDemande}</p>
+            ${req.status !== 'En attente' ? `<p style="font-size:0.8rem;color:#666;margin-top:26px;">Statut : <strong>${req.status.toUpperCase()}</strong>${req.reason ? ' — Motif : '+req.reason : ''}</p>` : ''}
         </div>`;
     }
 
@@ -1082,11 +1632,12 @@
             const r = db.requests.find(x => x.id===id);
             if (!r) return alert('Demande introuvable.');
             document.getElementById('pdf_body').innerHTML = buildPDFHTML(r, db);
-            await makePDF(`${r.status}_${r.user}_${r.start}.pdf`);
+            await makePDF(`Demande_conges_${r.lastname||''}_${r.user}_${r.start}.pdf`);
         } catch(e) { alert('Erreur PDF : '+e.message); }
     }
 
     function confirmClearAll() {
+        if (!isSuperAdmin()) return;
         const mot = prompt('Pour effacer TOUTES les demandes, tapez le mot "EFFACER" :');
         if (mot === null) return;
         if (mot.trim().toUpperCase() !== 'EFFACER') return alert('Mot incorrect — opération annulée.');
@@ -1094,11 +1645,12 @@
     }
 
     async function clearAllRequests() {
+        if (!isSuperAdmin()) return;
         try {
             const { db, sha } = await fetchFromGitHub();
             const count = db.requests.length;
             db.requests = [];
-            addLogEntry(db, 'systeme', MGR_NAME, 'Toutes les demandes supprimées', `${count} demande(s) effacée(s)`);
+            addLogEntry(db, 'systeme', actorName(), 'Toutes les demandes supprimées', `${count} demande(s) effacée(s)`);
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
             alert('Toutes les demandes ont été supprimées.');
@@ -1106,6 +1658,7 @@
     }
 
     async function exportBackup() {
+        if (!isSuperAdmin()) return;
         try {
             const { db } = await fetchFromGitHub();
             const blob = new Blob([JSON.stringify(db,null,2)], { type:'application/json' });
