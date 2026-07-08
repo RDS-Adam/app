@@ -1,5 +1,19 @@
 {
-  "requests": [],
+  "requests": [
+    {
+      "id": 1783498194583,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-07-22",
+      "end": "2026-08-07",
+      "days": 13,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-07-08"
+    }
+  ],
   "soldes": {
     "Adam": 25,
     "Alexandre": 5,
@@ -55,5 +69,15 @@
   "config": {
     "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735"
   },
-  "logs": []
+  "logs": [
+    {
+      "ts": 1783498194583,
+      "date": "2026-07-08",
+      "heure": "10:09",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)"
+    }
+  ]
 }
