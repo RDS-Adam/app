@@ -3,7 +3,7 @@
   "soldes": {
     "Adam": 25,
     "Alexandre": 5,
-    "Axel": 25,
+    "Axel": 17.74,
     "Baptiste": 16,
     "Camille": 25,
     "Cindy": 25,
@@ -54,5 +54,6 @@
   ],
   "config": {
     "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735"
-  }
+  },
+  "logs": []
 }
