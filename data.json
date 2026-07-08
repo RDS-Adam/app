@@ -48,7 +48,8 @@
     {
       "name": "Camille",
       "lastname": "Girard",
-      "email": "camille.girard@ruedustore.fr"
+      "email": "camille.girard@ruedustore.fr",
+      "role": "admin"
     },
     {
       "name": "Cindy",
@@ -67,9 +68,19 @@
     }
   ],
   "config": {
-    "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735"
+    "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735",
+    "rolesBootstrapped": true
   },
   "logs": [
+    {
+      "ts": 1783503695807,
+      "date": "2026-07-08",
+      "heure": "11:41",
+      "type": "systeme",
+      "actor": "Système",
+      "label": "Rôles initialisés",
+      "detail": "Attribution automatique des rôles direction (Nicolas → Direction, Camille → Administrateur RH)"
+    },
     {
       "ts": 1783498194583,
       "date": "2026-07-08",
@@ -79,5 +90,6 @@
       "label": "Nouvelle demande soumise",
       "detail": "Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)"
     }
-  ]
+  ],
+  "soldesN1": {}
 }
