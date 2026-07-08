@@ -17,7 +17,7 @@
   "soldes": {
     "Adam": 27.08,
     "Alexandre": 7.08,
-    "Axel": 2.08,
+    "Axel": 4.08,
     "Baptiste": 18.08,
     "Camille": 27.08,
     "Cindy": 27.08,
@@ -76,6 +76,15 @@
     "lastAccrualMonth": "2026-07"
   },
   "logs": [
+    {
+      "ts": 1783504318151,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N modifié",
+      "detail": "Axel · nouveau solde N : 4.08 j"
+    },
     {
       "ts": 1783504310017,
       "date": "2026-07-08",
