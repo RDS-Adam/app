@@ -38,7 +38,10 @@
     {
       "name": "Axel",
       "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr"
+      "email": "axel.seigneury@ruedustore.fr",
+      "passHash": "2727935b170e36d9962c814a407e4fd5c07469a21fcbd9bb27d92241e01d6363",
+      "recoveryQuestion": "Nom de mon premier vrai chien",
+      "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c"
     },
     {
       "name": "Baptiste",
@@ -72,6 +75,15 @@
     "rolesBootstrapped": true
   },
   "logs": [
+    {
+      "ts": 1783504274560,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "employe",
+      "actor": "Axel Seigneury",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1783503695807,
       "date": "2026-07-08",
