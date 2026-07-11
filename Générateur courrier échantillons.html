@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Générateur de courrier – Échantillons</title>
+<style>
+  :root{
+    --orange:#f07f13;
+    --dark:#3a3a3a;
+    --border:#d9d9d9;
+    --bg:#f2f3f5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: Verdana, Geneva, Arial, sans-serif;
+    background:var(--bg);
+    color:#222;
+  }
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+  /* ---------- Panneau de saisie ---------- */
+  .panel{
+    width:400px;
+    flex:0 0 400px;
+    background:#fff;
+    padding:24px;
+    box-shadow:2px 0 8px rgba(0,0,0,.08);
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .panel h1{
+    font-size:18px;
+    margin:0 0 4px;
+    color:var(--dark);
+  }
+  .panel .subtitle{
+    font-size:12px;
+    color:#777;
+    margin:0 0 20px;
+  }
+  fieldset{
+    border:1px solid var(--border);
+    border-radius:8px;
+    margin-bottom:16px;
+    padding:12px 14px 16px;
+  }
+  legend{
+    font-size:12px;
+    font-weight:bold;
+    color:var(--orange);
+    padding:0 6px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  fieldset.admin-fieldset legend{color:#7a4fae;}
+  fieldset.admin-fieldset{border-color:#d9c9ee;}
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    margin:10px 0 4px;
+    color:#444;
+  }
+  label:first-of-type{margin-top:0;}
+  input[type=text], input[type=date], input[type=number], select, textarea{
+    width:100%;
+    padding:7px 8px;
+    font-size:13px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-family:inherit;
+    background:#fff;
+  }
+  textarea{resize:vertical;min-height:44px;}
+  .row2{display:flex; gap:10px;}
+  .row2 > div{flex:1;}
+  .commercial-row{display:flex; gap:6px;}
+  .commercial-row select{flex:1;}
+  .icon-btn{
+    border:1px solid #ccc;
+    background:#fafafa;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:14px;
+    width:34px;
+    flex:0 0 34px;
+  }
+  .icon-btn:hover{background:#eee;}
+  .add-commercial{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+  }
+  .add-commercial input{flex:1;}
+  .add-commercial button{
+    flex:0 0 auto;
+    padding:0 10px;
+    border:1px solid var(--orange);
+    background:var(--orange);
+    color:#fff;
+    border-radius:5px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .ref-row{
+    display:flex;
+    gap:6px;
+    margin-bottom:6px;
+  }
+  .ref-row input{flex:1;}
+  .ref-row button{
+    flex:0 0 30px;
+    border:1px solid #ccc;
+    background:#fafafa;
+    border-radius:5px;
+    cursor:pointer;
+    color:#c0392b;
+    font-weight:bold;
+  }
+  .add-ref-btn{
+    margin-top:4px;
+    padding:6px 10px;
+    font-size:12px;
+    border:1px dashed #aaa;
+    background:#fafafa;
+    border-radius:5px;
+    cursor:pointer;
+    color:#555;
+    width:100%;
+  }
+  .add-ref-btn:hover{background:#f0f0f0;}
+  .actions{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+  }
+  .btn-primary{
+    flex:1;
+    padding:11px;
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .btn-primary:hover{background:#d96e0a;}
+  .btn-secondary{
+    padding:11px 14px;
+    background:#fff;
+    color:#555;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .btn-secondary:hover{background:#f2f2f2;}
+  .btn-admin{
+    padding:10px 14px;
+    background:#fff;
+    color:#7a4fae;
+    border:1px solid #7a4fae;
+    border-radius:6px;
+    font-size:13px;
+    cursor:pointer;
+    width:100%;
+    margin-top:4px;
+  }
+  .btn-admin.active{background:#7a4fae; color:#fff;}
+  .hint{font-size:11px; color:#888; margin-top:4px;}
+
+  /* ---------- Panneau admin (mise en page) ---------- */
+  .layout-row{
+    display:grid;
+    grid-template-columns:1fr 56px 56px 56px;
+    gap:6px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .layout-row .lname{font-size:11px; color:#444;}
+  .layout-row input{padding:4px; font-size:11px; text-align:center;}
+  .layout-head{
+    display:grid;
+    grid-template-columns:1fr 56px 56px 56px;
+    gap:6px;
+    font-size:9px;
+    text-transform:uppercase;
+    color:#999;
+    margin-bottom:4px;
+  }
+
+  /* ---------- Zone d'aperçu ---------- */
+  .preview-wrap{
+    flex:1;
+    padding:32px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    overflow:auto;
+  }
+  .page{
+    width:210mm;
+    min-height:297mm;
+    background:#fff;
+    box-shadow:0 2px 16px rgba(0,0,0,.2);
+    font-size:13px;
+    line-height:1.5;
+    color:#1a1a1a;
+    position:relative;
+  }
+  .layout-block{
+    position:absolute;
+  }
+  .page.admin-active .layout-block{
+    outline:1px dashed #7a4fae;
+    cursor:move;
+    user-select:none;
+  }
+  .page.admin-active .layout-block:hover{
+    outline:2px solid #7a4fae;
+    background:rgba(122,79,174,.06);
+  }
+  .block-label{
+    display:none;
+    position:absolute;
+    top:-15px;
+    left:-1px;
+    font-size:9px;
+    background:#7a4fae;
+    color:#fff;
+    padding:1px 5px;
+    border-radius:3px;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .page.admin-active .block-label{display:block;}
+
+  .logo{
+    height:52px;
+    display:block;
+  }
+  .company-info{
+    font-size:11.5px;
+    margin-top:6px;
+    line-height:1.45;
+    color:#1a1a1a;
+  }
+  .address-block{
+    text-align:right;
+  }
+  .address-block .u{text-decoration:underline;}
+  .address-placeholder{text-decoration:underline;}
+  .date-line{text-align:right;}
+  .underline{text-decoration:underline;}
+  .object-line{
+    font-weight:bold;
+    text-decoration:underline;
+  }
+  .body p{margin:0 0 14px;}
+  .signature{margin-top:10px;}
+  .signature .name{
+    text-decoration:underline;
+    font-weight:normal;
+  }
+  .ref-block{margin:10px 0 10px 4px;}
+  .ref-block ul{margin:6px 0; padding-left:22px;}
+  .ref-block li{margin:3px 0;}
+  .eco-note{font-size:12.5px; margin-top:40px;}
+  .eco-note strong{display:block; margin-bottom:4px;}
+  .footer{font-size:10px; color:#555; margin-top:40px;}
+  .footer hr{border:none; border-top:1px solid #999; margin-bottom:6px;}
+  .footer .brand{color:#1a1a1a;}
+
+  @media print{
+    body{background:#fff;}
+    .panel{display:none;}
+    .app{display:block;}
+    .preview-wrap{display:block; padding:0;}
+    .page{
+      box-shadow:none;
+      margin:0;
+      width:210mm;
+      min-height:297mm;
+    }
+    @page{size:A4; margin:0;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ PANNEAU DE SAISIE ============ -->
+  <div class="panel">
+    <h1>Courrier échantillons</h1>
+    <p class="subtitle">Ruedustore.fr — renseignez les informations puis imprimez ou enregistrez en PDF.</p>
+
+    <fieldset>
+      <legend>Client</legend>
+
+      <div class="row2">
+        <div>
+          <label for="civilite">Civilité</label>
+          <select id="civilite">
+            <option value="">—</option>
+            <option value="Monsieur">Monsieur</option>
+            <option value="Madame">Madame</option>
+          </select>
+        </div>
+        <div style="flex:2">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" placeholder="Jean">
+        </div>
+      </div>
+
+      <label for="nom">Nom</label>
+      <input type="text" id="nom" placeholder="Dupont">
+
+      <label for="adresse">Adresse</label>
+      <textarea id="adresse" placeholder="12 rue de la Paix"></textarea>
+
+      <div class="row2">
+        <div>
+          <label for="cp">Code postal</label>
+          <input type="text" id="cp" placeholder="45000">
+        </div>
+        <div style="flex:2">
+          <label for="ville">Ville</label>
+          <input type="text" id="ville" placeholder="Orléans">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Courrier</legend>
+
+      <label for="date">Date</label>
+      <input type="date" id="date">
+
+      <label for="commercial">Commercial(e)</label>
+      <div class="commercial-row">
+        <select id="commercial"></select>
+        <button type="button" class="icon-btn" id="removeCommercialBtn" title="Supprimer ce nom de la liste">🗑</button>
+      </div>
+      <div class="add-commercial">
+        <input type="text" id="newCommercial" placeholder="Ajouter un nom...">
+        <button type="button" id="addCommercialBtn">+ Ajouter</button>
+      </div>
+      <p class="hint">La liste des commerciaux est mémorisée dans ce navigateur.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Références de tissus (facultatif)</legend>
+      <div id="refContainer"></div>
+      <button type="button" class="add-ref-btn" id="addRefBtn">+ Ajouter une référence</button>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn-primary" id="printBtn">🖨 Imprimer / Enregistrer en PDF</button>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" id="resetBtn" style="width:100%">Réinitialiser le formulaire</button>
+    </div>
+
+    <fieldset class="admin-fieldset" style="margin-top:20px;">
+      <legend>⚙ Administrateur</legend>
+      <button type="button" class="btn-admin" id="adminToggleBtn">Activer le mode mise en page</button>
+      <p class="hint">Permet de déplacer les encadrés du courrier (en-tête, adresse, date, objet) par glisser-déposer ou en indiquant des mesures précises en mm, mesurées depuis le coin haut-gauche de la feuille A4. Le corps du texte, la signature et le pied de page restent groupés pour rester sur une seule page A4 (sauf si beaucoup de références sont ajoutées). La mise en page est mémorisée dans ce navigateur pour tous les prochains courriers.</p>
+
+      <div id="adminPanel" style="display:none; margin-top:12px;">
+        <div class="layout-head">
+          <div>Bloc</div><div>Haut</div><div>Gauche</div><div>Larg.</div>
+        </div>
+        <div id="layoutRows"></div>
+        <button type="button" class="btn-secondary" id="resetLayoutBtn" style="width:100%; margin-top:8px;">Réinitialiser la mise en page</button>
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- ============ APERÇU DU COURRIER ============ -->
+  <div class="preview-wrap">
+    <div class="page" id="page">
+
+      <div class="layout-block" data-block="header" id="lb-header">
+        <span class="block-label">En-tête</span>
+        <img class="logo" src="data:image/png;base64,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" alt="ruedustore.fr">
+        <div class="company-info">
+          101, rue Charles Beauhaire<br>
+          45140 Saint Jean de la Ruelle<br>
+          Mail : contact@ruedustore.fr<br>
+          Lundi-Vendredi 9h-12h30 / 14h-18h30<br>
+          Samedi sur RDV
+        </div>
+      </div>
+
+      <div class="layout-block address-block" data-block="address" id="lb-address">
+        <span class="block-label">Adresse client</span>
+        <div id="addressOut">
+          <span class="address-placeholder">Adresse Client</span>
+        </div>
+      </div>
+
+      <div class="layout-block date-line" data-block="date" id="lb-date">
+        <span class="block-label">Date</span>
+        ORLÉANS, le <span class="underline" id="dateOut">Date</span>
+      </div>
+
+      <div class="layout-block object-line" data-block="object" id="lb-object">
+        <span class="block-label">Objet</span>
+        Objet : Échantillons de Tissus
+      </div>
+
+      <div class="layout-block" data-block="content" id="lb-content">
+        <span class="block-label">Corps, signature et pied de page</span>
+        <div class="body">
+          <p>Bonjour,</p>
+          <p>Comme convenu, vous trouverez ci-joint les échantillons de tissus demandés.</p>
+
+          <div class="ref-block" id="refBlockOut" style="display:none;">
+            <div>Références des tissus envoyés :</div>
+            <ul id="refListOut"></ul>
+          </div>
+
+          <p>Nous vous remercions de l'intérêt que vous portez à nos produits, et restons à votre disposition pour répondre à vos questions</p>
+          <p>En espérant que cette collaboration se poursuive, nous vous souhaitons une agréable journée.</p>
+          <p>Sincères salutations,</p>
+        </div>
+
+        <div class="signature">
+          <div class="name" id="commercialOut">Commerciale</div>
+          <div>Service Client</div>
+        </div>
+
+        <div class="eco-note">
+          <strong>Aidez-nous à être écologique,</strong>
+          Ne jetez pas les échantillons ! Pouvez-vous nous les renvoyer, cela nous permet d'en faire profiter d'autres clients et d'être économe. Merci !
+        </div>
+
+        <div class="footer">
+          <hr>
+          <span class="brand">Ruedustore.fr</span> est une enseigne de<br>
+          STORE ET MOI, SAS au capital de 10.000€,<br>
+          Immatriculée au RCS d'Orléans – SIRET 527 803 597 00022
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+const els = {
+  civilite: document.getElementById('civilite'),
+  prenom: document.getElementById('prenom'),
+  nom: document.getElementById('nom'),
+  adresse: document.getElementById('adresse'),
+  cp: document.getElementById('cp'),
+  ville: document.getElementById('ville'),
+  date: document.getElementById('date'),
+  commercial: document.getElementById('commercial'),
+  newCommercial: document.getElementById('newCommercial'),
+  addCommercialBtn: document.getElementById('addCommercialBtn'),
+  removeCommercialBtn: document.getElementById('removeCommercialBtn'),
+  refContainer: document.getElementById('refContainer'),
+  addRefBtn: document.getElementById('addRefBtn'),
+  printBtn: document.getElementById('printBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  addressOut: document.getElementById('addressOut'),
+  dateOut: document.getElementById('dateOut'),
+  commercialOut: document.getElementById('commercialOut'),
+  refBlockOut: document.getElementById('refBlockOut'),
+  refListOut: document.getElementById('refListOut'),
+  page: document.getElementById('page'),
+  adminToggleBtn: document.getElementById('adminToggleBtn'),
+  adminPanel: document.getElementById('adminPanel'),
+  layoutRows: document.getElementById('layoutRows'),
+  resetLayoutBtn: document.getElementById('resetLayoutBtn'),
+};
+
+const STORAGE_KEY = 'courrier_echantillons_commerciaux';
+const LAYOUT_KEY = 'courrier_echantillons_layout_v2';
+const DEFAULT_COMMERCIAUX = [];
+
+/* ================= Commerciaux ================= */
+function loadCommerciaux(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return DEFAULT_COMMERCIAUX.slice();
+}
+function saveCommerciaux(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+function renderCommerciauxSelect(selected){
+  const list = loadCommerciaux();
+  els.commercial.innerHTML = '';
+  if(list.length === 0){
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Aucun commercial enregistré';
+    els.commercial.appendChild(opt);
+  }
+  list.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    els.commercial.appendChild(opt);
+  });
+  if(selected && list.includes(selected)) els.commercial.value = selected;
+}
+
+els.addCommercialBtn.addEventListener('click', () => {
+  const name = els.newCommercial.value.trim();
+  if(!name) return;
+  const list = loadCommerciaux();
+  if(!list.includes(name)) list.push(name);
+  saveCommerciaux(list);
+  renderCommerciauxSelect(name);
+  els.newCommercial.value = '';
+  renderPreview();
+});
+els.newCommercial.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){ e.preventDefault(); els.addCommercialBtn.click(); }
+});
+els.removeCommercialBtn.addEventListener('click', () => {
+  const current = els.commercial.value;
+  if(!current) return;
+  if(!confirm('Supprimer "' + current + '" de la liste des commerciaux ?')) return;
+  let list = loadCommerciaux();
+  list = list.filter(n => n !== current);
+  saveCommerciaux(list);
+  renderCommerciauxSelect();
+  renderPreview();
+});
+
+/* ================= Références de tissus ================= */
+function addRefRow(value){
+  const row = document.createElement('div');
+  row.className = 'ref-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Ex : Réf. 4521 – Lin gris" value="${value ? value.replace(/"/g,'&quot;') : ''}">
+    <button type="button" title="Supprimer">×</button>
+  `;
+  row.querySelector('input').addEventListener('input', renderPreview);
+  row.querySelector('button').addEventListener('click', () => {
+    row.remove();
+    renderPreview();
+  });
+  els.refContainer.appendChild(row);
+}
+els.addRefBtn.addEventListener('click', () => { addRefRow(); renderPreview(); });
+
+/* ================= Rendu du courrier ================= */
+function renderPreview(){
+  const civ = els.civilite.value;
+  const prenom = els.prenom.value.trim();
+  const nom = els.nom.value.trim();
+  const adresse = els.adresse.value.trim();
+  const cp = els.cp.value.trim();
+  const ville = els.ville.value.trim();
+
+  const nameLine = [civ, prenom, nom].filter(Boolean).join(' ');
+  const cityLine = [cp, ville].filter(Boolean).join(' ');
+  const lines = [nameLine, adresse, cityLine].filter(Boolean);
+
+  if(lines.length === 0){
+    els.addressOut.innerHTML = '<span class="address-placeholder">Adresse Client</span>';
+  }else{
+    els.addressOut.innerHTML = lines
+      .map(l => l.split('\n').filter(Boolean).join('<br>'))
+      .join('<br>');
+  }
+
+  if(els.date.value){
+    const d = new Date(els.date.value + 'T00:00:00');
+    els.dateOut.textContent = d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear();
+  }else{
+    els.dateOut.textContent = 'Date';
+  }
+
+  els.commercialOut.textContent = els.commercial.value || 'Commerciale';
+
+  const refInputs = Array.from(els.refContainer.querySelectorAll('input'));
+  const refs = refInputs.map(i => i.value.trim()).filter(Boolean);
+  if(refs.length > 0){
+    els.refBlockOut.style.display = '';
+    els.refListOut.innerHTML = refs.map(r => `<li>${escapeHtml(r)}</li>`).join('');
+  }else{
+    els.refBlockOut.style.display = 'none';
+    els.refListOut.innerHTML = '';
+  }
+
+  const fileName = ['Courrier echantillons', nom, prenom].filter(Boolean).join(' - ');
+  document.title = fileName || 'Courrier echantillons';
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+[els.civilite, els.prenom, els.nom, els.adresse, els.cp, els.ville, els.date, els.commercial]
+  .forEach(el => el.addEventListener('input', renderPreview));
+els.commercial.addEventListener('change', renderPreview);
+
+els.printBtn.addEventListener('click', () => window.print());
+
+els.resetBtn.addEventListener('click', () => {
+  if(!confirm('Réinitialiser tous les champs du courrier ?')) return;
+  els.civilite.value = '';
+  els.prenom.value = '';
+  els.nom.value = '';
+  els.adresse.value = '';
+  els.cp.value = '';
+  els.ville.value = '';
+  els.date.value = todayStr();
+  els.refContainer.innerHTML = '';
+  renderCommerciauxSelect();
+  renderPreview();
+});
+
+function todayStr(){
+  const d = new Date();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+/* ================= Mode admin : mise en page ================= */
+const BLOCK_LABELS = {
+  header: 'En-tête',
+  address: 'Adresse client',
+  date: 'Date',
+  object: 'Objet',
+  content: 'Corps, signature et pied de page',
+};
+
+// Positions par défaut (en mm), relatives au coin haut-gauche PHYSIQUE de la
+// feuille A4 (0,0 = bord de la page). Les blocs en position absolue ne tiennent
+// pas compte d'un éventuel padding sur la page, donc la marge visuelle
+// (14mm en haut, 15mm sur les côtés) est directement intégrée à ces valeurs.
+const LAYOUT_DEFAULTS = {
+  header:  { top: 14,  left: 15,  width: 110 },
+  address: { top: 56,  left: 115, width: 80  },
+  date:    { top: 96,  left: 115, width: 80  },
+  object:  { top: 110, left: 15,  width: 180 },
+  content: { top: 124, left: 15,  width: 180 },
+};
+
+let layoutConfig = null;
+
+function loadLayout(){
+  let stored = {};
+  try{
+    const raw = localStorage.getItem(LAYOUT_KEY);
+    if(raw) stored = JSON.parse(raw);
+  }catch(e){}
+  const merged = {};
+  Object.keys(LAYOUT_DEFAULTS).forEach(key => {
+    merged[key] = Object.assign({}, LAYOUT_DEFAULTS[key], stored[key] || {});
+  });
+  return merged;
+}
+function saveLayout(){
+  localStorage.setItem(LAYOUT_KEY, JSON.stringify(layoutConfig));
+}
+
+function applyLayout(){
+  Object.keys(layoutConfig).forEach(key => {
+    const el = document.getElementById('lb-' + key);
+    if(!el) return;
+    const cfg = layoutConfig[key];
+    el.style.top = cfg.top + 'mm';
+    el.style.left = cfg.left + 'mm';
+    el.style.width = cfg.width + 'mm';
+  });
+}
+
+function buildLayoutPanel(){
+  els.layoutRows.innerHTML = '';
+  Object.keys(layoutConfig).forEach(key => {
+    const cfg = layoutConfig[key];
+    const row = document.createElement('div');
+    row.className = 'layout-row';
+    row.innerHTML = `
+      <div class="lname">${BLOCK_LABELS[key]}</div>
+      <input type="number" step="1" data-key="${key}" data-prop="top" value="${cfg.top}">
+      <input type="number" step="1" data-key="${key}" data-prop="left" value="${cfg.left}">
+      <input type="number" step="1" data-key="${key}" data-prop="width" value="${cfg.width}">
+    `;
+    els.layoutRows.appendChild(row);
+  });
+  els.layoutRows.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', () => {
+      const key = input.dataset.key;
+      const prop = input.dataset.prop;
+      const val = parseFloat(input.value);
+      if(isNaN(val)) return;
+      layoutConfig[key][prop] = val;
+      applyLayout();
+      saveLayout();
+    });
+  });
+}
+
+function syncLayoutInputs(key){
+  const cfg = layoutConfig[key];
+  els.layoutRows.querySelectorAll(`input[data-key="${key}"]`).forEach(input => {
+    input.value = cfg[input.dataset.prop];
+  });
+}
+
+let adminMode = false;
+els.adminToggleBtn.addEventListener('click', () => {
+  adminMode = !adminMode;
+  els.adminToggleBtn.textContent = adminMode ? 'Désactiver le mode mise en page' : 'Activer le mode mise en page';
+  els.adminToggleBtn.classList.toggle('active', adminMode);
+  els.adminPanel.style.display = adminMode ? '' : 'none';
+  els.page.classList.toggle('admin-active', adminMode);
+});
+
+els.resetLayoutBtn.addEventListener('click', () => {
+  if(!confirm('Réinitialiser la mise en page à sa position par défaut ?')) return;
+  layoutConfig = JSON.parse(JSON.stringify(LAYOUT_DEFAULTS));
+  saveLayout();
+  applyLayout();
+  buildLayoutPanel();
+});
+
+/* ---- Glisser-déposer des blocs ---- */
+let dragState = null;
+
+function onBlockMouseDown(e){
+  if(!adminMode) return;
+  const blockEl = e.currentTarget;
+  const key = blockEl.dataset.block;
+  const pageRect = els.page.getBoundingClientRect();
+  const mmPerPx = 210 / pageRect.width;
+  dragState = {
+    key,
+    startX: e.clientX,
+    startY: e.clientY,
+    startTop: layoutConfig[key].top,
+    startLeft: layoutConfig[key].left,
+    mmPerPx,
+  };
+  e.preventDefault();
+}
+
+function onDocMouseMove(e){
+  if(!dragState) return;
+  const dx = (e.clientX - dragState.startX) * dragState.mmPerPx;
+  const dy = (e.clientY - dragState.startY) * dragState.mmPerPx;
+  const cfg = layoutConfig[dragState.key];
+  cfg.top = Math.max(0, Math.round((dragState.startTop + dy) * 10) / 10);
+  cfg.left = Math.max(0, Math.round((dragState.startLeft + dx) * 10) / 10);
+  applyLayout();
+  syncLayoutInputs(dragState.key);
+}
+function onDocMouseUp(){
+  if(!dragState) return;
+  dragState = null;
+  saveLayout();
+}
+document.addEventListener('mousemove', onDocMouseMove);
+document.addEventListener('mouseup', onDocMouseUp);
+
+document.querySelectorAll('.layout-block').forEach(el => {
+  el.addEventListener('mousedown', onBlockMouseDown);
+});
+
+/* ================= Initialisation ================= */
+els.date.value = todayStr();
+renderCommerciauxSelect();
+layoutConfig = loadLayout();
+applyLayout();
+buildLayoutPanel();
+renderPreview();
+</script>
+</body>
+</html>
