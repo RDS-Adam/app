@@ -349,7 +349,7 @@
         <input type="text" id="newCommercial" placeholder="Ajouter un nom...">
         <button type="button" id="addCommercialBtn">+ Ajouter</button>
       </div>
-      <p class="hint">La liste des commerciaux est mémorisée dans ce navigateur.</p>
+      <p class="hint">La liste des commerciaux est partagée avec toute l'équipe (enregistrée sur GitHub).</p>
     </fieldset>
 
     <fieldset>
@@ -483,61 +483,103 @@ const els = {
   resetLayoutBtn: document.getElementById('resetLayoutBtn'),
 };
 
-const STORAGE_KEY = 'courrier_echantillons_commerciaux';
 const LAYOUT_KEY = 'courrier_echantillons_layout_v2';
-const DEFAULT_COMMERCIAUX = [];
 
-/* ================= Commerciaux ================= */
-function loadCommerciaux(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return DEFAULT_COMMERCIAUX.slice();
+/* ================= Commerciaux (stockage partagé sur GitHub) ================= */
+// Même mécanisme que messages-type.html : un petit worker Cloudflare fait office
+// de proxy authentifié vers l'API "contents" de GitHub, ce qui permet à cette page
+// statique de lire/écrire commerciaux.json directement dans le repo. Résultat :
+// la liste est partagée entre tous les postes, plus seulement mémorisée dans un navigateur.
+const WORKER_URL        = "https://rds-github.cwmpw5qpc5.workers.dev";
+const REPO_OWNER        = "RDS-Adam";
+const REPO_NAME         = "app";
+const COMMERCIAUX_PATH  = "commerciaux.json";
+
+let commerciauxList = [];
+let commerciauxSha  = null;
+
+async function fetchCommerciaux(){
+  const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${COMMERCIAUX_PATH}`, { headers: { 'Cache-Control': 'no-cache' } });
+  if(!res.ok) throw new Error(`Lecture échouée (${res.status})`);
+  const data = await res.json();
+  commerciauxSha = data.sha;
+  const parsed = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+  return (parsed.commerciaux || []).slice().sort((a,b) => a.localeCompare(b,'fr'));
 }
-function saveCommerciaux(list){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+
+async function saveCommerciaux(list){
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify({ commerciaux: list }, null, 2))));
+  const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${COMMERCIAUX_PATH}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: "Update commerciaux", content, sha: commerciauxSha })
+  });
+  if(!res.ok) throw new Error(`Écriture échouée (${res.status})`);
+  const d = await res.json();
+  commerciauxSha = d.content.sha;
 }
+
 function renderCommerciauxSelect(selected){
-  const list = loadCommerciaux();
   els.commercial.innerHTML = '';
-  if(list.length === 0){
+  if(commerciauxList.length === 0){
     const opt = document.createElement('option');
     opt.value = '';
     opt.textContent = 'Aucun commercial enregistré';
     els.commercial.appendChild(opt);
   }
-  list.forEach(name => {
+  commerciauxList.forEach(name => {
     const opt = document.createElement('option');
     opt.value = name;
     opt.textContent = name;
     els.commercial.appendChild(opt);
   });
-  if(selected && list.includes(selected)) els.commercial.value = selected;
+  if(selected && commerciauxList.includes(selected)) els.commercial.value = selected;
 }
 
-els.addCommercialBtn.addEventListener('click', () => {
+els.addCommercialBtn.addEventListener('click', async () => {
   const name = els.newCommercial.value.trim();
   if(!name) return;
-  const list = loadCommerciaux();
-  if(!list.includes(name)) list.push(name);
-  saveCommerciaux(list);
-  renderCommerciauxSelect(name);
-  els.newCommercial.value = '';
-  renderPreview();
+  if(commerciauxList.includes(name)){
+    renderCommerciauxSelect(name);
+    els.newCommercial.value = '';
+    renderPreview();
+    return;
+  }
+  const originalLabel = els.addCommercialBtn.textContent;
+  els.addCommercialBtn.disabled = true;
+  els.addCommercialBtn.textContent = '…';
+  try{
+    const updated = [...commerciauxList, name].sort((a,b) => a.localeCompare(b,'fr'));
+    await saveCommerciaux(updated);
+    commerciauxList = updated;
+    renderCommerciauxSelect(name);
+    els.newCommercial.value = '';
+    renderPreview();
+  }catch(e){
+    alert("Impossible d'enregistrer ce commercial pour toute l'équipe : " + e.message + "\nRéessayez dans un instant.");
+  }finally{
+    els.addCommercialBtn.disabled = false;
+    els.addCommercialBtn.textContent = originalLabel;
+  }
 });
 els.newCommercial.addEventListener('keydown', (e) => {
   if(e.key === 'Enter'){ e.preventDefault(); els.addCommercialBtn.click(); }
 });
-els.removeCommercialBtn.addEventListener('click', () => {
+els.removeCommercialBtn.addEventListener('click', async () => {
   const current = els.commercial.value;
   if(!current) return;
-  if(!confirm('Supprimer "' + current + '" de la liste des commerciaux ?')) return;
-  let list = loadCommerciaux();
-  list = list.filter(n => n !== current);
-  saveCommerciaux(list);
-  renderCommerciauxSelect();
-  renderPreview();
+  if(!confirm('Supprimer "' + current + '" de la liste des commerciaux ? Cela le supprimera pour toute l\'équipe.')) return;
+  els.removeCommercialBtn.disabled = true;
+  try{
+    const updated = commerciauxList.filter(n => n !== current);
+    await saveCommerciaux(updated);
+    commerciauxList = updated;
+    renderCommerciauxSelect();
+    renderPreview();
+  }catch(e){
+    alert('Impossible de supprimer ce commercial : ' + e.message + '\nRéessayez dans un instant.');
+  }finally{
+    els.removeCommercialBtn.disabled = false;
+  }
 });
 
 /* ================= Références de tissus ================= */
@@ -779,11 +821,22 @@ document.querySelectorAll('.layout-block').forEach(el => {
 
 /* ================= Initialisation ================= */
 els.date.value = todayStr();
-renderCommerciauxSelect();
 layoutConfig = loadLayout();
 applyLayout();
 buildLayoutPanel();
 renderPreview();
+
+(async function initCommerciaux(){
+  els.commercial.innerHTML = '<option value="">Chargement…</option>';
+  try{
+    commerciauxList = await fetchCommerciaux();
+  }catch(e){
+    commerciauxList = [];
+    console.error('Erreur de chargement des commerciaux :', e);
+  }
+  renderCommerciauxSelect();
+  renderPreview();
+})();
 </script>
 </body>
 </html>
