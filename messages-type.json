@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1784642929906,
+      "titre": "Option Pose",
+      "categorie": "Général",
+      "contenu": "Note importante concernant les dimensions\n\nOption avec Pose :\nEn cas d'acceptation du devis avec la prestation de pose, nos équipes de poseurs effectueront une visite technique à votre domicile afin d'effectuer la prise de cotes définitives avant la commande de votre produit.\n\nOption en Fourniture Seule :\nLes dimensions figurant sur ce devis sont purement indicatives. Si vous choisissez de réaliser la pose vous-même (ou par un tiers), ces cotes ne constituent en aucun cas les dimensions définitives de fabrication.\n\nBon à savoir : Si vous souhaitez néanmoins bénéficier de l'expertise de notre métreur pour valider vos mesures, un forfait de 80 € HT pourra être appliqué pour la prise de dimensions définitives.",
+      "versions": []
+    },
+    {
       "id": 1783029057010,
       "titre": "Voile d'ombrage",
       "categorie": "Extérieur",
@@ -216,6 +223,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1784642929906,
+      "date": "2026-07-21",
+      "heure": "16:08",
+      "action": "created",
+      "titre": "Option Pose",
+      "categorie": "Général"
+    },
     {
       "ts": 1783029057011,
       "date": "2026-07-02",
