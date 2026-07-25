@@ -1,7 +1,7 @@
 {
   "tools": {
     "Calcul trapeze - triangle": {
-      "space": "salarie",
+      "space": "adam",
       "label": ""
     },
     "Calcul-diametre-enroulement.html": {
@@ -21,6 +21,10 @@
       "label": ""
     },
     "Encombrement SBV2.html": {
+      "space": "salarie",
+      "label": ""
+    },
+    "Générateur courrier échantillons.html": {
       "space": "salarie",
       "label": ""
     },
