@@ -2,10 +2,18 @@
   "messages": [
     {
       "id": 1784973353880,
-      "titre": "Motorisation store banne",
+      "titre": "Motorisation store Banne / Veraclim",
       "categorie": "Motorisation",
       "contenu": "Prestations incluses dans le forfait :\n\nDiagnostic et préparation : vérification du store, des fixations, de l'alimentation électrique et protection de la zone d'intervention.\nOuverture et dépose : ouverture du coffre si nécessaire, dépose de l'ancien moteur et désolidarisation du tube d'enroulement.\nInstallation : pose du nouveau moteur radio dans le tube d'enroulement, remontage du store et raccordement électrique.\nMise en service : réglage des fins de course (ouverture/fermeture), programmation de la télécommande et contrôle du bon fonctionnement.\nNettoyage et réception : fermeture du coffre si présent, nettoyage du chantier, évacuation des déchets et démonstration du fonctionnement au client.",
-      "versions": []
+      "versions": [
+        {
+          "date": "2026-07-25",
+          "heure": "11:56",
+          "titre": "Motorisation store banne",
+          "categorie": "Motorisation",
+          "contenu": "Prestations incluses dans le forfait :\n\nDiagnostic et préparation : vérification du store, des fixations, de l'alimentation électrique et protection de la zone d'intervention.\nOuverture et dépose : ouverture du coffre si nécessaire, dépose de l'ancien moteur et désolidarisation du tube d'enroulement.\nInstallation : pose du nouveau moteur radio dans le tube d'enroulement, remontage du store et raccordement électrique.\nMise en service : réglage des fins de course (ouverture/fermeture), programmation de la télécommande et contrôle du bon fonctionnement.\nNettoyage et réception : fermeture du coffre si présent, nettoyage du chantier, évacuation des déchets et démonstration du fonctionnement au client."
+        }
+      ]
     },
     {
       "id": 1784642929906,
@@ -230,6 +238,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1784973418762,
+      "date": "2026-07-25",
+      "heure": "11:56",
+      "action": "edited",
+      "titre": "Motorisation store Banne / Veraclim",
+      "categorie": "Motorisation"
+    },
     {
       "ts": 1784973353880,
       "date": "2026-07-25",
