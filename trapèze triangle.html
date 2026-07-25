@@ -510,7 +510,7 @@
 
         document.getElementById('visu-selector').style.display = 'none';
         
-        dessinerSchema('triangle', H, 0, B, hypo, orientation, 'plisse', angleDeg);
+        dessinerSchema('triangle', H, 0, B, hypo, orientation, 'plisse_triangle', angleDeg); // Pass a specific visuType for triangle
     }
 
     function afficherResultat(divId, angle, hypo, B, surface, calif_ok, plisse_ok, messages) {
@@ -572,15 +572,34 @@
         region.lineTo(pt_tl.x, pt_tl.y);
         region.closePath();
 
-        ctx.fillStyle = "#f0f8f9"; 
+        // --- DESSIN DU TISSU (INTÉRIEUR DE LA FORME) ---
+        ctx.fillStyle = "#f0f8f9"; // Fond clair par défaut pour tous les modèles
         ctx.fill(region);
-
+        
         ctx.save();
         ctx.clip(region); 
+        
+        if (visuType === 'plisse_triangle') {
+            // Dessin en éventail pour le store plissé triangle
+            ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
+            ctx.lineWidth = 1.5;
+            
+            let nbPlis = 8;
+            let pointOrigine = (hauteur_gauche > 0) ? pt_br : pt_bl; // L'angle aigu en bas
+            let pointHaut = (hauteur_gauche > 0) ? pt_tl : pt_tr;    // Le sommet en haut
+            let pointBas = (hauteur_gauche > 0) ? pt_bl : pt_br;     // L'angle droit en bas
 
-        let railEpaisseur = 12;
-
-        if (visuType === 'plisse') {
+            for (let i = 1; i <= nbPlis; i++) {
+                let fraction = i / (nbPlis + 1);
+                let cibleX = pointBas.x + (pointHaut.x - pointBas.x) * fraction;
+                let cibleY = pointBas.y + (pointHaut.y - pointBas.y) * fraction;
+                
+                ctx.beginPath();
+                ctx.moveTo(pointOrigine.x, pointOrigine.y);
+                ctx.lineTo(cibleX, cibleY);
+                ctx.stroke();
+            }
+        } else if (visuType === 'plisse') {
             ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
             ctx.lineWidth = 1.5;
             let step = 8;
@@ -604,76 +623,113 @@
                 ctx.stroke();
             }
         }
+        ctx.restore(); 
 
         // --- DESSIN DES RAILS MÉTALLIQUES RECTANGULAIRES ---
-        ctx.fillStyle = "#33757e";
-        ctx.beginPath();
-        let dx = pt_tr.x - pt_tl.x;
-        let dy = pt_tr.y - pt_tl.y;
+        let railEpaisseur = 12;
         let epaisseurRailHaut = (visuType === 'californien') ? railEpaisseur + 5 : railEpaisseur;
         let coupeDecalage = 10; // On raccourcit le rail de 10px pour faire une vraie coupe droite
+        
+        ctx.fillStyle = (visuType === 'plisse_triangle') ? "#7a7a7a" : "#33757e"; // Rails gris pour le triangle, vert canard pour les autres
 
-        if (hauteur_gauche > 0 && hauteur_droite === 0) { // Triangle pointe droite
-            let cutX = pt_tr.x - coupeDecalage; 
-            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
-            ctx.moveTo(pt_tl.x, pt_tl.y);
-            ctx.lineTo(cutX, cutY);
-            ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
-            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
-        } else if (hauteur_droite > 0 && hauteur_gauche === 0) { // Triangle pointe gauche
-            let cutX = pt_tl.x + coupeDecalage;
-            let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
-            ctx.moveTo(cutX, cutY);
-            ctx.lineTo(pt_tr.x, pt_tr.y);
-            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
-            ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
-        } else { // Trapeze normal
-            ctx.moveTo(pt_tl.x, pt_tl.y);
-            ctx.lineTo(pt_tr.x, pt_tr.y);
-            ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
-            ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
-        }
-        ctx.fill();
-
-        if (visuType === 'plisse') {
-            // Rail du bas (bien distinct)
-            ctx.fillStyle = "#33757e";
-            ctx.fillRect(pt_bl.x, pt_bl.y - railEpaisseur, px_B, railEpaisseur);
-
-            // Ligne de séparation blanche pour détacher complètement les 2 profilés
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 1.5;
-            
-            // Ligne horizontale au sommet du rail du bas
+        // Dessin du rail du haut (hypoténuse)
+        if (visuType === 'plisse_triangle') {
             ctx.beginPath();
-            ctx.moveTo(pt_bl.x, pt_bl.y - railEpaisseur);
-            ctx.lineTo(pt_br.x, pt_br.y - railEpaisseur);
-            ctx.stroke();
+            let dx = pt_tr.x - pt_tl.x;
+            let dy = pt_tr.y - pt_tl.y;
+            
+            // Calculer l'angle pour décaler le rail perpendiculairement à l'hypoténuse
+            let angle = Math.atan2(dy, dx);
+            let offsetX = Math.sin(angle) * railEpaisseur;
+            let offsetY = -Math.cos(angle) * railEpaisseur;
+             
+            // Espacement de quelques pixels entre le rail et le tissu
+            let gap = 2;
+            let gapOffsetX = Math.sin(angle) * gap;
+            let gapOffsetY = -Math.cos(angle) * gap;
 
-            // Ligne verticale pour marquer la coupe du rail du haut
-            if (hauteur_gauche > 0 && hauteur_droite === 0) {
-                let cutX = pt_tr.x - coupeDecalage;
-                ctx.beginPath();
-                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
-                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
-                ctx.stroke();
-            } else if (hauteur_droite > 0 && hauteur_gauche === 0) {
+            if (hauteur_gauche > 0) { // Triangle pointe droite
+               ctx.moveTo(pt_tl.x + gapOffsetX, pt_tl.y + gapOffsetY);
+               ctx.lineTo(pt_tr.x + gapOffsetX, pt_tr.y + gapOffsetY);
+               ctx.lineTo(pt_tr.x + gapOffsetX - offsetX, pt_tr.y + gapOffsetY - offsetY);
+               ctx.lineTo(pt_tl.x + gapOffsetX - offsetX, pt_tl.y + gapOffsetY - offsetY);
+            } else { // Triangle pointe gauche
+               ctx.moveTo(pt_tl.x + gapOffsetX, pt_tl.y + gapOffsetY);
+               ctx.lineTo(pt_tr.x + gapOffsetX, pt_tr.y + gapOffsetY);
+               ctx.lineTo(pt_tr.x + gapOffsetX - offsetX, pt_tr.y + gapOffsetY - offsetY);
+               ctx.lineTo(pt_tl.x + gapOffsetX - offsetX, pt_tl.y + gapOffsetY - offsetY);
+            }
+             ctx.fill();
+
+            // Rail du bas pour le triangle avec un petit espace (gap)
+            let bottomGap = 2;
+            ctx.fillRect(pt_bl.x, pt_bl.y + bottomGap, px_B, railEpaisseur);
+
+        } else {
+             ctx.beginPath();
+             let dx = pt_tr.x - pt_tl.x;
+             let dy = pt_tr.y - pt_tl.y;
+            if (hauteur_gauche > 0 && hauteur_droite === 0) { // Triangle pointe droite
+                let cutX = pt_tr.x - coupeDecalage; 
+                let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+                ctx.moveTo(pt_tl.x, pt_tl.y);
+                ctx.lineTo(cutX, cutY);
+                ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
+                ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+            } else if (hauteur_droite > 0 && hauteur_gauche === 0) { // Triangle pointe gauche
                 let cutX = pt_tl.x + coupeDecalage;
+                let cutY = pt_tl.y + (dy / dx) * (cutX - pt_tl.x);
+                ctx.moveTo(cutX, cutY);
+                ctx.lineTo(pt_tr.x, pt_tr.y);
+                ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+                ctx.lineTo(cutX, cutY + epaisseurRailHaut); // Coupe verticale droite
+            } else { // Trapeze normal
+                ctx.moveTo(pt_tl.x, pt_tl.y);
+                ctx.lineTo(pt_tr.x, pt_tr.y);
+                ctx.lineTo(pt_tr.x, pt_tr.y + epaisseurRailHaut);
+                ctx.lineTo(pt_tl.x, pt_tl.y + epaisseurRailHaut);
+            }
+            ctx.fill();
+            
+             if (visuType === 'plisse') {
+                // Rail du bas (bien distinct)
+                ctx.fillStyle = "#33757e";
+                ctx.fillRect(pt_bl.x, pt_bl.y - railEpaisseur, px_B, railEpaisseur);
+
+                // Ligne de séparation blanche pour détacher complètement les 2 profilés
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 1.5;
+                
+                // Ligne horizontale au sommet du rail du bas
                 ctx.beginPath();
-                ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
-                ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                ctx.moveTo(pt_bl.x, pt_bl.y - railEpaisseur);
+                ctx.lineTo(pt_br.x, pt_br.y - railEpaisseur);
                 ctx.stroke();
+
+                // Ligne verticale pour marquer la coupe du rail du haut
+                if (hauteur_gauche > 0 && hauteur_droite === 0) {
+                    let cutX = pt_tr.x - coupeDecalage;
+                    ctx.beginPath();
+                    ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                    ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                    ctx.stroke();
+                } else if (hauteur_droite > 0 && hauteur_gauche === 0) {
+                    let cutX = pt_tl.x + coupeDecalage;
+                    ctx.beginPath();
+                    ctx.moveTo(cutX, pt_bl.y - railEpaisseur);
+                    ctx.lineTo(cutX, pt_bl.y - railEpaisseur - 15);
+                    ctx.stroke();
+                }
             }
         }
 
-        ctx.restore(); 
-
+        // --- TEXTES ET MESURES ---
         ctx.fillStyle = "#33757e";
         ctx.font = "bold 15px sans-serif";
         ctx.textBaseline = "middle";
 
         ctx.textAlign = "center";
-        ctx.fillText(`${B.toFixed(1)} cm`, x_left + (px_B / 2), y_bottom + 25);
+        ctx.fillText(`${B.toFixed(1)} cm`, x_left + (px_B / 2), y_bottom + 35); // Légèrement plus bas pour laisser de la place au rail
 
         if (hauteur_gauche > 0) {
             ctx.textAlign = "right";
@@ -688,8 +744,12 @@
         let mid_y = (pt_tl.y + pt_tr.y) / 2;
         
         ctx.textAlign = "center";
-        ctx.fillText(`Hypoténuse : ${hypo.toFixed(2)} cm`, mid_x, mid_y - 75);
-        ctx.fillText(`Inclinaison : ${angleDeg.toFixed(2)} °`, mid_x, mid_y - 55);
+        
+        // Ajuster la position du texte pour le triangle pour éviter qu'il ne chevauche le rail gris
+        let textOffsetY = (visuType === 'plisse_triangle') ? -90 : -75;
+        
+        ctx.fillText(`Hypoténuse : ${hypo.toFixed(2)} cm`, mid_x, mid_y + textOffsetY);
+        ctx.fillText(`Inclinaison : ${angleDeg.toFixed(2)} °`, mid_x, mid_y + textOffsetY + 20);
     }
 
     function exporterImage() {
