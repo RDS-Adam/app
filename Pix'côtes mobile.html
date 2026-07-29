@@ -29,7 +29,7 @@
 
         .app-container { display: flex; flex: 1; overflow: hidden; }
         
-        /* PANNEAU LATÉRAL (Devient horizontal sur mobile) */
+        /* PANNEAU LATÉRAL */
         .sidebar { width: 320px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; overflow-y: auto; flex-shrink: 0;}
         .upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 20px 10px; text-align: center; cursor: pointer; background: #f8fafc; transition: 0.2s; margin-bottom: 15px; flex-shrink: 0;}
         .upload-area:hover, .upload-area.dragover { border-color: var(--primary); background: #f0f8ff; }
@@ -119,14 +119,14 @@
             .thumbnail { min-width: 200px; max-width: 200px; flex-direction: row; }
             .upload-area { margin-bottom: 5px; padding: 10px; flex-direction: row; display: flex; align-items: center; justify-content: center; gap: 10px;}
             .upload-area p { margin: 0 !important; font-size: 0.9rem !important;}
-            .photo-list-title { display: none; } /* Gain de place */
+            .photo-list-title { display: none; } 
 
             header { flex-direction: column; align-items: stretch; }
             .header-left, .header-actions { justify-content: space-between; }
             #nomClient { width: 100% !important; margin-bottom: 5px;}
             .header-actions .btn { flex: 1; }
 
-            .zoom-hint { display: none !important; } /* Inutile d'afficher CTRL sur mobile */
+            .zoom-hint { display: none !important; } 
         }
     </style>
 </head>
@@ -175,6 +175,7 @@
             <div style="display: flex; flex-direction: column; gap: 6px;">
                 <label class="form-label-title">Outil</label>
                 <div class="mode-switch">
+                    <button class="mode-btn" id="modePanBtn" onclick="setMode('pan')">🖐️ Naviguer</button>
                     <button class="mode-btn active" id="modeMeasureBtn" onclick="setMode('measure')">↗️ Flèche</button>
                     <button class="mode-btn" id="modeCircleBtn" onclick="setMode('circle')">⭕ Entourer</button>
                     <button class="mode-btn" id="modeNoteBtn" onclick="setMode('note')">📝 Note</button>
@@ -262,9 +263,14 @@
     let dragStartCoords = {}; 
     let hasDragged = false; 
 
-    // Variables Touch/Pinch
+    // Variables Touch/Pinch/Pan
+    let isPanning = false;
+    let panStart = { x: 0, y: 0 };
+    let scrollStart = { left: 0, top: 0 };
     let initialPinchDistance = null;
     let initialZoomLevel = 1;
+    let initialPinchCenter = null;
+    let initialScroll = { left: 0, top: 0 };
 
     const fileInput = document.getElementById('fileInput');
     const uploadDropzone = document.getElementById('uploadDropzone');
@@ -480,16 +486,25 @@
 
     window.setMode = function(mode) {
         currentMode = mode;
-        ['modeMeasureBtn', 'modeNoteBtn', 'modeCircleBtn'].forEach(id => document.getElementById(id).classList.remove('active'));
-        if(mode === 'measure') document.getElementById('modeMeasureBtn').classList.add('active');
+        ['modePanBtn', 'modeMeasureBtn', 'modeNoteBtn', 'modeCircleBtn'].forEach(id => {
+            const btn = document.getElementById(id);
+            if(btn) btn.classList.remove('active');
+        });
+        
+        if(mode === 'pan') document.getElementById('modePanBtn').classList.add('active');
+        else if(mode === 'measure') document.getElementById('modeMeasureBtn').classList.add('active');
         else if (mode === 'note') document.getElementById('modeNoteBtn').classList.add('active');
         else if (mode === 'circle') document.getElementById('modeCircleBtn').classList.add('active');
+        
+        // Change le curseur de la souris (petite main pour naviguer)
+        canvas.style.cursor = mode === 'pan' ? 'grab' : 'crosshair';
         resetDrawingState();
     }
 
     // ==========================================
-    // LOGIQUE UNIFIÉE SOURIS / TACTILE
+    // LOGIQUE UNIFIÉE SOURIS / TACTILE & NAVIGATION
     // ==========================================
+    
     function getPointerPos(clientX, clientY) {
         const rect = canvas.getBoundingClientRect(); 
         const scaleX = cssCanvasWidth / rect.width; 
@@ -501,9 +516,7 @@
         loupe.style.display = 'block';
         let loupeX = clientX + 25; 
         let loupeY = clientY - 140; 
-        // Si la loupe sort par le haut de l'écran (fréquent sur mobile), on la place en bas
         if (loupeY < 20) loupeY = clientY + 40; 
-        // Si elle sort par la droite
         if (loupeX + 120 > window.innerWidth) loupeX = clientX - 145;
 
         loupe.style.left = loupeX + 'px'; loupe.style.top = loupeY + 'px';
@@ -560,7 +573,6 @@
         return (clickX >= midX - boxW/2 && clickX <= midX + boxW/2 && clickY >= midY - boxH/2 && clickY <= midY + boxH/2);
     }
 
-    // Gestionnaires unifiés
     function pointerDownHandler(clientX, clientY, isRightClick) {
         if (!baseImg.src) return;
         const pos = getPointerPos(clientX, clientY);
@@ -617,8 +629,6 @@
             }
             return; 
         }
-
-        if (currentMode === 'note') return;
         
         if (drawingStep === 1 || drawingStep === 3) {
             tempX = pos.x; tempY = pos.y;
@@ -670,22 +680,78 @@
         }
     }
 
-    // Bind Événements Souris
-    canvas.addEventListener('mousedown', e => { if(e.button === 0) pointerDownHandler(e.clientX, e.clientY, false); else if (e.button===2) pointerDownHandler(e.clientX, e.clientY, true); });
-    canvas.addEventListener('mousemove', e => { if (e.buttons === 1 || drawingStep > 0) pointerMoveHandler(e.clientX, e.clientY); });
-    canvas.addEventListener('mouseup', e => { if (e.button === 0) pointerUpHandler(); });
+    // Bind Événements Souris (Click & Drag)
+    canvas.addEventListener('mousedown', e => { 
+        if (currentMode === 'pan' || e.button === 1) { // 1 = molette clic
+            isPanning = true;
+            panStart = { x: e.clientX, y: e.clientY };
+            scrollStart = { left: canvasScrollArea.scrollLeft, top: canvasScrollArea.scrollTop };
+            canvas.style.cursor = 'grabbing';
+            return;
+        }
+        if(e.button === 0) pointerDownHandler(e.clientX, e.clientY, false); 
+        else if (e.button===2) pointerDownHandler(e.clientX, e.clientY, true); 
+    });
+    
+    canvas.addEventListener('mousemove', e => { 
+        if (isPanning) {
+            e.preventDefault();
+            canvasScrollArea.scrollLeft = scrollStart.left - (e.clientX - panStart.x);
+            canvasScrollArea.scrollTop = scrollStart.top - (e.clientY - panStart.y);
+            return;
+        }
+        if (e.buttons === 1 || drawingStep > 0) pointerMoveHandler(e.clientX, e.clientY); 
+    });
+    
+    window.addEventListener('mouseup', e => { 
+        if (isPanning) {
+            isPanning = false;
+            if (currentMode === 'pan') canvas.style.cursor = 'grab';
+        }
+    });
+
+    canvas.addEventListener('mouseup', e => { 
+        if (isPanning) return;
+        if (e.button === 0) pointerUpHandler(); 
+    });
     canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     // Bind Événements Tactiles (Mobile)
     canvas.addEventListener('touchstart', e => {
         if (!baseImg.src) return;
+        
+        // ZOOM à 2 doigts
         if (e.touches.length === 2) {
+            e.preventDefault();
+            // Annuler le tracé si le 1er doigt avait commencé à dessiner par erreur
+            if (drawingStep === 1 || drawingStep === 3) {
+                resetDrawingState();
+                redrawCanvas();
+            }
+            if (draggingElementId !== null && !hasDragged) {
+                draggingElementId = null; dragHandle = null; loupe.style.display = 'none'; redrawCanvas();
+            }
+            
+            // Paramètres de zoom
             initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             initialZoomLevel = zoomLevel;
+            
+            // Paramètres pour permettre le Pan (déplacement) à 2 doigts
+            initialPinchCenter = { x: (e.touches[0].clientX + e.touches[1].clientX)/2, y: (e.touches[0].clientY + e.touches[1].clientY)/2 };
+            initialScroll = { left: canvasScrollArea.scrollLeft, top: canvasScrollArea.scrollTop };
             return;
         }
+        
+        // ACTION à 1 doigt
         if (e.touches.length === 1) {
-            e.preventDefault(); // Stoppe le scroll
+            if (currentMode === 'pan') {
+                isPanning = true;
+                panStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                scrollStart = { left: canvasScrollArea.scrollLeft, top: canvasScrollArea.scrollTop };
+                return;
+            }
+            
+            e.preventDefault(); // Stoppe le scroll natif du navigateur
             pointerDownHandler(e.touches[0].clientX, e.touches[0].clientY, false);
         }
     }, {passive: false});
@@ -693,23 +759,41 @@
     canvas.addEventListener('touchmove', e => {
         if (e.touches.length === 2 && initialPinchDistance) {
             e.preventDefault();
+            // 1. Appliquer le Zoom
             const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             zoomLevel = initialZoomLevel * (currentDist / initialPinchDistance);
             zoomLevel = Math.max(0.5, Math.min(zoomLevel, 5));
             applyZoom();
+            
+            // 2. Appliquer le déplacement à 2 doigts (pratique quand on zoome)
+            const currentCenter = { x: (e.touches[0].clientX + e.touches[1].clientX)/2, y: (e.touches[0].clientY + e.touches[1].clientY)/2 };
+            canvasScrollArea.scrollLeft = initialScroll.left - (currentCenter.x - initialPinchCenter.x);
+            canvasScrollArea.scrollTop = initialScroll.top - (currentCenter.y - initialPinchCenter.y);
             return;
         }
+        
         if (e.touches.length === 1) {
+            if (currentMode === 'pan' && isPanning) {
+                e.preventDefault();
+                canvasScrollArea.scrollLeft = scrollStart.left - (e.touches[0].clientX - panStart.x);
+                canvasScrollArea.scrollTop = scrollStart.top - (e.touches[0].clientY - panStart.y);
+                return;
+            }
             e.preventDefault();
             pointerMoveHandler(e.touches[0].clientX, e.touches[0].clientY);
         }
     }, {passive: false});
 
     canvas.addEventListener('touchend', e => {
-        if (e.touches.length === 0 && !initialPinchDistance) pointerUpHandler();
+        if (isPanning && e.touches.length === 0) { isPanning = false; return; }
+        if (e.touches.length === 0 && !initialPinchDistance && currentMode !== 'pan') pointerUpHandler();
         if (e.touches.length < 2) initialPinchDistance = null;
     });
-    canvas.addEventListener('touchcancel', () => { initialPinchDistance = null; loupe.style.display = 'none'; draggingElementId = null; hasDragged = false; redrawCanvas(); });
+    
+    canvas.addEventListener('touchcancel', () => { 
+        initialPinchDistance = null; isPanning = false; loupe.style.display = 'none'; 
+        draggingElementId = null; hasDragged = false; redrawCanvas(); 
+    });
 
 
     function resetDrawingState() { drawingStep = 0; hasDragged = false; endX = undefined; endY = undefined; loupe.style.display = 'none'; }
