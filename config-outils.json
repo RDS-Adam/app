@@ -1,7 +1,7 @@
 {
   "tools": {
     "Calcul trapeze - triangle": {
-      "space": "adam",
+      "space": "hidden",
       "label": ""
     },
     "Calcul-diametre-enroulement.html": {
@@ -41,11 +41,11 @@
       "label": ""
     },
     "STORE MINI COFFRE DIA TUBE 26.html": {
-      "space": "adam",
+      "space": "hidden",
       "label": ""
     },
     "STORE UNIVERSAL COFFRE DIA TUBE 36.html": {
-      "space": "adam",
+      "space": "hidden",
       "label": ""
     },
     "Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html": {
