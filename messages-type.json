@@ -1,6 +1,13 @@
 {
   "messages": [
     {
+      "id": 1785849766767,
+      "titre": "Véraclim",
+      "categorie": "Extérieur",
+      "contenu": "Prestations incluses dans le forfait pose – Store de véranda Veraclim\n\nVérification technique : Prise de cotes définitives, contrôle de l'entraxe des chevrons/épines de la véranda, vérification de la pente de toiture et validation de la présence du point d'alimentation électrique.\n\nDépose : Démontage de l'ancien store de toiture ou des systèmes d'ombrage existants et retrait des anciennes fixations (si installation existante).\n\nInstallation : Fixation des étriers spécifiques sur la structure de la véranda, pose du coffre Veraclim, alignement parfait des coulisses de guidage et raccordement électrique du moteur.\n\nMise en service : Réglage de la tension de la toile, programmation des fins de course moteur, appairage des télécommandes et paramétrage des automatismes météo (capteurs vent, soleil ou pluie) inclus dans la commande.\n\nNettoyage : Nettoyage de la zone d'intervention, dépoussiérage des profilés et évacuation complète des emballages et débris de chantier.\n\nRéception : Démonstration des fonctionnalités et du pilotage du store, conseils pratiques pour l'entretien de la toile technique et signature du bon de fin de travaux.",
+      "versions": []
+    },
+    {
       "id": 1784973353880,
       "titre": "Motorisation store Banne / Veraclim",
       "categorie": "Motorisation",
@@ -238,6 +245,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1785849766767,
+      "date": "2026-08-04",
+      "heure": "15:22",
+      "action": "created",
+      "titre": "Véraclim",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1784973418762,
       "date": "2026-07-25",
