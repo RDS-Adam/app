@@ -12,6 +12,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-07-08"
+    },
+    {
+      "id": 1786464082709,
+      "user": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr",
+      "start": "2026-09-18",
+      "end": "2026-09-21",
+      "days": 2,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-08-11"
     }
   ],
   "soldes": {
@@ -79,6 +92,15 @@
     "lastAccrualMonth": "2026-07"
   },
   "logs": [
+    {
+      "ts": 1786464082709,
+      "date": "2026-08-11",
+      "heure": "18:01",
+      "type": "demande",
+      "actor": "Karine Paillard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 18/09/2026 au 21/09/2026 (2 j)"
+    },
     {
       "ts": 1786464037645,
       "date": "2026-08-11",
