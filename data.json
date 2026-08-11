@@ -67,7 +67,10 @@
     {
       "name": "Karine",
       "lastname": "Paillard",
-      "email": "karine.paillard@ruedustore.fr"
+      "email": "karine.paillard@ruedustore.fr",
+      "passHash": "4a546ec5ad331c2420a97a8343bdb39a71b46b25f0a8238d7d2c0c5074ee7bb1",
+      "recoveryQuestion": "nom de mon animal",
+      "recoveryHash": "a0f3bf6f00eda3c41400f33f3ec4aebfc42bfc49fef41c16178be287cb3a0cb1"
     }
   ],
   "config": {
@@ -76,6 +79,15 @@
     "lastAccrualMonth": "2026-07"
   },
   "logs": [
+    {
+      "ts": 1786464037645,
+      "date": "2026-08-11",
+      "heure": "18:00",
+      "type": "employe",
+      "actor": "Karine Paillard",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1783504318151,
       "date": "2026-07-08",
