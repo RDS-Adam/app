@@ -4,217 +4,264 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculateur pour Stores - Rue du Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Couleurs Rue du Store : Vert canard dominant (#33757e) */
-        body { 
-            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f4f6f9; 
-            color: #333; 
-            margin: 0; 
-            padding: 20px; 
+        :root {
+            --rds-bleu: #25737d;
+            --rds-orange: #ff7200;
+            --rds-gris-bg: #fafafa;
+            --rds-text: #1a1a1a;
+            --rds-border: #eeeeee;
         }
-        .container { 
-            max-width: 800px; 
-            margin: auto; 
-            background: white; 
-            padding: 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 15px rgba(51, 117, 126, 0.1); 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--rds-gris-bg);
+            background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--rds-text);
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
         }
-        h1 { 
-            text-align: center; 
-            color: #33757e; 
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: left;
+            color: var(--rds-text);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0 0 40px 0;
+            border-bottom: 1px solid var(--rds-border);
+            padding-bottom: 15px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rds-border);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: transparent;
+            color: #999;
+            font-weight: 500;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-size: 24px;
-            margin-bottom: 30px;
-        }
-        .tabs { 
-            display: flex; 
-            margin-bottom: 25px; 
-            cursor: pointer; 
-            border-bottom: 2px solid #33757e;
-        }
-        .tab { 
-            flex: 1; 
-            text-align: center; 
-            padding: 12px; 
-            background: #f8f9fa; 
-            color: #666;
-            font-weight: bold; 
-            border-radius: 6px 6px 0 0; 
+            border-bottom: 2px solid transparent;
             transition: all 0.3s ease;
         }
-        .tab:hover { background: #e9ecef; }
-        .tab.active { 
-            background: #33757e; 
-            color: white; 
+        .tab:hover { color: var(--rds-text); }
+        .tab.active {
+            background: transparent;
+            color: var(--rds-text);
+            border-bottom-color: var(--rds-orange);
         }
         .form-section { display: none; }
         .form-section.active { display: block; }
-        .input-group { margin-bottom: 18px; }
-        label { 
-            display: block; 
-            margin-bottom: 8px; 
-            font-weight: 600; 
-            color: #2c3e50;
+        .input-group { margin-bottom: 25px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .radio-group {
             display: flex;
             gap: 20px;
-            margin-bottom: 15px;
-            background: #eaf3f4;
-            padding: 10px;
-            border-radius: 4px;
+            margin-bottom: 20px;
+            background: transparent;
+            padding: 12px 0;
+            border-top: 1px solid var(--rds-border);
+            border-bottom: 1px solid var(--rds-border);
         }
         .radio-group label {
             margin-bottom: 0;
             cursor: pointer;
-            color: #33757e;
+            color: var(--rds-text);
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.85rem;
         }
-        input[type="number"], select { 
-            width: 100%; 
-            padding: 10px; 
-            box-sizing: border-box; 
-            border: 1px solid #ccd1d9; 
-            border-radius: 4px; 
-            font-family: inherit;
-            font-size: 15px;
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px 0;
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 1px solid var(--rds-border);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: var(--rds-text);
+            background: transparent;
             transition: border-color 0.3s;
         }
         input[type="number"]:focus, select:focus {
-            border-color: #33757e;
+            border-bottom-color: var(--rds-orange);
             outline: none;
         }
-        button.action-btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: #33757e; 
-            color: white; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: bold;
-            border-radius: 4px; 
-            cursor: pointer; 
-            margin-bottom: 10px; 
-            transition: background 0.3s;
+        button.action-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: var(--rds-text);
+            border: 1px solid var(--rds-text);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
         }
-        button.action-btn:hover { background: #265a61; } 
-        
-        button.export-btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: #e67e22; 
-            color: white; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: bold;
-            border-radius: 4px; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            display: none; 
-            transition: background 0.3s;
+        button.action-btn:hover { background: var(--rds-text); color: #fff; }
+
+        button.export-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: var(--rds-orange);
+            border: 1px solid var(--rds-orange);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: none;
+            transition: all 0.3s ease;
         }
-        button.export-btn:hover { background: #d35400; }
+        button.export-btn:hover { background: var(--rds-orange); color: #fff; }
 
         button.toggle-btn {
-            width: 100%; 
-            padding: 12px; 
-            background: transparent; 
-            color: #33757e; 
-            border: 2px solid #33757e; 
-            font-size: 16px; 
-            font-weight: bold;
-            border-radius: 4px; 
-            cursor: pointer; 
-            margin-top: 30px; 
-            transition: all 0.3s;
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: #999;
+            border: 1px solid var(--rds-border);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
         }
         button.toggle-btn:hover {
-            background: #33757e;
-            color: white;
+            border-color: var(--rds-text);
+            color: var(--rds-text);
         }
-        
-        .result { 
-            margin-top: 25px; 
-            padding: 20px; 
-            background: #f8f9fa; 
-            border-left: 5px solid #33757e; 
-            border-radius: 0 4px 4px 0;
+
+        .result {
+            margin-top: 30px;
+            padding-top: 25px;
+            background: transparent;
+            border-top: 1px solid var(--rds-border);
         }
-        .alert { color: #c0392b; font-weight: bold; margin-top: 10px;}
-        .success { color: #27ae60; font-weight: bold; margin-top: 10px;}
-        
-        #schema-container { 
-            text-align: center; 
-            margin-top: 30px; 
-            display: none; 
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .result p { font-size: 0.9rem; color: #666; margin: 8px 0; }
+        .result strong { color: var(--rds-text); font-weight: 500; }
+        .result hr { border: none; border-top: 1px solid var(--rds-border); margin: 20px 0; }
+        .result h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #999; font-weight: 500; margin-bottom: 12px; }
+        .alert { color: #cc0000; font-weight: 500; margin-top: 10px; font-size: 0.85rem; }
+        .success { color: var(--rds-bleu); font-weight: 500; margin-top: 10px; font-size: 0.85rem; }
+
+        #schema-container {
+            text-align: center;
+            margin-top: 35px;
+            display: none;
+            padding-top: 30px;
+            border-top: 1px solid var(--rds-border);
         }
-        #schema-container h3 { color: #33757e; margin-bottom: 15px;}
-        
+        #schema-container h3 { color: var(--rds-text); margin-bottom: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+
         .visu-selector {
-            margin-bottom: 15px;
-            background: #eaf3f4;
+            margin-bottom: 20px;
+            background: transparent;
             display: inline-block;
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid #c1dce0;
+            padding: 8px 20px;
+            border: 1px solid var(--rds-border);
         }
         .visu-selector label {
             display: inline;
             margin: 0 10px;
             cursor: pointer;
-            font-weight: bold;
-            color: #33757e;
+            font-weight: 500;
+            color: var(--rds-text);
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.85rem;
         }
-        
-        canvas { 
-            border: 1px solid #ccd1d9; 
-            background-color: white; 
-            border-radius: 4px; 
-            max-width: 100%; 
-            height: auto; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+        canvas {
+            border: 1px solid var(--rds-border);
+            background-color: white;
+            max-width: 100%;
+            height: auto;
         }
 
         #restrictions-tables {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #ccd1d9;
-            display: none; 
+            margin-top: 25px;
+            padding-top: 25px;
+            background: transparent;
+            border-top: 1px solid var(--rds-border);
+            display: none;
         }
         #restrictions-tables h3 {
-            color: #33757e;
+            color: var(--rds-text);
             margin-top: 0;
-            border-bottom: 2px solid #33757e;
-            padding-bottom: 10px;
+            border-bottom: none;
+            padding-bottom: 0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-bottom: 20px;
         }
         #restrictions-tables h4 {
-            color: #2c3e50;
-            margin-top: 20px;
+            color: #999;
+            margin-top: 25px;
             margin-bottom: 10px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 0.8rem;
             background: white;
         }
         th, td {
-            border: 1px solid #ccd1d9;
+            border: 1px solid var(--rds-border);
             padding: 10px;
             text-align: center;
+            color: var(--rds-text);
         }
         th {
-            background-color: #33757e;
-            color: white;
+            background-color: transparent;
+            color: #999;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.5px;
         }
-        tr:nth-child(even) { background-color: #f2f7f8; }
-        td[rowspan] { vertical-align: middle; font-weight: bold; background-color: #eaf3f4; color: #33757e; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        td[rowspan] { vertical-align: middle; font-weight: 500; background-color: #fafafa; color: var(--rds-orange); }
     </style>
 </head>
 <body>
@@ -245,7 +292,7 @@
         </div>
         
         <div class="radio-group">
-            <span style="font-size: 14px; font-weight: bold; color: #33757e; align-self: center;">Mode de saisie :</span>
+            <span style="font-size: 14px; font-weight: bold; color: #25737d; align-self: center;">Mode de saisie :</span>
             <label><input type="radio" name="trap_mode" value="base" checked onchange="toggleInputMode('trap')"> Saisir la Base</label>
             <label><input type="radio" name="trap_mode" value="hypo" onchange="toggleInputMode('trap')"> Saisir l'Hypoténuse (Rail)</label>
         </div>
@@ -277,7 +324,7 @@
         </div>
 
         <div class="radio-group">
-            <span style="font-size: 14px; font-weight: bold; color: #33757e; align-self: center;">Mode de saisie :</span>
+            <span style="font-size: 14px; font-weight: bold; color: #25737d; align-self: center;">Mode de saisie :</span>
             <label><input type="radio" name="tri_mode" value="base" checked onchange="toggleInputMode('tri')"> Saisir la Base</label>
             <label><input type="radio" name="tri_mode" value="hypo" onchange="toggleInputMode('tri')"> Saisir l'Hypoténuse (Rail)</label>
         </div>
@@ -581,7 +628,7 @@
         
         if (visuType === 'plisse_triangle') {
             // Dessin en éventail pour le store plissé triangle
-            ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
+            ctx.strokeStyle = "rgba(37, 115, 125, 0.4)";
             ctx.lineWidth = 1.5;
             
             let nbPlis = 8;
@@ -600,7 +647,7 @@
                 ctx.stroke();
             }
         } else if (visuType === 'plisse') {
-            ctx.strokeStyle = "rgba(51, 117, 126, 0.4)";
+            ctx.strokeStyle = "rgba(37, 115, 125, 0.4)";
             ctx.lineWidth = 1.5;
             let step = 8;
             let topY = Math.min(pt_tl.y, pt_tr.y);
@@ -613,7 +660,7 @@
         } else if (visuType === 'californien') {
             let largeurLamelle = 16;
             ctx.fillStyle = "rgba(234, 243, 244, 0.8)"; 
-            ctx.strokeStyle = "rgba(51, 117, 126, 0.5)"; 
+            ctx.strokeStyle = "rgba(37, 115, 125, 0.5)"; 
             ctx.lineWidth = 1;
 
             for (let x = pt_bl.x; x < pt_br.x; x += largeurLamelle) {
@@ -630,7 +677,7 @@
         let epaisseurRailHaut = (visuType === 'californien') ? railEpaisseur + 5 : railEpaisseur;
         let coupeDecalage = 10; // On raccourcit le rail de 10px pour faire une vraie coupe droite
         
-        ctx.fillStyle = (visuType === 'plisse_triangle') ? "#7a7a7a" : "#33757e"; // Rails gris pour le triangle, vert canard pour les autres
+        ctx.fillStyle = (visuType === 'plisse_triangle') ? "#7a7a7a" : "#25737d"; // Rails gris pour le triangle, vert canard pour les autres
 
         // Dessin du rail du haut (hypoténuse)
         if (visuType === 'plisse_triangle') {
@@ -693,7 +740,7 @@
             
              if (visuType === 'plisse') {
                 // Rail du bas (bien distinct)
-                ctx.fillStyle = "#33757e";
+                ctx.fillStyle = "#25737d";
                 ctx.fillRect(pt_bl.x, pt_bl.y - railEpaisseur, px_B, railEpaisseur);
 
                 // Ligne de séparation blanche pour détacher complètement les 2 profilés
@@ -724,7 +771,7 @@
         }
 
         // --- TEXTES ET MESURES ---
-        ctx.fillStyle = "#33757e";
+        ctx.fillStyle = "#25737d";
         ctx.font = "bold 15px sans-serif";
         ctx.textBaseline = "middle";
 
