@@ -2,36 +2,133 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculateur Expert SBV (cm) - Ruedustore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #f2711c; --secondary: #0f172a; --bg: #f8fafc; --danger: #ef4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #1e293b; padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 650px; width: 100%; }
-        header { text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        
-        .mode-selector { display: flex; background: #e2e8f0; padding: 5px; border-radius: 10px; margin-bottom: 10px; }
-        .mode-btn { flex: 1; border: none; padding: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; font-size: 0.9rem;}
-        .mode-btn.active { background: var(--primary); color: white; }
+        :root {
+            --rds-bleu: #25737d;
+            --rds-orange: #ff7200;
+            --rds-gris-bg: #ffffff;
+            --rds-text: #1a1a1a;
+            --rds-border: #eeeeee;
+        }
 
-        /* Nouveaux styles pour l'onglet d'explication */
-        .help-tab { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.85rem; color: #475569; border: 1px solid #cbd5e1; }
-        .help-tab summary { font-weight: bold; cursor: pointer; color: var(--primary); outline: none; list-style-type: '💡 '; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--rds-gris-bg);
+            color: var(--rds-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 650px;
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        header { margin-bottom: 0; border: none; padding-bottom: 0; }
+
+        header h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: left;
+            color: var(--rds-text);
+            margin: 0 0 40px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--rds-border);
+            padding-bottom: 15px;
+        }
+
+        .mode-selector { display: flex; border-bottom: 1px solid var(--rds-border); margin-bottom: 25px; }
+        .mode-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .mode-btn.active { color: var(--rds-text); border-bottom-color: var(--rds-orange); }
+        .mode-btn:hover { color: var(--rds-text); }
+
+        /* Onglet d'explication */
+        .help-tab { border: 1px solid #f9f9f9; border-radius: 8px; padding: 15px; margin-bottom: 25px; font-size: 0.8rem; color: #666; line-height: 1.6; cursor: pointer; }
+        .help-tab summary { font-weight: 500; color: #999; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; outline: none; }
         .help-tab ul { margin-top: 10px; margin-bottom: 0; padding-left: 20px; }
         .help-tab li { margin-bottom: 6px; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #64748b; font-size: 0.85rem; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: var(--primary); outline: none; background: #fffaf5; }
-        
-        .result-container { background: var(--secondary); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 5px solid var(--primary); }
-        .res-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1rem; }
-        .res-line.total { border-top: 1px solid #334155; padding-top: 10px; margin-top: 10px; font-weight: bold; font-size: 1.4rem; color: var(--primary); }
-        .highlight-text { color: #fbbf24; font-weight: bold; }
-        .info-tab { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 15px; }
+        .form-group { margin-bottom: 25px; }
+        label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        select, input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 0;
+            border: none;
+            border-bottom: 1px solid var(--rds-border);
+            background: transparent;
+            font-size: 0.9rem;
+            color: var(--rds-text);
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        input:focus, select:focus { border-bottom-color: var(--rds-orange); }
 
-        .error-msg { color: var(--danger); font-weight: bold; text-align: center; display: none; margin-top: 10px; padding: 10px; border: 1px solid var(--danger); border-radius: 8px; font-size: 0.9rem; }
+        .result-container {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid var(--rds-border);
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; color: #666; }
+        .res-line span:last-child { color: var(--rds-text); font-weight: 500; }
+        .res-line.total {
+            border-top: 1px solid var(--rds-border);
+            padding-top: 15px;
+            margin-top: 15px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--rds-text);
+        }
+        .res-line.total span:last-child { color: var(--rds-orange); font-size: 1.8rem; font-weight: 300; }
+        .highlight-text { color: var(--rds-orange); font-weight: 500; }
+        .info-tab { font-size: 0.75rem; color: #999; text-align: center; margin-top: 25px; letter-spacing: 0.5px; }
+
+        .error-msg { color: #cc0000; font-weight: 500; text-align: center; display: none; margin-top: 15px; font-size: 0.75rem; }
+
+        /* Supprimer les flèches sur les inputs nombre */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
