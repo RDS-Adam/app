@@ -127,8 +127,16 @@
       "id": 1780032595705,
       "titre": "Zip",
       "categorie": "Extérieur",
-      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures finales et contrôle des fixations avant le passage en commande.\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants.\n\nInstallation : Fixation du coffre, pose des coulisses latérales ZIP et raccordement électrique (ou solaire).\n\nMise en service : Réglage de la course du store (haut et bas), programmation de la télécommande et test de bon fonctionnement.\n\nNettoyage : Aspiration des poussières de perçage et évacuation des déchets et emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'utilisation et signature du PV de fin de chantier.",
-      "versions": []
+      "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures finales et contrôle des fixations avant le passage en commande.\n\nDépose : Démontage et retrait de l'ancien store ou des équipements si existants.\n\nInstallation : Fixation des éventuels poteaux, pose des stores ZIP et raccordement électrique (ou solaire).\n\nMise en service : Réglage de la course du store (haut et bas), programmation de la télécommande et test de bon fonctionnement.\n\nNettoyage : Aspiration des poussières de perçage et évacuation des déchets et emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'utilisation et signature du PV de fin de chantier.",
+      "versions": [
+        {
+          "date": "2026-09-04",
+          "heure": "14:48",
+          "titre": "Zip",
+          "categorie": "Extérieur",
+          "contenu": "Prestations incluses dans le forfait pose :\n\nVérification technique : Prise de mesures finales et contrôle des fixations avant le passage en commande.\n\nDépose : Démontage et retrait de l'ancien store ou des équipements existants.\n\nInstallation : Fixation du coffre, pose des coulisses latérales ZIP et raccordement électrique (ou solaire).\n\nMise en service : Réglage de la course du store (haut et bas), programmation de la télécommande et test de bon fonctionnement.\n\nNettoyage : Aspiration des poussières de perçage et évacuation des déchets et emballages.\n\nRéception : Démonstration du fonctionnement, conseils d'utilisation et signature du PV de fin de chantier."
+        }
+      ]
     },
     {
       "id": 1779183818299,
@@ -245,6 +253,14 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1788526125535,
+      "date": "2026-09-04",
+      "heure": "14:48",
+      "action": "edited",
+      "titre": "Zip",
+      "categorie": "Extérieur"
+    },
     {
       "ts": 1785849766767,
       "date": "2026-08-04",
