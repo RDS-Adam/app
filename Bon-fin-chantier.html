@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bon de fin de chantier</title>
+
+  <!-- Google Fonts & html2canvas pour la génération d'image -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-accent: #3b82f6;
+      --primary-hover: #2563eb;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: var(--text-main);
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 700px;
+      background: var(--bg-card);
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      z-index: 10;
+      margin-bottom: 20px;
+    }
+
+    .header-company {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header-company h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .company-info {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 32px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 2px;
+      background: var(--bg-main);
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .rating-group {
+      margin-bottom: 24px;
+      background: var(--bg-main);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .rating-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .rating-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .btn-rating {
+      padding: 12px 4px;
+      border: 2px solid transparent;
+      background-color: #ffffff;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-rating.selected {
+      background-color: var(--primary-accent);
+      color: #ffffff;
+      border-color: var(--primary-accent);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .rating-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-toggle {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: transparent;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle.selected {
+      background-color: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 20px;
+      background: var(--bg-main);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+
+    .checkbox-container input {
+      margin-top: 2px;
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary-accent);
+    }
+
+    .reserve-card {
+      background: #ffffff;
+      border: 1px solid var(--primary-accent);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    }
+
+    .btn-delete-reserve {
+      background: var(--bg-main);
+      color: var(--danger);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      float: right;
+    }
+
+    .photo-upload-zone {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .btn-photo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-main);
+      color: var(--primary);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+    }
+
+    .photo-preview-wrapper {
+      margin-top: 12px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .photo-preview-img {
+      max-width: 140px;
+      max-height: 140px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      object-fit: cover;
+    }
+
+    .btn-remove-photo {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add {
+      background: transparent;
+      color: var(--primary-accent);
+      border: 2px dashed var(--primary-accent);
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .signature-status-box {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      background: #ffffff;
+      margin-top: 16px;
+    }
+
+    .signature-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .badge-pending { background: #fef3c7; color: #d97706; }
+    .badge-valid { background: #d1fae5; color: #059669; }
+
+    .preview-signature-img {
+      max-height: 100px;
+      margin-top: 12px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      border-radius: var(--radius-sm);
+      padding: 8px;
+    }
+
+    .actions-footer {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: linear-gradient(135deg, var(--primary-accent), var(--primary-hover)); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+    .btn-dark { background: var(--primary); color: white; }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+    .btn-reset {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 20px;
+      font-weight: 500;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* Modal Signature */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    canvas#sig-canvas {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      width: 100%;
+      height: 250px;
+      touch-action: none;
+      background: #ffffff;
+      margin-top: 16px;
+      cursor: crosshair;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .modal-actions button {
+      flex: 1; padding: 14px; border-radius: var(--radius-md);
+      font-weight: 600; font-size: 1rem; cursor: pointer; border: none;
+    }
+    .btn-clear { background: var(--bg-main); color: var(--text-main); }
+    .btn-cancel { background: #fee2e2; color: var(--danger); }
+    .btn-validate { background: var(--success); color: white; }
+
+    /* Template d'Export Image */
+    #export-template {
+      position: absolute;
+      top: 0; left: 0;
+      z-index: -1000;
+      width: 800px;
+      background: #ffffff;
+      padding: 50px;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      color: #1e293b;
+      display: none;
+    }
+
+    .tpl-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #f1f5f9; padding-bottom: 24px; margin-bottom: 32px; }
+    .tpl-title { font-size: 28px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .tpl-company { font-size: 14px; color: #64748b; line-height: 1.5; }
+    .tpl-section { margin-bottom: 32px; }
+    .tpl-section-title { font-size: 16px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 16px; }
+    .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .tpl-item { background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .tpl-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase; }
+    .tpl-value { font-size: 15px; font-weight: 600; color: #0f172a; }
+    .tpl-full { grid-column: span 2; }
+    .tpl-reserve-box { border: 1px solid #ef4444; border-left: 4px solid #ef4444; background: #fef2f2; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+    .tpl-reserve-img { max-width: 200px; border-radius: 6px; margin-top: 12px; border: 1px solid #fca5a5; }
+    .tpl-footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 24px; border-top: 2px solid #e2e8f0; }
+    .tpl-sig-box { text-align: right; }
+    
+    /* Annexe pour les grandes photos */
+    .tpl-annex {
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 4px dashed #e2e8f0;
+      page-break-before: always; /* Indication visuelle d'une nouvelle section */
+    }
+    .tpl-annex-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+    .tpl-large-photo-container {
+      margin-bottom: 40px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+    }
+    .tpl-large-photo-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #b91c1c;
+      margin-bottom: 12px;
+    }
+    .tpl-large-photo {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header-company">
+      <h1>Bon de Fin de Chantier</h1>
+      <div class="company-info" id="company-display-info">
+        <strong>Rue du Store</strong> &bull; Service Pose & Support Client<br>
+        Contact : contact@ruedustore.fr
+      </div>
+    </div>
+
+    <form id="chantier-form" onsubmit="return false;">
+      
+      <!-- Section 1 : Informations Générales -->
+      <div class="section-title">1. Informations Générales</div>
+      
+      <div class="form-group">
+        <label for="client_nom">Nom du client *</label>
+        <input type="text" id="client_nom" required placeholder="Ex: Jean Dupont">
+        <div class="error-msg" id="err-client_nom">Veuillez renseigner le nom du client.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="chantier_adresse">Adresse du chantier *</label>
+        <textarea id="chantier_adresse" rows="2" required placeholder="N°, rue, code postal, ville"></textarea>
+        <div class="error-msg" id="err-chantier_adresse">Veuillez renseigner l'adresse du chantier.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="date_intervention">Date d'intervention *</label>
+        <input type="date" id="date_intervention" required>
+      </div>
+
+      <div class="form-group">
+        <label for="poseur_nom">Nom du/des poseur(s) / Équipe *</label>
+        <input type="text" id="poseur_nom" required placeholder="Ex: Équipe Marc & Alex">
+        <div class="error-msg" id="err-poseur_nom">Veuillez indiquer le nom des poseurs.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="description_travaux">Description des travaux récapitulative *</label>
+        <textarea id="description_travaux" rows="3" required placeholder="Ex: Pose de 3 stores enrouleurs sur mesure..."></textarea>
+        <div class="error-msg" id="err-description_travaux">Veuillez décrire brièvement les travaux.</div>
+      </div>
+
+      <!-- Section 2 : Questionnaire de satisfaction -->
+      <div class="section-title">2. Évaluation des prestations</div>
+
+      <div class="rating-group" data-q="q1">
+        <span class="rating-label">1. Le produit est conforme à vos attentes *</span>
+        <div class="rating-buttons">
+          <button type="button" class="btn-rating" data-val="1">1</button>
+          <button type="button" class="btn-rating" data-val="2">2</button>
+          <button type="button" class="btn-rating" data-val="3">3</button>
+          <button type="button" class="btn-rating" data-val="4">4</button>
+        </div>
+        <div class="rating-legend"><span>1: Pas du tout</span><span>4: Totalement</span></div>
+        <div class="error-msg" id="err-q1">Veuillez sélectionner une note.</div>
+      </div>
+
+      <div class="rating-group" data-q="q2">
+        <span class="rating-label">2. Poseurs à l'heure ou retard annoncé *</span>
+        <div class="rating-buttons">
+          <button type="button" class="btn-rating" data-val="1">1</button>
+          <button type="button" class="btn-rating" data-val="2">2</button>
+          <button type="button" class="btn-rating" data-val="3">3</button>
+          <button type="button" class="btn-rating" data-val="4">4</button>
+        </div>
+        <div class="rating-legend"><span>1: Pas du tout</span><span>4: Totalement</span></div>
+        <div class="error-msg" id="err-q2">Veuillez sélectionner une note.</div>
+      </div>
+
+      <div class="rating-group" data-q="q3">
+        <span class="rating-label">3. Poseurs soigneux et agréables *</span>
+        <div class="rating-buttons">
+          <button type="button" class="btn-rating" data-val="1">1</button>
+          <button type="button" class="btn-rating" data-val="2">2</button>
+          <button type="button" class="btn-rating" data-val="3">3</button>
+          <button type="button" class="btn-rating" data-val="4">4</button>
+        </div>
+        <div class="rating-legend"><span>1: Pas du tout</span><span>4: Totalement</span></div>
+        <div class="error-msg" id="err-q3">Veuillez sélectionner une note.</div>
+      </div>
+
+      <div class="rating-group" data-q="q4">
+        <span class="rating-label">4. Fonctionnement des stores montré *</span>
+        <div class="rating-buttons">
+          <button type="button" class="btn-rating" data-val="1">1</button>
+          <button type="button" class="btn-rating" data-val="2">2</button>
+          <button type="button" class="btn-rating" data-val="3">3</button>
+          <button type="button" class="btn-rating" data-val="4">4</button>
+        </div>
+        <div class="rating-legend"><span>1: Pas du tout</span><span>4: Totalement</span></div>
+        <div class="error-msg" id="err-q4">Veuillez sélectionner une note.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Panneau de chantier posé ? *</label>
+        <div class="radio-group" id="panneau-group">
+          <button type="button" class="btn-toggle" data-val="Oui">Oui</button>
+          <button type="button" class="btn-toggle" data-val="Non">Non</button>
+        </div>
+        <div class="error-msg" id="err-panneau">Veuillez préciser l'état du panneau.</div>
+      </div>
+
+      <label class="checkbox-container">
+        <input type="checkbox" id="consentement_photo">
+        <span>J’accepte que Rue du Store prenne une photo de mon installation pour son suivi.</span>
+      </label>
+
+      <!-- Section 3 : Réception & Réserves -->
+      <div class="section-title">3. Réception de chantier</div>
+
+      <div class="form-group">
+        <label>Type de réception *</label>
+        <div class="radio-group" id="reception-type-group">
+          <button type="button" class="btn-toggle selected" data-val="sans">Sans réserve</button>
+          <button type="button" class="btn-toggle" data-val="avec" style="border-color: var(--danger); color: var(--danger);">Avec réserves</button>
+        </div>
+      </div>
+
+      <div id="reserves-container" style="display: none;">
+        <label>Réserves formulées *</label>
+        <div id="reserves-list"></div>
+        <button type="button" class="btn-add" id="btn-add-reserve">+ Ajouter une réserve</button>
+        <div class="error-msg" id="err-reserves">Au moins une réserve complète est requise.</div>
+      </div>
+
+      <!-- Section 4 : Signature -->
+      <div class="section-title">4. Signature du client</div>
+
+      <div class="signature-status-box">
+        <div id="sig-badge" class="signature-badge badge-pending">Signature non validée</div>
+        <div id="sig-preview-container" style="display: none;">
+          <img id="sig-preview-img" class="preview-signature-img" alt="Aperçu signature">
+          <div id="sig-date-display" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; font-weight: 500;"></div>
+        </div>
+        <button type="button" class="action-btn btn-outline" id="btn-open-sig" style="margin-top: 20px;">
+          Faire signer le client
+        </button>
+      </div>
+
+      <!-- Actions Footer -->
+      <div class="actions-footer">
+        <button type="button" class="action-btn btn-primary" id="btn-download-img">
+          Télécharger le Bon (Image)
+        </button>
+        <button type="button" class="action-btn btn-dark" id="btn-send-email">
+          Envoyer par Mail au Siège
+        </button>
+      </div>
+
+    </form>
+  </div>
+  
+  <button type="button" class="btn-reset" id="btn-reset-form">Nouveau Bon (Effacer toutes les données)</button>
+
+  <!-- Modal de Signature Canvas -->
+  <div class="modal-overlay" id="sig-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 8px; color: var(--primary);">Signature du Client</h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">Signez à l'aide de votre doigt ou de la souris.</p>
+      
+      <canvas id="sig-canvas"></canvas>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-clear" id="btn-sig-clear">Effacer</button>
+        <button type="button" class="btn-cancel" id="btn-sig-cancel">Annuler</button>
+        <button type="button" class="btn-validate" id="btn-sig-validate">Valider</button>
+      </div>
+      <div class="error-msg" id="err-modal-sig" style="text-align: center; margin-top: 12px;">Signature requise.</div>
+    </div>
+  </div>
+
+  <!-- Gabarit HTML pour Génération de l'Image -->
+  <div id="export-template">
+    <div class="tpl-header">
+      <div>
+        <div class="tpl-title">Bon de fin de chantier</div>
+        <div style="font-size: 14px; font-weight: 600; color: #2563eb;" id="tpl-val-date"></div>
+      </div>
+      <div class="tpl-company" id="tpl-company-info"></div>
+    </div>
+
+    <div class="tpl-section">
+      <div class="tpl-section-title">1. Informations Générales</div>
+      <div class="tpl-grid">
+        <div class="tpl-item"><div class="tpl-label">Client</div><div class="tpl-value" id="tpl-val-client"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Poseur(s) / Équipe</div><div class="tpl-value" id="tpl-val-poseur"></div></div>
+        <div class="tpl-item tpl-full"><div class="tpl-label">Adresse du chantier</div><div class="tpl-value" id="tpl-val-adresse"></div></div>
+        <div class="tpl-item tpl-full"><div class="tpl-label">Travaux réalisés</div><div class="tpl-value" id="tpl-val-travaux"></div></div>
+      </div>
+    </div>
+
+    <div class="tpl-section">
+      <div class="tpl-section-title">2. Évaluation des Prestations</div>
+      <div class="tpl-grid">
+        <div class="tpl-item"><div class="tpl-label">Produit conforme</div><div class="tpl-value" id="tpl-val-q1"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Ponctualité</div><div class="tpl-value" id="tpl-val-q2"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Soin & Relationnel</div><div class="tpl-value" id="tpl-val-q3"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Explications données</div><div class="tpl-value" id="tpl-val-q4"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Panneau de chantier</div><div class="tpl-value" id="tpl-val-panneau"></div></div>
+        <div class="tpl-item"><div class="tpl-label">Autorisation Photo</div><div class="tpl-value" id="tpl-val-photo"></div></div>
+      </div>
+    </div>
+
+    <div class="tpl-section">
+      <div class="tpl-section-title">3. Réception de Travaux</div>
+      <div style="font-size: 18px; font-weight: 800; padding: 12px 16px; border-radius: 8px; display: inline-block; margin-bottom: 16px;" id="tpl-val-reception-badge"></div>
+      
+      <div id="tpl-reserves-block" style="display:none;">
+        <div class="tpl-label" style="margin-bottom: 12px;">Aperçu des réserves :</div>
+        <div id="tpl-reserves-list"></div>
+      </div>
+    </div>
+
+    <div class="tpl-footer">
+      <div>
+        <div class="tpl-label">Statut du document</div>
+        <div class="tpl-value" style="color: #059669;">Signé et Validé</div>
+      </div>
+      <div class="tpl-sig-box">
+        <div class="tpl-label">Signature du Client</div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;" id="tpl-val-sig-date"></div>
+        <img id="tpl-val-sig-img" src="" alt="Signature" style="max-height: 80px; border-bottom: 2px solid #0f172a; padding-bottom: 4px; background: white;">
+      </div>
+    </div>
+
+    <!-- Section générée dynamiquement pour les grandes photos -->
+    <div id="tpl-annex-section" class="tpl-annex" style="display:none;">
+      <div class="tpl-annex-title">📸 Annexe : Photos des réserves</div>
+      <div id="tpl-annex-photos"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const COMPANY_CONFIG = {
+      name: "Rue du Store",
+      emailEquipe: "contact@ruedustore.fr",
+      infoHTML: "<strong>Rue du Store</strong><br>Service Pose & Support Client<br>contact@ruedustore.fr"
+    };
+
+    let formData = {
+      ratings: { q1: null, q2: null, q3: null, q4: null },
+      panneau: null,
+      receptionType: 'sans',
+      reserves: [], // { emplacement, description, photo (base64) }
+      signatureDataURL: null,
+      signatureDate: null
+    };
+
+    let isCanvasBlank = true;
+    const dateInput = document.getElementById('date_intervention');
+    const modal = document.getElementById('sig-modal');
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // === INITIALISATION & CHARGEMENT ===
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('tpl-company-info').innerHTML = COMPANY_CONFIG.infoHTML;
+      
+      setupRatingButtons();
+      setupToggleButtons();
+      setupCanvas();
+      setupFormInvalidationListeners();
+      
+      loadSavedData();
+    });
+
+    // === SAUVEGARDE LOCALE (AUTO-SAVE) ===
+    function saveFormData() {
+      const dataToSave = {
+        client_nom: document.getElementById('client_nom').value,
+        chantier_adresse: document.getElementById('chantier_adresse').value,
+        date_intervention: document.getElementById('date_intervention').value,
+        poseur_nom: document.getElementById('poseur_nom').value,
+        description_travaux: document.getElementById('description_travaux').value,
+        consentement_photo: document.getElementById('consentement_photo').checked,
+        ratings: formData.ratings,
+        panneau: formData.panneau,
+        receptionType: formData.receptionType,
+        reserves: getReservesData(),
+        signatureDataURL: formData.signatureDataURL,
+        signatureDate: formData.signatureDate
+      };
+      
+      try {
+        localStorage.setItem('chantier_data_draft', JSON.stringify(dataToSave));
+      } catch (e) {
+        console.warn("Impossible de sauvegarder localement (quota dépassé ou navigation privée).", e);
+      }
+    }
+
+    function loadSavedData() {
+      const saved = localStorage.getItem('chantier_data_draft');
+      if (saved) {
+        try {
+          const data = JSON.stringify(saved) ? JSON.parse(saved) : null;
+          if (!data) return;
+
+          document.getElementById('client_nom').value = data.client_nom || '';
+          document.getElementById('chantier_adresse').value = data.chantier_adresse || '';
+          document.getElementById('date_intervention').value = data.date_intervention || getTodayDate();
+          document.getElementById('poseur_nom').value = data.poseur_nom || '';
+          document.getElementById('description_travaux').value = data.description_travaux || '';
+          document.getElementById('consentement_photo').checked = data.consentement_photo || false;
+
+          // Ratings
+          if (data.ratings) {
+            formData.ratings = data.ratings;
+            Object.keys(data.ratings).forEach(qKey => {
+              const val = data.ratings[qKey];
+              if (val) {
+                const btn = document.querySelector(`.rating-group[data-q="${qKey}"] .btn-rating[data-val="${val}"]`);
+                if (btn) btn.classList.add('selected');
+              }
+            });
+          }
+
+          // Panneau
+          if (data.panneau) {
+            formData.panneau = data.panneau;
+            const btn = document.querySelector(`#panneau-group .btn-toggle[data-val="${data.panneau}"]`);
+            if (btn) btn.classList.add('selected');
+          }
+
+          // Réception & Réserves
+          if (data.receptionType) {
+            formData.receptionType = data.receptionType;
+            const btns = document.querySelectorAll('#reception-type-group .btn-toggle');
+            btns.forEach(b => {
+              b.classList.remove('selected');
+              if(b.getAttribute('data-val') === 'avec') { b.style.backgroundColor = 'transparent'; b.style.color = 'var(--danger)'; }
+            });
+            const btnActive = document.querySelector(`#reception-type-group .btn-toggle[data-val="${data.receptionType}"]`);
+            if (btnActive) {
+              btnActive.classList.add('selected');
+              if (data.receptionType === 'avec') {
+                btnActive.style.backgroundColor = 'var(--danger)';
+                btnActive.style.color = '#fff';
+                document.getElementById('reserves-container').style.display = 'block';
+                
+                // Recharger les réserves
+                document.getElementById('reserves-list').innerHTML = '';
+                if (data.reserves && data.reserves.length > 0) {
+                  data.reserves.forEach(r => addReserveField(r.emplacement, r.description, r.photo));
+                } else {
+                  addReserveField();
+                }
+              }
+            }
+          }
+
+          // Signature
+          if (data.signatureDataURL) {
+            formData.signatureDataURL = data.signatureDataURL;
+            formData.signatureDate = data.signatureDate;
+            document.getElementById('sig-badge').className = 'signature-badge badge-valid';
+            document.getElementById('sig-badge').textContent = '✓ Signature Validée';
+            document.getElementById('sig-preview-img').src = formData.signatureDataURL;
+            document.getElementById('sig-preview-container').style.display = 'block';
+            document.getElementById('sig-date-display').textContent = 'Signé le ' + formData.signatureDate;
+          }
+          
+        } catch(e) {
+          console.error("Erreur lecture sauvegarde", e);
+          document.getElementById('date_intervention').value = getTodayDate();
+        }
+      } else {
+        document.getElementById('date_intervention').value = getTodayDate();
+      }
+    }
+
+    function getTodayDate() {
+      const today = new Date();
+      return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    }
+
+    document.getElementById('btn-reset-form').addEventListener('click', () => {
+      if(confirm("Êtes-vous sûr de vouloir tout effacer et commencer un nouveau bon ?")) {
+        localStorage.removeItem('chantier_data_draft');
+        window.location.reload();
+      }
+    });
+
+    // === COMPRESSION D'IMAGE ===
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          const max_size = 1600; // Largeur/Hauteur max (haute qualité mais poids réduit)
+          
+          if (w > max_size || h > max_size) {
+            if (w > h) { h = Math.round((h/w)*max_size); w = max_size; }
+            else { w = Math.round((w/h)*max_size); h = max_size; }
+          }
+          
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          
+          // Compression en JPEG à 85% de qualité
+          callback(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // === GESTION DU FORMULAIRE ===
+    function setupRatingButtons() {
+      document.querySelectorAll('.rating-group').forEach(group => {
+        const qKey = group.getAttribute('data-q');
+        group.querySelectorAll('.btn-rating').forEach(btn => {
+          btn.addEventListener('click', () => {
+            group.querySelectorAll('.btn-rating').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            formData.ratings[qKey] = btn.getAttribute('data-val');
+            document.getElementById(`err-${qKey}`).style.display = 'none';
+            invalidateSignature();
+            saveFormData();
+          });
+        });
+      });
+    }
+
+    function setupToggleButtons() {
+      const panneauGroup = document.getElementById('panneau-group');
+      panneauGroup.querySelectorAll('.btn-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          panneauGroup.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          formData.panneau = btn.getAttribute('data-val');
+          document.getElementById('err-panneau').style.display = 'none';
+          invalidateSignature();
+          saveFormData();
+        });
+      });
+
+      const recGroup = document.getElementById('reception-type-group');
+      recGroup.querySelectorAll('.btn-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          recGroup.querySelectorAll('.btn-toggle').forEach(b => {
+            b.classList.remove('selected');
+            if(b.getAttribute('data-val') === 'avec') {
+              b.style.backgroundColor = 'transparent';
+              b.style.color = 'var(--danger)';
+            }
+          });
+          
+          btn.classList.add('selected');
+          formData.receptionType = btn.getAttribute('data-val');
+          
+          if (formData.receptionType === 'avec') {
+            btn.style.backgroundColor = 'var(--danger)';
+            btn.style.color = '#fff';
+            document.getElementById('reserves-container').style.display = 'block';
+            if (getReservesData().length === 0) addReserveField();
+          } else {
+            const btnAvec = document.querySelector('.btn-toggle[data-val="avec"]');
+            btnAvec.style.backgroundColor = 'transparent';
+            btnAvec.style.color = 'var(--danger)';
+            document.getElementById('reserves-container').style.display = 'none';
+          }
+          invalidateSignature();
+          saveFormData();
+        });
+      });
+
+      document.getElementById('btn-add-reserve').addEventListener('click', () => {
+        addReserveField();
+        invalidateSignature();
+        saveFormData();
+      });
+    }
+
+    function addReserveField(emp = '', desc = '', photoUrl = null) {
+      const reservesList = document.getElementById('reserves-list');
+      const cardId = Date.now() + Math.random();
+      
+      const reserveCard = document.createElement('div');
+      reserveCard.className = 'reserve-card';
+
+      reserveCard.innerHTML = `
+        <button type="button" class="btn-delete-reserve">Supprimer</button>
+        <div class="form-group" style="margin-bottom:12px;">
+          <input type="text" class="res-emp" placeholder="Emplacement (Ex: Fenêtre salon)" value="${emp}">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <textarea class="res-desc" rows="2" placeholder="Description du problème rencontré">${desc}</textarea>
+        </div>
+        <div class="photo-upload-zone">
+          <input type="file" accept="image/*" capture="environment" class="file-photo-input" id="photo-input-${cardId}" style="display:none;">
+          <label for="photo-input-${cardId}" class="btn-photo">
+            📷 Ajouter une photo
+          </label>
+          <div class="photo-preview-wrapper" style="${photoUrl ? 'display:inline-block;' : 'display:none;'}">
+            <img src="${photoUrl || ''}" class="photo-preview-img" alt="Photo réserve">
+            <button type="button" class="btn-remove-photo">&times;</button>
+          </div>
+        </div>
+      `;
+
+      const fileInput = reserveCard.querySelector('.file-photo-input');
+      const previewWrapper = reserveCard.querySelector('.photo-preview-wrapper');
+      const previewImg = reserveCard.querySelector('.photo-preview-img');
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          compressImage(file, (compressedBase64) => {
+            previewImg.src = compressedBase64;
+            previewWrapper.style.display = 'inline-block';
+            invalidateSignature();
+            saveFormData();
+          });
+        }
+      });
+
+      reserveCard.querySelector('.btn-remove-photo').addEventListener('click', () => {
+        fileInput.value = '';
+        previewImg.src = '';
+        previewWrapper.style.display = 'none';
+        invalidateSignature();
+        saveFormData();
+      });
+
+      reserveCard.querySelector('.btn-delete-reserve').addEventListener('click', () => {
+        reserveCard.remove();
+        invalidateSignature();
+        saveFormData();
+      });
+
+      reserveCard.querySelectorAll('input, textarea').forEach(input => {
+        input.addEventListener('input', () => { invalidateSignature(); saveFormData(); });
+      });
+
+      reservesList.appendChild(reserveCard);
+    }
+
+    function getReservesData() {
+      const res = [];
+      document.querySelectorAll('.reserve-card').forEach(card => {
+        const emp = card.querySelector('.res-emp').value.trim();
+        const desc = card.querySelector('.res-desc').value.trim();
+        const hasPhoto = card.querySelector('.photo-preview-wrapper').style.display !== 'none';
+        const photoSrc = hasPhoto ? card.querySelector('.photo-preview-img').src : null;
+
+        if (emp || desc || hasPhoto) {
+          res.push({ emplacement: emp, description: desc, photo: photoSrc });
+        }
+      });
+      return res;
+    }
+
+    // === CANVAS SIGNATURE ===
+    function setupCanvas() {
+      let isDrawing = false;
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width; canvas.height = rect.height;
+        clearCanvas();
+      }
+
+      function clearCanvas() {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000000';
+        isCanvasBlank = true;
+      }
+
+      window.addEventListener('resize', () => { if (modal.style.display === 'flex') resizeCanvas(); });
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      function startDrawing(e) { isDrawing = true; isCanvasBlank = false; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
+      function draw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); }
+      function stopDrawing() { isDrawing = false; }
+
+      canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchstart', startDrawing); canvas.addEventListener('touchmove', draw, { passive: false }); canvas.addEventListener('touchend', stopDrawing);
+      document.getElementById('btn-sig-clear').addEventListener('click', clearCanvas);
+
+      document.getElementById('btn-open-sig').addEventListener('click', () => {
+        if (!validateFormFields()) return;
+        modal.style.display = 'flex'; resizeCanvas(); document.getElementById('err-modal-sig').style.display = 'none';
+      });
+
+      document.getElementById('btn-sig-cancel').addEventListener('click', () => { modal.style.display = 'none'; });
+
+      document.getElementById('btn-sig-validate').addEventListener('click', () => {
+        if (isCanvasBlank) { document.getElementById('err-modal-sig').style.display = 'block'; return; }
+
+        formData.signatureDataURL = canvas.toDataURL('image/png');
+        formData.signatureDate = new Date().toLocaleString('fr-FR');
+
+        document.getElementById('sig-badge').className = 'signature-badge badge-valid';
+        document.getElementById('sig-badge').textContent = '✓ Signature Validée';
+        document.getElementById('sig-preview-img').src = formData.signatureDataURL;
+        document.getElementById('sig-preview-container').style.display = 'block';
+        document.getElementById('sig-date-display').textContent = 'Signé le ' + formData.signatureDate;
+
+        modal.style.display = 'none';
+        saveFormData();
+      });
+    }
+
+    function setupFormInvalidationListeners() {
+      document.querySelectorAll('#chantier-form input, #chantier-form textarea').forEach(input => {
+        input.addEventListener('input', () => { invalidateSignature(); saveFormData(); });
+        input.addEventListener('change', () => { saveFormData(); });
+      });
+      document.getElementById('consentement_photo').addEventListener('change', () => { saveFormData(); });
+    }
+
+    function invalidateSignature() {
+      if (formData.signatureDataURL !== null) {
+        formData.signatureDataURL = null; formData.signatureDate = null;
+        document.getElementById('sig-badge').className = 'signature-badge badge-pending';
+        document.getElementById('sig-badge').textContent = 'Signature annulée (Données modifiées)';
+        document.getElementById('sig-preview-container').style.display = 'none';
+      }
+    }
+
+    function validateFormFields() {
+      let isValid = true;
+      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+      const checkField = (id) => { const val = document.getElementById(id).value.trim(); if (!val) { document.getElementById(`err-${id}`).style.display = 'block'; isValid = false; } };
+      
+      checkField('client_nom'); checkField('chantier_adresse'); checkField('poseur_nom'); checkField('description_travaux');
+      ['q1', 'q2', 'q3', 'q4'].forEach(q => { if (!formData.ratings[q]) { document.getElementById(`err-${q}`).style.display = 'block'; isValid = false; } });
+      if (!formData.panneau) { document.getElementById('err-panneau').style.display = 'block'; isValid = false; }
+      if (formData.receptionType === 'avec' && getReservesData().length === 0) { document.getElementById('err-reserves').style.display = 'block'; isValid = false; }
+      
+      return isValid;
+    }
+
+    // === GESTION DE L'EXPORT ===
+    function populateExportTemplate() {
+      document.getElementById('tpl-val-date').textContent = "Date : " + document.getElementById('date_intervention').value;
+      document.getElementById('tpl-val-client').textContent = document.getElementById('client_nom').value;
+      document.getElementById('tpl-val-adresse').textContent = document.getElementById('chantier_adresse').value;
+      document.getElementById('tpl-val-poseur').textContent = document.getElementById('poseur_nom').value;
+      document.getElementById('tpl-val-travaux').textContent = document.getElementById('description_travaux').value;
+      document.getElementById('tpl-val-q1').textContent = formData.ratings.q1 + ' / 4';
+      document.getElementById('tpl-val-q2').textContent = formData.ratings.q2 + ' / 4';
+      document.getElementById('tpl-val-q3').textContent = formData.ratings.q3 + ' / 4';
+      document.getElementById('tpl-val-q4').textContent = formData.ratings.q4 + ' / 4';
+      document.getElementById('tpl-val-panneau').textContent = formData.panneau;
+      document.getElementById('tpl-val-photo').textContent = document.getElementById('consentement_photo').checked ? "Oui (Accepté)" : "Non renseigné";
+
+      const badge = document.getElementById('tpl-val-reception-badge');
+      const reservesBlock = document.getElementById('tpl-reserves-block');
+      const annexSection = document.getElementById('tpl-annex-section');
+      const annexPhotosContainer = document.getElementById('tpl-annex-photos');
+      
+      annexPhotosContainer.innerHTML = ''; // Nettoyer l'annexe
+      let hasPhotos = false;
+
+      if (formData.receptionType === 'avec') {
+        badge.textContent = "⚠️ RÉCEPTION AVEC RÉSERVES";
+        badge.style.backgroundColor = "#fef2f2"; badge.style.color = "#ef4444"; badge.style.border = "1px solid #fca5a5";
+        reservesBlock.style.display = 'block';
+        
+        const listContainer = document.getElementById('tpl-reserves-list');
+        listContainer.innerHTML = '';
+        
+        getReservesData().forEach((r, idx) => {
+          // Miniature pour la 1ere page
+          const div = document.createElement('div');
+          div.className = 'tpl-reserve-box';
+          let imgHtml = r.photo ? `<img src="${r.photo}" class="tpl-reserve-img"><br><span style="font-size:11px;color:#64748b;">(Voir photo en grand format en annexe)</span>` : '';
+          div.innerHTML = `
+            <div style="font-weight:700; color:#b91c1c; margin-bottom:4px;">Réserve #${idx + 1} - ${r.emplacement || 'Non précisé'}</div>
+            <div style="color:#450a0a;">${r.description || 'Aucune description.'}</div>
+            ${imgHtml}
+          `;
+          listContainer.appendChild(div);
+
+          // Ajout grande taille dans l'annexe
+          if (r.photo) {
+            hasPhotos = true;
+            const annexDiv = document.createElement('div');
+            annexDiv.className = 'tpl-large-photo-container';
+            annexDiv.innerHTML = `
+              <div class="tpl-large-photo-title">📍 Réserve #${idx + 1} : ${r.emplacement || 'Emplacement non précisé'}</div>
+              <img src="${r.photo}" class="tpl-large-photo">
+            `;
+            annexPhotosContainer.appendChild(annexDiv);
+          }
+        });
+      } else {
+        badge.textContent = "✓ RÉCEPTION SANS RÉSERVE";
+        badge.style.backgroundColor = "#d1fae5"; badge.style.color = "#059669"; badge.style.border = "1px solid #6ee7b7";
+        reservesBlock.style.display = 'none';
+      }
+
+      // Afficher ou masquer l'annexe selon la présence de photos
+      annexSection.style.display = hasPhotos ? 'block' : 'none';
+
+      document.getElementById('tpl-val-sig-date').textContent = "Le " + formData.signatureDate;
+      document.getElementById('tpl-val-sig-img').src = formData.signatureDataURL;
+    }
+
+    async function generateImageFile() {
+      if (!validateFormFields()) return null;
+      if (!formData.signatureDataURL) { alert("Veuillez faire signer le client avant de finaliser."); return null; }
+
+      populateExportTemplate();
+      const template = document.getElementById('export-template');
+      
+      template.style.display = 'block';
+      await new Promise(r => setTimeout(r, 100)); // Attendre rendu DOM
+
+      const canvas = await html2canvas(template, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      template.style.display = 'none';
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9); // JPEG plus léger que PNG pour grandes images
+      const clientNameFormat = document.getElementById('client_nom').value.replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `Bon_fin_chantier_${clientNameFormat}.jpg`;
+
+      return { dataUrl, fileName };
+    }
+
+    document.getElementById('btn-download-img').addEventListener('click', async () => {
+      const imgObj = await generateImageFile();
+      if (!imgObj) return;
+
+      const link = document.createElement('a');
+      link.download = imgObj.fileName;
+      link.href = imgObj.dataUrl;
+      link.click();
+    });
+
+    document.getElementById('btn-send-email').addEventListener('click', async () => {
+      const imgObj = await generateImageFile();
+      if (!imgObj) return;
+
+      const clientName = document.getElementById('client_nom').value;
+      const subject = encodeURIComponent(`Bon de fin de travaux - ${clientName}`);
+      let bodyText = `Bonjour,\n\nVeuillez trouver ci-joint le bon de fin de chantier (avec photos en annexe) pour le client : ${clientName}.\n\n`;
+      bodyText += `ATTENTION : L'image a été téléchargée sur votre appareil. Pensez à la joindre manuellement à ce mail.\n\nCordialement,`;
+      const mailtoUrl = `mailto:${COMPANY_CONFIG.emailEquipe}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+
+      try {
+        const res = await fetch(imgObj.dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], imgObj.fileName, { type: 'image/jpeg' });
+
+        if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: decodeURIComponent(subject), text: "Ci-joint le bon de fin de travaux.", files: [file] });
+          return;
+        }
+      } catch (e) { console.log("Web Share indisponible."); }
+
+      const link = document.createElement('a'); link.download = imgObj.fileName; link.href = imgObj.dataUrl; link.click();
+      setTimeout(() => { alert("L'image a été téléchargée. Votre mail va s'ouvrir, pensez à joindre l'image !"); window.location.href = mailtoUrl; }, 500);
+    });
+  </script>
+</body>
+</html>
