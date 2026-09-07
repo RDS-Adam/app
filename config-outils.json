@@ -1,7 +1,7 @@
 {
   "tools": {
     "Calcul trapeze - triangle": {
-      "space": "salarie",
+      "space": "hidden",
       "label": ""
     },
     "Calcul-diametre-enroulement.html": {
@@ -71,6 +71,10 @@
     "trapèze triangle.html": {
       "space": "salarie",
       "label": ""
+    },
+    "Calcul-trapeze-triangle": {
+      "space": "salarie",
+      "label": "Calcul trapèze / triangle"
     }
   }
 }
