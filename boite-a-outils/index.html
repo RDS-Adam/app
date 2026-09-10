@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Boîte à outils · Rue du Store</title>
+<link rel="icon" type="image/png" href="Calcul-trapeze-triangle/assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #ff7200;
+  --orange-soft: rgba(255, 114, 0, .12);
+  --ink: #1a1a1a;
+  --bg: #f6f5f3;
+  --surface: #fff;
+  --surface-2: #f4f3f1;
+  --text: #1a1a1a;
+  --muted: #676460;
+  --faint: #9b9892;
+  --border: #e8e6e2;
+  --border-strong: #d7d4cf;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.035);
+  --shadow-hover: 0 2px 4px rgba(0,0,0,.05), 0 12px 28px rgba(0,0,0,.08);
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text);
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+html.viewer-open, html.viewer-open body { overflow: hidden; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+a { color: inherit; }
+button { font: inherit; }
+
+/* ── En-tête ── */
+.top { background: var(--surface); border-bottom: 1px solid var(--border); }
+.top-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.brand img { height: 22px; width: auto; display: block; }
+.brand-sep { width: 1px; height: 22px; background: var(--border-strong); }
+.brand-title { font-weight: 500; font-size: 15px; color: var(--muted); white-space: nowrap; }
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px; }
+.tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: .15s; }
+.tab:hover { color: var(--text); }
+.tab[aria-current="page"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px var(--border); }
+body[data-espace="adam"] .tab[aria-current="page"] { color: #25737d; }
+.tab:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+/* ── Accueil ── */
+.hero { padding: 44px 0 4px; }
+.hero h1 { font-size: 28px; line-height: 1.25; font-weight: 600; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.hero p { margin: 6px 0 0; color: var(--muted); }
+.search { margin-top: 24px; position: relative; max-width: 660px; }
+.search input {
+  width: 100%; height: 54px; border-radius: 12px;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  padding: 0 52px 0 50px; font: inherit; font-size: 16px; color: var(--text);
+  outline: none; box-shadow: var(--shadow);
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none; appearance: none;
+}
+.search input::placeholder { color: var(--faint); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search input:focus { border-color: var(--orange); box-shadow: 0 0 0 4px var(--orange-soft); }
+.search svg { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--faint); pointer-events: none; }
+.search kbd {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--faint);
+  border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 6px; padding: 5px 8px; background: var(--surface-2);
+}
+.search input:focus ~ kbd { display: none; }
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.chip {
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--muted);
+  border-radius: 999px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: .15s;
+}
+.chip:hover { color: var(--text); border-color: var(--faint); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip:focus-visible, .star:focus-visible, .recent:focus-visible, .v-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+/* ── Sections ── */
+.block { margin-top: 38px; scroll-margin-top: 16px; }
+.block h2 {
+  font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
+  font-weight: 600; margin: 0 0 14px; display: flex; align-items: center; gap: 8px;
+}
+.block h2 .count { font-weight: 500; color: var(--faint); letter-spacing: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+
+/* ── Cartes ── */
+.card {
+  position: relative; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--border-strong); }
+.card-main { display: flex; gap: 14px; padding: 18px 50px 18px 18px; text-decoration: none; height: 100%; border-radius: inherit; }
+.card-main:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.card-icon {
+  flex: none; width: 46px; height: 46px; border-radius: 12px;
+  background: var(--tint, var(--surface-2)); display: grid; place-items: center; font-size: 22px; line-height: 1;
+}
+.card-title { display: block; font-weight: 600; font-size: 15px; line-height: 1.3; }
+.card-title .ext { color: var(--faint); font-weight: 500; }
+.card-desc { display: block; color: var(--muted); font-size: 13px; line-height: 1.5; margin-top: 4px; }
+
+.star {
+  position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 9px;
+  border: 0; background: transparent; cursor: pointer; color: var(--border-strong);
+  display: grid; place-items: center; transition: color .15s, background .15s, transform .15s;
+}
+.star svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.card:hover .star { color: var(--faint); }
+.star:hover { background: var(--surface-2); color: var(--orange) !important; }
+.star[aria-pressed="true"] { color: var(--orange) !important; }
+.star[aria-pressed="true"] svg { fill: currentColor; }
+.star.pop { transform: scale(1.25); }
+
+.empty-fav {
+  grid-column: 1 / -1; border: 1.5px dashed var(--border-strong); border-radius: var(--radius);
+  padding: 22px; color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 12px;
+}
+.empty-fav svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--orange); stroke-width: 1.8; stroke-linejoin: round; }
+
+.recents { display: flex; gap: 8px; flex-wrap: wrap; }
+.recent {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 15px 8px 11px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+  text-decoration: none; font-size: 13px; font-weight: 500; transition: .15s;
+}
+.recent:hover { border-color: var(--orange); color: var(--orange); }
+
+.no-result { margin: 48px 0; text-align: center; color: var(--muted); }
+.no-result button {
+  margin-top: 12px; border: 1px solid var(--border-strong); background: var(--surface);
+  border-radius: 999px; padding: 7px 16px; cursor: pointer; font-size: 13px; color: var(--text);
+}
+.no-result button:hover { border-color: var(--orange); color: var(--orange); }
+
+footer { margin: 56px 0 32px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--faint); font-size: 12.5px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* ── Visionneuse d'outil ── */
+#viewer { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: #fff; }
+.v-bar { height: 56px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 10px; background: var(--ink); color: #fff; }
+.v-btn {
+  height: 38px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,.14);
+  background: transparent; color: #fff; font-size: 13px; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px; text-decoration: none; transition: .15s; flex: none;
+}
+.v-btn:hover { border-color: var(--orange); color: var(--orange); }
+.v-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.v-btn.star-v { width: 38px; padding: 0; justify-content: center; }
+.v-btn.star-v[aria-pressed="true"] { color: var(--orange); border-color: rgba(255,114,0,.5); }
+.v-btn.star-v[aria-pressed="true"] svg { fill: currentColor; }
+.v-switch { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0 6px; }
+.v-icon { font-size: 20px; line-height: 1; flex: none; }
+.v-select-wrap { position: relative; min-width: 0; max-width: 100%; }
+.v-select-wrap select {
+  width: 100%; max-width: 460px; appearance: none; -webkit-appearance: none;
+  background: transparent; border: 1px solid transparent; border-radius: 8px; color: #fff;
+  font: 500 15px 'Poppins', system-ui, sans-serif; padding: 7px 30px 7px 8px; cursor: pointer;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
+.v-select-wrap select:hover, .v-select-wrap select:focus { border-color: rgba(255,255,255,.18); outline: none; }
+.v-select-wrap select option, .v-select-wrap select optgroup { color: #1a1a1a; background: #fff; }
+.v-select-wrap::after { content: ""; position: absolute; right: 11px; top: 50%; width: 7px; height: 7px; border-right: 2px solid rgba(255,255,255,.55); border-bottom: 2px solid rgba(255,255,255,.55); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.v-body { position: relative; flex: 1; }
+.v-body iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+.v-loader { position: absolute; inset: 0; display: grid; place-items: center; background: #fff; z-index: 1; }
+.spinner { width: 30px; height: 30px; border: 3px solid #eee; border-top-color: var(--orange); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 720px) {
+  .wrap { padding: 0 16px; }
+  .brand-sep, .brand-title, .tab .ic { display: none; }
+  .tab { padding: 6px 11px; }
+  .hero { padding-top: 28px; }
+  .hero h1 { font-size: 22px; }
+  .search kbd { display: none; }
+  .search input { padding-right: 16px; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; margin: 16px -16px 0; padding: 0 16px 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; }
+  .grid { grid-template-columns: 1fr; gap: 10px; }
+  .card-main { padding: 15px 48px 15px 15px; }
+  .v-btn .lbl { display: none; }
+  .v-btn { padding: 0 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation-duration: 1.5s !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="./" aria-label="Boîte à outils Rue du Store — accueil">
+      <img src="Calcul-trapeze-triangle/assets/img/ruedustore.png" alt="Rue du Store" width="143" height="22">
+      <span class="brand-sep" aria-hidden="true"></span>
+      <span class="brand-title">Boîte à outils</span>
+    </a>
+    <nav class="tabs" id="tabs" aria-label="Espaces"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1 id="hero-title">Bonjour, de quel outil avez-vous besoin&nbsp;?</h1>
+    <p id="hero-sub">Épinglez vos outils préférés avec l'étoile pour les retrouver en haut de la page.</p>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+      <input id="q" type="search" placeholder="Rechercher un outil : pose, trapèze, congés…" autocomplete="off" spellcheck="false" aria-label="Rechercher un outil">
+      <kbd title="Raccourci clavier">/</kbd>
+    </div>
+    <nav class="chips" id="chips" aria-label="Filtrer par catégorie"></nav>
+  </section>
+
+  <section class="block" id="sec-favoris" aria-labelledby="h-fav">
+    <h2 id="h-fav">⭐ Mes favoris <span class="count" id="count-fav"></span></h2>
+    <div class="grid" id="grid-favoris"></div>
+  </section>
+
+  <section class="block" id="sec-recents" aria-labelledby="h-rec" hidden>
+    <h2 id="h-rec">🕓 Ouverts récemment</h2>
+    <div class="recents" id="list-recents"></div>
+  </section>
+
+  <div id="categories"></div>
+  <div class="no-result" id="no-result" hidden></div>
+
+  <footer>
+    <span>Rue du Store · Boîte à outils commerciale</span>
+    <span>Favoris et historique enregistrés sur cet appareil</span>
+  </footer>
+</main>
+
+<div id="viewer" role="dialog" aria-modal="true" aria-label="Outil" hidden>
+  <div class="v-bar">
+    <button class="v-btn" id="v-back" type="button" title="Revenir à la liste des outils (Échap)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Outils</span>
+    </button>
+    <div class="v-switch">
+      <span class="v-icon" id="v-icon" aria-hidden="true"></span>
+      <div class="v-select-wrap"><select id="v-switch" aria-label="Changer d'outil"></select></div>
+    </div>
+    <button class="v-btn star-v" id="v-star" type="button" aria-pressed="false" title="Ajouter aux favoris">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.7l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/></svg>
+    </button>
+    <a class="v-btn" id="v-newtab" href="#" target="_blank" rel="noopener" title="Ouvrir l'outil seul dans un nouvel onglet">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="lbl">Nouvel onglet</span>
+    </a>
+  </div>
+  <div class="v-body">
+    <div class="v-loader" id="v-loader"><div class="spinner"></div></div>
+    <iframe id="v-frame" title="Outil" allow="clipboard-read; clipboard-write; camera; geolocation; fullscreen"></iframe>
+  </div>
+</div>
+
+<script src="outils.js"></script>
+<script>
+(function () {
+  const DATA = window.RDS_BOITE || { categories: [], outils: [] };
+  const TITRE = document.title;
+  const K_FAV = 'rds-bao-favoris';
+  const K_REC = 'rds-bao-recents';
+  const MAX_RECENTS = 6;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const dec = s => { try { return decodeURIComponent(s); } catch (e) { return s; } };
+  const encodePath = p => p.split('/').map(encodeURIComponent).join('/');
+  const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.7l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/></svg>';
+
+  /* ── Espaces (onglets) : le premier est la page commune ── */
+  const ESPACES = (DATA.espaces && DATA.espaces.length) ? DATA.espaces : [{ id: 'commun', nom: 'Outils' }];
+  const DEFAUT = ESPACES[0].id;
+  const espById = Object.fromEntries(ESPACES.map(e => [e.id, e]));
+  const urlEspace = id => id === DEFAUT ? location.pathname + location.search : '#espace/' + encodeURIComponent(id);
+
+  /* ── Catalogue ── */
+  const CATS = DATA.categories.slice();
+  const catById = Object.fromEntries(CATS.map(c => [c.id, c]));
+  const OUTILS = DATA.outils.filter(o => !o.masque && (o.fichier || o.url));
+  OUTILS.forEach(o => {
+    if (!catById[o.categorie]) o.categorie = '_autres';
+    if (!espById[o.espace]) o.espace = DEFAUT;
+    o.externe = !!o.url;
+    o.lien = o.url || encodePath(o.fichier.normalize('NFC'));
+    o.recherche = norm([o.nom, o.description, (o.motsCles || []).join(' '), catById[o.categorie] && catById[o.categorie].nom].join(' '));
+  });
+  if (OUTILS.some(o => o.categorie === '_autres')) CATS.push(catById._autres = { id: '_autres', nom: 'Autres outils', icone: '🧰' });
+  const byId = Object.fromEntries(OUTILS.map(o => [o.id, o]));
+
+  /* ── Favoris & récents (propres à chaque navigateur) ── */
+  const lire = k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.filter(id => byId[id]) : []; } catch (e) { return []; } };
+  const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  let favoris = lire(K_FAV);
+  let recents = lire(K_REC);
+
+  function basculerFavori(id) {
+    favoris = favoris.includes(id) ? favoris.filter(x => x !== id) : favoris.concat(id);
+    ecrire(K_FAV, favoris);
+  }
+  function ajouterRecent(id) {
+    recents = [id].concat(recents.filter(x => x !== id)).slice(0, MAX_RECENTS);
+    ecrire(K_REC, recents);
+  }
+
+  /* ── Rendu de la liste ── */
+  let espace = DEFAUT;
+  let filtre = 'tous';
+  let requete = '';
+  const duEspace = o => !!o && o.espace === espace;
+
+  const lienAttrs = o => o.externe
+    ? `href="${esc(o.lien)}" target="_blank" rel="noopener" data-id="${esc(o.id)}"`
+    : `href="#outil/${esc(encodeURIComponent(o.id))}" data-id="${esc(o.id)}"`;
+
+  function carte(o) {
+    const fav = favoris.includes(o.id);
+    const tint = (catById[o.categorie] || {}).teinte;
+    const lbl = (fav ? 'Retirer des favoris' : 'Ajouter aux favoris');
+    return `<article class="card"${tint ? ` style="--tint:${esc(tint)}"` : ''}>
+      <a class="card-main" ${lienAttrs(o)}>
+        <span class="card-icon" aria-hidden="true">${esc(o.icone || '🧰')}</span>
+        <span>
+          <span class="card-title">${esc(o.nom)}${o.externe ? ' <span class="ext" title="S\'ouvre dans un nouvel onglet">↗</span>' : ''}</span>
+          <span class="card-desc">${esc(o.description)}</span>
+        </span>
+      </a>
+      <button class="star" type="button" data-fav="${esc(o.id)}" aria-pressed="${fav}" title="${lbl}" aria-label="${lbl} : ${esc(o.nom)}">${STAR}</button>
+    </article>`;
+  }
+
+  function renderChips() {
+    const n = id => OUTILS.filter(o => duEspace(o) && (id === 'tous' || o.categorie === id)).length;
+    const liste = [{ id: 'tous', nom: 'Tous', icone: '' }].concat(CATS).filter(c => n(c.id));
+    $('chips').hidden = liste.length < 3;
+    $('chips').innerHTML = liste.map(c =>
+      `<button class="chip" type="button" data-cat="${esc(c.id)}" aria-pressed="${filtre === c.id}">${c.icone ? `<span aria-hidden="true">${esc(c.icone)}</span>` : ''}${esc(c.nom)}</button>`
+    ).join('');
+  }
+
+  function render() {
+    const mots = norm(requete).split(/\s+/).filter(Boolean);
+    const correspond = o => mots.every(m => o.recherche.includes(m));
+    const accueil = !mots.length && filtre === 'tous';
+
+    $('sec-favoris').hidden = !accueil;
+    $('sec-recents').hidden = true;
+    if (accueil) {
+      const favs = favoris.map(id => byId[id]).filter(duEspace);
+      $('count-fav').textContent = favs.length || '';
+      $('grid-favoris').innerHTML = favs.length ? favs.map(carte).join('') :
+        `<div class="empty-fav">${STAR}<span>Aucun favori pour l'instant. Cliquez sur l'étoile d'un outil pour l'épingler ici.</span></div>`;
+      const recs = recents.map(id => byId[id]).filter(duEspace);
+      $('sec-recents').hidden = !recs.length;
+      $('list-recents').innerHTML = recs.map(o =>
+        `<a class="recent" ${lienAttrs(o)}><span aria-hidden="true">${esc(o.icone || '🧰')}</span>${esc(o.nom)}</a>`).join('');
+    }
+
+    let total = 0;
+    $('categories').innerHTML = CATS.filter(c => filtre === 'tous' || filtre === c.id).map(c => {
+      const items = OUTILS.filter(o => duEspace(o) && o.categorie === c.id && correspond(o));
+      total += items.length;
+      if (!items.length) return '';
+      return `<section class="block" aria-label="${esc(c.nom)}">
+        <h2><span aria-hidden="true">${esc(c.icone || '')}</span>${esc(c.nom)} <span class="count">${items.length}</span></h2>
+        <div class="grid">${items.map(carte).join('')}</div>
+      </section>`;
+    }).join('');
+
+    const vide = $('no-result');
+    vide.hidden = total > 0;
+    if (!total) vide.innerHTML = `Aucun outil ne correspond à « <strong>${esc(requete)}</strong> ».<br><button type="button" id="reset">Effacer la recherche</button>`;
+  }
+
+  /* ── Visionneuse ── */
+  const viewer = $('viewer'), loader = $('v-loader'), sw = $('v-switch'), q = $('q');
+  let frame = $('v-frame');
+  let courant = null;
+  let depuisListe = false;
+  let longueurHist = 0;
+  let loaderTimer = null;
+
+  const titreListe = () => { const e = espById[espace]; return e.titre ? e.titre + ' · ' + TITRE : TITRE; };
+
+  function majStarViewer() {
+    if (!courant) return;
+    const fav = favoris.includes(courant.id);
+    $('v-star').setAttribute('aria-pressed', fav);
+    $('v-star').title = fav ? 'Retirer des favoris' : 'Ajouter aux favoris';
+  }
+
+  function ouvrir(o) {
+    courant = o;
+    ajouterRecent(o.id);
+    $('v-icon').textContent = o.icone || '🧰';
+    sw.value = o.id;
+    $('v-newtab').href = o.lien;
+    viewer.setAttribute('aria-label', o.nom);
+    majStarViewer();
+    // L'outil déjà chargé reste en mémoire : revenir dessus ne fait pas perdre la saisie en cours.
+    if (frame.dataset.lien !== o.lien) {
+      loader.hidden = false;
+      clearTimeout(loaderTimer);
+      loaderTimer = setTimeout(() => { loader.hidden = true; }, 15000);
+      // Un cadre neuf à chaque outil : changer le src d'un cadre existant ajouterait une entrée
+      // dans l'historique du navigateur, et « Retour » reviendrait à l'outil précédent au lieu de la liste.
+      const neuf = document.createElement('iframe');
+      neuf.id = 'v-frame';
+      neuf.title = o.nom;
+      neuf.setAttribute('allow', frame.getAttribute('allow') || '');
+      neuf.dataset.lien = o.lien;
+      neuf.addEventListener('load', finChargement);
+      neuf.src = o.lien;
+      frame.replaceWith(neuf);
+      frame = neuf;
+    }
+    viewer.hidden = false;
+    document.documentElement.classList.add('viewer-open');
+    document.title = o.nom + ' · Boîte à outils';
+  }
+
+  function fermer() {
+    viewer.hidden = true;
+    document.documentElement.classList.remove('viewer-open');
+    document.title = titreListe();
+    const id = courant && courant.id;
+    courant = null;
+    render();
+    const el = id && document.querySelector(`#categories [data-id="${CSS.escape(id)}"]`);
+    if (el) el.focus({ preventScroll: false });
+  }
+
+  function finChargement() { clearTimeout(loaderTimer); loader.hidden = true; }
+
+  /* ── Changement d'espace ── */
+  const salut = (() => { const h = new Date().getHours(); return (h >= 18 || h < 5) ? 'Bonsoir' : 'Bonjour'; })();
+
+  function renderEspace() {
+    const e = espById[espace];
+    document.body.dataset.espace = espace;
+    $('tabs').hidden = ESPACES.length < 2;
+    $('tabs').innerHTML = ESPACES.map(x =>
+      `<a class="tab" href="${esc(urlEspace(x.id))}" data-espace="${esc(x.id)}"${x.id === espace ? ' aria-current="page"' : ''}>${x.icone ? `<span class="ic" aria-hidden="true">${esc(x.icone)}</span>` : ''}${esc(x.nom)}</a>`
+    ).join('');
+    $('hero-title').innerHTML = e.titre ? esc(e.titre) : `${salut}, de quel outil avez-vous besoin&nbsp;?`;
+    $('hero-sub').textContent = e.sousTitre || "Épinglez vos outils préférés avec l'étoile pour les retrouver en haut de la page.";
+    q.placeholder = e.placeholder || (espace === DEFAUT ? 'Rechercher un outil : pose, trapèze, congés…' : 'Rechercher un outil…');
+    sw.innerHTML = CATS.map(c => {
+      const items = OUTILS.filter(o => duEspace(o) && o.categorie === c.id && !o.externe);
+      return items.length ? `<optgroup label="${esc(c.nom)}">${items.map(o => `<option value="${esc(o.id)}">${esc(o.nom)}</option>`).join('')}</optgroup>` : '';
+    }).join('');
+    if (viewer.hidden) document.title = titreListe();
+    renderChips();
+    render();
+  }
+
+  function changerEspace(id) {
+    if (id === espace || !espById[id]) return;
+    espace = id; filtre = 'tous'; requete = ''; q.value = '';
+    renderEspace();
+  }
+
+  /* ── Navigation : #outil/<id> ouvre un outil, #espace/<id> affiche un onglet ── */
+  function lireUrl() {
+    const mo = location.hash.match(/^#outil\/(.+)$/);
+    const o = mo && byId[dec(mo[1])];
+    if (o && !o.externe) return { outil: o, espace: o.espace };
+    const me = location.hash.match(/^#espace\/(.+)$/);
+    const id = me && dec(me[1]);
+    return { outil: null, espace: espById[id] ? id : DEFAUT };
+  }
+
+  function route(viaNavigation) {
+    const u = lireUrl();
+    if (u.outil) {
+      changerEspace(u.espace);
+      if (viaNavigation && viewer.hidden) { depuisListe = true; longueurHist = history.length; }
+      ouvrir(u.outil);
+    } else {
+      depuisListe = false;
+      if (!viewer.hidden) fermer();
+      changerEspace(u.espace);
+    }
+  }
+  window.addEventListener('hashchange', () => route(true));
+  window.addEventListener('popstate', () => route(true));
+
+  function retourListe() {
+    // Revenir en arrière seulement si l'outil n'a pas lui-même ajouté d'étapes à l'historique.
+    if (depuisListe && history.length === longueurHist) history.back();
+    else { history.pushState(null, '', urlEspace(espace)); route(false); }
+  }
+  $('v-back').addEventListener('click', retourListe);
+  sw.addEventListener('change', () => location.replace('#outil/' + encodeURIComponent(sw.value)));
+  $('v-star').addEventListener('click', () => { if (courant) { basculerFavori(courant.id); majStarViewer(); } });
+
+  /* ── Interactions ── */
+  document.addEventListener('click', e => {
+    const star = e.target.closest('[data-fav]');
+    if (star) {
+      e.preventDefault();
+      basculerFavori(star.dataset.fav);
+      const id = star.dataset.fav;
+      render();
+      const again = document.querySelector(`#categories [data-fav="${CSS.escape(id)}"]`);
+      if (again) { again.focus(); again.classList.add('pop'); setTimeout(() => again.classList.remove('pop'), 180); }
+      return;
+    }
+    const tab = e.target.closest('#tabs [data-espace]');
+    if (tab) {
+      e.preventDefault();
+      if (tab.dataset.espace !== espace) { history.pushState(null, '', urlEspace(tab.dataset.espace)); route(false); }
+      return;
+    }
+    const chip = e.target.closest('[data-cat]');
+    if (chip) { filtre = chip.dataset.cat; renderChips(); render(); return; }
+    if (e.target.id === 'reset') { q.value = ''; requete = ''; filtre = 'tous'; renderChips(); render(); q.focus(); return; }
+    const lien = e.target.closest('a[data-id][target="_blank"]');
+    if (lien && byId[lien.dataset.id]) { ajouterRecent(lien.dataset.id); setTimeout(render, 300); }
+  });
+
+  q.addEventListener('input', () => { requete = q.value; render(); });
+  q.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (q.value) { q.value = ''; requete = ''; render(); } else q.blur(); }
+    if (e.key === 'Enter') {
+      const first = document.querySelector('#categories .card-main');
+      if (first) { e.preventDefault(); first.click(); }
+    }
+  });
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement && document.activeElement.tagName;
+    const saisie = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    if (!viewer.hidden) { if (e.key === 'Escape' && tag !== 'SELECT') retourListe(); return; }
+    if ((e.key === '/' && !saisie) || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) {
+      e.preventDefault(); q.focus(); q.select();
+    }
+  });
+
+  /* ── Noms de fichiers accentués ──
+     Selon la façon dont les fichiers ont été envoyés sur GitHub, un « é » peut être stocké sous deux formes
+     Unicode différentes. On vérifie laquelle existe pour que le lien fonctionne dans tous les cas. */
+  async function resoudreAccents() {
+    if (!/^https?:$/.test(location.protocol)) return;
+    await Promise.all(OUTILS.filter(o => !o.externe && /[^\x00-\x7f]/.test(o.fichier)).map(async o => {
+      const nfd = encodePath(o.fichier.normalize('NFD'));
+      try {
+        if ((await fetch(o.lien, { method: 'HEAD', cache: 'no-store' })).ok) return;
+        if ((await fetch(nfd, { method: 'HEAD', cache: 'no-store' })).ok) o.lien = nfd;
+      } catch (e) {}
+    }));
+  }
+
+  /* ── Démarrage ── */
+  espace = lireUrl().espace;
+  renderEspace();
+  resoudreAccents().then(() => { render(); route(false); });
+})();
+</script>
+</body>
+</html>

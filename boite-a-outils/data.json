@@ -1,0 +1,232 @@
+{
+  "requests": [
+    {
+      "id": 1783498194583,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-07-22",
+      "end": "2026-08-07",
+      "days": 13,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-07-08"
+    },
+    {
+      "id": 1786464082709,
+      "user": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr",
+      "start": "2026-09-18",
+      "end": "2026-09-21",
+      "days": 2,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-08-11"
+    },
+    {
+      "id": 1789033189456,
+      "user": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr",
+      "start": "2026-10-26",
+      "end": "2026-10-26",
+      "days": 1,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-10"
+    }
+  ],
+  "soldes": {
+    "Adam": 31.24,
+    "Alexandre": 11.24,
+    "Axel": 8.24,
+    "Baptiste": 22.24,
+    "Camille": 31.24,
+    "Cindy": 31.24,
+    "Clarisse": 31.24,
+    "Karine": 31.24
+  },
+  "employees": [
+    {
+      "name": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr",
+      "passHash": "e32ff5a65c9c41eff7d86c97790bcc80e82265ce3a61d6dcbd388a2c5263212d",
+      "recoveryQuestion": "Azerty1234!",
+      "recoveryHash": "a4515dadc58e80f36d4ec16a0e3d95f2e948cffcb304b2a5326c71e0f401d043"
+    },
+    {
+      "name": "Alexandre",
+      "lastname": "Morel",
+      "email": "alexandre.morel@ruedustore.fr"
+    },
+    {
+      "name": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "passHash": "2727935b170e36d9962c814a407e4fd5c07469a21fcbd9bb27d92241e01d6363",
+      "recoveryQuestion": "Nom de mon premier vrai chien",
+      "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c"
+    },
+    {
+      "name": "Baptiste",
+      "lastname": "Chevance",
+      "email": "baptiste.chevance@ruedustore.fr"
+    },
+    {
+      "name": "Camille",
+      "lastname": "Girard",
+      "email": "camille.girard@ruedustore.fr",
+      "role": "admin"
+    },
+    {
+      "name": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr"
+    },
+    {
+      "name": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr"
+    },
+    {
+      "name": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr",
+      "passHash": "4a546ec5ad331c2420a97a8343bdb39a71b46b25f0a8238d7d2c0c5074ee7bb1",
+      "recoveryQuestion": "nom de mon animal",
+      "recoveryHash": "a0f3bf6f00eda3c41400f33f3ec4aebfc42bfc49fef41c16178be287cb3a0cb1"
+    }
+  ],
+  "config": {
+    "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735",
+    "rolesBootstrapped": true,
+    "lastAccrualMonth": "2026-09"
+  },
+  "logs": [
+    {
+      "ts": 1789033189456,
+      "date": "2026-09-10",
+      "heure": "11:39",
+      "type": "demande",
+      "actor": "Adam Audam",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 26/10/2026 au 26/10/2026 (1 j)"
+    },
+    {
+      "ts": 1789033146289,
+      "date": "2026-09-10",
+      "heure": "11:39",
+      "type": "solde",
+      "actor": "Système",
+      "label": "Accrual mensuel congés (N)",
+      "detail": "+4.16 j pour 8 salarié(s) — 2 mois appliqué(s), à jour au 2026-09"
+    },
+    {
+      "ts": 1789033145134,
+      "date": "2026-09-10",
+      "heure": "11:39",
+      "type": "employe",
+      "actor": "Adam Audam",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
+    {
+      "ts": 1786464082709,
+      "date": "2026-08-11",
+      "heure": "18:01",
+      "type": "demande",
+      "actor": "Karine Paillard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 18/09/2026 au 21/09/2026 (2 j)"
+    },
+    {
+      "ts": 1786464037645,
+      "date": "2026-08-11",
+      "heure": "18:00",
+      "type": "employe",
+      "actor": "Karine Paillard",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
+    {
+      "ts": 1783504318151,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N modifié",
+      "detail": "Axel · nouveau solde N : 4.08 j"
+    },
+    {
+      "ts": 1783504310017,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N modifié",
+      "detail": "Axel · nouveau solde N : 2.08 j"
+    },
+    {
+      "ts": 1783504299338,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N-1 modifié",
+      "detail": "Axel · nouveau solde N-1 : 9.5 j"
+    },
+    {
+      "ts": 1783504290503,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N modifié",
+      "detail": "Axel · nouveau solde N : 17.74 j"
+    },
+    {
+      "ts": 1783504275946,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "solde",
+      "actor": "Système",
+      "label": "Accrual mensuel congés (N)",
+      "detail": "+2.08 j pour 8 salarié(s) — 1 mois appliqué(s), à jour au 2026-07"
+    },
+    {
+      "ts": 1783504274560,
+      "date": "2026-07-08",
+      "heure": "11:51",
+      "type": "employe",
+      "actor": "Axel Seigneury",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
+    {
+      "ts": 1783503695807,
+      "date": "2026-07-08",
+      "heure": "11:41",
+      "type": "systeme",
+      "actor": "Système",
+      "label": "Rôles initialisés",
+      "detail": "Attribution automatique des rôles direction (Nicolas → Direction, Camille → Administrateur RH)"
+    },
+    {
+      "ts": 1783498194583,
+      "date": "2026-07-08",
+      "heure": "10:09",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)"
+    }
+  ],
+  "soldesN1": {
+    "Axel": 9.5
+  }
+}

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Panachage SBV - Ruedustore.fr</title>
+  <style>
+    /* Règle universelle pour éviter les débordements */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root { 
+      --primary: #f2711c; 
+      --primary-hover: #d95e10;
+      --bg: #f8fafc; 
+      --card: #ffffff; 
+      --border: #cbd5e1; 
+      --text: #1e293b; 
+      --danger: #ef4444; 
+      --danger-hover: #dc2626;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', system-ui, sans-serif; 
+      background-color: var(--bg); 
+      color: var(--text); 
+      margin: 0; 
+      padding: 20px; 
+      line-height: 1.5;
+    }
+    
+    .container { 
+      max-width: 1150px; 
+      margin: 0 auto; 
+      padding-bottom: 100px; 
+    }
+    
+    header { 
+      background: var(--card); 
+      padding: 1.5rem 2rem; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+      margin-bottom: 2rem; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .logo-img { height: 50px; object-fit: contain; }
+
+    /* Boutons */
+    .btn { 
+      padding: 10px 20px; 
+      border-radius: 6px; 
+      border: none; 
+      cursor: pointer; 
+      font-weight: 600; 
+      transition: all 0.2s ease-in-out; 
+      font-size: 0.9rem; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: 8px; 
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    
+    .btn-print-global { background: #0f172a; color: white; padding: 15px 40px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-radius: 8px;}
+    .btn-print-global:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.25);}
+    
+    .btn-magic { background: #8b5cf6; color: white; }
+    .btn-magic:hover { background: #7c3aed; }
+    
+    .btn-danger { background: var(--danger); color: white; padding: 8px 16px;}
+    .btn-danger:hover { background: var(--danger-hover); }
+    
+    .btn-outline { border: 1px solid var(--border); background: var(--bg); margin-top: 15px; color: var(--text); }
+    .btn-outline:hover { background: #e2e8f0; }
+
+    .btn-text { background: transparent; color: #64748b; border: none; font-size: 0.85rem; text-decoration: underline; cursor: pointer; padding: 5px; }
+    .btn-text:hover { color: var(--danger); }
+    
+    /* Conteneur principal d'un store */
+    .store-container { 
+      background: var(--card); 
+      border-radius: 12px; 
+      padding: 25px; 
+      margin-bottom: 30px; 
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025); 
+      border: 1px solid #e2e8f0; 
+      transition: box-shadow 0.3s ease;
+    }
+    .store-container:hover {
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+    }
+
+    .store-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .store-title-input { 
+      font-size: 1.25rem; 
+      font-weight: bold; 
+      border: 1px solid transparent; 
+      padding: 8px 12px; 
+      border-radius: 6px; 
+      flex: 1; 
+      min-width: 200px;
+      color: var(--text); 
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .store-title-input:hover, .store-title-input:focus { 
+      border-color: var(--border); 
+      background: var(--bg); 
+      outline: none;
+    }
+
+    /* Grille des paramètres */
+    .grid-inputs { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 20px; 
+      margin: 20px 0; 
+    }
+    
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;}
+    
+    .radio-group { display: flex; gap: 8px; }
+    .radio-option { 
+      border: 1px solid var(--border); 
+      padding: 8px 12px; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      background: var(--bg); 
+      font-size: 0.9rem; 
+      flex: 1; 
+      text-align: center; 
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .radio-option:hover { border-color: #94a3b8; }
+    .radio-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 4px rgba(242, 113, 28, 0.3); }
+    
+    input[type="text"], input[type="number"] { 
+      padding: 10px; 
+      border: 1px solid var(--border); 
+      border-radius: 6px; 
+      font-family: inherit;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(242, 113, 28, 0.1);
+    }
+
+    .info-badge { 
+      background: #fff7ed; 
+      color: #9a3412; 
+      padding: 12px 15px; 
+      border-radius: 8px; 
+      font-size: 0.9rem; 
+      margin-top: 10px; 
+      border: 1px solid #ffedd5; 
+      display: inline-block;
+    }
+
+    /* Segments */
+    .segment-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+      gap: 15px; 
+      background: var(--bg); 
+      padding: 20px; 
+      border-radius: 8px; 
+      margin-top: 15px; 
+      border: 1px dashed var(--border);
+    }
+    
+    .segment-block { 
+      background: var(--card); 
+      padding: 15px; 
+      border-radius: 8px; 
+      border: 1px solid var(--border); 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .color-input-wrapper { display: flex; align-items: center; gap: 10px; }
+    .color-preview-circle { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #e2e8f0; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+    input[type="color"] { padding: 0; width: 30px; height: 30px; border: none; border-radius: 4px; cursor: pointer; background: none; }
+
+    .btn-remove {
+      color: var(--danger); border: none; background: #fee2e2; border-radius: 4px; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center; margin-left: auto; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-remove:hover { background: #fca5a5; color: white; }
+
+    /* APERÇU DES LAMES */
+    .store-preview { 
+      display: flex; 
+      flex-wrap: nowrap;
+      overflow-x: auto; 
+      background: #334155; 
+      padding: 40px 40px 30px 40px; /* Padding haut ajusté pour les numéros */
+      border-radius: 12px; 
+      margin-top: 15px; 
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
+      
+      scrollbar-width: thin;
+      scrollbar-color: #94a3b8 #1e293b;
+    }
+
+    /* STYLE DU PLEIN ÉCRAN */
+    .store-preview:fullscreen { background-color: #0f172a; width: 100vw; height: 100vh; display: flex; align-items: center; padding: 0 50px; border-radius: 0; }
+    .store-preview:-webkit-full-screen { background-color: #0f172a; width: 100vw; height: 100vh; display: flex; align-items: center; padding: 0 50px; border-radius: 0; }
+
+    .store-preview::-webkit-scrollbar { height: 12px; }
+    .store-preview::-webkit-scrollbar-track { background: #1e293b; border-radius: 0 0 12px 12px; }
+    .store-preview:fullscreen::-webkit-scrollbar-track { border-radius: 0; }
+    .store-preview::-webkit-scrollbar-thumb { background: #64748b; border-radius: 10px; border: 3px solid #1e293b; }
+    .store-preview::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .slat { 
+      flex-shrink: 0; 
+      width: 35px; 
+      height: 140px; 
+      border-radius: 3px; 
+      border: 1px solid rgba(255,255,255,0.2); 
+      cursor: pointer; 
+      margin-left: -15px; 
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s, opacity 0.2s; 
+      box-shadow: 3px 0 8px rgba(0,0,0,0.3); 
+      position: relative; /* Indispensable pour la numérotation */
+    }
+    .slat:first-child { margin-left: 0; }
+    
+    .slat:hover { 
+      transform: translateY(-8px) scale(1.05); 
+      z-index: 100 !important; 
+      border-color: white; 
+      box-shadow: 0 10px 15px rgba(0,0,0,0.4);
+    }
+
+    /* NOUVEAU : Numérotation au survol */
+    .slat::after {
+        content: attr(data-num);
+        position: absolute;
+        top: -28px; /* Positionné juste au dessus de la lame */
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 200;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .slat:hover::after, .slat.drag-over::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-5px);
+    }
+    
+    .slat.drag-over {
+      border-left: 5px solid var(--primary) !important;
+      transform: scale(1.05) translateY(-5px);
+      z-index: 101 !important;
+      box-shadow: -5px 0 15px rgba(242, 113, 28, 0.6);
+    }
+
+    .store-preview:fullscreen .slat { height: 250px; width: 45px; margin-left: -20px; }
+
+    .recap-list { 
+      margin-top: 20px; 
+      padding: 20px; 
+      background: #fef3c7; 
+      border-radius: 8px; 
+      color: #92400e; 
+      border: 1px solid #fde68a;
+      line-height: 1.6;
+    }
+
+    /* Menu volant de sélection de couleur */
+    .color-menu { 
+      position: absolute; background: var(--card); border-radius: 8px; padding: 10px; display: flex; gap: 10px; 
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); z-index: 2000; border: 1px solid var(--border); 
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .menu-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #e2e8f0; transition: transform 0.1s; }
+    .menu-dot:hover { transform: scale(1.1); border-color: var(--primary); }
+
+    .actions-footer { text-align: center; margin-top: 50px; border-top: 2px solid #e2e8f0; padding-top: 30px; }
+
+    /* STYLES SPÉCIFIQUES POUR L'IMPRESSION */
+    @media print {
+      body { background: white; padding: 0; }
+      header { box-shadow: none; border-bottom: 2px solid #f2711c; padding: 10px 0; margin-bottom: 15px; }
+      
+      .actions-footer, .btn, .btn-outline, .btn-magic, .btn-danger, .btn-primary, .grid-inputs, .segment-grid, .radio-group, label, .store-title-input, .info-badge, .btn-text { display: none !important; }
+      
+      .print-only-title { display: block !important; font-size: 1.3rem; font-weight: bold; margin: 10px 0; color: #f2711c; }
+      .store-container { box-shadow: none; border: 1px solid #ccc; margin-bottom: 20px; page-break-inside: avoid; padding: 10px; }
+      
+      .store-preview { background: transparent !important; border: none; padding: 5px !important; gap: 5px 0; -webkit-print-color-adjust: exact; box-shadow: none; flex-wrap: wrap !important; overflow-x: visible !important; }
+      .slat { width: 15px !important; height: 50px !important; border: 0.5px solid #000 !important; box-shadow: none !important; margin-left: -5px !important; -webkit-print-color-adjust: exact; }
+      .slat::after { display: none !important; } /* Cache les numéros à l'impression */
+      
+      .recap-list { background: transparent !important; color: black !important; border: 1px solid #ccc; padding: 10px; margin-top: 10px;}
+      input#refGlobale { border:none; font-weight: bold; font-size: 1.2rem; background: transparent; padding: 0;}
+    }
+    .print-only-title { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1 style="margin:0; color:var(--primary); font-size: 1.8rem;">Panachage SBV</h1>
+      <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+        <label for="refGlobale" style="font-weight: 600; color: #64748b; font-size: 0.9rem;">RÉFÉRENCE :</label>
+        <input type="text" id="refGlobale" placeholder="Ex: Chantier Dupont..." style="width:250px;" oninput="saveState()">
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <img src="https://www.ruedustore.fr/media/logo/stores/1/logo_ruedustore.png" class="logo-img" alt="Ruedustore.fr">
+      <div style="margin-top:15px; display:flex; align-items:center; gap: 15px; justify-content: flex-end;">
+        <button class="btn-text" onclick="resetAllData()" title="Effacer toutes vos données et repartir à zéro">🗑️ Remise à zéro</button>
+        <button class="btn btn-primary" onclick="addNewStore()">➕ Ajouter un Store</button>
+      </div>
+    </div>
+  </header>
+  
+  <div id="all-stores"></div>
+
+  <div class="actions-footer">
+    <button class="btn btn-print-global" onclick="window.print()">🖨️ IMPRIMER LE BON DE FABRICATION</button>
+  </div>
+</div>
+
+<script>
+let allStores = [];
+let storeCounter = 0;
+
+const TABLE_SBV = {
+    "8.9": { max: 600, lames: 78 },
+    "12.7": { max: 600, lames: 54 }
+};
+
+// NOUVEAU : CHARGEMENT AUTOMATIQUE AU DÉMARRAGE
+window.onload = () => loadState();
+
+function loadState() {
+    const saved = localStorage.getItem('sbv-stores');
+    if(saved) {
+        allStores = JSON.parse(saved);
+        storeCounter = parseInt(localStorage.getItem('sbv-counter')) || allStores.length;
+        document.getElementById('refGlobale').value = localStorage.getItem('sbv-ref') || '';
+        document.getElementById('all-stores').innerHTML = '';
+        allStores.forEach(s => renderStoreUI(s));
+    } else {
+        addNewStore();
+    }
+}
+
+// NOUVEAU : SAUVEGARDE AUTOMATIQUE
+function saveState() {
+    localStorage.setItem('sbv-stores', JSON.stringify(allStores));
+    localStorage.setItem('sbv-counter', storeCounter);
+    localStorage.setItem('sbv-ref', document.getElementById('refGlobale').value);
+}
+
+// NOUVEAU : REMISE À ZÉRO
+function resetAllData() {
+    if(confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+        localStorage.clear();
+        allStores = [];
+        storeCounter = 0;
+        document.getElementById('all-stores').innerHTML = '';
+        document.getElementById('refGlobale').value = '';
+        addNewStore();
+    }
+}
+
+// NOUVEAU : SAUVEGARDE L'HISTORIQUE POUR LE BOUTON ANNULER
+function saveHistory(s) {
+    if (!s.planHistory) s.planHistory = [];
+    s.planHistory.push(JSON.parse(JSON.stringify(s.plan)));
+    if(s.planHistory.length > 20) s.planHistory.shift(); // Garde les 20 dernières actions en mémoire
+}
+
+function addNewStore() {
+    storeCounter++;
+    const storeObj = {
+        id: storeCounter,
+        title: `Store ${storeCounter} - Repère`,
+        railWidth: 100,
+        lameType: "8.9",
+        nbLames: 13,
+        segments: [{ couleur: '#f2711c', refTissu: 'TISSU-ORANGE', count: 1 }, { couleur: '#ffffff', refTissu: 'TISSU-BLANC', count: 1 }],
+        plan: [],
+        planHistory: []
+    };
+    allStores.push(storeObj);
+    renderStoreUI(storeObj);
+    saveState();
+}
+
+function calculateLames(id) {
+    const s = allStores.find(x => x.id === id);
+    if (s.railWidth > 600) {
+      alert("La largeur maximale autorisée est de 600 cm.");
+      s.railWidth = 600;
+      document.getElementById(`railWidth-${id}`).value = 600;
+    }
+    const data = TABLE_SBV[s.lameType];
+    s.nbLames = Math.ceil(s.railWidth * (data.lames / data.max));
+    document.getElementById(`nbLames-${id}`).value = s.nbLames;
+    document.getElementById(`info-${id}`).innerHTML = `📏 <b>${s.nbLames} lames</b> nécessaires pour ${s.railWidth} cm`;
+    saveState();
+}
+
+function renderStoreUI(s) {
+    const container = document.getElementById('all-stores');
+    const div = document.createElement('div');
+    div.className = 'store-container';
+    div.id = `store-card-${s.id}`;
+    div.innerHTML = `
+      <div class="store-header">
+        <div class="print-only-title">${s.title}</div>
+        <input type="text" class="store-title-input" value="${s.title}" oninput="updateData(${s.id},'title',this.value); this.parentElement.querySelector('.print-only-title').textContent = this.value">
+        <button class="btn btn-danger" onclick="deleteStore(${s.id})">🗑️ Supprimer</button>
+      </div>
+      
+      <div class="grid-inputs">
+        <div class="input-group">
+          <label>Largeur Rail (cm)</label>
+          <input type="number" id="railWidth-${s.id}" value="${s.railWidth}" oninput="updateData(${s.id},'railWidth',parseFloat(this.value)); calculateLames(${s.id})">
+        </div>
+        <div class="input-group">
+          <label>Type de lame</label>
+          <div class="radio-group">
+            <div class="radio-option ${s.lameType=='8.9'?'active':''}" onclick="updateLameType(${s.id},'8.9')">8.9 cm</div>
+            <div class="radio-option ${s.lameType=='12.7'?'active':''}" onclick="updateLameType(${s.id},'12.7')">12.7 cm</div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Nb lames (Manuel)</label>
+          <input type="number" id="nbLames-${s.id}" value="${s.nbLames}" onchange="updateData(${s.id},'nbLames',parseInt(this.value))">
+        </div>
+      </div>
+      
+      <div class="info-badge" id="info-${s.id}">📏 <b>${s.nbLames} lames</b> nécessaires</div>
+      
+      <div style="margin:25px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-weight:600; font-size:0.85rem; color:#475569; text-transform:uppercase;">🎨 Motif & Couleurs :</label>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" style="margin-top:0; padding:8px 12px;" onclick="invertPattern(${s.id})" title="Échanger les quantités entre les couleurs">↕️ Inverser</button>
+                <button class="btn btn-outline" style="margin-top:0; padding:8px 12px;" onclick="symmetryPattern(${s.id})" title="Appliquer une symétrie (miroir)">🪞 Symétrie</button>
+                <button class="btn btn-magic" style="padding:8px 12px;" onclick="suggestPattern(${s.id})">✨ Motif Auto</button>
+            </div>
+        </div>
+        <div class="segment-grid" id="segments-${s.id}"></div>
+        <button class="btn btn-outline" onclick="addSegment(${s.id})">➕ Ajouter une couleur</button>
+      </div>
+      
+      <div style="display:flex; gap:10px; margin-top: 20px;">
+        <button class="btn btn-primary" onclick="generatePlan(${s.id})" style="flex:1; padding:12px; font-size:1rem;">🔄 Générer l'aperçu du store</button>
+        <button class="btn btn-outline" onclick="undoPlan(${s.id})" style="margin-top:0; padding:12px;" title="Annuler la dernière modification du schéma">↩️ Annuler</button>
+        <button class="btn btn-outline" onclick="toggleFullScreen(${s.id})" style="margin-top:0; padding:12px;" title="Afficher le schéma en plein écran">🔲 Plein écran</button>
+      </div>
+      
+      <div class="store-preview" id="preview-${s.id}"></div>
+      <div id="recap-${s.id}"></div>
+    `;
+    container.appendChild(div);
+    renderSegments(s.id);
+    calculateLames(s.id);
+    
+    // Recharge l'aperçu si un plan existe déjà (utile lors du loadState)
+    if(s.plan && s.plan.length > 0) refreshPreview(s.id);
+}
+
+function renderSegments(id) {
+    const s = allStores.find(x=>x.id==id);
+    const container = document.getElementById(`segments-${id}`);
+    container.innerHTML = '';
+    s.segments.forEach((seg, idx) => {
+        const b = document.createElement('div'); b.className='segment-block';
+        b.innerHTML = `
+          <div class="color-input-wrapper">
+            <div class="color-preview-circle" style="background-color: ${seg.couleur}"></div>
+            <input type="color" value="${seg.couleur}" title="Choisir une couleur" onchange="updateSeg(${id},${idx},'couleur',this.value); renderSegments(${id})">
+            <button class="btn-remove" onclick="removeSegment(${id},${idx})" title="Supprimer cette couleur">✖</button>
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:3px;">Référence Tissu</label>
+            <input type="text" placeholder="Ex: TISSU-BLEU" value="${seg.refTissu}" onchange="updateSeg(${id},${idx},'refTissu',this.value)">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:3px;">Quantité (Motif)</label>
+            <input type="number" min="1" value="${seg.count}" onchange="updateSeg(${id},${idx},'count',parseInt(this.value))">
+          </div>
+        `;
+        container.appendChild(b);
+    });
+}
+
+function generatePlan(id) {
+    const s = allStores.find(x=>x.id==id);
+    saveHistory(s); // Sauvegarde avant d'écraser
+    s.plan = []; const sum = s.segments.reduce((a,b)=>a+b.count,0);
+    for(let i=0; i<s.nbLames; i++){
+        let pos=i%sum, c=0, f=s.segments[0];
+        for(const seg of s.segments){ if(pos>=c && pos<c+seg.count){f=seg; break;} c+=seg.count; }
+        s.plan.push({...f});
+    }
+    refreshPreview(id);
+    saveState();
+}
+
+// NOUVEAU : FONCTION SYMÉTRIE
+function symmetryPattern(id) {
+    const s = allStores.find(x => x.id == id);
+    if (!s.plan || s.plan.length === 0) return alert("Générez d'abord l'aperçu avant d'appliquer la symétrie !");
+    
+    saveHistory(s);
+    const mid = Math.floor(s.plan.length / 2);
+    // On copie la première moitié en miroir sur la deuxième moitié
+    for(let i=0; i<mid; i++) {
+        s.plan[s.plan.length - 1 - i] = {...s.plan[i]};
+    }
+    refreshPreview(id);
+    saveState();
+}
+
+// NOUVEAU : FONCTION ANNULER
+function undoPlan(id) {
+    const s = allStores.find(x => x.id == id);
+    if (s.planHistory && s.planHistory.length > 0) {
+        s.plan = s.planHistory.pop();
+        refreshPreview(id);
+        saveState();
+    }
+}
+
+function refreshPreview(id) {
+    const s = allStores.find(x=>x.id==id);
+    const p = document.getElementById(`preview-${id}`);
+    p.innerHTML = '';
+    s.plan.forEach((lame, idx) => {
+        const slat = document.createElement('div');
+        slat.className = 'slat'; 
+        slat.style.backgroundColor = lame.couleur; 
+        slat.style.zIndex = idx;
+        
+        // Ajout du numéro de la lame pour le survol
+        slat.setAttribute('data-num', idx + 1);
+        
+        slat.onclick = (e) => { e.stopPropagation(); openColorMenu(id, idx, e.pageX, e.pageY); };
+        
+        slat.draggable = true;
+        
+        slat.ondragstart = (e) => {
+            e.dataTransfer.setData('text/plain', idx);
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => slat.style.opacity = '0.4', 0);
+        };
+        
+        slat.ondragend = () => { slat.style.opacity = '1'; };
+        slat.ondragenter = (e) => { e.preventDefault(); slat.classList.add('drag-over'); };
+        slat.ondragleave = () => { slat.classList.remove('drag-over'); };
+        slat.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+        
+        slat.ondrop = (e) => {
+            e.preventDefault();
+            slat.classList.remove('drag-over');
+            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIdx = idx;
+            if (fromIdx !== toIdx && !isNaN(fromIdx)) {
+                saveHistory(s); // Sauvegarde avant déplacement
+                const movedItem = s.plan.splice(fromIdx, 1)[0];
+                s.plan.splice(toIdx, 0, movedItem);
+                refreshPreview(id); 
+                saveState();
+            }
+        };
+        
+        p.appendChild(slat);
+    });
+    updateRecap(s);
+}
+
+function toggleFullScreen(id) {
+    const previewDiv = document.getElementById(`preview-${id}`);
+    if (!document.fullscreenElement) {
+        if (previewDiv.requestFullscreen) previewDiv.requestFullscreen();
+        else if (previewDiv.webkitRequestFullscreen) previewDiv.webkitRequestFullscreen();
+        else if (previewDiv.msRequestFullscreen) previewDiv.msRequestFullscreen();
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
+
+function openColorMenu(sId, idx, x, y) {
+    const old = document.querySelector('.color-menu'); if(old) old.remove();
+    const s = allStores.find(x=>x.id==sId);
+    const m = document.createElement('div'); m.className = 'color-menu';
+    
+    m.style.left = (x - 10) + 'px'; 
+    m.style.top = (y + 15) + 'px'; 
+    
+    s.segments.forEach(seg => {
+        const d = document.createElement('div'); d.className='menu-dot'; d.style.backgroundColor=seg.couleur;
+        d.onclick = () => { 
+            saveHistory(s); // Sauvegarde avant changement manuel de couleur
+            s.plan[idx]={...seg}; 
+            m.remove(); 
+            refreshPreview(sId); 
+            saveState();
+        };
+        m.appendChild(d);
+    });
+    document.body.appendChild(m);
+    setTimeout(() => window.onclick = () => m.remove(), 10);
+}
+
+function updateRecap(s) {
+    const counts = {}; s.plan.forEach(l => { const key = l.refTissu || 'Sans réf'; counts[key] = (counts[key] || 0) + 1; });
+    const refChantier = document.getElementById('refGlobale').value || "Non spécifiée";
+    document.getElementById(`recap-${s.id}`).innerHTML = `
+      <div class="recap-list">
+        <p style="margin-top:0;"><b>Chantier :</b> ${refChantier} | <b>Type de Lames :</b> ${s.lameType} cm | <b>Total :</b> ${s.nbLames} lames</p>
+        <div style="margin-top:10px;"><b>📋 Récapitulatif de fabrication :</b><br>`
+        +Object.entries(counts).map(([k,v])=>`• ${k} : <b>${v} lames</b>`).join('<br>')+
+      `</div></div>`;
+}
+
+function invertPattern(id) {
+    const s = allStores.find(x => x.id == id);
+    const counts = s.segments.map(seg => seg.count).reverse();
+    s.segments.forEach((seg, i) => seg.count = counts[i]);
+    renderSegments(id);
+    generatePlan(id);
+}
+
+function updateData(id,f,v) { const s=allStores.find(x=>x.id==id); if(s) { s[f]=v; saveState(); } }
+function updateLameType(id,t) { const s=allStores.find(x=>x.id==id); s.lameType=t; refreshStore(id); saveState(); }
+function refreshStore(id) { const s=allStores.find(x=>x.id==id); document.getElementById(`store-card-${id}`).remove(); renderStoreUI(s); }
+function updateSeg(sId,idx,f,v) { allStores.find(x=>x.id==sId).segments[idx][f]=v; saveState(); }
+function addSegment(id) { allStores.find(x=>x.id==id).segments.push({couleur:'#cccccc',refTissu:'',count:1}); renderSegments(id); saveState(); }
+function removeSegment(id,idx) { const s=allStores.find(x=>x.id==id); if(s.segments.length>1){s.segments.splice(idx,1); renderSegments(id); saveState(); }}
+function deleteStore(id) { if(confirm("Supprimer ce store ?")) { allStores=allStores.filter(x=>x.id!=id); document.getElementById(`store-card-${id}`).remove(); saveState(); } }
+function suggestPattern(id) { const s=allStores.find(x=>x.id==id); s.segments.forEach(seg=>seg.count=Math.floor(Math.random()*2)+1); renderSegments(id); generatePlan(id); }
+</script>
+</body>
+</html>
