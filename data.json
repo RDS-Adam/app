@@ -112,6 +112,15 @@
   },
   "logs": [
     {
+      "ts": 1789040516711,
+      "date": "2026-09-10",
+      "heure": "13:41",
+      "type": "employe",
+      "actor": "Axel Seigneury",
+      "label": "Mot de passe réinitialisé",
+      "detail": "Réinitialisation via question secrète"
+    },
+    {
       "ts": 1789040515813,
       "date": "2026-09-10",
       "heure": "13:41",
