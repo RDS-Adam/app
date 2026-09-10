@@ -25,6 +25,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-08-11"
+    },
+    {
+      "id": 1789033189456,
+      "user": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr",
+      "start": "2026-10-26",
+      "end": "2026-10-26",
+      "days": 1,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-10"
     }
   ],
   "soldes": {
@@ -95,6 +108,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789033189456,
+      "date": "2026-09-10",
+      "heure": "11:39",
+      "type": "demande",
+      "actor": "Adam Audam",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 26/10/2026 au 26/10/2026 (1 j)"
+    },
     {
       "ts": 1789033146289,
       "date": "2026-09-10",
