@@ -68,7 +68,7 @@
       "name": "Axel",
       "lastname": "Seigneury",
       "email": "axel.seigneury@ruedustore.fr",
-      "passHash": "2727935b170e36d9962c814a407e4fd5c07469a21fcbd9bb27d92241e01d6363",
+      "passHash": "1cff000800467364417d1a57562e0eee468f843e564dce5deadbcf9aae25d132",
       "recoveryQuestion": "Nom de mon premier vrai chien",
       "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c"
     },
@@ -111,6 +111,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789040515813,
+      "date": "2026-09-10",
+      "heure": "13:41",
+      "type": "employe",
+      "actor": "Axel Seigneury",
+      "label": "Mot de passe réinitialisé",
+      "detail": "Réinitialisation via question secrète"
+    },
     {
       "ts": 1789033783321,
       "date": "2026-09-10",
