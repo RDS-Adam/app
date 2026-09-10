@@ -81,7 +81,10 @@
       "name": "Camille",
       "lastname": "Girard",
       "email": "camille.girard@ruedustore.fr",
-      "role": "admin"
+      "role": "admin",
+      "passHash": "955803e40f0a89e1aac9890661483fa69753d54cddd72700f8975b27e344e4b3",
+      "recoveryQuestion": "NOM DE MON FILS",
+      "recoveryHash": "0357513deb903a056e74a7e475247fc1ffe31d8be4c1d4a31f58dd47ae484100"
     },
     {
       "name": "Cindy",
@@ -108,6 +111,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789033783321,
+      "date": "2026-09-10",
+      "heure": "11:49",
+      "type": "employe",
+      "actor": "Camille Girard",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1789033189456,
       "date": "2026-09-10",
