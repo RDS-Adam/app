@@ -41,7 +41,10 @@
     {
       "name": "Adam",
       "lastname": "Audam",
-      "email": "adam.audam@ruedustore.fr"
+      "email": "adam.audam@ruedustore.fr",
+      "passHash": "e32ff5a65c9c41eff7d86c97790bcc80e82265ce3a61d6dcbd388a2c5263212d",
+      "recoveryQuestion": "Azerty1234!",
+      "recoveryHash": "a4515dadc58e80f36d4ec16a0e3d95f2e948cffcb304b2a5326c71e0f401d043"
     },
     {
       "name": "Alexandre",
@@ -92,6 +95,15 @@
     "lastAccrualMonth": "2026-07"
   },
   "logs": [
+    {
+      "ts": 1789033145134,
+      "date": "2026-09-10",
+      "heure": "11:39",
+      "type": "employe",
+      "actor": "Adam Audam",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1786464082709,
       "date": "2026-08-11",
