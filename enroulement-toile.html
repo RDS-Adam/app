@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDS - Station Technique Encombrement Toile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rds-bleu: #25737d;
+            --rds-orange: #ff7200;
+            --rds-gris-bg: #fafafa;
+            --rds-text: #1a1a1a;
+            --rds-border: #eeeeee;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--rds-gris-bg);
+            background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--rds-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .header { border-bottom: 1px solid var(--rds-border); padding-bottom: 15px; margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-text { color: var(--rds-text); font-weight: 500; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Calculateur */
+        .calc-card { background: transparent; padding: 0 0 30px 0; margin-bottom: 30px; border-bottom: 1px solid var(--rds-border); }
+        .inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 25px; }
+        label { font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        input { width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid var(--rds-border); font-size: 0.9rem; outline: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--rds-text); }
+        input:focus { border-bottom-color: var(--rds-orange); }
+
+        .res-display { display: flex; justify-content: space-around; padding: 20px 0 0; border-top: 1px solid var(--rds-border); }
+        .res-val { font-size: 1.8rem; font-weight: 300; color: var(--rds-text); }
+        .orange { color: var(--rds-orange); font-weight: 500; }
+
+        /* Menu Tableaux */
+        h3 { font-size: 0.7rem; text-transform: uppercase; color: #999; margin-bottom: 15px; letter-spacing: 1px; font-weight: 500; }
+        .table-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+
+        .btn-table {
+            display: flex; align-items: center; justify-content: space-between;
+            background: transparent; border: 1px solid var(--rds-border); padding: 15px 20px;
+            cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: var(--rds-text);
+            font-size: 0.8rem; font-weight: 400;
+        }
+        .btn-table:hover { border-color: var(--rds-orange); color: var(--rds-orange); }
+        .btn-table i { color: var(--rds-orange); font-style: normal; font-weight: bold; }
+
+        /* Viewer intégré */
+        #viewer-container { margin-top: 30px; display: none; background: white; border: 1px solid var(--rds-border); overflow: hidden; }
+        iframe { width: 100%; height: 600px; border: none; }
+        .close-btn { padding: 10px; background: #fafafa; text-align: right; cursor: pointer; font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-text">ENCOMBREMENT TOILE <span style="color:var(--rds-orange)">|</span> RDS</div>
+        <div style="font-size: 0.7rem; color: #bbb;">V2.0 - Expert Enroulement</div>
+    </div>
+
+    <div class="calc-card">
+        <div class="inputs">
+            <div>
+                <label>Ø Tube (mm)</label>
+                <input type="number" id="tube" value="63" step="1" oninput="calculer()">
+            </div>
+            <div>
+                <label>Épaisseur Toile (mm)</label>
+                <input type="number" id="ep" value="0.45" step="0.01" oninput="calculer()">
+            </div>
+            <div>
+                <label>Hauteur Toile (mm)</label>
+                <input type="number" id="haut" value="2500" step="50" oninput="calculer()">
+            </div>
+        </div>
+        <div class="res-display">
+            <div style="text-align:center">
+                <label style="color:var(--rds-bleu); font-weight:600;">Ø Enroulé final</label><br>
+                <span class="res-val" id="resC9">--</span><small> mm</small>
+            </div>
+            <div style="text-align:center">
+                <label style="color:var(--rds-orange); font-weight:600;">Nombre de Tours</label><br>
+                <span class="res-val orange" id="resTours">--</span><small> tr</small>
+            </div>
+        </div>
+    </div>
+
+    <h3>Accès rapide aux Abaques</h3>
+    <div class="table-menu">
+        <a href="#" class="btn-table" onclick="openTable('Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html')">
+            <span>Tableau des Épaisseurs Maxi</span> <i>→</i>
+        </a>
+        <a href="#" class="btn-table" onclick="openTable('STORE UNIVERSAL COFFRE DIA TUBE 36.html')">
+            <span>Store Universal (Tube 36)</span> <i>→</i>
+        </a>
+        <a href="#" class="btn-table" onclick="openTable('STORE MINI COFFRE DIA TUBE 26.html')">
+            <span>Store Mini (Tube 26)</span> <i>→</i>
+        </a>
+    </div>
+
+    <div id="viewer-container">
+        <div class="close-btn" onclick="document.getElementById('viewer-container').style.display='none'">Fermer le tableau ✖</div>
+        <iframe id="table-viewer"></iframe>
+    </div>
+</div>
+
+<script>
+    // Logique de calcul basée sur la formule de spirale d'Archimède
+    function calculer() {
+        const D = parseFloat(document.getElementById('tube').value);
+        const e = parseFloat(document.getElementById('ep').value);
+        const L = parseFloat(document.getElementById('haut').value);
+        
+        if (D > 0 && e > 0 && L > 0) {
+            // Calcul du diamètre final (C9)
+            const C9 = Math.sqrt(((4 * e * L) / Math.PI) + (D * D));
+            // Calcul du nombre de tours
+            const tours = (C9 - D) / (2 * e);
+            
+            document.getElementById('resC9').innerText = C9.toFixed(2);
+            document.getElementById('resTours').innerText = tours.toFixed(2);
+        } else {
+            document.getElementById('resC9').innerText = "--";
+            document.getElementById('resTours').innerText = "--";
+        }
+    }
+
+    // Fonction pour ouvrir les fichiers HTML dans l'iframe
+    function openTable(fileName) {
+        const viewer = document.getElementById('table-viewer');
+        const container = document.getElementById('viewer-container');
+        
+        viewer.src = fileName;
+        container.style.display = 'block';
+        
+        // Scroll fluide vers le viewer
+        container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialisation au chargement
+    window.onload = calculer;
+</script>
+
+</body>
+</html>

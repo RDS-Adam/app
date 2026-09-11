@@ -1,0 +1,95 @@
+/* Printable */
+
+@media print {
+  @page { size: A4 portrait; }
+}
+
+.view{ width: calc(100% - 25em); min-height: 100%; background: #f2f2f2; padding: 1.5em; position: relative; }
+.print{ width: 100%; }
+.print *{ -webkit-print-color-adjust: exact; print-color-adjust: exact;  }
+.head{ text-align: center; }
+.logo{ height: 4em; margin-bottom: .5em; }
+.title{ font-size: 2em; font-weight: bold; text-align: center; margin-bottom: .75em; }
+.author{ display: block; text-decoration: none; color: #000; text-align: right; white-space: nowrap; line-height: 1em; }
+.author{ position: fixed; right: 1em; bottom: 1em; }
+.print .author{ position absolute; }
+.author>*{ display: inline-block; vertical-align: middle; }
+.emiagic{ height: 1em; margin-left: .5em; }
+
+.legend{ display: table; table-layout: fixed; border-collapse: separate; border-spacing: 1em 0em; }
+.legend{ margin-left: -1em; width: calc(100% + 2em); text-align: left; margin-top: 1.5em; }
+.legend>*{ display: table-cell; vertical-align: top; padding: 1em; }
+.legend-left{ width: 24em; padding: 1em; border: .5em solid #fe6500; }
+.legend-item{ display: block; width: 100%; margin-bottom: 1em; text-align: left; }
+.legend-item:last-child{ margin-bottom: 0em; }
+.legend-item>*{ display: inline-block; vertical-align: middle; }
+.legend-item-cell{ width: 2em; height: 2em; margin-right: 1em; }
+.legend-item-cell.red{ background: #b00; }
+.legend-item-cell.green{ background: #080; }
+.legend-item-cell.blue{ background: #008; }
+.legend-item-text{ width: calc(100% - 3em); }
+.legend-right{ border: 1px dotted #fe6500; }
+.legend-title{ font-weight: bold; text-transform: uppercase; margin-bottom: .5em; }
+.legend-table{ width: 100%; border-collapse: collapse; margin-bottom: .5em; }
+.legend-table:last-child{ margin-bottom: 0em; }
+.legend-table tr>*{ border: 1px solid #000; background: #fff; padding: .25em; text-align: center; }
+.legend-table th{ background: #fe6500; }
+.legend-table tr>*:first-child{ border-left: none; }
+.legend-table tr>*:last-child{ border-right: none; }
+.legend-table tr:first-child>*{ border-top: none; }
+.legend-table tr:last-child>*{ border-bottom: none; }
+.legend-table tr>*[rowspan]{ border-bottom: none; }
+
+/* Tools */
+
+.tools{ position: fixed; top: 0; right: 0; width: 25em; height: 100%; padding: 2em; }
+.tools{ box-shadow: 0px 0px 1em #222; }
+.tools>*{ margin-bottom: 1em; }
+.tools-item{ padding: .5em 1em; background: #fe6500; color: #fff; cursor: pointer; margin-bottom: 1em; width: 100%; }
+.tools-item:last-child{ margin-bottom: 0em; }
+.tools-item{ box-shadow: 3px 3px 0px #000; transition: all .25s; }
+.tools-item:hover{ box-shadow: 6px 6px 0px #000; transform: translate(-3px, -3px); }
+.tools-item>*{ display: inline-block; vertical-align: middle; line-height: 2em; }
+.tools-item-icon{ height: 2em; margin-right: 1em; }
+.tools-item-text{ font-size: 1.25em; color: #fff; text-shadow: 0px 0px 3px #000; }
+.tools-help{ font-style: italic; }
+
+/* Drawing */ 
+
+.drawing{ text-align: center; overflow-y: hidden; overflow-x: auto; text-align: center; }
+.drawing{ border: 1px solid #dcdcdc; background: #fff; position: relative; }
+.drawing-scale{ width: 17cm; height: 17cm; transform-origin: top left; }
+.print .drawing{ overflow: hidden; background: #f2f2f2; border: none; }
+
+.drawing-image{ height: 100%; width: 100%; }
+.drawing-scale *[class*="input"]{ position: absolute; }
+.drawing-scale *[class*="input"]{ padding: .5em; border: none; font-weight: bold; width: 6em; }
+.drawing-scale *[class*="blue"]{ background: #008; color: #fff; }
+.drawing-scale *[class*="green"]{ background: #080; color: #fff; }
+.drawing-scale *[class*="red"]{ background: #b00; color: #fff; }
+.drawing-scale *[class*="black"]{ background: #000; color: #fff; }
+
+.drawing-triangle .drawing-input-blue-left{ top: 48%; left: 37%; }
+.drawing-triangle .drawing-input-blue-right{ top: 54%; left: 46%; }
+.drawing-triangle .drawing-input-blue-bottom{ top: 63%; left: 47.5%; }
+.drawing-triangle .drawing-input-red-left{ top: 43%; left: 16.5%; }
+.drawing-triangle .drawing-input-red-right{ top: 39%; left: 58%; }
+.drawing-triangle .drawing-input-red-bottom{ top: 79%; left: 49.25%; }
+.drawing-triangle .drawing-input-green-left{ top: 38%; left: 4.25%; }
+.drawing-triangle .drawing-input-green-right{ top: 30%; left: 65%; }
+.drawing-triangle .drawing-input-green-bottom{ top: 88%; left: 49.25%; }
+.drawing-triangle .drawing-input-black-angle{ top: 29%; left: 44%; }
+
+.drawing-trapeze .drawing-input-blue-left{ top: 49%; left: 34%; }
+.drawing-trapeze .drawing-input-blue-right{ top: 59.5%; left: 58%; }
+.drawing-trapeze .drawing-input-blue-top{ top: 41%; left: 46%; }
+.drawing-trapeze .drawing-input-blue-bottom{ top: 68%; left: 46%; }
+.drawing-trapeze .drawing-input-red-left{ top: 42%; left: 13%; }
+.drawing-trapeze .drawing-input-red-right{ top: 55%; left: 77.5%; }
+.drawing-trapeze .drawing-input-red-top{ top: 27%; left: 56%; }
+.drawing-trapeze .drawing-input-red-bottom{ top: 82.75%; left: 47%; }
+.drawing-trapeze .drawing-input-green-left{ top: 35%; left: 1%; }
+.drawing-trapeze .drawing-input-green-right{ top: 62%; left: 86%; }
+.drawing-trapeze .drawing-input-green-top{ top: 16%; left: 55%; }
+.drawing-trapeze .drawing-input-green-bottom{ top: 91%; left: 47%; }
+.drawing-trapeze .drawing-input-black-angle{ top: 24%; left: 41%; }

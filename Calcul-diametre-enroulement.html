@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur Diamètre d'Enroulement - Adam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rds-bleu: #25737d;
+      --rds-orange: #ff7200;
+      --rds-gris: #fafafa;
+      --rds-text: #1a1a1a;
+      --rds-border: #eeeeee;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--rds-gris);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: var(--rds-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .panneau-calcul {
+      width: 100%;
+      max-width: 380px;
+      padding: 40px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    h2 { 
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-align: left;
+      color: var(--rds-text);
+      margin: 0 0 40px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--rds-border);
+      padding-bottom: 15px;
+    }
+
+    .groupe {
+      margin-bottom: 25px;
+    }
+
+    label { 
+      display: block; 
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    input, select { 
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 0;
+      border: none;
+      border-bottom: 1px solid var(--rds-border);
+      background: transparent;
+      font-size: 0.9rem;
+      color: var(--rds-text);
+      outline: none;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus, select:focus {
+      border-bottom-color: var(--rds-orange);
+    }
+
+    button { 
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid var(--rds-text);
+      background: transparent;
+      color: var(--rds-text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--rds-text);
+      color: #fff;
+    }
+
+    .zone-resultat {
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--rds-border);
+      display: none; 
+      animation: fadeIn 0.5s ease;
+    }
+
+    .valeur-diametre {
+      display: block;
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--rds-text);
+      margin: 10px 0;
+    }
+
+    .valeur-diametre span {
+        color: var(--rds-orange);
+        font-weight: 500;
+    }
+
+    .notice {
+      font-size: 0.75rem;
+      line-height: 1.6;
+      color: #999;
+      margin: 15px 0 0 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Supprimer les flèches sur les inputs nombre */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="panneau-calcul">
+  <h2>Enroulement</h2>
+  
+  <div class="groupe">
+    <label for="tubeEnroulement">Diamètre du tube nu (mm)</label>
+    <input type="number" id="tubeEnroulement" placeholder="Ex: 60, 70, 78..." min="1">
+  </div>
+  
+  <div class="groupe">
+    <label for="qualite">Qualité de toile</label>
+    <select id="qualite">
+      <option value="acrylique">Acrylique (1,6 mm)</option>
+      <option value="soltis">Soltis 92 (0,5 mm)</option>
+    </select>
+  </div>
+  
+  <div class="groupe">
+    <label for="avancee">Avancée totale (cm)</label>
+    <input type="number" id="avancee" placeholder="Ex : 300" min="0">
+  </div>
+  
+  <button type="button" onclick="calculerDiametre()">Calculer</button>
+  
+  <div id="resultat" class="zone-resultat">
+    <label>Diamètre final estimé</label>
+    <span class="valeur-diametre"><span id="valeur-num">--</span> cm</span>
+    <p class="notice">
+      Prévoir une marge de sécurité de +10% dans votre coffre.
+    </p>
+  </div>
+</div>
+
+<script>
+  function calculerDiametre() {
+    // On récupère la valeur saisie en mm
+    let dTubeMM = parseFloat(document.getElementById('tubeEnroulement').value);
+    let qualite = document.getElementById('qualite').value;
+    let L = parseFloat(document.getElementById('avancee').value);
+
+    // Vérification que les champs sont remplis
+    if (isNaN(dTubeMM) || isNaN(L) || dTubeMM <= 0 || L <= 0) {
+      return;
+    }
+
+    // Conversion du tube en cm pour le calcul (ex: 60mm -> 6cm)
+    let dTube = dTubeMM / 10;
+    
+    // Épaisseur de la toile en cm
+    let t = (qualite === "acrylique") ? 0.16 : 0.05;
+
+    // Formule mathématique d'enroulement spirale
+    let dFinal = Math.sqrt(Math.pow(dTube, 2) + (4 * t * L) / Math.PI);
+    dFinal = dFinal.toFixed(1);
+
+    document.getElementById('resultat').style.display = 'block';
+    document.getElementById('valeur-num').innerText = dFinal;
+  }
+
+  // Protection Clic Droit & Touches F12
+  document.addEventListener('contextmenu', e => e.preventDefault()); 
+  document.onkeydown = e => { 
+      if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) 
+      return false; 
+  };
+</script>
+
+</body>
+</html>

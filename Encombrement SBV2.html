@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Expert SBV (cm) - Ruedustore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rds-bleu: #25737d;
+            --rds-orange: #ff7200;
+            --rds-gris-bg: #fafafa;
+            --rds-text: #1a1a1a;
+            --rds-border: #eeeeee;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--rds-gris-bg);
+            background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--rds-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 650px;
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        header { margin-bottom: 0; border: none; padding-bottom: 0; }
+
+        header h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: left;
+            color: var(--rds-text);
+            margin: 0 0 40px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--rds-border);
+            padding-bottom: 15px;
+        }
+
+        .mode-selector { display: flex; border-bottom: 1px solid var(--rds-border); margin-bottom: 25px; }
+        .mode-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .mode-btn.active { color: var(--rds-text); border-bottom-color: var(--rds-orange); }
+        .mode-btn:hover { color: var(--rds-text); }
+
+        /* Onglet d'explication */
+        .help-tab { border: 1px solid #f9f9f9; border-radius: 8px; padding: 15px; margin-bottom: 25px; font-size: 0.8rem; color: #666; line-height: 1.6; cursor: pointer; }
+        .help-tab summary { font-weight: 500; color: #999; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; outline: none; }
+        .help-tab ul { margin-top: 10px; margin-bottom: 0; padding-left: 20px; }
+        .help-tab li { margin-bottom: 6px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 25px; }
+        label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        select, input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 0;
+            border: none;
+            border-bottom: 1px solid var(--rds-border);
+            background: transparent;
+            font-size: 0.9rem;
+            color: var(--rds-text);
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        input:focus, select:focus { border-bottom-color: var(--rds-orange); }
+
+        .result-container {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid var(--rds-border);
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; color: #666; }
+        .res-line span:last-child { color: var(--rds-text); font-weight: 500; }
+        .res-line.total {
+            border-top: 1px solid var(--rds-border);
+            padding-top: 15px;
+            margin-top: 15px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--rds-text);
+        }
+        .res-line.total span:last-child { color: var(--rds-orange); font-size: 1.8rem; font-weight: 300; }
+        .highlight-text { color: var(--rds-orange); font-weight: 500; }
+        .info-tab { font-size: 0.75rem; color: #999; text-align: center; margin-top: 25px; letter-spacing: 0.5px; }
+
+        .error-msg { color: #cc0000; font-weight: 500; text-align: center; display: none; margin-top: 15px; font-size: 0.75rem; }
+
+        /* Supprimer les flèches sur les inputs nombre */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <header>
+        <h2 style="margin:0;">Calcul encombrement SBV Rue Du Store</h2>
+    </header>
+
+    <label>Méthode de calcul :</label>
+    <div class="mode-selector">
+        <button id="btnBaie" class="mode-btn active" onclick="setMode('BAIE')">Encombrement en dehors de la baie</button>
+        <button id="btnRail" class="mode-btn" onclick="setMode('RAIL')">Rail Souhaité (cm)</button>
+    </div>
+
+    <details class="help-tab">
+        <summary>Comment choisir sa méthode ?</summary>
+        <ul>
+            <li><strong>Encombrement en dehors de la baie :</strong> Vous souhaitez que le vitrage soit 100% dégagé une fois le store ouvert. Le "paquet" de bandes va se replier sur le mur. Le rail final sera donc plus large que votre fenêtre.</li>
+            <li><strong>Rail Souhaité :</strong> Vous avez une dimension d'installation bloquée (ex: pose entre deux murs). Une fois le store ouvert, les bandes repliées cacheront une partie de votre fenêtre.</li>
+        </ul>
+    </details>
+
+    <div class="grid">
+        <div class="form-group">
+            <label id="labelPrincipal">Largeur de la Baie (cm)</label>
+            <input type="number" id="inputPrincipal" value="200" step="0.1" oninput="calculer()">
+        </div>
+        <div class="form-group">
+            <label>Type de Lame</label>
+            <select id="typeLame" onchange="calculer()">
+                <option value="89">89 mm</option>
+                <option value="127">127 mm</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Type de Repli (Refoulement)</label>
+        <select id="typeRepli" onchange="calculer()">
+            <option value="lat">LA / LO (Latéral Gauche ou Droit)</option>
+            <option value="ext">Chaque Extrémité (Séparé)</option>
+            <option value="ce">CE (Central)</option>
+        </select>
+    </div>
+
+    <div id="errorBox" class="error-msg">⚠️ Largeur maximale de rail (600 cm) dépassée.</div>
+
+    <div id="resultsArea">
+        <div class="result-container">
+            <div class="res-line">
+                <span>Nombre de lames :</span>
+                <span id="resLames" class="highlight-text">-</span>
+            </div>
+            <div class="res-line">
+                <span>Encombrement total :</span>
+                <span id="resEnc" class="highlight-text">-</span>
+            </div>
+            <div class="res-line">
+                <span id="labelPassage">Ouverture couverte :</span>
+                <span id="resPassage">-</span>
+            </div>
+            <div class="res-line total">
+                <span>LARGEUR DU RAIL :</span>
+                <span id="resRail">-</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-tab">
+        Saisie en cm | Calculs basés sur abaques techniques
+    </div>
+</div>
+
+<script>
+let currentMode = 'BAIE';
+
+const DATA = {
+    "89": {
+        ratio: 78/600,
+        lat: { base: 14.8, perCm: (68.8-14.8)/500 },
+        ext: { base: 9.8, perCm: (36.4-9.8)/500 },
+        ce: { base: 18.9, perCm: (72.0-18.9)/500 }
+    },
+    "127": {
+        ratio: 54/600,
+        lat: { base: 13.4, perCm: (50.8-13.4)/500 },
+        ext: { base: 10.1, perCm: (28.3-10.1)/500 },
+        ce: { base: 1.9, perCm: (55.5-1.9)/500 }
+    }
+};
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btnBaie').classList.toggle('active', mode === 'BAIE');
+    document.getElementById('btnRail').classList.toggle('active', mode === 'RAIL');
+    document.getElementById('labelPrincipal').textContent = mode === 'BAIE' ? "Largeur de la Baie (cm)" : "Rail Souhaité (cm)";
+    calculer();
+}
+
+function calculer() {
+    const valCm = parseFloat(document.getElementById('inputPrincipal').value) || 0;
+    const type = document.getElementById('typeLame').value;
+    const repli = document.getElementById('typeRepli').value;
+    const config = DATA[type];
+    const errorBox = document.getElementById('errorBox');
+    const resultsArea = document.getElementById('resultsArea');
+
+    let railFinal = 0;
+    let encTotal = 0;
+    let nbLames = 0;
+    let passage = 0;
+    let labelEnc = "";
+
+    if (valCm > 0) {
+        // Calcul du nombre de bandes sur la base de la largeur saisie
+        nbLames = Math.ceil(valCm * config.ratio);
+        
+        // Calcul de l'encombrement (Abaques)
+        if (repli === "lat") {
+            encTotal = config.lat.base + (config.lat.perCm * (valCm - 100));
+            labelEnc = encTotal.toFixed(1) + " cm";
+        } else if (repli === "ext") {
+            let encUnitaire = config.ext.base + (config.ext.perCm * (valCm - 100));
+            encTotal = encUnitaire * 2;
+            labelEnc = encUnitaire.toFixed(1) + " + " + encUnitaire.toFixed(1) + " cm";
+        } else if (repli === "ce") {
+            encTotal = config.ce.base + (config.ce.perCm * (valCm - 100));
+            labelEnc = encTotal.toFixed(1) + " cm";
+        }
+
+        // Sécurité petites largeurs (valeurs plancher du tableau)
+        if (valCm < 100) {
+            if(repli === "lat") encTotal = config.lat.base;
+            if(repli === "ext") encTotal = config.ext.base * 2;
+            if(repli === "ce") encTotal = config.ce.base;
+            labelEnc = (repli === "ext") ? (encTotal/2).toFixed(1) + "x2 cm" : encTotal.toFixed(1) + " cm";
+        }
+
+        // Définition du Rail Final selon le mode
+        if (currentMode === 'BAIE') {
+            railFinal = valCm + encTotal;
+            passage = valCm;
+        } else {
+            railFinal = valCm;
+            passage = railFinal - encTotal;
+        }
+
+        // --- VERIFICATION DES LIMITES (Saisie ET Résultat) ---
+        if (valCm > 600 || railFinal > 600) {
+            errorBox.style.display = 'block';
+            errorBox.innerHTML = `⚠️ Limite technique dépassée : Le rail final atteindrait ${railFinal.toFixed(1)} cm (Max : 600 cm).`;
+            resultsArea.style.opacity = '0.2';
+            document.getElementById('resRail').textContent = "-";
+            return;
+        } else {
+            errorBox.style.display = 'none';
+            resultsArea.style.opacity = '1';
+        }
+
+        // Affichage des résultats
+        document.getElementById('labelPassage').textContent = (currentMode === 'BAIE') ? "Ouverture couverte :" : "Passage libre (vitre) :";
+        document.getElementById('resLames').textContent = nbLames;
+        document.getElementById('resEnc').textContent = labelEnc;
+        document.getElementById('resPassage').textContent = Math.max(0, passage).toFixed(1) + " cm";
+        document.getElementById('resRail').textContent = railFinal.toFixed(1) + " cm";
+    }
+}
+
+calculer();
+</script>
+
+</body>
+</html>

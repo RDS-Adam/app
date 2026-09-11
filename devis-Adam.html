@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Devis </title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            padding: 10px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: white;
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+        }
+
+        .btn-add, .btn-admin, .btn-stats, .btn-export {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add:hover, .btn-admin:hover, .btn-stats:hover, .btn-export:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
+        }
+
+        .sync-status {
+            font-size: 12px;
+            color: #FF6B35;
+            font-weight: 600;
+            padding: 8px 16px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dashboard.active {
+            max-height: 200px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.95) 0%, rgba(255, 140, 66, 0.95) 100%);
+            border-radius: 12px;
+            padding: 18px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 15px 0;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .kanban-board::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .kanban-board::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .kanban-board::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, 0.4);
+            border-radius: 10px;
+        }
+
+        .kanban-board::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 53, 0.6);
+        }
+
+        .column {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 240, 0.95) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 700px;
+            min-width: 340px;
+            flex-shrink: 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .column:hover {
+            box-shadow: 0 30px 80px rgba(255, 107, 53, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, #FF6B35, #FFA500) 1;
+        }
+
+        .column-title {
+            font-size: 17px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.3px;
+        }
+
+        .column-count {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .cards-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding-right: 8px;
+            min-height: 400px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .cards-container.drag-over {
+            background: rgba(255, 107, 53, 0.08);
+            border: 2px dashed rgba(255, 107, 53, 0.4);
+            padding: 12px;
+        }
+
+        .cards-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .cards-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, 0.3);
+            border-radius: 3px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f0 100%);
+            border-left: 4px solid;
+            border-image: linear-gradient(180deg, #FF6B35, #FFA500) 1;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: move;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .card.dragging {
+            opacity: 0.6;
+            transform: rotate(5deg) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        .card.old-alert {
+            border-left-color: #ff4444 !important;
+            background: linear-gradient(135deg, #fff9f9 0%, #fff0f0 100%) !important;
+        }
+
+        .card-header {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .card-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .card-info {
+            flex: 1;
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .card-priority {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .card-priority.normal {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .card-priority.urgent {
+            background: #FFB84D;
+            color: white;
+        }
+
+        .card-priority.vip {
+            background: linear-gradient(135deg, #FF6B35, #FF8C42);
+            color: white;
+        }
+
+        .card-client {
+            font-size: 13px;
+            color: #16213e;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .card-contact {
+            font-size: 11px;
+            color: #0f3460;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .card-contact a {
+            color: #FF6B35;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .card-contact a:hover {
+            text-decoration: underline;
+        }
+
+        .card-amount {
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .card-note {
+            font-size: 11px;
+            color: #666;
+            background: rgba(255, 107, 53, 0.05);
+            padding: 6px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border-left: 2px solid #FF6B35;
+            max-height: 40px;
+            overflow: hidden;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .card-relancer {
+            flex: 1;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .card-relancer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .card-delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+            color: white;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .card-delete:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-old-alert {
+            font-size: 10px;
+            color: #ff4444;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f0 100%);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 107, 53, 0.1);
+            animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin: auto;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-cancel {
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+            border: 2px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 107, 53, 0.15);
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .admin-item {
+            background: rgba(255, 107, 53, 0.05);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-item-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .admin-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .admin-item-actions button {
+            padding: 4px 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-edit-col {
+            background: #FFB84D;
+            color: white;
+        }
+
+        .btn-delete-col {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-move-col {
+            background: #4CAF50;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .column {
+                min-width: 300px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Gestion Devis Pro</h1>
+            <div class="header-actions">
+                <input type="text" id="searchBox" class="search-box" placeholder="🔍 Chercher client, devis...">
+                <button class="btn-stats" onclick="toggleDashboard()">📊 Stats</button>
+                <button class="btn-export" onclick="exportCSV()">📥 Export</button>
+                <button class="btn-admin" onclick="openAdminModal()">⚙️ Admin</button>
+                <button class="btn-add" onclick="openModal()">+ Devis</button>
+            </div>
+        </div>
+
+        <div class="dashboard" id="dashboard"></div>
+
+        <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">📋 Nouveau Devis</div>
+            <form onsubmit="addDevis(event)">
+                <div class="form-group">
+                    <label>Titre/Référence *</label>
+                    <input type="text" id="devisTitle" placeholder="Ex: Devis #2024-001" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Civilité</label>
+                        <select id="devisCivility">
+                            <option value="Mr">Mr</option>
+                            <option value="Mme">Mme</option>
+                            <option value="Mlle">Mlle</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Client *</label>
+                        <input type="text" id="devisClient" placeholder="Nom client" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Priorité</label>
+                        <select id="devisPriority">
+                            <option value="normal">Normal</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Client *</label>
+                    <input type="email" id="devisEmail" placeholder="contact@entreprise.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="devisTel" placeholder="06 12 34 56 78">
+                </div>
+                <div class="form-group">
+                    <label>Montant HT *</label>
+                    <input type="number" id="devisAmount" placeholder="1500" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="devisDescription" placeholder="Détails du devis..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📝 Note privée</label>
+                    <textarea id="devisNote" placeholder="Notes personnelles..." style="min-height: 50px;"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-save">Créer</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">⚙️ Gestion des Colonnes</div>
+            <div class="form-group">
+                <label>Ajouter une nouvelle colonne</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="newColumnName" placeholder="Nom de la colonne" style="flex: 1;">
+                    <button onclick="addColumn()" class="btn-save" style="flex: 0;">Ajouter</button>
+                </div>
+            </div>
+            <div style="margin-top: 25px;">
+                <h3 style="margin-bottom: 15px; color: #FF6B35; font-weight: 700;">Colonnes existantes</h3>
+                <div class="admin-grid" id="adminGrid"></div>
+            </div>
+            <div class="modal-buttons" style="margin-top: 25px;">
+                <button type="button" class="btn-cancel" onclick="closeAdminModal()" style="flex: 1;">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBN•••••••••••••••••••••••••••••••",
+            authDomain: "devis-kanban-app.firebaseapp.com",
+            databaseURL: "https://devis-kanban-app-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "devis-kanban-app",
+            storageBucket: "devis-kanban-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef1234567890"
+        };
+
+        let firebase_initialized = false;
+        let db = null;
+        let devis = [];
+        let statuts = ['Envoyé', 'Relancé', 'Validé par le client', 'En attente PDM', 'Commandé', 'Reçu', 'Posé'];
+        let draggedElement = null;
+        let editingId = null;
+        let searchQuery = '';
+
+        const colors = ['#FF6B35', '#FFA500', '#FF8C42', '#FFB84D', '#CC5228', '#FF7F5C', '#FFD700'];
+
+        function initFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                firebase_initialized = true;
+                loadDevisFromFirebase();
+            } catch (error) {
+                console.log("Firebase non disponible");
+                loadDevisFromLocalStorage();
+            }
+        }
+
+        function loadDevisFromFirebase() {
+            if (!firebase_initialized || !db) {
+                loadDevisFromLocalStorage();
+                return;
+            }
+            db.ref('devis').on('value', (snapshot) => {
+                devis = [];
+                snapshot.forEach((childSnapshot) => {
+                    devis.push(childSnapshot.val());
+                });
+                loadColumnsFromFirebase();
+            });
+        }
+
+        function loadColumnsFromFirebase() {
+            db.ref('columns').on('value', (snapshot) => {
+                if (snapshot.val()) {
+                    statuts = snapshot.val();
+                }
+                renderBoard();
+                updateDashboard();
+            });
+        }
+
+        function loadDevisFromLocalStorage() {
+            const saved = localStorage.getItem('devis');
+            devis = saved ? JSON.parse(saved) : [];
+            const savedColumns = localStorage.getItem('columns');
+            if (savedColumns) {
+                statuts = JSON.parse(savedColumns);
+            }
+            renderBoard();
+            updateDashboard();
+        }
+
+        function saveToFirebase(d) {
+            if (firebase_initialized && db) {
+                db.ref('devis/' + d.id).set(d).catch(() => saveToLocalStorage());
+            } else {
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('devis', JSON.stringify(devis));
+            localStorage.setItem('columns', JSON.stringify(statuts));
+        }
+
+        function saveColumnsToFirebase() {
+            if (firebase_initialized && db) {
+                db.ref('columns').set(statuts).catch(() => saveToLocalStorage());
+            } else {
+                saveToLocalStorage();
+            }
+        }
+
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function getDaysSince(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const diffTime = Math.abs(today - date);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function updateDashboard() {
+            let html = '<div class="stat-card"><div class="stat-label">Total Montant</div><div class="stat-value">€' + devis.reduce((sum, d) => sum + (d.amount || 0), 0).toLocaleString('fr-FR') + '</div></div>';
+            html += '<div class="stat-card"><div class="stat-label">Nombre Devis</div><div class="stat-value">' + devis.length + '</div></div>';
+
+            statuts.forEach(s => {
+                const count = devis.filter(d => d.statut === s).length;
+                const amount = devis.filter(d => d.statut === s).reduce((sum, d) => sum + (d.amount || 0), 0);
+                html += '<div class="stat-card"><div class="stat-label">' + s + '</div><div class="stat-value">' + count + '</div><div class="stat-sub">€' + amount.toLocaleString('fr-FR') + '</div></div>';
+            });
+
+            document.getElementById('dashboard').innerHTML = html;
+        }
+
+        function toggleDashboard() {
+            document.getElementById('dashboard').classList.toggle('active');
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('kanbanBoard');
+            board.innerHTML = '';
+
+            statuts.forEach(statut => {
+                const column = document.createElement('div');
+                column.className = 'column';
+
+                const header = document.createElement('div');
+                header.className = 'column-header';
+
+                const title = document.createElement('div');
+                title.className = 'column-title';
+                title.textContent = statut;
+
+                const count = document.createElement('div');
+                count.className = 'column-count';
+                const devisCount = devis.filter(d => d.statut === statut && !d.archived).length;
+                count.textContent = devisCount;
+
+                header.appendChild(title);
+                header.appendChild(count);
+
+                const container = document.createElement('div');
+                container.className = 'cards-container';
+                container.dataset.statut = statut;
+
+                let devisInColumn = devis.filter(d => d.statut === statut && !d.archived);
+                if (searchQuery) {
+                    devisInColumn = devisInColumn.filter(d =>
+                        d.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (d.title && d.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                    );
+                }
+
+                if (devisInColumn.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.textContent = 'Aucun devis';
+                    container.appendChild(empty);
+                } else {
+                    devisInColumn.forEach(d => {
+                        const card = createCard(d);
+                        container.appendChild(card);
+                    });
+                }
+
+                column.appendChild(header);
+                column.appendChild(container);
+                board.appendChild(column);
+                setupDragZone(container);
+            });
+        }
+
+        function createCard(d) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.dataset.id = d.id;
+
+            const days = getDaysSince(d.date);
+            if (days > 15) {
+                card.classList.add('old-alert');
+            }
+
+            const mailBody = `Bonjour ${d.civility} ${d.client},\n\nJe me permets de vous recontacter afin de savoir si vous avez bien reçu mon devis?\n\nDans l'attente de votre retour, je vous souhaite une excellente journée.\n\nCordialement,`;
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(d.email)}&su=${encodeURIComponent(`Relance Devis ${d.title}`)}&body=${encodeURIComponent(mailBody)}`;
+
+            const initials = getInitials(d.client);
+            const avatarColor = d.avatarColor || getRandomColor();
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-avatar" style="background: ${avatarColor};">${initials}</div>
+                    <div class="card-info">
+                        <div class="card-title">${d.title}</div>
+                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                            <span class="card-priority ${d.priority || 'normal'}">${(d.priority || 'normal').toUpperCase()}</span>
+                            ${days > 15 ? '<span style="font-size: 10px; background: #ff4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700;">⚠️ ' + days + 'j</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-client">${d.civility} ${d.client}</div>
+                <div class="card-contact">
+                    📧 <a href="mailto:${d.email}">${d.email}</a>
+                    ${d.tel ? `<br>📞 ${d.tel}` : ''}
+                </div>
+                <div class="card-amount">💰 ${d.amount}€ HT</div>
+                ${d.note ? `<div class="card-note">📝 ${d.note}</div>` : ''}
+                ${d.description ? `<div style="font-size: 12px; color: #555; margin-bottom: 8px; line-height: 1.4;">${d.description}</div>` : ''}
+                <div class="card-actions">
+                    <a href="${gmailLink}" target="_blank" class="card-relancer">✉️ Relancer</a>
+                    <button class="card-delete" style="flex: 0.5;" onclick="editDevis('${d.id}')">✏️</button>
+                    <button class="card-delete" style="flex: 0.5;" onclick="deleteDevis('${d.id}')">✕</button>
+                </div>
+            `;
+
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+            card.addEventListener('dblclick', () => editDevis(d.id));
+
+            return card;
+        }
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function setupDragZone(container) {
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                container.classList.add('drag-over');
+            });
+
+            container.addEventListener('dragleave', () => {
+                container.classList.remove('drag-over');
+            });
+
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                container.classList.remove('drag-over');
+                if (draggedElement && draggedElement.dataset.id) {
+                    const id = draggedElement.dataset.id;
+                    const newStatut = container.dataset.statut;
+                    updateDevisStatut(id, newStatut);
+                }
+            });
+        }
+
+        function updateDevisStatut(id, newStatut) {
+            const d = devis.find(x => x.id === id);
+            if (d) {
+                d.statut = newStatut;
+                saveToFirebase(d);
+                renderBoard();
+            }
+        }
+
+        function editDevis(id) {
+            const d = devis.find(x => x.id === id);
+            if (!d) return;
+
+            editingId = id;
+            if (!d.avatarColor) {
+                d.avatarColor = getRandomColor();
+            }
+            document.getElementById('devisTitle').value = d.title;
+            document.getElementById('devisCivility').value = d.civility || 'Mr';
+            document.getElementById('devisClient').value = d.client;
+            document.getElementById('devisEmail').value = d.email;
+            document.getElementById('devisTel').value = d.tel || '';
+            document.getElementById('devisAmount').value = d.amount;
+            document.getElementById('devisDescription').value = d.description || '';
+            document.getElementById('devisNote').value = d.note || '';
+            document.getElementById('devisPriority').value = d.priority || 'normal';
+            document.getElementById('modalTitle').textContent = '✏️ Éditer Devis';
+            document.querySelector('.btn-save').textContent = 'Mettre à jour';
+            openModal();
+        }
+
+        function addDevis(e) {
+            e.preventDefault();
+
+            if (editingId) {
+                const d = devis.find(x => x.id === editingId);
+                if (d) {
+                    d.title = document.getElementById('devisTitle').value;
+                    d.civility = document.getElementById('devisCivility').value;
+                    d.client = document.getElementById('devisClient').value;
+                    d.email = document.getElementById('devisEmail').value;
+                    d.tel = document.getElementById('devisTel').value;
+                    d.amount = parseFloat(document.getElementById('devisAmount').value);
+                    d.description = document.getElementById('devisDescription').value;
+                    d.note = document.getElementById('devisNote').value;
+                    d.priority = document.getElementById('devisPriority').value;
+                    saveToFirebase(d);
+                }
+                editingId = null;
+            } else {
+                const newDevis = {
+                    id: Date.now().toString(),
+                    title: document.getElementById('devisTitle').value,
+                    civility: document.getElementById('devisCivility').value,
+                    client: document.getElementById('devisClient').value,
+                    email: document.getElementById('devisEmail').value,
+                    tel: document.getElementById('devisTel').value,
+                    amount: parseFloat(document.getElementById('devisAmount').value),
+                    description: document.getElementById('devisDescription').value,
+                    note: document.getElementById('devisNote').value,
+                    priority: document.getElementById('devisPriority').value,
+                    statut: 'Envoyé',
+                    date: new Date().toISOString(),
+                    avatarColor: getRandomColor(),
+                    archived: false
+                };
+                devis.push(newDevis);
+                saveToFirebase(newDevis);
+            }
+
+            renderBoard();
+            updateDashboard();
+            closeModal();
+            document.querySelector('form').reset();
+            document.getElementById('modalTitle').textContent = '📋 Nouveau Devis';
+            document.querySelector('.btn-save').textContent = 'Créer';
+        }
+
+        function deleteDevis(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce devis ?')) {
+                devis = devis.filter(d => d.id !== id);
+                if (firebase_initialized && db) {
+                    db.ref('devis/' + id).remove();
+                }
+                saveToLocalStorage();
+                renderBoard();
+                updateDashboard();
+            }
+        }
+
+        function exportCSV() {
+            let csv = 'Titre,Civilité,Client,Email,Téléphone,Montant,Statut,Priorité,Date,Note\n';
+            devis.forEach(d => {
+                csv += `"${d.title}","${d.civility || 'Mr'}","${d.client}","${d.email}","${d.tel || ''}","${d.amount}","${d.statut}","${d.priority || 'normal'}","${new Date(d.date).toLocaleDateString('fr-FR')}","${(d.note || '').replace(/"/g, '""')}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `devis_export_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.add('active');
+            renderAdminGrid();
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        function renderAdminGrid() {
+            let html = '';
+            statuts.forEach((col, idx) => {
+                html += `<div class="admin-item">
+                    <span class="admin-item-name">${col}</span>
+                    <div class="admin-item-actions">
+                        ${idx > 0 ? `<button class="btn-move-col" onclick="moveColumnUp(${idx})">⬆️</button>` : ''}
+                        ${idx < statuts.length - 1 ? `<button class="btn-move-col" onclick="moveColumnDown(${idx})">⬇️</button>` : ''}
+                        <button class="btn-edit-col" onclick="editColumn(${idx})">✏️</button>
+                        <button class="btn-delete-col" onclick="deleteColumn(${idx})">✕</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('adminGrid').innerHTML = html;
+        }
+
+        function addColumn() {
+            const name = document.getElementById('newColumnName').value.trim();
+            if (name && !statuts.includes(name)) {
+                statuts.push(name);
+                saveColumnsToFirebase();
+                document.getElementById('newColumnName').value = '';
+                renderAdminGrid();
+                renderBoard();
+            }
+        }
+
+        function editColumn(idx) {
+            const newName = prompt('Nouveau nom de la colonne:', statuts[idx]);
+            if (newName && newName.trim()) {
+                statuts[idx] = newName.trim();
+                saveColumnsToFirebase();
+                renderAdminGrid();
+                renderBoard();
+            }
+        }
+
+        function deleteColumn(idx) {
+            if (confirm('Êtes-vous sûr ? Les devis de cette colonne ne seront pas supprimés.')) {
+                statuts.splice(idx, 1);
+                saveColumnsToFirebase();
+                renderAdminGrid();
+                renderBoard();
+            }
+        }
+
+        function moveColumnUp(idx) {
+            if (idx > 0) {
+                [statuts[idx - 1], statuts[idx]] = [statuts[idx], statuts[idx - 1]];
+                saveColumnsToFirebase();
+                renderAdminGrid();
+                renderBoard();
+            }
+        }
+
+        function moveColumnDown(idx) {
+            if (idx < statuts.length - 1) {
+                [statuts[idx], statuts[idx + 1]] = [statuts[idx + 1], statuts[idx]];
+                saveColumnsToFirebase();
+                renderAdminGrid();
+                renderBoard();
+            }
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('devisTitle').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) closeModal();
+        });
+
+        document.getElementById('adminModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('adminModal')) closeAdminModal();
+        });
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderBoard();
+        });
+
+        window.addEventListener('load', () => {
+            initFirebase();
+        });
+    </script>
+</body>
+</html>

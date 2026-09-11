@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="<?=$RESPONSE->language()?>">
+	<head>
+		<base href="." />
+		<link rel="icon" href="./assets/img/favicon.png" type="image/png" />
+		<link rel="shortcut icon" href="./assets/img/favicon.png" type="image/png" />
+		<title>Triangles et trapèzes</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=1" />
+		<meta name="robots" content="noindex,nofollow" />
+		<link rel="stylesheet" type="text/css" href="./assets/css/init.css" />
+		<link rel="stylesheet" type="text/css" href="./assets/css/triangles.css" />
+		<script type="text/javascript" src="./assets/js/jquery.js"></script>
+		<script type="text/javascript" src="./assets/js/triangles.js"></script>
+	</head>
+	<body>
+		<div class="view">
+			<div class="head">
+				<img class="logo" src="./assets/img/ruedustore.png" />
+				<div class="title">Dimensions du store</div>
+			</div>
+			<div class="drawing drawing-triangle">
+				<div class="drawing-scale">
+					<input class="drawing-input-blue-left" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-blue-right" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-blue-bottom" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-left" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-right" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-bottom" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-green-left" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-green-right" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-green-bottom" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-black-angle" type="number" step="0.01" min="0.01" disabled />
+					<img class="drawing-image" src="./assets/img/triangle.png" />
+				</div>
+			</div>
+			<div class="drawing drawing-trapeze">
+				<div class="drawing-scale">
+					<input class="drawing-input-blue-left" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-blue-right" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-blue-top" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-blue-bottom" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-left" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-right" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-top" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-red-bottom" type="number" step="0.01" min="0.01" />
+					<input class="drawing-input-green-left" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-green-right" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-green-top" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-green-bottom" type="number" step="0.01" min="0.01" disabled />
+					<input class="drawing-input-black-angle" type="number" step="0.01" min="0.01" disabled />
+					<img class="drawing-image" src="./assets/img/trapeze.png" />
+				</div>
+			</div>
+			<div class="legend">
+				<div class="legend-left">
+					<div class="legend-item">
+						<div class="legend-item-cell red"></div><!--
+						--><div class="legend-item-text">Dimensions mesurées par le client.</div>
+					</div>
+					<div class="legend-item">
+						<div class="legend-item-cell blue"></div><!--
+						--><div class="legend-item-text">Mesures ajoutées.</div>
+					</div>
+					<div class="legend-item">
+						<div class="legend-item-cell green"></div><!--
+						--><div class="legend-item-text">Dimensions finales hors tout du store.</div>
+					</div>
+				</div>
+				<div class="legend-right">
+					<div class="legend-triangle">
+						<div class="legend-title">Store plissé triangle</div>
+						<table class="legend-table">
+							<tr><th>Angle maxi</th><th>Hypothénuse maxi</th><th>Hauteur maxi</th></tr>
+							<tr><td>60°</td><td>210 cm</td><td>200 cm</td></tr>
+						</table>
+					</div>
+					<div class="legend-trapeze">
+						<div class="legend-title">Store californien trapèze</div>
+						<table class="legend-table">
+							<tr>
+								<th></th>
+								<th colspan="2">LARGEUR</th>
+								<th colspan="2">HAUTEUR</th>
+								<th>SURFACE</th>
+								<th>TOLERANCE</th>
+							</tr>
+							<tr>
+								<th>ANGLE</th>
+								<th>Maxi</th>
+								<th>Mini</th>
+								<th>Maxi</th>
+								<th>Mini</th>
+								<th>Maxi</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th>0-20°</th>
+								<td>500 cm</td>
+								<td rowspan="4">40 cm</td>
+								<td>400 cm</td>
+								<td rowspan="4">15 cm</td>
+								<td>15 m²</td>
+								<td rowspan="4">+/- 0,5%</td>
+							</tr>
+							<tr>
+								<th>20-30°</th>
+								<td>450 cm</td>
+								<td>300 cm</td>
+								<td>10 m²</td>
+							</tr>
+							<tr>
+								<th>30-40°</th>
+								<td>350 cm</td>
+								<td>275 cm</td>
+								<td>6 m²</td>
+							</tr>
+							<tr>
+								<th>40-45°</th>
+								<td>250 cm</td>
+								<td>250 cm</td>
+								<td>3 m²</td>
+							</tr>
+						</table>
+						<div class="legend-title">Store plissé trapèze</div>
+						<table class="legend-table">
+							<tr><th>Angle maxi</th><th>Hypothénuse maxi</th><th>Hauteur maxi plis 20</th><th>Hauteur maxi plis 30</th></tr>
+							<tr><td>30°</td><td>180 cm</td><td>250 cm</td><td>300 cm</td></tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<a class="author" href="https://www.emiagic.com/" target="_blank">
+				<span>Outil powered by</span>
+				<img class="emiagic" src="./assets/img/emiagic.png" />
+			</a>
+		</div>
+		<div class="tools">
+			<div class="tools-items">
+				<div class="tools-item tools-clear">
+					<img class="tools-item-icon" src="./assets/img/tools.clear.png" />
+					<span class="tools-item-text">Nettoyer</span>
+				</div><!--
+				--><div class="tools-item tools-print">
+					<img class="tools-item-icon" src="./assets/img/tools.print.png" />
+					<span class="tools-item-text">Imprimer</span>
+				</div><!--
+				--><div class="tools-item tools-zoomin">
+					<img class="tools-item-icon" src="./assets/img/tools.zoomin.png" />
+					<span class="tools-item-text">Zoomer</span>
+				</div><!--
+				--><div class="tools-item tools-zoomout">
+					<img class="tools-item-icon" src="./assets/img/tools.zoomout.png" />
+					<span class="tools-item-text">Dézoomer</span>
+				</div><!--
+				--><div class="tools-item tools-triangle">
+					<img class="tools-item-icon" src="./assets/img/tools.triangle.png" />
+					<span class="tools-item-text">Triangle</span>
+				</div><!--
+				--><div class="tools-item tools-trapeze">
+					<img class="tools-item-icon" src="./assets/img/tools.trapeze.png" />
+					<span class="tools-item-text">Trapèze</span>
+				</div>
+			</div>
+			<div class="tools-help">
+				Saisir tout ou partie des "cases" colorées en rouge puis bleu.
+			</div>
+		</div>
+	</body>
+</html>
