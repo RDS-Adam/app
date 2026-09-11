@@ -203,7 +203,7 @@
             <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
             <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
         </div>
-        <div class="header-ver">V3.6 — RH Rue du Store</div>
+        <div class="header-ver">V3.6.1 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -597,6 +597,18 @@
                     <div class="card-body">
                         <div class="changelog-item">
                             <div class="changelog-ver">
+                                <span class="changelog-badge">V3.6.1</span>
+                                <span class="changelog-title">Correctif accès Direction</span>
+                                <span class="changelog-date">Septembre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Nicolas n'apparaissait pas dans la liste : son compte n'existait que via l'ancien mot de passe direction, supprimé en V3.6</li>
+                                <li>Création automatique du compte Direction dans l'équipe (mot de passe à définir à la première connexion)</li>
+                                <li>Liste déroulante des salariés triée par ordre alphabétique</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
                                 <span class="changelog-badge">V3.6</span>
                                 <span class="changelog-title">Accès direction fusionné par rôle</span>
                                 <span class="changelog-date">Juillet 2026</span>
@@ -896,7 +908,7 @@
             const { db } = await fetchFromGitHub();
             const sel = document.getElementById('user-selector');
             if (db.employees.length > 0) {
-                sel.innerHTML = '<option value="">— Sélectionner —</option>' + db.employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+                sel.innerHTML = '<option value="">— Sélectionner —</option>' + [...db.employees].sort((a,b) => a.name.localeCompare(b.name,'fr')).map(e => `<option value="${e.name}">${e.name}</option>`).join('');
             }
         } catch(e) { console.error('loadEmployeeSelector:', e.message); }
     }
@@ -905,14 +917,31 @@
         try {
             const { db, sha } = await fetchFromGitHub();
             if (!db.config) db.config = {};
-            if (db.config.rolesBootstrapped) return;
-            let changed = false;
+            if (db.config.rolesBootstrapV2) return;
+
+            // V3.6.1 : le compte Direction n'existait que via l'ancien mot de passe direction.
+            // On le crée dans l'équipe s'il manque, sinon plus personne ne peut gérer les rôles.
+            const mgrFirst = MGR_NAME.split(' ')[0];
+            const mgrLast  = MGR_NAME.split(' ').slice(1).join(' ');
+            let mgr = db.employees.find(e => e.name.trim().toLowerCase() === mgrFirst.toLowerCase());
+            if (!mgr) {
+                mgr = { name: mgrFirst, lastname: mgrLast, email: MGR_EMAIL, role: 'superadmin' };
+                db.employees.push(mgr);
+                if (db.soldes[mgrFirst] === undefined) db.soldes[mgrFirst] = 25;
+                if (!db.soldesN1) db.soldesN1 = {};
+                if (db.soldesN1[mgrFirst] === undefined) db.soldesN1[mgrFirst] = 0;
+                addLogEntry(db, 'systeme', 'Système', 'Compte Direction créé', `${mgrFirst} ${mgrLast} ajouté à l'équipe avec le rôle Direction`);
+            }
+            mgr.role = 'superadmin';
+
             db.employees.forEach(e => {
                 const preset = BOOTSTRAP_ROLES[e.name.trim().toLowerCase()];
-                if (preset && !e.role) { e.role = preset; changed = true; }
+                if (preset && !e.role) e.role = preset;
             });
+
             db.config.rolesBootstrapped = true;
-            if (changed) addLogEntry(db, 'systeme', 'Système', 'Rôles initialisés', 'Attribution automatique des rôles direction (Nicolas → Direction, Camille → Administrateur RH)');
+            db.config.rolesBootstrapV2  = true;
+            addLogEntry(db, 'systeme', 'Système', 'Rôles initialisés', 'Nicolas → Direction, Camille → Administrateur RH');
             await saveToGitHub(db, sha);
         } catch(e) { console.error('ensureRoleBootstrap:', e.message); }
     }
