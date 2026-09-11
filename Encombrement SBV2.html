@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Expert SBV (cm) - Ruedustore</title>
+    <title>Encombrement Store Californien (SBV2) - Rue du Store</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
@@ -137,7 +137,7 @@
 
 <div class="card">
     <header>
-        <h2 style="margin:0;">Calcul encombrement SBV Rue Du Store</h2>
+        <h2 style="margin:0;">Encombrement Store Californien <span style="color:#bbb;font-weight:400;">(SBV2)</span></h2>
     </header>
 
     <label>Méthode de calcul :</label>
@@ -160,7 +160,7 @@
             <input type="number" id="inputPrincipal" value="200" step="0.1" oninput="calculer()">
         </div>
         <div class="form-group">
-            <label>Type de Lame</label>
+            <label>Largeur de Lame</label>
             <select id="typeLame" onchange="calculer()">
                 <option value="89">89 mm</option>
                 <option value="127">127 mm</option>
@@ -171,10 +171,13 @@
     <div class="form-group">
         <label>Type de Repli (Refoulement)</label>
         <select id="typeRepli" onchange="calculer()">
-            <option value="lat">LA / LO (Latéral Gauche ou Droit)</option>
-            <option value="ext">Chaque Extrémité (Séparé)</option>
-            <option value="ce">CE (Central)</option>
+            <option value="lat">Latéral, un seul côté (LA/LO)</option>
+            <option value="ext">Chaque extrémité, réparti des 2 côtés (EXT)</option>
+            <option value="ce">Central (CE)</option>
         </select>
+        <p style="font-size:0.7rem;color:#bbb;margin:8px 0 0;line-height:1.5;">
+            LA/LO : le paquet se replie d'un seul côté — gauche (LA) ou droit (LO). Le résultat de calcul est identique quel que soit le côté choisi.
+        </p>
     </div>
 
     <div id="errorBox" class="error-msg">⚠️ Largeur maximale de rail (600 cm) dépassée.</div>
@@ -190,7 +193,7 @@
                 <span id="resEnc" class="highlight-text">-</span>
             </div>
             <div class="res-line">
-                <span id="labelPassage">Ouverture couverte :</span>
+                <span id="labelPassage">Passage libre (vitre) :</span>
                 <span id="resPassage">-</span>
             </div>
             <div class="res-line total">
@@ -292,7 +295,6 @@ function calculer() {
         }
 
         // Affichage des résultats
-        document.getElementById('labelPassage').textContent = (currentMode === 'BAIE') ? "Ouverture couverte :" : "Passage libre (vitre) :";
         document.getElementById('resLames').textContent = nbLames;
         document.getElementById('resEnc').textContent = labelEnc;
         document.getElementById('resPassage').textContent = Math.max(0, passage).toFixed(1) + " cm";
