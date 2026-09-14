@@ -38,6 +38,21 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-10"
+    },
+    {
+      "id": 1789373770902,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-09-14",
+      "end": "2026-09-14",
+      "days": 0.5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-14",
+      "startTime": "14:00",
+      "endTime": "17:30"
     }
   ],
   "soldes": {
@@ -115,6 +130,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789373770902,
+      "date": "2026-09-14",
+      "heure": "10:16",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (0,5 j)"
+    },
     {
       "ts": 1789368838585,
       "date": "2026-09-14",
