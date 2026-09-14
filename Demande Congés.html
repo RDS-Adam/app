@@ -44,6 +44,8 @@
         .form-group input:disabled { color: var(--muted); cursor: not-allowed; background: transparent; }
         .form-group textarea { resize: vertical; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-top: 2px; }
         .form-group textarea:focus { border-color: var(--orange); outline: none; }
+        .time-hint { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
+        .time-tag { display: inline-block; font-size: 0.68rem; color: var(--teal, #25737d); font-weight: 600; margin-left: 4px; }
         .input-hint { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
         .pwd-field { display: flex; align-items: center; border-bottom: 1px solid #ddd; transition: border-color 0.2s; }
         .pwd-field input[type="password"], .pwd-field input[type="text"] { border-bottom: none; flex: 1; min-width: 0; }
@@ -203,7 +205,7 @@
             <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
             <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
         </div>
-        <div class="header-ver">V3.7 — RH Rue du Store</div>
+        <div class="header-ver">V3.8 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -368,6 +370,17 @@
                             <div class="form-group">
                                 <label>Date de fin</label>
                                 <input type="date" id="date_end" onchange="updateDaysPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label>Heure de début <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
+                                <input type="time" id="time_start" step="900" onchange="updateDaysPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label>Heure de fin <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
+                                <input type="time" id="time_end" step="900" onchange="updateDaysPreview()">
+                            </div>
+                            <div class="form-group full" style="margin-top:-12px;">
+                                <div class="time-hint">🕐 Laissez les heures vides pour des journées complètes. Une demi-journée est comptée si l'absence commence à 12h00 ou après (après-midi) ou se termine à 13h00 ou avant (matin).</div>
                             </div>
                             <div class="form-group full">
                                 <label>Type de congés</label>
@@ -595,6 +608,19 @@
                         <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
                     </div>
                     <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V3.8</span>
+                                <span class="changelog-title">Heures de début et de fin</span>
+                                <span class="changelog-date">Septembre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Deux champs facultatifs « Heure de début » et « Heure de fin » dans le formulaire de demande</li>
+                                <li>Demi-journées comptées automatiquement : départ à 12h00 ou plus tard = ½ j sur le premier jour, retour à 13h00 ou plus tôt = ½ j sur le dernier jour</li>
+                                <li>Les heures apparaissent dans l'historique, les demandes en attente, l'archive, le journal, les emails et le PDF</li>
+                                <li>Les demandes existantes (sans heure) restent inchangées</li>
+                            </ul>
+                        </div>
                         <div class="changelog-item">
                             <div class="changelog-ver">
                                 <span class="changelog-badge">V3.7</span>
@@ -872,11 +898,27 @@
 
     function formatDate(d) { if(!d) return ''; const [y,m,j] = d.split('-'); return `${j}/${m}/${y}`; }
 
-    function calculateWorkDays(start, end) {
+    function isWorkDay(d) { const wd = new Date(d + 'T00:00:00').getDay(); return wd !== 0 && wd !== 6; }
+
+    // Jours ouvrés entre deux dates. Heures facultatives : départ à 12h00 ou plus tard = demi-journée
+    // (après-midi) sur le 1er jour, retour à 13h00 ou plus tôt = demi-journée (matin) sur le dernier jour.
+    function calculateWorkDays(start, end, startTime, endTime) {
         let c = 0, cur = new Date(start + 'T00:00:00'), stop = new Date(end + 'T00:00:00');
         while (cur <= stop) { if (cur.getDay() !== 0 && cur.getDay() !== 6) c++; cur.setDate(cur.getDate()+1); }
-        return c;
+        if (c === 0) return 0;
+        let half = 0;
+        if (startTime && startTime >= '12:00' && isWorkDay(start)) half += 0.5;
+        if (endTime && endTime <= '13:00' && isWorkDay(end)) half += 0.5;
+        return Math.max(0.5, +(c - half).toFixed(1));
     }
+
+    function fmtDays(d) { return String(d === undefined || d === null ? 0 : d).replace('.', ','); }
+    function fmtTime(t) { return t ? t.replace(':', 'h') : ''; }
+    // "Du 12/09/2026 à 14h00 au 15/09/2026 à 12h00" (les heures n'apparaissent que si renseignées)
+    function fmtPeriod(r) {
+        return `Du ${formatDate(r.start)}${r.startTime ? ' à ' + fmtTime(r.startTime) : ''} au ${formatDate(r.end)}${r.endTime ? ' à ' + fmtTime(r.endTime) : ''}`;
+    }
+    function timeTag(t, prefix) { return t ? `<span class="time-tag">${prefix}${fmtTime(t)}</span>` : ''; }
 
     function statusBadge(s) {
         const map = { 'En attente': 'badge-pending', 'Validé': 'badge-valid', 'Refusé': 'badge-refused' };
@@ -888,10 +930,12 @@
     function updateDaysPreview() {
         const s = document.getElementById('date_start').value;
         const e = document.getElementById('date_end').value;
+        const ts = document.getElementById('time_start').value;
+        const te = document.getElementById('time_end').value;
         const el = document.getElementById('days-preview');
         document.getElementById('overlap-warning').style.display = 'none';
-        if (s && e && s <= e) {
-            document.getElementById('days-count').textContent = calculateWorkDays(s, e);
+        if (s && e && s <= e && !(s === e && ts && te && ts >= te)) {
+            document.getElementById('days-count').textContent = fmtDays(calculateWorkDays(s, e, ts, te));
             el.style.display = 'block';
             if (cachedDB) {
                 const has = cachedDB.db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(e < r.start || s > r.end));
@@ -1234,9 +1278,12 @@
     async function processRequest() {
         const start = document.getElementById('date_start').value;
         const end   = document.getElementById('date_end').value;
+        const startTime = document.getElementById('time_start').value;
+        const endTime   = document.getElementById('time_end').value;
         const email = document.getElementById('emp_email').value;
         if (!start || !end || !email) return alert('Email et dates requis.');
         if (start > end) return alert('La date de fin doit être après la date de début.');
+        if (start === end && startTime && endTime && startTime >= endTime) return alert("L'heure de fin doit être après l'heure de début.");
         const { db, sha } = await fetchFromGitHub();
         const overlap = db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(end < r.start || start > r.end));
         if (overlap) return alert('Vous avez déjà une demande sur cette période.');
@@ -1245,20 +1292,24 @@
         try {
             const typeVal = document.getElementById('leave_type').value;
             const noteVal = typeVal === 'Absence Exceptionnelle' ? document.getElementById('leave_autre').value : '';
-            const days    = calculateWorkDays(start, end);
+            const days    = calculateWorkDays(start, end, startTime, endTime);
             const emp     = db.employees.find(e => e.name === currentUser) || {};
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
+            if (startTime) req.startTime = startTime;
+            if (endTime)   req.endTime   = endTime;
             db.requests.push(req);
-            addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · Du ${formatDate(start)} au ${formatDate(end)} (${days} j)`);
+            addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · ${fmtPeriod(req)} (${fmtDays(days)} j)`);
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
             lastRequestId = req.id;
-            const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : du ${formatDate(start)} au ${formatDate(end)} (${days} jours)\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
+            const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
             document.getElementById('gmail_link').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(MGR_EMAIL)}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-request').style.display = 'block';
             btn.textContent = '✓ Demande envoyée';
             document.getElementById('date_start').value = '';
             document.getElementById('date_end').value = '';
+            document.getElementById('time_start').value = '';
+            document.getElementById('time_end').value = '';
             document.getElementById('days-preview').style.display = 'none';
             setTimeout(() => { btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }, 2000);
         } catch(e) { alert('Erreur : '+e.message); btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }
@@ -1276,14 +1327,14 @@
             const validated = my.filter(r => r.status === 'Validé');
             document.getElementById('kpi-total').textContent   = my.length;
             document.getElementById('kpi-pending').textContent = my.filter(r => r.status === 'En attente').length;
-            document.getElementById('kpi-days').textContent    = validated.reduce((a,r) => a+(r.days||0), 0)+'j';
+            document.getElementById('kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
                 const typeLabel = r.type + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 return `<tr>
-                    <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong><br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span></td>
-                    <td><strong>${r.days}</strong> j</td>
+                    <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
+                    <td><strong>${fmtDays(r.days)}</strong> j</td>
                     <td style="font-size:0.75rem">${typeLabel}</td>
                     <td>${statusBadge(r.status)}${reasonHtml}</td>
                     <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button></td>
@@ -1302,7 +1353,7 @@
             const refused   = db.requests.filter(r => r.status === 'Refusé');
             document.getElementById('mgr-kpi-total').textContent   = db.requests.length;
             document.getElementById('mgr-kpi-pending').textContent = pending.length;
-            document.getElementById('mgr-kpi-days').textContent    = validated.reduce((a,r) => a+(r.days||0), 0)+'j';
+            document.getElementById('mgr-kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('mgr-kpi-refused').textContent = refused.length;
             document.getElementById('pending-badge').textContent   = `${pending.length} en attente`;
             document.title = pending.length > 0 ? `(${pending.length}) RH — Congés | RDS` : 'RH — Congés | Rue du Store';
@@ -1316,8 +1367,8 @@
                         <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
                     <div class="req-chips">
-                        <span class="chip">📅 Du ${formatDate(r.start)} au ${formatDate(r.end)}</span>
-                        <span class="chip">${r.days} jour(s) ouvré(s)</span>
+                        <span class="chip">📅 ${fmtPeriod(r)}</span>
+                        <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
                         <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
                         <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
                     </div>
@@ -1343,8 +1394,8 @@
         document.getElementById('manager-archive').innerHTML = data.length
             ? data.map(r => `<tr>
                 <td><strong>${r.user} ${r.lastname}</strong></td>
-                <td style="font-size:0.78rem">Du ${formatDate(r.start)}<br><span style="color:var(--muted)">au ${formatDate(r.end)}</span></td>
-                <td>${r.days} j</td>
+                <td style="font-size:0.78rem">Du ${formatDate(r.start)}${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted)">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
+                <td>${fmtDays(r.days)} j</td>
                 <td style="font-size:0.76rem">${r.type}${r.note ? `<br><em style="color:var(--muted)">${r.note}</em>` : ''}</td>
                 <td>${statusBadge(r.status)}</td>
                 <td style="font-size:0.76rem;color:var(--muted)">${r.reason||'—'}</td>
@@ -1377,7 +1428,7 @@
         selectedRequestId = id;
         const { db } = await fetchFromGitHub();
         const r = db.requests.find(x => x.id === id);
-        document.getElementById('val_display_name').textContent = `Décision — ${r.user} ${r.lastname} · ${r.days}j du ${formatDate(r.start)} au ${formatDate(r.end)}`;
+        document.getElementById('val_display_name').textContent = `Décision — ${r.user} ${r.lastname} · ${fmtDays(r.days)}j ${fmtPeriod(r).replace(/^Du/, 'du')}`;
         document.getElementById('refusal_reason').value = '';
         document.getElementById('action-decision').style.display = 'none';
         document.getElementById('approval-form').style.display = 'block';
@@ -1421,10 +1472,10 @@
             }
             const logType = newStatus === 'Validé' ? 'validation' : 'refus';
             const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
-            const logDetail = `${r.user} ${r.lastname} · Du ${formatDate(r.start)} au ${formatDate(r.end)} (${r.days} j)${r.reason?' — Motif : '+r.reason:''}`;
+            const logDetail = `${r.user} ${r.lastname} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason?' — Motif : '+r.reason:''}`;
             addLogEntry(db, logType, actorName(), logLabel, logDetail);
             await saveToGitHub(db, sha);
-            const body = `Bonjour ${r.user},\n\nVotre demande de congés du ${formatDate(r.start)} au ${formatDate(r.end)} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${actorName()}`;
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${actorName()}`;
             document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-decision').style.display = 'block';
             document.getElementById('approval-form').style.display = 'none';
@@ -1639,11 +1690,11 @@
             <p style="font-size:0.95rem;margin:0 0 26px;">PRÉNOM : <strong>${req.user||''}</strong></p>
 
             <p style="font-size:0.95rem;font-weight:700;text-decoration:underline;margin:0 0 10px;">DATE CONGÉS SOUHAITÉS</p>
-            <p style="font-size:0.95rem;margin:0 0 2px;">DATE DÉBUT : <strong>${formatDate(req.start)}</strong></p>
-            <p style="font-size:0.95rem;margin:0 0 26px;">DATE FIN : <strong>${formatDate(req.end)}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 2px;">DATE DÉBUT : <strong>${formatDate(req.start)}${req.startTime ? ' à ' + fmtTime(req.startTime) : ''}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 26px;">DATE FIN : <strong>${formatDate(req.end)}${req.endTime ? ' à ' + fmtTime(req.endTime) : ''}</strong></p>
 
             <p style="font-size:0.95rem;margin:0 0 10px;">SOLDE DE CONGÉS : <strong>${soldeAvant}</strong></p>
-            <p style="font-size:0.95rem;margin:0 0 10px;">NOMBRE DE CONGÉS SOUHAITÉS (jours ouvrés) : <strong>${req.days}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 10px;">NOMBRE DE CONGÉS SOUHAITÉS (jours ouvrés) : <strong>${fmtDays(req.days)}</strong></p>
             <p style="font-size:0.95rem;margin:0 0 30px;">SOLDE DE CONGÉS RESTANT : <strong>${soldeApres}</strong></p>
 
             <p style="font-size:0.95rem;font-weight:700;text-decoration:underline;margin:0 0 10px;">TYPE CONGES</p>
