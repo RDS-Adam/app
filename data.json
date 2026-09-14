@@ -48,7 +48,8 @@
     "Camille": 31.24,
     "Cindy": 31.24,
     "Clarisse": 31.24,
-    "Karine": 31.24
+    "Karine": 31.24,
+    "Nicolas": 25
   },
   "employees": [
     {
@@ -100,6 +101,12 @@
       "passHash": "4a546ec5ad331c2420a97a8343bdb39a71b46b25f0a8238d7d2c0c5074ee7bb1",
       "recoveryQuestion": "nom de mon animal",
       "recoveryHash": "a0f3bf6f00eda3c41400f33f3ec4aebfc42bfc49fef41c16178be287cb3a0cb1"
+    },
+    {
+      "name": "Nicolas",
+      "lastname": "Decoster",
+      "email": "nicolas.decoster@ruedustore.fr",
+      "role": "superadmin"
     }
   ],
   "config": {
@@ -108,6 +115,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789368838585,
+      "date": "2026-09-14",
+      "heure": "08:53",
+      "type": "systeme",
+      "actor": "Système",
+      "label": "Compte Direction créé",
+      "detail": "Nicolas Decoster · nicolas.decoster@ruedustore.fr · rôle Direction · Solde initial : 25 j (N)"
+    },
     {
       "ts": 1789033189456,
       "date": "2026-09-10",
@@ -227,6 +243,7 @@
     }
   ],
   "soldesN1": {
-    "Axel": 9.5
+    "Axel": 9.5,
+    "Nicolas": 0
   }
 }
