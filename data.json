@@ -134,7 +134,10 @@
     {
       "name": "Cindy",
       "lastname": "Masson",
-      "email": "cindy.masson@ruedustore.fr"
+      "email": "cindy.masson@ruedustore.fr",
+      "passHash": "424b89d42f50730978c41c018e3ea3f750cafa8a3333b306e019042851453778",
+      "recoveryQuestion": "Quelle est la couleur préférée ?",
+      "recoveryHash": "bb9e122e9384e543759f45740a648c876e618be65864e7fb066f844e69ac123e"
     },
     {
       "name": "Clarisse",
@@ -162,6 +165,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789485974398,
+      "date": "2026-09-15",
+      "heure": "17:26",
+      "type": "employe",
+      "actor": "Cindy Masson",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1789467732260,
       "date": "2026-09-15",
