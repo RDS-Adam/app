@@ -117,7 +117,7 @@
     "Adam": 31.24,
     "Alexandre": 11.24,
     "Axel": 0,
-    "Baptiste": 22.24,
+    "Baptiste": 6.24,
     "Camille": 31.24,
     "Cindy": 6.24,
     "Clarisse": 31.24,
@@ -194,6 +194,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789486946578,
+      "date": "2026-09-15",
+      "heure": "17:42",
+      "type": "solde",
+      "actor": "Baptiste",
+      "label": "Solde N modifié",
+      "detail": "Baptiste · nouveau solde N : 6.24 j"
+    },
     {
       "ts": 1789486934438,
       "date": "2026-09-15",
