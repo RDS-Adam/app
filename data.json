@@ -163,6 +163,15 @@
   },
   "logs": [
     {
+      "ts": 1789467732260,
+      "date": "2026-09-15",
+      "heure": "12:22",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N-1 modifié",
+      "detail": "Axel · nouveau solde N-1 : 0 j"
+    },
+    {
       "ts": 1789467303058,
       "date": "2026-09-15",
       "heure": "12:15",
@@ -371,7 +380,7 @@
     }
   ],
   "soldesN1": {
-    "Axel": 103,
+    "Axel": 0,
     "Nicolas": 0
   },
   "notifications": [
