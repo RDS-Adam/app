@@ -64,8 +64,10 @@
       "days": 6,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-15"
+      "status": "Annulé",
+      "date_demande": "2026-09-15",
+      "prevStatus": "En attente",
+      "date_annulation": "2026-09-15"
     },
     {
       "id": 1789463941320,
@@ -158,6 +160,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789467172107,
+      "date": "2026-09-15",
+      "heure": "12:12",
+      "type": "annulation",
+      "actor": "Axel Seigneury",
+      "label": "Demande retirée par le salarié",
+      "detail": "Congés Payés · Du 02/10/2026 au 09/10/2026 (6 j)"
+    },
     {
       "ts": 1789467168975,
       "date": "2026-09-15",
@@ -353,6 +364,17 @@
     "Nicolas": 0
   },
   "notifications": [
+    {
+      "id": 1789467172419,
+      "ts": 1789467172108,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Congés Payés · Du 02/10/2026 au 09/10/2026 (6 j)",
+      "reqId": 1789463543713
+    },
     {
       "id": 1789467169790,
       "ts": 1789467168975,
