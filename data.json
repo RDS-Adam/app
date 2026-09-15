@@ -149,7 +149,10 @@
     {
       "name": "Baptiste",
       "lastname": "Chevance",
-      "email": "baptiste.chevance@ruedustore.fr"
+      "email": "baptiste.chevance@ruedustore.fr",
+      "passHash": "fdceb905c9f97b7e0e42d0d290dffca4191fd63c77fd7cba11a37fff39c22357",
+      "recoveryQuestion": "Nom de mon premier animal",
+      "recoveryHash": "8f0069ad1c879ed3d05718daa8c3e74e6eaed8ba2150e75ce90f286f06b0c1ad"
     },
     {
       "name": "Camille",
@@ -191,6 +194,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789486867612,
+      "date": "2026-09-15",
+      "heure": "17:41",
+      "type": "employe",
+      "actor": "Baptiste Chevance",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1789486373321,
       "date": "2026-09-15",
