@@ -1,7 +1,18 @@
 /**
- * BOÎTE À OUTILS RDS v9.6
+ * BOÎTE À OUTILS RDS v9.9
  * 2 espaces : Salarié / Adam (sans mdp)
  * Adam peut gérer quels outils vont dans quel espace via le panel ⚙
+ * + Gestion des fichiers masqués (invisibles de tous les espaces)
+ *
+ * v9.8 — FIX URL : encodeURIComponent() encodait aussi le "/" en %2F,
+ *        ce qui cassait le <base href="."> des outils rangés dans un dossier
+ *        (CSS / JS / images en 404 → page nue). On encode maintenant
+ *        chaque segment séparément via buildUrl().
+ * v9.9 — MOT DE PASSE : le formulaire WordPress est complété
+ *        (autocomplete="username" / "current-password", champ identifiant caché,
+ *        focus auto) pour que le navigateur PROPOSE d'enregistrer le mot de passe
+ *        et le remplisse tout seul aux visites suivantes.
+ *        La case "Mémoriser sur cet ordinateur" (localStorage) reste disponible.
  */
 (function () {
     const BASE_URL  = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
@@ -10,12 +21,14 @@
     const CONFIG    = 'config-outils.json';
     const SYSTEM_RE = /index|robots|secure|bdd|noindex/i;
     const FIXED_LIST = ['Gestion des tournees.html'];
-
     let config       = { tools: {} };
     let configSha    = null;
     let tools        = [];
     let currentSpace = 'salarie';
-
+    /* ── URL : on encode chaque segment, jamais le "/" ── */
+    function buildUrl(path) {
+        return BASE_URL + String(path).split('/').map(encodeURIComponent).join('/');
+    }
     /* ── GitHub config ── */
     async function loadConfig() {
         try {
@@ -26,7 +39,6 @@
             return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
         } catch { return { tools: {} }; }
     }
-
     async function saveConfigToGitHub(newConfig) {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
         const body = JSON.stringify({ message: 'Update config', content, sha: configSha });
@@ -36,7 +48,6 @@
         if (!r.ok) throw new Error('Sauvegarde échouée (' + r.status + ')');
         configSha = (await r.json()).content.sha;
     }
-
     /* ── Chargement outils depuis GitHub ── */
     async function loadTools() {
         const r = await fetch(API_URL + '?t=' + Date.now()).catch(() => null);
@@ -53,7 +64,6 @@
             tools.push({ name: item.name, label, isDir: isD });
         });
     }
-
     /* ── Helpers config ── */
     function getToolSpace(name) {
         return (config.tools[name] && config.tools[name].space) || 'salarie';
@@ -62,34 +72,29 @@
         const t = tools.find(x => x.name === name);
         return (config.tools[name] && config.tools[name].label) || (t ? t.label : name);
     }
-
     /* ── Sidebar ── */
     const SPACE_META = {
         salarie: { label: '👤 Espace Salarié', color: '#4CAF50' },
         adam:    { label: '⚙ Espace Adam',     color: '#25737d' },
     };
-
     function refreshSidebar() {
         const list = document.getElementById('rds-tool-list');
         Array.from(list.querySelectorAll('.rds-nav-item:not(#rds-fixed-config), .rds-nav-sep, .rds-empty'))
             .forEach(e => e.remove());
-
         const meta = SPACE_META[currentSpace];
         document.getElementById('rds-space-lbl').textContent = meta.label;
         document.getElementById('rds-space-lbl').style.color  = meta.color;
-
+        // Les outils "hidden" sont exclus de tous les espaces visibles
         const spaceTools = tools.filter(t => getToolSpace(t.name) === currentSpace);
-
         spaceTools.forEach(tool => {
             const el = document.createElement('div');
             el.className = 'rds-nav-item';
             el.textContent = getToolLabel(tool.name);
             let path = tool.name;
             if (tool.isDir) path += path.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
-            el.onclick = () => openTool(BASE_URL + encodeURIComponent(path), el);
+            el.onclick = () => openTool(buildUrl(path), el);
             list.appendChild(el);
         });
-
         if (currentSpace === 'adam') {
             if (spaceTools.length) {
                 const sep = document.createElement('div');
@@ -102,7 +107,6 @@
             btn.onclick = openPanel;
             list.appendChild(btn);
         }
-
         if (!spaceTools.length && currentSpace !== 'adam') {
             const empty = document.createElement('div');
             empty.className = 'rds-empty';
@@ -110,7 +114,6 @@
             list.appendChild(empty);
         }
     }
-
     /* ── Panel de gestion ── */
     function openPanel() {
         document.getElementById('rds-panel-overlay').style.display = 'flex';
@@ -119,23 +122,28 @@
     function closePanel() {
         document.getElementById('rds-panel-overlay').style.display = 'none';
     }
-
     function renderPanel() {
         const body = document.getElementById('rds-panel-body');
         body.innerHTML = '';
-
         if (!tools.length) {
             body.innerHTML = '<p style="padding:30px;text-align:center;color:#aaa;">Aucun outil chargé.</p>';
             return;
         }
-
+        // Compteur d'outils masqués
+        const hiddenCount = tools.filter(t => getToolSpace(t.name) === 'hidden').length;
+        if (hiddenCount > 0) {
+            const banner = document.createElement('div');
+            banner.className = 'rds-hidden-banner';
+            banner.style.cssText = 'padding:8px 16px;background:#fff8e1;border-bottom:1px solid #ffe082;font-size:11px;color:#795548;display:flex;align-items:center;gap:6px;';
+            banner.innerHTML = `<span style="font-size:14px;">🚫</span> <span><strong>${hiddenCount}</strong> outil${hiddenCount > 1 ? 's' : ''} masqué${hiddenCount > 1 ? 's' : ''} — invisible${hiddenCount > 1 ? 's' : ''} de tous les espaces</span>`;
+            body.appendChild(banner);
+        }
         const table = document.createElement('table');
         table.style.cssText = 'width:100%;border-collapse:collapse;';
-
         const thead = document.createElement('thead');
         const trh = document.createElement('tr');
         trh.style.cssText = 'background:#f7f7f7;';
-        [['Outil', ''], ['Nom affiché', 'width:160px'], ['Espace', 'width:130px']].forEach(([txt, w]) => {
+        [['Outil', ''], ['Nom affiché', 'width:160px'], ['Espace / Visibilité', 'width:160px']].forEach(([txt, w]) => {
             const th = document.createElement('th');
             th.style.cssText = 'padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;' + w;
             th.textContent = txt;
@@ -143,28 +151,42 @@
         });
         thead.appendChild(trh);
         table.appendChild(thead);
-
         const tbody = document.createElement('tbody');
-        tools.forEach((tool, i) => {
+        // Trier : outils masqués en bas
+        const sorted = [...tools].sort((a, b) => {
+            const aH = getToolSpace(a.name) === 'hidden';
+            const bH = getToolSpace(b.name) === 'hidden';
+            return aH === bH ? 0 : aH ? 1 : -1;
+        });
+        sorted.forEach((tool, i) => {
             const currentCfg = config.tools[tool.name] || {};
             const space = currentCfg.space || 'salarie';
             const lbl   = currentCfg.label || '';
-
+            const isHidden = space === 'hidden';
             const tr = document.createElement('tr');
-            tr.style.cssText = i % 2 === 0 ? 'background:#fff;' : 'background:#fafafa;';
-
-            // Col 1 : nom
+            // Les outils masqués ont une teinte rouge très légère
+            if (isHidden) {
+                tr.style.cssText = 'background:#fff5f5;opacity:.75;';
+            } else {
+                tr.style.cssText = i % 2 === 0 ? 'background:#fff;' : 'background:#fafafa;';
+            }
+            // Col 1 : nom + badge "masqué" si besoin
             const td1 = document.createElement('td');
             td1.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
             const nameDiv = document.createElement('div');
-            nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:#222;';
+            nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:' + (isHidden ? '#bbb' : '#222') + ';display:flex;align-items:center;gap:6px;';
             nameDiv.textContent = tool.label;
+            if (isHidden) {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'font-size:9px;background:#ffcdd2;color:#c62828;border-radius:4px;padding:1px 5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;';
+                badge.textContent = 'masqué';
+                nameDiv.appendChild(badge);
+            }
             const fileDiv = document.createElement('div');
             fileDiv.style.cssText = 'font-size:10px;color:#aaa;margin-top:2px;';
             fileDiv.textContent = tool.name;
             td1.appendChild(nameDiv);
             td1.appendChild(fileDiv);
-
             // Col 2 : label input
             const td2 = document.createElement('td');
             td2.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
@@ -174,23 +196,61 @@
             inp.placeholder = tool.label;
             inp.dataset.file = tool.name;
             inp.dataset.role = 'label';
-            inp.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;box-sizing:border-box;';
-            inp.onfocus = () => inp.style.borderColor = '#ff7200';
+            inp.disabled = isHidden;
+            inp.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;box-sizing:border-box;' + (isHidden ? 'opacity:.4;cursor:not-allowed;background:#f5f5f5;' : '');
+            inp.onfocus = () => { if (!inp.disabled) inp.style.borderColor = '#ff7200'; };
             inp.onblur  = () => inp.style.borderColor = '#e0e0e0';
             td2.appendChild(inp);
-
-            // Col 3 : espace select
+            // Col 3 : espace select (avec option Masqué)
             const td3 = document.createElement('td');
             td3.style.cssText = 'padding:11px 16px;border-bottom:1px solid #f0f0f0;';
             const sel = document.createElement('select');
             sel.dataset.file = tool.name;
             sel.dataset.role = 'space';
-            sel.style.cssText = 'width:100%;border:1px solid #e0e0e0;border-radius:5px;padding:6px 8px;font-size:12px;color:#333;font-family:inherit;outline:none;cursor:pointer;background:#fff;';
-            sel.onfocus = () => sel.style.borderColor = '#ff7200';
-            sel.onblur  = () => sel.style.borderColor = '#e0e0e0';
+            sel.style.cssText = 'width:100%;border:1px solid ' + (isHidden ? '#ef9a9a' : '#e0e0e0') + ';border-radius:5px;padding:6px 8px;font-size:12px;color:' + (isHidden ? '#c62828' : '#333') + ';font-family:inherit;outline:none;cursor:pointer;background:' + (isHidden ? '#fff5f5' : '#fff') + ';font-weight:' + (isHidden ? '600' : '400') + ';';
+            sel.onfocus = () => sel.style.borderColor = isHidden ? '#ef9a9a' : '#ff7200';
+            sel.onblur  = () => { sel.style.borderColor = isHidden ? '#ef9a9a' : '#e0e0e0'; };
+            // Mise à jour visuelle au changement
+            sel.onchange = function() {
+                const nowHidden = this.value === 'hidden';
+                tr.style.cssText = nowHidden ? 'background:#fff5f5;opacity:.75;' : (i % 2 === 0 ? 'background:#fff;' : 'background:#fafafa;');
+                inp.disabled = nowHidden;
+                inp.style.opacity = nowHidden ? '.4' : '1';
+                inp.style.cursor  = nowHidden ? 'not-allowed' : '';
+                inp.style.background = nowHidden ? '#f5f5f5' : '#fff';
+                sel.style.borderColor = nowHidden ? '#ef9a9a' : '#e0e0e0';
+                sel.style.color       = nowHidden ? '#c62828' : '#333';
+                sel.style.background  = nowHidden ? '#fff5f5' : '#fff';
+                sel.style.fontWeight  = nowHidden ? '600' : '400';
+                // Mise à jour du badge
+                nameDiv.querySelectorAll('span').forEach(s => s.remove());
+                nameDiv.style.color = nowHidden ? '#bbb' : '#222';
+                if (nowHidden) {
+                    const badge = document.createElement('span');
+                    badge.style.cssText = 'font-size:9px;background:#ffcdd2;color:#c62828;border-radius:4px;padding:1px 5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;';
+                    badge.textContent = 'masqué';
+                    nameDiv.appendChild(badge);
+                }
+                // Mise à jour du compteur en bannière
+                const allSels = document.querySelectorAll('#rds-panel-body select[data-role="space"]');
+                const newCount = Array.from(allSels).filter(s => s.value === 'hidden').length;
+                let banner = body.querySelector('.rds-hidden-banner');
+                if (newCount > 0) {
+                    if (!banner) {
+                        banner = document.createElement('div');
+                        banner.className = 'rds-hidden-banner';
+                        banner.style.cssText = 'padding:8px 16px;background:#fff8e1;border-bottom:1px solid #ffe082;font-size:11px;color:#795548;display:flex;align-items:center;gap:6px;';
+                        body.insertBefore(banner, body.firstChild);
+                    }
+                    banner.innerHTML = `<span style="font-size:14px;">🚫</span> <span><strong>${newCount}</strong> outil${newCount > 1 ? 's' : ''} masqué${newCount > 1 ? 's' : ''} — invisible${newCount > 1 ? 's' : ''} de tous les espaces</span>`;
+                } else if (banner) {
+                    banner.remove();
+                }
+            };
             [
                 { v: 'salarie', t: '👤 Salarié' },
                 { v: 'adam',    t: '⚙ Adam'     },
+                { v: 'hidden',  t: '🚫 Masqué'  },
             ].forEach(({ v, t }) => {
                 const o = document.createElement('option');
                 o.value = v; o.textContent = t;
@@ -198,17 +258,14 @@
                 sel.appendChild(o);
             });
             td3.appendChild(sel);
-
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
             tbody.appendChild(tr);
         });
-
         table.appendChild(tbody);
         body.appendChild(table);
     }
-
     async function savePanel() {
         const btn  = document.getElementById('rds-panel-save');
         const info = document.getElementById('rds-panel-info');
@@ -236,7 +293,6 @@
             btn.disabled = false;
         }
     }
-
     /* ── Ouvrir un outil ── */
     function openTool(url, el) {
         document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
@@ -249,16 +305,39 @@
         f.onload = () => document.getElementById('rds-loader').style.display = 'none';
         if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
     }
-
-    /* ── WP password form ── */
+    /* ── WP password form ──
+       Objectif : que le navigateur (Chrome / Edge / Safari / Firefox) reconnaisse un vrai
+       formulaire de connexion, PROPOSE d'enregistrer le mot de passe et le remplisse ensuite.
+       WordPress génère un formulaire avec un seul champ mot de passe, sans identifiant ni
+       attributs autocomplete → la plupart des navigateurs ne proposent rien. On complète. */
     function handlePasswordForm() {
         const form = document.querySelector('.post-password-form');
         if (!form) return false;
         const inp = form.querySelector('input[type="password"]');
         const btn = form.querySelector('input[type="submit"], button[type="submit"]');
         if (!inp) return true;
+        // 1. Attributs qui déclenchent le gestionnaire de mots de passe
+        form.setAttribute('autocomplete', 'on');
+        inp.setAttribute('autocomplete', 'current-password');
+        if (!inp.name) inp.name = 'post_password';
+        // 2. Champ identifiant caché (hors écran) : sans "username", certains navigateurs
+        //    n'enregistrent pas. WordPress ignore ce champ supplémentaire.
+        if (!form.querySelector('input[autocomplete="username"]')) {
+            const user = document.createElement('input');
+            user.type = 'text';
+            user.name = 'rds_user';
+            user.value = 'Rue du Store';
+            user.setAttribute('autocomplete', 'username');
+            user.setAttribute('aria-hidden', 'true');
+            user.tabIndex = -1;
+            user.style.cssText = 'position:absolute;left:-10000px;top:0;width:200px;height:30px;opacity:.01;';
+            form.insertBefore(user, form.firstChild);
+        }
+        // 3. Mémorisation locale (option existante) : remplit + valide tout seul
         const saved = localStorage.getItem('rds_wp_pwd');
         if (saved) { inp.value = saved; setTimeout(() => btn ? btn.click() : form.submit(), 50); return true; }
+        // 4. Focus direct sur le champ → le navigateur affiche sa proposition de mdp enregistré
+        setTimeout(() => { try { inp.focus(); } catch (e) {} }, 100);
         const wrap = document.createElement('div');
         wrap.style.cssText = 'margin:10px 0;display:flex;align-items:center;gap:8px;font-size:13px;';
         wrap.innerHTML = '<input type="checkbox" id="_rds_rem"> <label for="_rds_rem">Mémoriser sur cet ordinateur</label>';
@@ -269,38 +348,30 @@
         }, true);
         return true;
     }
-
     /* ── Launch ── */
     function launch() {
         if (document.querySelector('.post-password-form')) { handlePasswordForm(); return; }
         document.addEventListener('contextmenu', e => e.preventDefault());
-
         const lnk = document.createElement('link');
         lnk.rel = 'stylesheet';
         lnk.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap';
         document.head.appendChild(lnk);
-
         const st = document.createElement('style');
         st.textContent = `
 * { font-family: 'Poppins', sans-serif !important; box-sizing: border-box; }
 #rds-app { position:fixed !important; inset:0; display:flex !important; z-index:9999999 !important; overflow:hidden; margin:0; padding:0; background:#fff; }
-
 #rds-toggle { position:absolute; top:14px; left:14px; z-index:10000001; width:38px; height:38px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.12); background:#1a1a1a; color:#fff; transition:.25s; }
 #rds-app.menu-hidden #rds-toggle { background:#fff; border-color:#ddd; color:#222; box-shadow:0 2px 8px rgba(0,0,0,.12); }
 #rds-toggle svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; }
-
 #rds-sidebar { width:272px; flex-shrink:0; background:#1a1a1a; display:flex; flex-direction:column; transition:transform .3s cubic-bezier(.4,0,.2,1); position:relative; z-index:10000000; }
 #rds-app.menu-hidden #rds-sidebar { transform:translateX(-272px); margin-right:-272px; }
-
 .rds-side-header { padding:44px 22px 14px; }
 .rds-side-header h2 { margin:0 0 3px; font-size:1.15rem; font-weight:600; letter-spacing:1px; color:#fff; }
 #rds-space-lbl { font-size:.6rem; font-weight:500; text-transform:uppercase; letter-spacing:1.5px; color:#4CAF50; }
-
 .rds-search { padding:0 18px 12px; }
 .rds-search input { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:8px 11px; color:#fff; font-size:.75rem; outline:none; }
 .rds-search input:focus { border-color:#ff7200; }
 .rds-search input::placeholder { color:rgba(255,255,255,.3); }
-
 #rds-tool-list { flex:1; overflow-y:auto; padding:6px 0; scrollbar-width:thin; scrollbar-color:#333 transparent; }
 .rds-nav-item { padding:10px 22px; cursor:pointer; font-size:.8rem; color:rgba(255,255,255,.6); border-left:3px solid transparent; transition:.15s; }
 .rds-nav-item:hover { background:rgba(255,255,255,.05); color:#fff; }
@@ -309,7 +380,6 @@
 .rds-manage-btn:hover { color:#25737d !important; background:rgba(37,115,125,.08) !important; }
 .rds-nav-sep { height:1px; background:rgba(255,255,255,.07); margin:6px 0; }
 .rds-empty { padding:16px 22px; font-size:.75rem; color:rgba(255,255,255,.22); }
-
 #rds-bottom { border-top:1px solid rgba(255,255,255,.07); padding:10px 0 0; }
 .rds-space-wrap { padding:8px 16px 10px; }
 #rds-space-select { width:100%; padding:9px 32px 9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); color:#fff; font-size:.78rem; font-weight:500; cursor:pointer; outline:none; -webkit-appearance:none; appearance:none; }
@@ -318,7 +388,6 @@
 .rds-space-rel { position:relative; }
 .rds-foot { padding:10px 18px 18px; text-align:center; font-size:9px; color:rgba(255,255,255,.22); }
 .rds-dot { width:7px; height:7px; background:#4CAF50; border-radius:50%; display:inline-block; margin-right:4px; }
-
 #rds-content { flex:1; position:relative; overflow:hidden; }
 #rds-welcome { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#fff; background-image:radial-gradient(#efefef 1px,transparent 1px); background-size:20px 20px; text-align:center; }
 .rds-welcome-inner h1 { font-size:1.4rem; font-weight:500; color:#1a1a1a; margin:0; line-height:1.4; }
@@ -329,7 +398,6 @@
 #rds-loader { position:absolute; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:10; }
 .rds-spinner { width:28px; height:28px; border:3px solid #eee; border-top-color:#ff7200; border-radius:50%; animation:rds-spin .8s linear infinite; }
 @keyframes rds-spin { to { transform:rotate(360deg); } }
-
 #rds-panel-overlay { display:none; position:fixed; inset:0; z-index:10001000; background:rgba(0,0,0,.5); align-items:center; justify-content:center; padding:20px; }
 #rds-panel { background:#fff; border-radius:12px; width:100%; max-width:700px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.2); overflow:hidden; }
 #rds-panel-head { background:#1a1a1a; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
@@ -346,7 +414,6 @@
 .rds-btn-ghost:hover { border-color:#ff7200; color:#ff7200; }
 .rds-btn-close { background:transparent; border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.6); }
 .rds-btn-close:hover { border-color:#fff; color:#fff; }
-
 @media (max-width:850px) {
     #rds-sidebar { position:fixed; height:100%; box-shadow:10px 0 30px rgba(0,0,0,.2); }
     #rds-app.menu-hidden #rds-sidebar { transform:translateX(-100%); margin-right:0; }
@@ -354,7 +421,6 @@
         document.head.appendChild(st);
         document.documentElement.style.overflow = 'hidden';
         document.body.style.margin = '0';
-
         document.body.innerHTML = `
 <div id="rds-app">
   <button id="rds-toggle"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
@@ -395,13 +461,12 @@
     </div>
   </div>
 </div>
-
 <div id="rds-panel-overlay">
   <div id="rds-panel">
     <div id="rds-panel-head">
       <div>
         <h3>⚙ Gestion des outils</h3>
-        <p>Choisissez l'espace de chaque outil · Renommez-les</p>
+        <p>Choisissez l'espace de chaque outil · Renommez-les · Masquez-les</p>
       </div>
       <button class="rds-btn rds-btn-close" id="rds-panel-close">✕</button>
     </div>
@@ -415,48 +480,39 @@
     </div>
   </div>
 </div>`;
-
         document.getElementById('rds-fixed-config').onclick = () =>
             openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'));
-
         document.getElementById('rds-tournees').onclick = () =>
-            openTool(BASE_URL + encodeURIComponent('Gestion des tournees.html'), document.getElementById('rds-tournees'));
-
+            openTool(buildUrl('Gestion des tournees.html'), document.getElementById('rds-tournees'));
         document.getElementById('rds-search').oninput = e => {
             const v = e.target.value.toLowerCase();
             document.querySelectorAll('#rds-tool-list .rds-nav-item:not(#rds-fixed-config)').forEach(el => {
                 el.style.display = el.textContent.toLowerCase().includes(v) ? '' : 'none';
             });
         };
-
         document.getElementById('rds-space-select').onchange = function () {
             const target = this.value;
             if (target === currentSpace) return;
             currentSpace = target;
             refreshSidebar();
         };
-
         document.getElementById('rds-toggle').onclick = e => {
             e.stopPropagation();
             document.getElementById('rds-app').classList.toggle('menu-hidden');
         };
-
         document.getElementById('rds-content').onclick = () => {
             if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
         };
-
         document.getElementById('rds-panel-close').onclick  = closePanel;
         document.getElementById('rds-panel-cancel').onclick = closePanel;
         document.getElementById('rds-panel-save').onclick   = savePanel;
         document.getElementById('rds-panel-overlay').onclick = e => { if (e.target.id === 'rds-panel-overlay') closePanel(); };
-
         (async () => {
             config = await loadConfig();
             await loadTools();
             refreshSidebar();
         })();
     }
-
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launch);
     else launch();
 })();

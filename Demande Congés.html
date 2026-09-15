@@ -91,6 +91,9 @@
         .badge-pending { background: #fff3e0; color: #e65100; }
         .badge-valid { background: #e8f5e9; color: #2e7d32; }
         .badge-refused { background: #ffebee; color: #c62828; }
+        .badge-cancelled { background: #eceff1; color: #546e7a; }
+        .btn-cancel-req { background: none; border: 1px solid #ffcdd2; color: #c62828; border-radius: 5px; padding: 4px 9px; font-size: 0.68rem; cursor: pointer; font-family: inherit; margin-top: 5px; white-space: nowrap; }
+        .btn-cancel-req:hover { background: #ffebee; }
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         thead th { padding: 8px 14px; font-size: 0.58rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); background: #fafafa; }
@@ -98,6 +101,21 @@
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #fafafa; }
         .reason-tag { display: inline-block; background: #ffebee; color: #c62828; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; margin-top: 4px; }
+        .rattrapage-tag { display: inline-block; background: #e3f2fd; color: #0d47a1; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; margin-top: 4px; }
+        .ratt-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+        .ratt-row input { width: 100%; padding: 7px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.82rem; outline: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--text); }
+        .ratt-row input:focus { border-bottom-color: var(--bleu); }
+        .ratt-row .ratt-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 3px; }
+        .ratt-del { background: none; border: 1px solid #eee; border-radius: 5px; color: #c62828; cursor: pointer; padding: 5px 9px; font-size: 0.75rem; font-family: inherit; }
+        .ratt-del:hover { border-color: #c62828; }
+        .notif-card { border-left: 3px solid var(--orange); }
+        .notif-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.78rem; color: #555; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item.unread { color: var(--text); font-weight: 500; }
+        .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; flex-shrink: 0; margin-top: 6px; }
+        .notif-item.unread .notif-dot { background: var(--orange); }
+        .notif-meta { font-size: 0.66rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+        .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--orange); color: white; font-size: 0.62rem; font-weight: 600; margin-left: 6px; }
         .req-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; transition: box-shadow 0.2s; }
         .req-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
         .req-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -173,6 +191,7 @@
         .log-icon.demande  { background: #e0eff0; }
         .log-icon.validation { background: #e8f5e9; }
         .log-icon.refus    { background: #ffebee; }
+        .log-icon.annulation { background: #eceff1; }
         .log-icon.solde    { background: #fff3e0; }
         .log-icon.employe  { background: #f3e5f5; }
         .log-icon.systeme  { background: #f5f5f5; }
@@ -205,7 +224,7 @@
             <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
             <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
         </div>
-        <div class="header-ver">V3.8 — RH Rue du Store</div>
+        <div class="header-ver">V4.0 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -215,6 +234,11 @@
                 <div class="card-body">
                     <div class="login-title">Espace Salarié</div>
                     <p class="login-sub">Sélectionnez votre prénom pour accéder à votre espace</p>
+                    <form id="emp-login-form" method="post" action="#" autocomplete="on" onsubmit="event.preventDefault(); loginEmployee();">
+                    <!-- Champ identifiant (hors écran) : permet au navigateur de proposer l'enregistrement / le remplissage du mot de passe -->
+                    <input type="text" id="emp_login_user" name="username" autocomplete="username" tabindex="-1" aria-hidden="true"
+                           style="position:absolute;left:-10000px;top:0;width:200px;height:30px;opacity:0.01;"
+                           oninput="onUsernameAutofill(this.value)" onchange="onUsernameAutofill(this.value)">
                     <div class="form-group" style="margin-bottom:18px;">
                         <label>Votre prénom</label>
                         <select id="user-selector" onchange="onUserSelected()"><option value="">— Chargement... —</option></select>
@@ -224,7 +248,7 @@
                         <div class="form-group" style="margin-bottom:8px;">
                             <label>Mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_login_pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter') loginEmployee()">
+                                <input type="password" id="emp_login_pwd" name="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit();}">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_login_pwd', this)">👁</button>
                             </div>
                         </div>
@@ -238,7 +262,7 @@
                         <div class="form-group" style="margin:14px 0;">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_setup_pwd" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_setup_pwd-checklist')">
+                                <input type="password" id="emp_setup_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_setup_pwd-checklist')">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd', this)">👁</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_setup_pwd-checklist">
@@ -251,29 +275,29 @@
                         <div class="form-group" style="margin-bottom:14px;">
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_setup_pwd2" placeholder="••••••••">
+                                <input type="password" id="emp_setup_pwd2" autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd2', this)">👁</button>
                             </div>
                         </div>
                         <div class="form-group" style="margin-bottom:14px;">
                             <label>Votre question secrète</label>
-                            <input type="text" id="emp_setup_question" placeholder="Ex: Nom de mon premier animal ?">
+                            <input type="text" id="emp_setup_question" autocomplete="off" placeholder="Ex: Nom de mon premier animal ?">
                         </div>
                         <div class="form-group">
                             <label>Votre réponse</label>
-                            <input type="text" id="emp_setup_answer" placeholder="Ex: Abou">
+                            <input type="text" id="emp_setup_answer" autocomplete="off" placeholder="Ex: Abou">
                         </div>
                     </div>
 
                     <div id="emp-forgot-wrap" style="display:none;margin-bottom:6px;">
                         <div class="form-group" style="margin-bottom:14px;">
                             <label id="emp_forgot_question_label">Question secrète</label>
-                            <input type="text" id="emp_forgot_answer" placeholder="Votre réponse">
+                            <input type="text" id="emp_forgot_answer" autocomplete="off" placeholder="Votre réponse">
                         </div>
                         <div class="form-group" style="margin-bottom:14px;">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_forgot_pwd" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_forgot_pwd-checklist')">
+                                <input type="password" id="emp_forgot_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_forgot_pwd-checklist')">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd', this)">👁</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_forgot_pwd-checklist">
@@ -286,7 +310,7 @@
                         <div class="form-group">
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_forgot_pwd2" placeholder="••••••••">
+                                <input type="password" id="emp_forgot_pwd2" autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd2', this)">👁</button>
                             </div>
                         </div>
@@ -297,12 +321,20 @@
 
                     <div id="emp-login-feedback" style="display:none;margin-bottom:14px;"></div>
 
-                    <button class="btn btn-primary btn-full" id="emp-login-btn" onclick="loginEmployee()" style="margin-top:8px;">Accéder à mon espace →</button>
+                    <button type="submit" class="btn btn-primary btn-full" id="emp-login-btn" style="margin-top:8px;">Accéder à mon espace →</button>
+                    </form>
                 </div>
             </div>
         </div>
 
         <div id="emp-content" style="display:none;">
+            <div class="card notif-card" id="notif-card" style="display:none;">
+                <div class="card-header">
+                    <h2>🔔 Notifications <span id="notif-badge" class="nav-badge" style="display:none;">0</span></h2>
+                    <button class="btn btn-ghost btn-sm" onclick="markNotificationsRead()">✓ Tout marquer comme lu</button>
+                </div>
+                <div class="card-body" id="notif-list" style="padding-top:10px;padding-bottom:10px;"></div>
+            </div>
             <div class="kpi-row">
                 <div class="kpi-card"><div class="kpi-label">Total demandes</div><div class="kpi-val" id="kpi-total">—</div></div>
                 <div class="kpi-card"><div class="kpi-label">En attente</div><div class="kpi-val orange" id="kpi-pending">—</div></div>
@@ -391,8 +423,14 @@
                                 </select>
                             </div>
                             <div class="form-group full" id="autre-wrap" style="display:none;">
-                                <label>Précision (obligatoire)</label>
-                                <input type="text" id="leave_autre" placeholder="Ex: Mariage, déménagement...">
+                                <label>Motif <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
+                                <input type="text" id="leave_autre" placeholder="Ex: Mariage, déménagement, rendez-vous...">
+                            </div>
+                            <div class="form-group full" id="rattrapage-wrap" style="display:none;">
+                                <label>Rattrapage <span style="text-transform:none;letter-spacing:0;">(facultatif — quand rattrapez-vous cette absence ?)</span></label>
+                                <div id="rattrapage-list"></div>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="addRattrapageRow()">+ Ajouter un créneau de rattrapage</button>
+                                <div class="input-hint">Vous pouvez ajouter plusieurs créneaux sur plusieurs jours. Laissez les heures vides pour une journée complète.</div>
                             </div>
                         </div>
                         <div class="days-preview" id="days-preview">📅 <span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
@@ -402,7 +440,7 @@
                             <div class="alert alert-success">✓ Demande enregistrée avec succès !</div>
                             <div class="post-submit-actions">
                                 <button class="btn btn-ghost" onclick="printLastRequest()">🖨 Imprimer / PDF de la demande</button>
-                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier Nicolas Decoster</a>
+                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier la direction</a>
                             </div>
                         </div>
                     </div>
@@ -430,14 +468,14 @@
                         <div class="form-group full">
                             <label>Mot de passe actuel</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_pwd_current" placeholder="••••••••">
+                                <input type="password" id="emp_pwd_current" autocomplete="current-password" placeholder="••••••••">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_current', this)">👁</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_pwd_new" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_pwd_new-checklist')">
+                                <input type="password" id="emp_pwd_new" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_pwd_new-checklist')">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_new', this)">👁</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_pwd_new-checklist">
@@ -450,7 +488,7 @@
                         <div class="form-group">
                             <label>Confirmer le nouveau</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_pwd_confirm" placeholder="••••••••">
+                                <input type="password" id="emp_pwd_confirm" autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_confirm', this)">👁</button>
                             </div>
                         </div>
@@ -519,7 +557,7 @@
                         </div>
                         <div id="action-decision" style="display:none;margin-top:12px;">
                             <div class="alert alert-success">✓ Décision enregistrée.</div>
-                            <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">✉ Envoyer la réponse au salarié</a>
+                            <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">✉ Envoyer la réponse au salarié (copie direction)</a>
                         </div>
                     </div>
                 </div>
@@ -577,7 +615,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h2>Archive des demandes</h2>
-                        <span style="font-size:0.7rem;color:var(--muted);">Validées &amp; Refusées</span>
+                        <span style="font-size:0.7rem;color:var(--muted);">Validées, Refusées &amp; Annulées</span>
                     </div>
                     <div class="card-body">
                         <div class="filter-row">
@@ -586,6 +624,7 @@
                                 <option value="">Tous les statuts</option>
                                 <option value="Validé">Validées</option>
                                 <option value="Refusé">Refusées</option>
+                                <option value="Annulé">Annulées</option>
                             </select>
                             <input type="month" id="filter-month" onchange="applyFilters()">
                             <button class="btn btn-ghost btn-sm" onclick="resetFilters()">✕ Réinitialiser</button>
@@ -608,6 +647,21 @@
                         <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
                     </div>
                     <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V4.0</span>
+                                <span class="changelog-title">Absences, rattrapage & notifications</span>
+                                <span class="changelog-date">Septembre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Absence exceptionnelle : le motif devient facultatif</li>
+                                <li>Annulation : un salarié peut annuler sa demande en attente, ou une demande validée tant qu'elle n'a pas commencé (solde recrédité, direction prévenue)</li>
+                                <li>Rattrapage : indiquez quand vous rattrapez une absence, avec plusieurs créneaux sur plusieurs jours (visible dans l'historique, le tableau de bord, le PDF et l'email)</li>
+                                <li>Notifications dans l'application : la direction (Nicolas, Camille) est prévenue de chaque nouvelle demande, chaque membre de la direction est prévenu des décisions de l'autre, et le salarié est prévenu de la réponse</li>
+                                <li>Email de notification adressé à toute la direction (et en copie de la direction lors des réponses)</li>
+                                <li>Connexion facilitée : le navigateur propose d'enregistrer le mot de passe et retient le dernier prénom utilisé</li>
+                            </ul>
+                        </div>
                         <div class="changelog-item">
                             <div class="changelog-ver">
                                 <span class="changelog-badge">V3.8</span>
@@ -766,6 +820,7 @@
                                 <option value="demande">Demandes</option>
                                 <option value="validation">Validations</option>
                                 <option value="refus">Refus</option>
+                                <option value="annulation">Annulations</option>
                                 <option value="solde">Soldes</option>
                                 <option value="employe">Équipe</option>
                                 <option value="systeme">Système</option>
@@ -921,7 +976,7 @@
     function timeTag(t, prefix) { return t ? `<span class="time-tag">${prefix}${fmtTime(t)}</span>` : ''; }
 
     function statusBadge(s) {
-        const map = { 'En attente': 'badge-pending', 'Validé': 'badge-valid', 'Refusé': 'badge-refused' };
+        const map = { 'En attente': 'badge-pending', 'Validé': 'badge-valid', 'Refusé': 'badge-refused', 'Annulé': 'badge-cancelled' };
         return `<span class="badge ${map[s]||'badge-pending'}">${s}</span>`;
     }
 
@@ -938,7 +993,7 @@
             document.getElementById('days-count').textContent = fmtDays(calculateWorkDays(s, e, ts, te));
             el.style.display = 'block';
             if (cachedDB) {
-                const has = cachedDB.db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(e < r.start || s > r.end));
+                const has = cachedDB.db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && !(e < r.start || s > r.end));
                 document.getElementById('overlap-warning').style.display = has ? 'flex' : 'none';
             }
         } else { el.style.display = 'none'; }
@@ -946,8 +1001,110 @@
 
     function toggleAutre() {
         const t = document.getElementById('leave_type').value;
-        document.getElementById('autre-wrap').style.display = t === 'Absence Exceptionnelle' ? 'block' : 'none';
-        if (t !== 'Absence Exceptionnelle') document.getElementById('leave_autre').value = '';
+        const isAbs = t === 'Absence Exceptionnelle';
+        document.getElementById('autre-wrap').style.display = isAbs ? 'block' : 'none';
+        document.getElementById('rattrapage-wrap').style.display = isAbs ? 'block' : 'none';
+        if (!isAbs) { document.getElementById('leave_autre').value = ''; clearRattrapage(); }
+        else if (!document.querySelectorAll('#rattrapage-list .ratt-row').length) addRattrapageRow();
+    }
+
+    /* ── Rattrapage (créneaux multiples) ─────────────────────────────── */
+    function addRattrapageRow(pref) {
+        const list = document.getElementById('rattrapage-list');
+        const row = document.createElement('div');
+        row.className = 'ratt-row';
+        row.innerHTML = `
+            <div><span class="ratt-lbl">Date</span><input type="date" data-r="date" value="${pref && pref.date ? pref.date : ''}"></div>
+            <div><span class="ratt-lbl">De</span><input type="time" step="900" data-r="from" value="${pref && pref.from ? pref.from : ''}"></div>
+            <div><span class="ratt-lbl">À</span><input type="time" step="900" data-r="to" value="${pref && pref.to ? pref.to : ''}"></div>
+            <button type="button" class="ratt-del" title="Supprimer ce créneau" onclick="this.parentNode.remove()">✕</button>`;
+        list.appendChild(row);
+    }
+    function clearRattrapage() { document.getElementById('rattrapage-list').innerHTML = ''; }
+    // Retourne { slots, error } — les lignes totalement vides sont ignorées
+    function getRattrapageSlots() {
+        const slots = [];
+        for (const row of document.querySelectorAll('#rattrapage-list .ratt-row')) {
+            const date = row.querySelector('[data-r="date"]').value;
+            const from = row.querySelector('[data-r="from"]').value;
+            const to   = row.querySelector('[data-r="to"]').value;
+            if (!date && !from && !to) continue;
+            if (!date) return { slots, error: 'Indiquez une date pour chaque créneau de rattrapage.' };
+            if ((from && !to) || (!from && to)) return { slots, error: 'Renseignez l\'heure de début ET de fin du créneau de rattrapage (ou aucune des deux).' };
+            if (from && to && from >= to) return { slots, error: 'Rattrapage : l\'heure de fin doit être après l\'heure de début.' };
+            const slot = { date };
+            if (from) { slot.from = from; slot.to = to; }
+            slots.push(slot);
+        }
+        slots.sort((a, b) => (a.date + (a.from||'')).localeCompare(b.date + (b.from||'')));
+        return { slots, error: null };
+    }
+    function fmtRattrapage(slots, sep) {
+        if (!slots || !slots.length) return '';
+        return slots.map(s => `${formatDate(s.date)}${s.from ? ' de ' + fmtTime(s.from) + ' à ' + fmtTime(s.to) : ' (journée)'}`).join(sep || ' ; ');
+    }
+    function rattrapageTag(r) {
+        return r.rattrapage && r.rattrapage.length ? `<div class="rattrapage-tag">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</div>` : '';
+    }
+
+    /* ── Notifications internes ──────────────────────────────────────────
+       Stockées dans data.json (db.notifications). Chaque notification vise une liste de prénoms.
+       db.notifSeen[prénom] = timestamp de dernière lecture → tout ce qui est plus récent est "non lu". */
+    function adminEmployees(db, excludeName) {
+        return (db.employees || []).filter(e => (e.role === 'admin' || e.role === 'superadmin') && e.name !== excludeName);
+    }
+    function adminEmails(db, excludeName) {
+        const list = adminEmployees(db, excludeName).map(e => e.email).filter(Boolean);
+        if (!list.length && excludeName !== DIRECTION_ACCOUNT.name) list.push(MGR_EMAIL);
+        return [...new Set(list)];
+    }
+    function adminFirstNames(db, excludeName) {
+        const names = adminEmployees(db, excludeName).map(e => e.name);
+        return names.length ? names : (excludeName !== DIRECTION_ACCOUNT.name ? [DIRECTION_ACCOUNT.name] : []);
+    }
+    function addNotification(db, to, kind, text, reqId) {
+        if (!db.notifications) db.notifications = [];
+        const targets = [...new Set((to || []).filter(Boolean))];
+        if (!targets.length) return;
+        db.notifications.unshift({ id: Date.now() + Math.floor(Math.random() * 1000), ts: Date.now(), to: targets, kind, text, reqId: reqId || null });
+        if (db.notifications.length > 300) db.notifications = db.notifications.slice(0, 300);
+    }
+    function myNotifications(db) {
+        return (db.notifications || []).filter(n => n.to && n.to.includes(currentUser));
+    }
+    function unreadCount(db) {
+        const seen = (db.notifSeen && db.notifSeen[currentUser]) || 0;
+        return myNotifications(db).filter(n => n.ts > seen).length;
+    }
+    function renderNotifications(db) {
+        const card = document.getElementById('notif-card');
+        if (!currentUser || !card) return;
+        const mine = myNotifications(db).slice(0, 20);
+        const seen = (db.notifSeen && db.notifSeen[currentUser]) || 0;
+        const unread = mine.filter(n => n.ts > seen).length;
+        const badge = document.getElementById('notif-badge');
+        badge.textContent = unread;
+        badge.style.display = unread ? 'inline-flex' : 'none';
+        // Badge sur l'onglet Direction
+        const tab = document.getElementById('nav-tab-manager');
+        if (tab) tab.innerHTML = 'Direction' + (unread && isAdmin() ? `<span class="nav-badge">${unread}</span>` : '');
+        if (!mine.length) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        document.getElementById('notif-list').innerHTML = mine.map(n => {
+            const d = new Date(n.ts);
+            const when = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} à ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+            return `<div class="notif-item ${n.ts > seen ? 'unread' : ''}"><span class="notif-dot"></span><div>${n.text}<div class="notif-meta">${when}</div></div></div>`;
+        }).join('');
+    }
+    async function markNotificationsRead() {
+        if (!currentUser) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (!db.notifSeen) db.notifSeen = {};
+            db.notifSeen[currentUser] = Date.now();
+            await saveToGitHub(db, sha);
+            renderNotifications(db);
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
 
     async function loadEmployeeSelector() {
@@ -958,6 +1115,14 @@
             if (db.employees.length > 0) {
                 const sorted = [...db.employees].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
                 sel.innerHTML = '<option value="">— Sélectionner —</option>' + sorted.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+                // Pré-sélection du dernier prénom utilisé sur ce navigateur → le champ mot de passe s'affiche direct
+                const last = getLastUser();
+                if (last && sorted.some(e => e.name === last)) {
+                    sel.value = last;
+                    await onUserSelected();
+                    const pwdInp = document.getElementById('emp_login_pwd');
+                    if (empLoginMode === 'password' && pwdInp) setTimeout(() => pwdInp.focus(), 100);
+                }
             }
         } catch(e) { console.error('loadEmployeeSelector:', e.message); }
     }
@@ -1004,9 +1169,50 @@
         } catch(e) { console.error('ensureRoleBootstrap:', e.message); }
     }
 
+    /* ── Connexion facilitée ─────────────────────────────────────────────
+       - le prénom choisi est mémorisé sur ce navigateur (localStorage)
+       - un champ identifiant caché + autocomplete="username"/"current-password"
+         permettent au navigateur de proposer d'enregistrer puis de remplir le mot de passe
+       - navigator.credentials.store() (Chrome/Edge) déclenche la proposition d'enregistrement
+    ─────────────────────────────────────────────────────────────────── */
+    const LAST_USER_KEY = 'rds_conges_last_user';
+
+    function rememberLastUser(name) {
+        try { if (name) localStorage.setItem(LAST_USER_KEY, name); } catch(e) {}
+    }
+    function getLastUser() {
+        try { return localStorage.getItem(LAST_USER_KEY) || ''; } catch(e) { return ''; }
+    }
+
+    // Demande au navigateur d'enregistrer (ou de mettre à jour) le mot de passe
+    async function offerToSaveCredential(name, pwd) {
+        if (!name || !pwd) return;
+        try {
+            if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+                await navigator.credentials.store(new PasswordCredential({ id: name, name: name, password: pwd }));
+            }
+        } catch(e) { /* navigateur non compatible ou refus : silencieux */ }
+    }
+
+    // Le navigateur a rempli automatiquement l'identifiant → on sélectionne le prénom correspondant
+    let usernameSyncing = false;
+    async function onUsernameAutofill(value) {
+        if (usernameSyncing) return;
+        const v = (value || '').trim();
+        if (!v) return;
+        const sel = document.getElementById('user-selector');
+        const opt = Array.from(sel.options).find(o => o.value && o.value.toLowerCase() === v.toLowerCase());
+        if (!opt || sel.value === opt.value) return;
+        sel.value = opt.value;
+        await onUserSelected();
+    }
+
     async function onUserSelected() {
         hideLoginFeedback();
         const name = document.getElementById('user-selector').value;
+        usernameSyncing = true;
+        document.getElementById('emp_login_user').value = name;
+        usernameSyncing = false;
         if (!name) {
             document.getElementById('emp-pwd-wrap').style.display = 'none';
             document.getElementById('emp-setup-wrap').style.display = 'none';
@@ -1062,11 +1268,16 @@
 
     function resetEmpLoginForm() {
         document.getElementById('user-selector').value = '';
+        document.getElementById('emp_login_user').value = '';
         document.getElementById('emp-pwd-wrap').style.display = 'none';
         document.getElementById('emp-setup-wrap').style.display = 'none';
         document.getElementById('emp-forgot-wrap').style.display = 'none';
         document.getElementById('emp_login_pwd').value = '';
         hideLoginFeedback();
+        // Après déconnexion : on re-propose le dernier prénom utilisé
+        const last = getLastUser();
+        const sel = document.getElementById('user-selector');
+        if (last && Array.from(sel.options).some(o => o.value === last)) { sel.value = last; onUserSelected(); }
     }
 
     async function loginEmployee() {
@@ -1092,6 +1303,8 @@
             addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe défini', 'Première connexion — mot de passe et question secrète enregistrés');
             await saveToGitHub(db, sha);
             currentUser = name;
+            rememberLastUser(name);
+            offerToSaveCredential(name, pwd);
             return enterEmployeeSpace(db, emp);
         }
 
@@ -1108,6 +1321,7 @@
             emp.passHash = await sha256(pwd);
             addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe réinitialisé', 'Réinitialisation via question secrète');
             await saveToGitHub(db, sha);
+            offerToSaveCredential(name, pwd);
             showLoginFeedback('✓ Mot de passe mis à jour. Vous pouvez vous connecter.', true);
             setEmpLoginMode('password');
             document.getElementById('emp_login_pwd').value = '';
@@ -1121,6 +1335,8 @@
         const hash = await sha256(pwd);
         if (hash !== emp.passHash) return showLoginFeedback('Mot de passe incorrect.', false);
         currentUser = name;
+        rememberLastUser(name);
+        offerToSaveCredential(name, pwd);
         enterEmployeeSpace(db, emp);
     }
 
@@ -1139,6 +1355,7 @@
         await checkMonthlyAccrual();
         const fresh = await fetchFromGitHub();
         renderEmployeeSoldeUI(fresh.db);
+        renderNotifications(fresh.db);
         document.getElementById('action-request').style.display = 'none';
         renderEmployeeTable();
     }
@@ -1224,6 +1441,8 @@
         currentUser = null;
         currentRole = 'employee';
         document.getElementById('nav-tab-manager').style.display = 'none';
+        document.getElementById('nav-tab-manager').innerHTML = 'Direction';
+        document.getElementById('notif-card').style.display = 'none';
         switchTab('employee');
         document.getElementById('emp-login').style.display = 'block';
         document.getElementById('emp-content').style.display = 'none';
@@ -1265,6 +1484,7 @@
             }
             addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe modifié', detail);
             await saveToGitHub(db, sha);
+            offerToSaveCredential(currentUser, newPwd);
             document.getElementById('emp_pwd_current').value = '';
             document.getElementById('emp_pwd_new').value = '';
             document.getElementById('emp_pwd_confirm').value = '';
@@ -1284,8 +1504,11 @@
         if (!start || !end || !email) return alert('Email et dates requis.');
         if (start > end) return alert('La date de fin doit être après la date de début.');
         if (start === end && startTime && endTime && startTime >= endTime) return alert("L'heure de fin doit être après l'heure de début.");
+        const isAbsence = document.getElementById('leave_type').value === 'Absence Exceptionnelle';
+        const ratt = isAbsence ? getRattrapageSlots() : { slots: [], error: null };
+        if (ratt.error) return alert(ratt.error);
         const { db, sha } = await fetchFromGitHub();
-        const overlap = db.requests.some(r => r.user === currentUser && r.status !== 'Refusé' && !(end < r.start || start > r.end));
+        const overlap = db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && !(end < r.start || start > r.end));
         if (overlap) return alert('Vous avez déjà une demande sur cette période.');
         const btn = document.querySelector('button[onclick="processRequest()"]');
         btn.disabled = true; btn.textContent = 'Envoi en cours...';
@@ -1297,19 +1520,31 @@
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
             if (startTime) req.startTime = startTime;
             if (endTime)   req.endTime   = endTime;
+            if (ratt.slots.length) req.rattrapage = ratt.slots;
             db.requests.push(req);
-            addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · ${fmtPeriod(req)} (${fmtDays(days)} j)`);
+            const rattTxt = ratt.slots.length ? ' · Rattrapage : ' + fmtRattrapage(ratt.slots) : '';
+            addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${rattTxt}`);
+            // Notification interne → toute la direction (sauf l'auteur)
+            const adminNames = adminFirstNames(db, currentUser);
+            addNotification(db, adminNames, 'demande',
+                `📥 <strong>${req.user} ${req.lastname}</strong> a déposé une demande : ${typeVal}${noteVal ? ' — ' + noteVal : ''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${ratt.slots.length ? ' · 🔁 Rattrapage : ' + fmtRattrapage(ratt.slots) : ''}`, req.id);
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
             lastRequestId = req.id;
-            const body = `Bonjour Nicolas,\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}\n\nMerci de traiter cette demande.`;
-            document.getElementById('gmail_link').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(MGR_EMAIL)}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
+            const greet = adminNames.length ? 'Bonjour ' + adminNames.join(', ') : 'Bonjour';
+            const body = `${greet},\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}${ratt.slots.length ? '\nRattrapage prévu : ' + fmtRattrapage(ratt.slots, '\n                   ') : ''}\n\nMerci de traiter cette demande.`;
+            const gl = document.getElementById('gmail_link');
+            gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
+            gl.textContent = '✉ Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par email';
             document.getElementById('action-request').style.display = 'block';
             btn.textContent = '✓ Demande envoyée';
             document.getElementById('date_start').value = '';
             document.getElementById('date_end').value = '';
             document.getElementById('time_start').value = '';
             document.getElementById('time_end').value = '';
+            document.getElementById('leave_autre').value = '';
+            clearRattrapage();
+            if (isAbsence) addRattrapageRow();
             document.getElementById('days-preview').style.display = 'none';
             setTimeout(() => { btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }, 2000);
         } catch(e) { alert('Erreur : '+e.message); btn.disabled = false; btn.textContent = 'Soumettre la demande →'; }
@@ -1318,6 +1553,49 @@
     async function printLastRequest() {
         if (!lastRequestId) return;
         await downloadPDF(lastRequestId);
+    }
+
+    /* ── Annulation d'une demande par le salarié ─────────────────────── */
+    function isActiveStatus(s) { return s !== 'Refusé' && s !== 'Annulé'; }
+    function todayISO() { return new Date().toISOString().split('T')[0]; }
+    // Annulable : en attente (toujours), ou validée tant qu'elle n'a pas commencé
+    function canCancel(r) {
+        if (!r || r.user !== currentUser) return false;
+        if (r.status === 'En attente') return true;
+        if (r.status === 'Validé') return r.start > todayISO();
+        return false;
+    }
+    async function cancelRequest(id) {
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) return alert('Demande introuvable.');
+            if (!canCancel(r)) return alert("Cette demande ne peut plus être annulée (déjà commencée, refusée ou annulée).");
+            const wasValid = r.status === 'Validé';
+            const msg = wasValid
+                ? `Annuler votre demande validée ${fmtPeriod(r).replace(/^Du/, 'du')} ?\n\nLes ${fmtDays(r.days)} jour(s) seront recrédités sur votre solde et la direction sera prévenue.`
+                : `Annuler votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} ?`;
+            if (!confirm(msg)) return;
+            if (wasValid && db.soldes[r.user] !== undefined) {
+                const fromN1 = r.fromN1 || 0;
+                const fromN  = r.fromN !== undefined ? r.fromN : (r.days || 0);
+                restoreLeave(db, r.user, fromN1, fromN);
+                r.restored = { fromN1, fromN };
+            }
+            const prevStatus = r.status;
+            r.status = 'Annulé';
+            r.prevStatus = prevStatus;
+            r.date_annulation = todayISO();
+            const emp = db.employees.find(e => e.name === currentUser) || {};
+            const who = `${currentUser} ${emp.lastname || ''}`.trim();
+            addLogEntry(db, 'annulation', who, wasValid ? 'Demande validée annulée par le salarié' : 'Demande retirée par le salarié',
+                `${r.type}${r.note ? ' — ' + r.note : ''} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · Solde recrédité' : ''}`);
+            addNotification(db, adminFirstNames(db, currentUser), 'annulation',
+                `🚫 <strong>${who}</strong> a annulé sa demande ${wasValid ? '<strong>validée</strong>' : 'en attente'} : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · solde recrédité' : ''}`, r.id);
+            await saveToGitHub(db, sha);
+            renderEmployeeSoldeUI(db);
+            await renderEmployeeTable();
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
 
     async function renderEmployeeTable() {
@@ -1335,11 +1613,12 @@
                 return `<tr>
                     <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
                     <td><strong>${fmtDays(r.days)}</strong> j</td>
-                    <td style="font-size:0.75rem">${typeLabel}</td>
+                    <td style="font-size:0.75rem">${typeLabel}${rattrapageTag(r)}</td>
                     <td>${statusBadge(r.status)}${reasonHtml}</td>
-                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button></td>
+                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">✕ Annuler</button>` : ''}</td>
                 </tr>`;
             }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
+            renderNotifications(db);
         } catch(e) { console.error(e.message); }
     }
 
@@ -1370,6 +1649,7 @@
                         <span class="chip">📅 ${fmtPeriod(r)}</span>
                         <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
                         <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
+                        ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e3f2fd;border-color:#bbdefb;color:#0d47a1;">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
                         <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
                     </div>
                 </div>`).join('')
@@ -1396,7 +1676,7 @@
                 <td><strong>${r.user} ${r.lastname}</strong></td>
                 <td style="font-size:0.78rem">Du ${formatDate(r.start)}${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted)">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
                 <td>${fmtDays(r.days)} j</td>
-                <td style="font-size:0.76rem">${r.type}${r.note ? `<br><em style="color:var(--muted)">${r.note}</em>` : ''}</td>
+                <td style="font-size:0.76rem">${r.type}${r.note ? `<br><em style="color:var(--muted)">${r.note}</em>` : ''}${rattrapageTag(r)}</td>
                 <td>${statusBadge(r.status)}</td>
                 <td style="font-size:0.76rem;color:var(--muted)">${r.reason||'—'}</td>
                 <td style="font-size:0.74rem;color:var(--muted)">${formatDate(r.date_demande)}</td>
@@ -1474,9 +1754,17 @@
             const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
             const logDetail = `${r.user} ${r.lastname} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason?' — Motif : '+r.reason:''}`;
             addLogEntry(db, logType, actorName(), logLabel, logDetail);
+            // Notifications internes : le salarié + les autres membres de la direction
+            const verb = newStatus === 'Validé' ? 'validé' : 'refusé';
+            const icon = newStatus === 'Validé' ? '✅' : '❌';
+            addNotification(db, [r.user], 'decision',
+                `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actorName()}${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
+            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'decision',
+                `${icon} <strong>${actorName()}</strong> a ${verb} la demande de <strong>${r.user} ${r.lastname}</strong> : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
             await saveToGitHub(db, sha);
-            const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}\n\nCordialement,\n${actorName()}`;
-            document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
+            const ccList = adminEmails(db, actorName()).filter(m => m !== r.email);
+            document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}${ccList.length ? '&cc=' + encodeURIComponent(ccList.join(',')) : ''}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
             document.getElementById('action-decision').style.display = 'block';
             document.getElementById('approval-form').style.display = 'none';
             await renderManagerDashboard();
@@ -1703,6 +1991,7 @@
                 CONGES SANS SOLDE ${isSansSolde ? '☒' : '☐'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 AUTRES ${isAutres ? '☒' : '☐'} ${isAutres && req.note ? req.note : '…………………'}
             </p>
+            ${req.rattrapage && req.rattrapage.length ? `<p style="font-size:0.95rem;margin:-30px 0 45px;">RATTRAPAGE : <strong>${fmtRattrapage(req.rattrapage)}</strong></p>` : ''}
 
             <table style="width:100%;border-collapse:collapse;">
                 <tr>
@@ -1773,6 +2062,7 @@
         demande:    '📋',
         validation: '✅',
         refus:      '❌',
+        annulation: '🚫',
         solde:      '💰',
         employe:    '👤',
         systeme:    '⚙️'
