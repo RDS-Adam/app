@@ -81,8 +81,10 @@
       "days": 1,
       "type": "Absence Exceptionnelle",
       "note": "medecin - je rat",
-      "status": "En attente",
-      "date_demande": "2026-09-15"
+      "status": "Annulé",
+      "date_demande": "2026-09-15",
+      "prevStatus": "En attente",
+      "date_annulation": "2026-09-15"
     }
   ],
   "soldes": {
@@ -160,6 +162,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789467303058,
+      "date": "2026-09-15",
+      "heure": "12:15",
+      "type": "annulation",
+      "actor": "Axel Seigneury",
+      "label": "Demande retirée par le salarié",
+      "detail": "Absence Exceptionnelle — medecin - je rat · Du 24/09/2026 au 24/09/2026 (1 j)"
+    },
     {
       "ts": 1789467295408,
       "date": "2026-09-15",
@@ -364,6 +375,17 @@
     "Nicolas": 0
   },
   "notifications": [
+    {
+      "id": 1789467303568,
+      "ts": 1789467303058,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Absence Exceptionnelle · Du 24/09/2026 au 24/09/2026 (1 j)",
+      "reqId": 1789463941320
+    },
     {
       "id": 1789467295780,
       "ts": 1789467295409,
