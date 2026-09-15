@@ -85,6 +85,19 @@
       "date_demande": "2026-09-15",
       "prevStatus": "En attente",
       "date_annulation": "2026-09-15"
+    },
+    {
+      "id": 1789486334879,
+      "user": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr",
+      "start": "2026-10-19",
+      "end": "2026-10-19",
+      "days": 1,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-15"
     }
   ],
   "soldes": {
@@ -165,6 +178,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789486334879,
+      "date": "2026-09-15",
+      "heure": "17:32",
+      "type": "demande",
+      "actor": "Cindy Masson",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 19/10/2026 au 19/10/2026 (1 j)"
+    },
     {
       "ts": 1789486263663,
       "date": "2026-09-15",
@@ -415,6 +437,17 @@
     "Cindy": 10
   },
   "notifications": [
+    {
+      "id": 1789486334992,
+      "ts": 1789486334879,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Cindy Masson</strong> a déposé une demande : Congés Payés · Du 19/10/2026 au 19/10/2026 (1 j)",
+      "reqId": 1789486334879
+    },
     {
       "id": 1789467303568,
       "ts": 1789467303058,
