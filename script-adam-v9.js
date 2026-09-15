@@ -1,5 +1,5 @@
 /**
- * BOÎTE À OUTILS RDS v9.9
+ * BOÎTE À OUTILS RDS v10.0
  * 2 espaces : Salarié / Adam (sans mdp)
  * Adam peut gérer quels outils vont dans quel espace via le panel ⚙
  * + Gestion des fichiers masqués (invisibles de tous les espaces)
@@ -13,6 +13,11 @@
  *        focus auto) pour que le navigateur PROPOSE d'enregistrer le mot de passe
  *        et le remplisse tout seul aux visites suivantes.
  *        La case "Mémoriser sur cet ordinateur" (localStorage) reste disponible.
+ * v10.0 — ON RESTE SUR SON OUTIL : l'outil ouvert et l'espace sont mémorisés
+ *        dans l'URL (#outil=…, jamais de rechargement, l'adresse reste sur
+ *        ruedustore) + en secours dans sessionStorage/localStorage.
+ *        Un F5 rouvre donc directement l'outil en cours au lieu du hub.
+ *        Clic sur "ADAM" dans le menu → retour à l'accueil du hub.
  */
 (function () {
     const BASE_URL  = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
@@ -25,6 +30,30 @@
     let configSha    = null;
     let tools        = [];
     let currentSpace = 'salarie';
+    /* ── Mémoire de navigation (outil ouvert + espace) ── */
+    const KEY_TOOL  = 'rds_last_tool';
+    const KEY_SPACE = 'rds_space';
+    function readHashTool() {
+        const m = (location.hash || '').match(/outil=([^&]+)/);
+        if (m) { try { return decodeURIComponent(m[1]); } catch (e) { return null; } }
+        return null;
+    }
+    function rememberTool(key) {
+        try { if (key) sessionStorage.setItem(KEY_TOOL, key); else sessionStorage.removeItem(KEY_TOOL); } catch (e) {}
+        const clean = location.pathname + location.search;
+        try { history.replaceState(null, '', key ? clean + '#outil=' + encodeURIComponent(key) : clean); } catch (e) {}
+    }
+    function rememberSpace(space) {
+        try { localStorage.setItem(KEY_SPACE, space); } catch (e) {}
+    }
+    function restoreSpace() {
+        try { const v = localStorage.getItem(KEY_SPACE); if (v === 'salarie' || v === 'adam') currentSpace = v; } catch (e) {}
+    }
+    function lastToolKey() {
+        const h = readHashTool();
+        if (h) return h;
+        try { return sessionStorage.getItem(KEY_TOOL); } catch (e) { return null; }
+    }
     /* ── URL : on encode chaque segment, jamais le "/" ── */
     function buildUrl(path) {
         return BASE_URL + String(path).split('/').map(encodeURIComponent).join('/');
@@ -90,9 +119,10 @@
             const el = document.createElement('div');
             el.className = 'rds-nav-item';
             el.textContent = getToolLabel(tool.name);
+            el.dataset.key = tool.name;
             let path = tool.name;
             if (tool.isDir) path += path.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
-            el.onclick = () => openTool(buildUrl(path), el);
+            el.onclick = () => openTool(buildUrl(path), el, tool.name);
             list.appendChild(el);
         });
         if (currentSpace === 'adam') {
@@ -294,9 +324,10 @@
         }
     }
     /* ── Ouvrir un outil ── */
-    function openTool(url, el) {
+    function openTool(url, el, key) {
         document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
+        rememberTool(key || el.dataset.key || null);
         document.getElementById('rds-welcome').style.display = 'none';
         document.getElementById('rds-iframe-wrap').style.display = 'block';
         document.getElementById('rds-loader').style.display = 'flex';
@@ -304,6 +335,39 @@
         f.src = url;
         f.onload = () => document.getElementById('rds-loader').style.display = 'none';
         if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
+    }
+    /* ── Retour à l'accueil du hub ── */
+    function goHome() {
+        document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('rds-iframe-wrap').style.display = 'none';
+        document.getElementById('rds-welcome').style.display = 'flex';
+        document.getElementById('rds-frame').src = 'about:blank';
+        rememberTool(null);
+    }
+    /* ── Rouvre l'outil mémorisé (après F5, ou après le mot de passe WP) ── */
+    function reopenLastTool() {
+        const key = lastToolKey();
+        if (!key) return;
+        if (key === '__config')   { document.getElementById('rds-fixed-config').click(); return; }
+        if (key === '__tournees') { document.getElementById('rds-tournees').click(); return; }
+        // Comparaison insensible à la forme des accents (GitHub renvoie parfois "é" décomposé)
+        const norm = v => String(v || '').normalize('NFC');
+        const findItem = () => Array.from(document.querySelectorAll('#rds-tool-list .rds-nav-item[data-key]'))
+            .find(e => norm(e.dataset.key) === norm(key));
+        let el = findItem();
+        if (!el) {
+            // L'outil est dans l'autre espace → on bascule dessus
+            const tool = tools.find(t => norm(t.name) === norm(key));
+            const space = tool ? getToolSpace(tool.name) : null;
+            if ((space === 'salarie' || space === 'adam') && space !== currentSpace) {
+                currentSpace = space;
+                rememberSpace(space);
+                document.getElementById('rds-space-select').value = space;
+                refreshSidebar();
+                el = findItem();
+            }
+        }
+        if (el) el.click(); else rememberTool(null);
     }
     /* ── WP password form ──
        Objectif : que le navigateur (Chrome / Edge / Safari / Firefox) reconnaisse un vrai
@@ -426,7 +490,7 @@
   <button id="rds-toggle"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
   <div id="rds-sidebar">
     <div class="rds-side-header">
-      <h2>ADAM</h2>
+      <h2 id="rds-home" title="Retour à l'accueil" style="cursor:pointer;">ADAM</h2>
       <div id="rds-space-lbl">👤 Espace Salarié</div>
     </div>
     <div class="rds-search"><input id="rds-search" type="text" placeholder="Rechercher…"></div>
@@ -481,9 +545,10 @@
   </div>
 </div>`;
         document.getElementById('rds-fixed-config').onclick = () =>
-            openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'));
+            openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'), '__config');
         document.getElementById('rds-tournees').onclick = () =>
-            openTool(buildUrl('Gestion des tournees.html'), document.getElementById('rds-tournees'));
+            openTool(buildUrl('Gestion des tournees.html'), document.getElementById('rds-tournees'), '__tournees');
+        document.getElementById('rds-home').onclick = goHome;
         document.getElementById('rds-search').oninput = e => {
             const v = e.target.value.toLowerCase();
             document.querySelectorAll('#rds-tool-list .rds-nav-item:not(#rds-fixed-config)').forEach(el => {
@@ -494,8 +559,12 @@
             const target = this.value;
             if (target === currentSpace) return;
             currentSpace = target;
+            rememberSpace(target);
             refreshSidebar();
         };
+        // Espace mémorisé (localStorage) → on le restaure avant le premier rendu
+        restoreSpace();
+        document.getElementById('rds-space-select').value = currentSpace;
         document.getElementById('rds-toggle').onclick = e => {
             e.stopPropagation();
             document.getElementById('rds-app').classList.toggle('menu-hidden');
@@ -511,6 +580,7 @@
             config = await loadConfig();
             await loadTools();
             refreshSidebar();
+            reopenLastTool();
         })();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launch);
