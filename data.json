@@ -66,6 +66,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-15"
+    },
+    {
+      "id": 1789463941320,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-09-24",
+      "end": "2026-09-24",
+      "days": 1,
+      "type": "Absence Exceptionnelle",
+      "note": "medecin - je rat",
+      "status": "En attente",
+      "date_demande": "2026-09-15"
     }
   ],
   "soldes": {
@@ -143,6 +156,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789463941320,
+      "date": "2026-09-15",
+      "heure": "11:19",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Absence Exceptionnelle — medecin - je rat · Du 24/09/2026 au 24/09/2026 (1 j)"
+    },
     {
       "ts": 1789463614441,
       "date": "2026-09-15",
