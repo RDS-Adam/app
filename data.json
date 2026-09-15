@@ -195,6 +195,15 @@
   },
   "logs": [
     {
+      "ts": 1789486934438,
+      "date": "2026-09-15",
+      "heure": "17:42",
+      "type": "solde",
+      "actor": "Baptiste",
+      "label": "Solde N-1 modifié",
+      "detail": "Baptiste · nouveau solde N-1 : 23.5 j"
+    },
+    {
       "ts": 1789486867612,
       "date": "2026-09-15",
       "heure": "17:41",
@@ -468,7 +477,8 @@
   "soldesN1": {
     "Axel": 0,
     "Nicolas": 0,
-    "Cindy": 10
+    "Cindy": 10,
+    "Baptiste": 23.5
   },
   "notifications": [
     {
