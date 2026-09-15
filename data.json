@@ -10,10 +10,8 @@
       "days": 13,
       "type": "Congés Payés",
       "note": "",
-      "status": "Annulé",
-      "date_demande": "2026-07-08",
-      "prevStatus": "En attente",
-      "date_annulation": "2026-09-15"
+      "status": "En attente",
+      "date_demande": "2026-07-08"
     },
     {
       "id": 1786464082709,
@@ -51,12 +49,10 @@
       "days": 0.5,
       "type": "Congés Payés",
       "note": "",
-      "status": "Annulé",
+      "status": "En attente",
       "date_demande": "2026-09-14",
       "startTime": "14:00",
-      "endTime": "17:30",
-      "prevStatus": "En attente",
-      "date_annulation": "2026-09-15"
+      "endTime": "17:30"
     },
     {
       "id": 1789463543713,
@@ -68,10 +64,8 @@
       "days": 6,
       "type": "Congés Payés",
       "note": "",
-      "status": "Annulé",
-      "date_demande": "2026-09-15",
-      "prevStatus": "En attente",
-      "date_annulation": "2026-09-15"
+      "status": "En attente",
+      "date_demande": "2026-09-15"
     },
     {
       "id": 1789463941320,
@@ -83,10 +77,8 @@
       "days": 1,
       "type": "Absence Exceptionnelle",
       "note": "medecin - je rat",
-      "status": "Annulé",
-      "date_demande": "2026-09-15",
-      "prevStatus": "En attente",
-      "date_annulation": "2026-09-15"
+      "status": "En attente",
+      "date_demande": "2026-09-15"
     }
   ],
   "soldes": {
@@ -164,42 +156,6 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
-    {
-      "ts": 1789467176524,
-      "date": "2026-09-15",
-      "heure": "12:12",
-      "type": "annulation",
-      "actor": "Axel Seigneury",
-      "label": "Demande retirée par le salarié",
-      "detail": "Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)"
-    },
-    {
-      "ts": 1789467174191,
-      "date": "2026-09-15",
-      "heure": "12:12",
-      "type": "annulation",
-      "actor": "Axel Seigneury",
-      "label": "Demande retirée par le salarié",
-      "detail": "Congés Payés · Du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (0,5 j)"
-    },
-    {
-      "ts": 1789467172107,
-      "date": "2026-09-15",
-      "heure": "12:12",
-      "type": "annulation",
-      "actor": "Axel Seigneury",
-      "label": "Demande retirée par le salarié",
-      "detail": "Congés Payés · Du 02/10/2026 au 09/10/2026 (6 j)"
-    },
-    {
-      "ts": 1789467168975,
-      "date": "2026-09-15",
-      "heure": "12:12",
-      "type": "annulation",
-      "actor": "Axel Seigneury",
-      "label": "Demande retirée par le salarié",
-      "detail": "Absence Exceptionnelle — medecin - je rat · Du 24/09/2026 au 24/09/2026 (1 j)"
-    },
     {
       "ts": 1789463941320,
       "date": "2026-09-15",
@@ -384,51 +340,5 @@
   "soldesN1": {
     "Axel": 103,
     "Nicolas": 0
-  },
-  "notifications": [
-    {
-      "id": 1789467176867,
-      "ts": 1789467176524,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "annulation",
-      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Congés Payés · Du 22/07/2026 au 07/08/2026 (13 j)",
-      "reqId": 1783498194583
-    },
-    {
-      "id": 1789467175107,
-      "ts": 1789467174191,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "annulation",
-      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Congés Payés · Du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (0,5 j)",
-      "reqId": 1789373770902
-    },
-    {
-      "id": 1789467172419,
-      "ts": 1789467172108,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "annulation",
-      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Congés Payés · Du 02/10/2026 au 09/10/2026 (6 j)",
-      "reqId": 1789463543713
-    },
-    {
-      "id": 1789467169790,
-      "ts": 1789467168975,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "annulation",
-      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Absence Exceptionnelle · Du 24/09/2026 au 24/09/2026 (1 j)",
-      "reqId": 1789463941320
-    }
-  ]
+  }
 }
