@@ -93,7 +93,7 @@
     "Axel": 0,
     "Baptiste": 22.24,
     "Camille": 31.24,
-    "Cindy": 31.24,
+    "Cindy": 6.24,
     "Clarisse": 31.24,
     "Karine": 31.24,
     "Nicolas": 25
@@ -165,6 +165,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789486263663,
+      "date": "2026-09-15",
+      "heure": "17:31",
+      "type": "solde",
+      "actor": "Cindy",
+      "label": "Solde N modifié",
+      "detail": "Cindy · nouveau solde N : 6.24 j"
+    },
     {
       "ts": 1789486251648,
       "date": "2026-09-15",
