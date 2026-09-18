@@ -111,6 +111,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-15"
+    },
+    {
+      "id": 1789726890461,
+      "user": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr",
+      "start": "2027-02-22",
+      "end": "2027-02-26",
+      "days": 5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-18"
     }
   ],
   "soldes": {
@@ -194,6 +207,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789726890462,
+      "date": "2026-09-18",
+      "heure": "12:21",
+      "type": "demande",
+      "actor": "Adam Audam",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 22/02/2027 au 26/02/2027 (5 j)"
+    },
     {
       "ts": 1789486946578,
       "date": "2026-09-15",
@@ -490,6 +512,17 @@
     "Baptiste": 23.5
   },
   "notifications": [
+    {
+      "id": 1789726890734,
+      "ts": 1789726890462,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Adam Audam</strong> a déposé une demande : Congés Payés · Du 22/02/2027 au 26/02/2027 (5 j)",
+      "reqId": 1789726890461
+    },
     {
       "id": 1789486374080,
       "ts": 1789486373321,
