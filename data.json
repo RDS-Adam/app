@@ -42,8 +42,12 @@
       "days": 1,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-10"
+      "status": "Validé",
+      "date_demande": "2026-09-10",
+      "reason": "",
+      "date_decision": "2026-09-21",
+      "fromN1": 0,
+      "fromN": 1
     },
     {
       "id": 1789373770902,
@@ -161,7 +165,7 @@
     }
   ],
   "soldes": {
-    "Adam": 31.24,
+    "Adam": 30.24,
     "Alexandre": 11.24,
     "Axel": 0,
     "Baptiste": 6.24,
@@ -244,6 +248,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789976798468,
+      "date": "2026-09-21",
+      "heure": "09:46",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Adam Audam · Du 26/10/2026 au 26/10/2026 (1 j)"
+    },
     {
       "ts": 1789976755169,
       "date": "2026-09-21",
@@ -592,9 +605,30 @@
     "Nicolas": 0,
     "Cindy": 10,
     "Baptiste": 23.5,
-    "Karine": 0
+    "Karine": 0,
+    "Adam": 0
   },
   "notifications": [
+    {
+      "id": 1789976799097,
+      "ts": 1789976798468,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Adam Audam</strong> : Congés Payés · Du 26/10/2026 au 26/10/2026 (1 j)",
+      "reqId": 1789033189456
+    },
+    {
+      "id": 1789976799207,
+      "ts": 1789976798468,
+      "to": [
+        "Adam"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 26/10/2026 au 26/10/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1789033189456
+    },
     {
       "id": 1789976756048,
       "ts": 1789976755169,
