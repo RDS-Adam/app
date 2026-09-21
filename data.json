@@ -224,7 +224,10 @@
       "name": "Nicolas",
       "lastname": "Decoster",
       "email": "nicolas.decoster@ruedustore.fr",
-      "role": "superadmin"
+      "role": "superadmin",
+      "passHash": "7710360eb1b0b26975e2fecc0f6b567cd77e9638551c94c671ed6bf71270de54",
+      "recoveryQuestion": "Mon premier animal?",
+      "recoveryHash": "b6b66fdec51420c61564ba9568e67ecd76e92a0bcd406bb036a70b1a803e8d0d"
     }
   ],
   "config": {
@@ -233,6 +236,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789976675759,
+      "date": "2026-09-21",
+      "heure": "09:44",
+      "type": "employe",
+      "actor": "Nicolas Decoster",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1789974953108,
       "date": "2026-09-21",
