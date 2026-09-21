@@ -25,8 +25,12 @@
       "days": 2,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-08-11"
+      "status": "Validé",
+      "date_demande": "2026-08-11",
+      "reason": "",
+      "date_decision": "2026-09-21",
+      "fromN1": 0,
+      "fromN": 2
     },
     {
       "id": 1789033189456,
@@ -160,7 +164,7 @@
     "Camille": 31.24,
     "Cindy": 6.24,
     "Clarisse": 31.24,
-    "Karine": 31.24,
+    "Karine": 29.24,
     "Nicolas": 25
   },
   "employees": [
@@ -236,6 +240,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789976721458,
+      "date": "2026-09-21",
+      "heure": "09:45",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Karine Paillard · Du 18/09/2026 au 21/09/2026 (2 j)"
+    },
     {
       "ts": 1789976675759,
       "date": "2026-09-21",
@@ -565,9 +578,30 @@
     "Axel": 0,
     "Nicolas": 0,
     "Cindy": 10,
-    "Baptiste": 23.5
+    "Baptiste": 23.5,
+    "Karine": 0
   },
   "notifications": [
+    {
+      "id": 1789976721707,
+      "ts": 1789976721458,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Karine Paillard</strong> : Congés Payés · Du 18/09/2026 au 21/09/2026 (2 j)",
+      "reqId": 1786464082709
+    },
+    {
+      "id": 1789976721587,
+      "ts": 1789976721458,
+      "to": [
+        "Karine"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 18/09/2026 au 21/09/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1786464082709
+    },
     {
       "id": 1789974953878,
       "ts": 1789974953108,
