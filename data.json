@@ -55,10 +55,14 @@
       "days": 0.5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-09-14",
       "startTime": "14:00",
-      "endTime": "17:30"
+      "endTime": "17:30",
+      "reason": "",
+      "date_decision": "2026-09-21",
+      "fromN1": 0,
+      "fromN": 0.5
     },
     {
       "id": 1789463543713,
@@ -240,6 +244,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789976755169,
+      "date": "2026-09-21",
+      "heure": "09:45",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Axel Seigneury · Du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (0,5 j)"
+    },
     {
       "ts": 1789976721458,
       "date": "2026-09-21",
@@ -582,6 +595,26 @@
     "Karine": 0
   },
   "notifications": [
+    {
+      "id": 1789976756048,
+      "ts": 1789976755169,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Axel Seigneury</strong> : Congés Payés · Du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (0,5 j)",
+      "reqId": 1789373770902
+    },
+    {
+      "id": 1789976755973,
+      "ts": 1789976755169,
+      "to": [
+        "Axel"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 14/09/2026 à 14h00 au 14/09/2026 à 17h30 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1789373770902
+    },
     {
       "id": 1789976721707,
       "ts": 1789976721458,
