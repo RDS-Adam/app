@@ -108,8 +108,12 @@
       "days": 1,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-15"
+      "status": "Validé",
+      "date_demande": "2026-09-15",
+      "reason": "",
+      "date_decision": "2026-09-21",
+      "fromN1": 1,
+      "fromN": 0
     },
     {
       "id": 1789486373321,
@@ -252,6 +256,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789976900526,
+      "date": "2026-09-21",
+      "heure": "09:48",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Cindy Masson · Du 19/10/2026 au 19/10/2026 (1 j)"
+    },
     {
       "ts": 1789976886797,
       "date": "2026-09-21",
@@ -616,12 +629,32 @@
   "soldesN1": {
     "Axel": 0,
     "Nicolas": 0,
-    "Cindy": 9,
+    "Cindy": 8,
     "Baptiste": 23.5,
     "Karine": 0,
     "Adam": 0
   },
   "notifications": [
+    {
+      "id": 1789976900598,
+      "ts": 1789976900526,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Cindy Masson</strong> : Congés Payés · Du 19/10/2026 au 19/10/2026 (1 j)",
+      "reqId": 1789486334879
+    },
+    {
+      "id": 1789976901165,
+      "ts": 1789976900526,
+      "to": [
+        "Cindy"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 19/10/2026 au 19/10/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1789486334879
+    },
     {
       "id": 1789976886992,
       "ts": 1789976886797,
