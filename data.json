@@ -124,6 +124,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-18"
+    },
+    {
+      "id": 1789974833655,
+      "user": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr",
+      "start": "2026-12-21",
+      "end": "2026-12-23",
+      "days": 3,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-21"
     }
   ],
   "soldes": {
@@ -207,6 +220,15 @@
     "lastAccrualMonth": "2026-09"
   },
   "logs": [
+    {
+      "ts": 1789974833655,
+      "date": "2026-09-21",
+      "heure": "09:13",
+      "type": "demande",
+      "actor": "Cindy Masson",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 21/12/2026 au 23/12/2026 (3 j)"
+    },
     {
       "ts": 1789726890462,
       "date": "2026-09-18",
@@ -512,6 +534,17 @@
     "Baptiste": 23.5
   },
   "notifications": [
+    {
+      "id": 1789974833979,
+      "ts": 1789974833655,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Cindy Masson</strong> a déposé une demande : Congés Payés · Du 21/12/2026 au 23/12/2026 (3 j)",
+      "reqId": 1789974833655
+    },
     {
       "id": 1789726890734,
       "ts": 1789726890462,
