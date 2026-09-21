@@ -83,7 +83,7 @@
     "o_echelle": {
       "name": "Pose Échelle > 3m50",
       "a": 10,
-      "v": 30
+      "v": 40
     },
     "o_echa_inst": {
       "name": "Inst. Échafaudage",
