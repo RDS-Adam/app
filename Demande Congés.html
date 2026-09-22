@@ -317,13 +317,18 @@
                     <div class="login-title">Espace Salarié</div>
                     <p class="login-sub">Sélectionnez votre prénom pour accéder à votre espace</p>
                     <form id="emp-login-form" method="post" action="#" autocomplete="on" onsubmit="event.preventDefault(); loginEmployee();">
-                    <!-- Champ identifiant (hors écran) : permet au navigateur de proposer l'enregistrement / le remplissage du mot de passe -->
-                    <input type="text" id="emp_login_user" name="username" autocomplete="username" tabindex="-1" aria-hidden="true"
-                           style="position:absolute;left:-10000px;top:0;width:200px;height:30px;opacity:0.01;"
-                           oninput="onUsernameAutofill(this.value)" onchange="onUsernameAutofill(this.value)">
                     <div class="form-group" style="margin-bottom:18px;">
                         <label>Votre prénom</label>
                         <select id="user-selector" onchange="onUserSelected()"><option value="">— Chargement... —</option></select>
+                    </div>
+                    <!-- Identifiant visible : c'est lui que Chrome / Safari enregistrent avec le mot de passe ("Prénom · Congés RDS").
+                         S'il est rempli automatiquement par le navigateur, le prénom correspondant est sélectionné. -->
+                    <div class="form-group" id="emp-ident-wrap" style="display:none;margin-bottom:18px;">
+                        <label>Identifiant</label>
+                        <input type="text" id="emp_login_user" name="username" autocomplete="username" spellcheck="false"
+                               style="color:var(--bleu);font-weight:500;"
+                               oninput="onUsernameAutofill(this.value)" onchange="onUsernameAutofill(this.value)">
+                        <div class="input-hint">Identifiant utilisé par votre navigateur pour enregistrer et retrouver votre mot de passe.</div>
                     </div>
 
                     <div id="emp-pwd-wrap" style="display:none;margin-bottom:6px;">
@@ -772,6 +777,7 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Connexion : identifiant visible « Prénom · Congés RDS » pour que Chrome / Safari proposent d'enregistrer le mot de passe et le retrouvent facilement</li>
                                 <li>Vrais emails automatiques (GitHub Action + compte Gmail dédié) pour chaque notification : nouvelle demande, décision, décalage, proposition, réponse, annulation — les boutons Gmail restent disponibles en secours · bouton « Tester l'email » pour la Direction</li>
                             </ul>
                         </div>
@@ -1347,6 +1353,15 @@
        - navigator.credentials.store() (Chrome/Edge) déclenche la proposition d'enregistrement
     ─────────────────────────────────────────────────────────────────── */
     const LAST_USER_KEY = 'rds_conges_last_user';
+    const LOGIN_ID_SUFFIX = ' · Congés RDS';   // identifiant enregistré par le navigateur : "Axel · Congés RDS"
+    function loginIdFor(name) { return name ? name + LOGIN_ID_SUFFIX : ''; }
+    function nameFromLoginId(v) { return (v || '').split(' · ')[0].trim(); }
+    function setLoginIdField(name) {
+        usernameSyncing = true;
+        document.getElementById('emp_login_user').value = loginIdFor(name);
+        usernameSyncing = false;
+        document.getElementById('emp-ident-wrap').style.display = name ? 'block' : 'none';
+    }
 
     function rememberLastUser(name) {
         try { if (name) localStorage.setItem(LAST_USER_KEY, name); } catch(e) {}
@@ -1360,20 +1375,21 @@
         if (!name || !pwd) return;
         try {
             if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
-                await navigator.credentials.store(new PasswordCredential({ id: name, name: name, password: pwd }));
+                await navigator.credentials.store(new PasswordCredential({ id: loginIdFor(name), name: `${name} — Congés Rue du Store`, password: pwd }));
             }
         } catch(e) { /* navigateur non compatible ou refus : silencieux */ }
     }
 
-    // Le navigateur a rempli automatiquement l'identifiant → on sélectionne le prénom correspondant
+    // Le navigateur a rempli automatiquement l'identifiant ("Axel · Congés RDS" ou simplement "Axel") → on sélectionne le prénom
     let usernameSyncing = false;
     async function onUsernameAutofill(value) {
         if (usernameSyncing) return;
-        const v = (value || '').trim();
+        const v = nameFromLoginId(value);
         if (!v) return;
         const sel = document.getElementById('user-selector');
         const opt = Array.from(sel.options).find(o => o.value && o.value.toLowerCase() === v.toLowerCase());
-        if (!opt || sel.value === opt.value) return;
+        if (!opt) return;
+        if (sel.value === opt.value) { if ((value || '').trim() !== loginIdFor(opt.value)) setLoginIdField(opt.value); return; }
         sel.value = opt.value;
         await onUserSelected();
     }
@@ -1381,9 +1397,7 @@
     async function onUserSelected() {
         hideLoginFeedback();
         const name = document.getElementById('user-selector').value;
-        usernameSyncing = true;
-        document.getElementById('emp_login_user').value = name;
-        usernameSyncing = false;
+        setLoginIdField(name);
         if (!name) {
             ['emp-pwd-wrap', 'emp-setup-wrap', 'emp-forgot-choice-wrap', 'emp-reset-wrap'].forEach(id => document.getElementById(id).style.display = 'none');
             document.getElementById('emp-login-btn').style.display = 'block';
@@ -1458,7 +1472,7 @@
             const sel = document.getElementById('user-selector');
             if (!Array.from(sel.options).some(o => o.value === name)) return showLoginFeedback('Ce lien ne correspond à aucun compte.', false);
             sel.value = name;
-            document.getElementById('emp_login_user').value = name;
+            setLoginIdField(name);
             const r = db.passwordResets && db.passwordResets[name];
             if (!r || r.hash !== await sha256(token)) { setEmpLoginMode('password'); return showLoginFeedback("Ce lien de réinitialisation n'est pas valable (déjà utilisé ou incorrect). Cliquez sur « Mot de passe oublié ? » pour en recevoir un nouveau.", false); }
             if (Date.now() > r.expires) { setEmpLoginMode('password'); return showLoginFeedback('Ce lien a expiré (30 minutes). Cliquez sur « Mot de passe oublié ? » pour en recevoir un nouveau.', false); }
@@ -1490,7 +1504,7 @@
 
     function resetEmpLoginForm() {
         document.getElementById('user-selector').value = '';
-        document.getElementById('emp_login_user').value = '';
+        setLoginIdField('');
         ['emp-pwd-wrap', 'emp-setup-wrap', 'emp-forgot-choice-wrap', 'emp-reset-wrap'].forEach(id => document.getElementById(id).style.display = 'none');
         document.getElementById('emp-login-btn').style.display = 'block';
         document.getElementById('emp_login_pwd').value = '';
