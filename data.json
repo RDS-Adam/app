@@ -264,6 +264,15 @@
   },
   "logs": [
     {
+      "ts": 1790073112162,
+      "date": "2026-09-22",
+      "heure": "12:31",
+      "type": "systeme",
+      "actor": "Axel",
+      "label": "Test des emails",
+      "detail": "Notification de test enregistrée pour Axel (axel.seigneury@ruedustore.fr)"
+    },
+    {
       "ts": 1790073094209,
       "date": "2026-09-22",
       "heure": "12:31",
@@ -660,6 +669,16 @@
     "Adam": 0
   },
   "notifications": [
+    {
+      "id": 1790073112468,
+      "ts": 1790073112162,
+      "to": [
+        "Axel"
+      ],
+      "kind": "test",
+      "text": "📧 Email de test demandé par Axel le 22/09/2026 à 12h31. Si vous recevez cet email, les notifications automatiques fonctionnent.",
+      "reqId": null
+    },
     {
       "id": 1789976900598,
       "ts": 1789976900526,
