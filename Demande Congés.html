@@ -211,6 +211,9 @@
         .gcal-bar.cont-left { border-top-left-radius: 0; border-bottom-left-radius: 0; }
         .gcal-bar.cont-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .gcal-bar.dragging, .plan-abs.dragging { opacity: 0.4; }
+        .gcal-bar.readonly, .plan-abs.readonly { cursor: default; }
+        .gcal-bar.readonly:hover { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+        .gcal-bar.mine, .plan-abs.mine { outline: 2px solid var(--text); outline-offset: 1px; }
         .plan-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
         .plan-table { border-collapse: collapse; width: 100%; min-width: 760px; }
         .plan-table th, .plan-table td { border-bottom: 1px solid #f3f3f3; border-right: 1px solid #f7f7f7; }
@@ -581,6 +584,8 @@
                 </div>
             </div>
 
+            <div id="emp-agenda-host"></div>
+
             <div class="card">
                 <div class="card-header"><h2>Sécurité de mon compte</h2></div>
                 <div class="card-body">
@@ -677,9 +682,10 @@
             </div>
 
             <div id="mgr-section-calendrier" class="mgr-section">
-                <div class="card">
+                <div id="mgr-agenda-host">
+                <div class="card" id="cal-card">
                     <div class="card-header" style="flex-wrap:wrap;gap:10px;">
-                        <h2>Calendrier des absences</h2>
+                        <h2 id="cal-card-title">Calendrier des absences</h2>
                         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                             <div class="cal-view-toggle">
                                 <button id="cal-view-month" class="active" onclick="setCalView('month')">Mois</button>
@@ -718,12 +724,14 @@
                                 <select id="cal-filter-emp" onchange="calSetFilters()"><option value="">Tous les salariés</option></select>
                             </div>
                         </div>
-                        <div class="cal-hint">Cliquez sur une absence pour la traiter, la décaler ou proposer d'autres dates au salarié · glissez-déposez une absence sur un autre jour pour la décaler directement · les jours où plusieurs salariés sont absents en même temps sont signalés en rouge · hachuré = en attente de validation.</div>
+                        <div class="cal-hint" id="cal-hint-admin">Cliquez sur une absence pour la traiter, la décaler ou proposer d'autres dates au salarié · glissez-déposez une absence sur un autre jour pour la décaler directement · les jours où plusieurs salariés sont absents en même temps sont signalés en rouge · hachuré = en attente de validation.</div>
+                        <div class="cal-hint" id="cal-hint-employee" style="display:none;">Congés validés de toute l'équipe. Vos propres absences sont entourées. Les demandes en attente n'apparaissent pas ici.</div>
                         <div id="cal-conflicts"></div>
                         <div id="cal-month"></div>
                         <div id="cal-planning" style="display:none;"></div>
                         <div class="cal-legend" id="cal-legend"></div>
                     </div>
+                </div>
                 </div>
             </div>
 
@@ -811,6 +819,7 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Agenda de l'équipe dans l'espace salarié : le même calendrier (vues Mois et Planning) limité aux congés validés, en lecture seule, ses propres absences entourées</li>
                                 <li>Nouvelle interface, plus sobre : typographie système, boutons et onglets arrondis, sans pictogrammes superflus</li>
                                 <li>Centre de notifications : filtres Non lus / Lus / Tous, marquage individuel ou global, affichage par groupes de 8</li>
                                 <li>Connexion : identifiant visible « Prénom · Congés RDS » pour que Chrome / Safari proposent d'enregistrer le mot de passe et le retrouvent facilement</li>
@@ -1148,7 +1157,8 @@
         document.getElementById('page-' + tab).classList.add('active');
         document.querySelector(`.nav-tab[onclick*="${tab}"]`).classList.add('active');
         updateEasterEgg();
-        if (tab === 'manager') renderManagerDashboard();
+        if (tab === 'manager') { mountCalendar('admin'); renderManagerDashboard(); }
+        else if (currentUser) { mountCalendar('employee'); calRefresh(); }
     }
 
     function switchMgrTab(name) {
@@ -1680,6 +1690,8 @@
         renderNotifications(fresh.db);
         document.getElementById('action-request').style.display = 'none';
         renderEmployeeTable();
+        mountCalendar('employee');
+        renderCalendar(fresh.db);
     }
 
     function soldeBadgeClass(val) {
@@ -1766,6 +1778,7 @@
         document.getElementById('nav-tab-manager').innerHTML = 'Direction';
         document.getElementById('notif-card').style.display = 'none';
         notifFilter = null; notifLimit = NOTIF_PAGE;
+        calMode = 'admin';
         switchTab('employee');
         document.getElementById('emp-login').style.display = 'block';
         document.getElementById('emp-content').style.display = 'none';
@@ -2149,6 +2162,7 @@
        - glisser-déposer pour décaler une absence
        ══════════════════════════════════════════════════════════════════════ */
     let calView = 'month';          // 'month' | 'planning'
+    let calMode = 'admin';          // 'admin' (tout, actions) | 'employee' (congés validés de l'équipe, lecture seule)
     let calFilterEmp = '';
     let calFilterStatus = 'both';   // 'both' | 'Validé' | 'En attente'
     let dragState = null;           // { id, grabbedDate }
@@ -2174,8 +2188,24 @@
     }
     function calRequests(db) {
         return db.requests.filter(r => isCalStatus(r.status)
-            && (calFilterStatus === 'both' || r.status === calFilterStatus)
+            && (calMode === 'employee' ? r.status === 'Validé' : (calFilterStatus === 'both' || r.status === calFilterStatus))
             && (!calFilterEmp || r.user === calFilterEmp));
+    }
+    // Déplace la carte calendrier dans l'espace salarié (lecture seule, validés) ou dans l'espace Direction (complet)
+    function mountCalendar(mode) {
+        const card = document.getElementById('cal-card');
+        const host = document.getElementById(mode === 'employee' ? 'emp-agenda-host' : 'mgr-agenda-host');
+        if (!card || !host) return;
+        if (card.parentElement !== host) host.appendChild(card);
+        calMode = mode;
+        const emp = mode === 'employee';
+        document.getElementById('cal-card-title').textContent = emp ? "Agenda de l'équipe" : 'Calendrier des absences';
+        document.getElementById('cal-hint-admin').style.display = emp ? 'none' : 'block';
+        document.getElementById('cal-hint-employee').style.display = emp ? 'block' : 'none';
+        document.getElementById('btn-cal-export').style.display = emp ? 'none' : 'inline-flex';
+        document.getElementById('cal-export-bar').style.display = 'none';
+        document.getElementById('cal-filter-status').style.display = emp ? 'none' : '';
+        if (emp) { calFilterStatus = 'both'; }
     }
     // Chevauchements entre salariés différents dont l'intersection touche la plage [from, to] et contient un jour ouvré
     function computeOverlaps(reqs, from, to) {
@@ -2240,11 +2270,12 @@
         const shown = [...new Set(reqs.filter(r => !(r.end < monthStart || r.start > monthEnd)).map(r => r.user))].sort((a, b) => a.localeCompare(b, 'fr'));
         document.getElementById('cal-legend').innerHTML = shown.map(e =>
             `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`).join('')
-            + (shown.length ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '');
+            + (shown.length && calMode === 'admin' ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '');
     }
 
     function renderConflicts(reqs, from, to) {
         const el = document.getElementById('cal-conflicts');
+        if (calMode === 'employee') { el.innerHTML = ''; return; }
         const list = computeOverlaps(reqs, from, to);
         const filtered = calFilterEmp || calFilterStatus !== 'both';
         if (!list.length) { el.innerHTML = `<div class="conflict-ok">✓ Aucun chevauchement entre salariés ce mois-ci${filtered ? ' (avec les filtres actifs)' : ''}.</div>`; return; }
@@ -2292,12 +2323,13 @@
             }
             const bars = segs.map(s => {
                 const r = s.r, left = diffDays(wStart, s.from), span = diffDays(s.from, s.to) + 1;
-                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}"
+                const ro = calMode === 'employee';
+                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
                     style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;background-color:${colorMap[r.user] || '#999'}"
-                    draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"
-                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}">${r.user}${r.startTime || r.endTime ? ' ·' : ''} ${fmtDays(r.days)} j${r.proposal ? ' · prop.' : ''}</div>`;
+                    ${ro ? '' : `draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`}
+                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.startTime || r.endTime ? ' ·' : ''} ${fmtDays(r.days)} j${!ro && r.proposal ? ' · prop.' : ''}</div>`;
             }).join('');
-            html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px" ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)">${days}<div class="gcal-events">${bars}</div></div>`;
+            html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px"${calMode === 'admin' ? ' ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)"' : ''}>${days}<div class="gcal-events">${bars}</div></div>`;
         }
         el.innerHTML = html + '</div>';
     }
@@ -2322,8 +2354,9 @@
             dates.forEach(iso => {
                 const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6;
                 const r = mine.find(x => iso >= x.start && iso <= x.end);
-                html += `<td class="${wk ? 'weekend' : ''}" data-date="${iso}" ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)">${r
-                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}" style="background-color:${colorMap[name] || '#999'}" draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})" title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}"></div>`
+                const ro = calMode === 'employee';
+                html += `<td class="${wk ? 'weekend' : ''}" data-date="${iso}"${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
+                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="background-color:${colorMap[name] || '#999'}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
                     : ''}</td>`;
             });
             html += '</tr>';
@@ -2339,6 +2372,7 @@
     }
     function clearDropTargets() { document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target')); }
     function startDrag(e, id, grabbedDate) {
+        if (calMode !== 'admin' || !isAdmin()) { e.preventDefault(); return; }
         dragState = { id, grabbedDate };
         e.dataTransfer.effectAllowed = 'move';
         try { e.dataTransfer.setData('text/plain', String(id)); } catch(_) {}
