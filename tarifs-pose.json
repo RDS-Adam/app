@@ -662,6 +662,20 @@
         60,
         110
       ]
+    },
+    "cat_mucf3c5ef0": {
+      "Tabliers sous face PVC": [
+        0,
+        0
+      ],
+      "Tabliers Coffre réno ext": [
+        0,
+        0
+      ],
+      "Tablier coffre bois intérieur": [
+        0,
+        0
+      ]
     }
   },
   "categories": {
@@ -808,6 +822,10 @@
     "japonais": {
       "name": "Panneaux Japonais",
       "group": "STORES INTÉRIEURS"
+    },
+    "cat_mucf3c5ef0": {
+      "name": "Tabliers Volets roulants",
+      "group": "Tabliers"
     }
   }
 }
