@@ -340,7 +340,7 @@
                     </div>
 
                     <div id="emp-setup-wrap" style="display:none;margin-bottom:6px;">
-                        <div class="alert alert-warning">Première connexion — définissez votre mot de passe et une question secrète de récupération.</div>
+                        <div class="alert alert-warning">Première connexion — définissez votre mot de passe. En cas d'oubli, un lien de réinitialisation vous sera envoyé par email.</div>
                         <div class="form-group" style="margin:14px 0;">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
@@ -354,35 +354,33 @@
                                 <li data-rule="special">Un caractère spécial</li>
                             </ul>
                         </div>
-                        <div class="form-group" style="margin-bottom:14px;">
+                        <div class="form-group">
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_setup_pwd2" autocomplete="new-password" placeholder="••••••••">
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd2', this)">👁</button>
                             </div>
                         </div>
-                        <div class="form-group" style="margin-bottom:14px;">
-                            <label>Votre question secrète</label>
-                            <input type="text" id="emp_setup_question" autocomplete="off" placeholder="Ex: Nom de mon premier animal ?">
-                        </div>
-                        <div class="form-group">
-                            <label>Votre réponse</label>
-                            <input type="text" id="emp_setup_answer" autocomplete="off" placeholder="Ex: Abou">
+                    </div>
+
+                    <div id="emp-forgot-choice-wrap" style="display:none;margin-bottom:6px;">
+                        <div class="alert alert-warning" style="display:block;">Mot de passe oublié — nous vous envoyons un lien pour en choisir un nouveau.</div>
+                        <button type="button" class="btn btn-primary btn-full" id="btn-reset-email" style="margin-bottom:8px;" onclick="requestPasswordReset()">📧 Recevoir le lien par email</button>
+                        <div id="reset-email-hint" class="input-hint" style="text-align:center;margin-bottom:10px;"></div>
+                        <div style="text-align:right;margin-top:10px;">
+                            <a href="#" style="font-size:0.7rem;color:var(--muted);" onclick="cancelForgot();return false;">← Retour</a>
                         </div>
                     </div>
 
-                    <div id="emp-forgot-wrap" style="display:none;margin-bottom:6px;">
-                        <div class="form-group" style="margin-bottom:14px;">
-                            <label id="emp_forgot_question_label">Question secrète</label>
-                            <input type="text" id="emp_forgot_answer" autocomplete="off" placeholder="Votre réponse">
-                        </div>
-                        <div class="form-group" style="margin-bottom:14px;">
+                    <div id="emp-reset-wrap" style="display:none;margin-bottom:6px;">
+                        <div class="alert alert-success" style="display:block;">🔑 Lien vérifié — choisissez votre nouveau mot de passe.</div>
+                        <div class="form-group" style="margin:14px 0;">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_forgot_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_forgot_pwd-checklist')">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd', this)">👁</button>
+                                <input type="password" id="emp_reset_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_reset_pwd-checklist')">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd', this)">👁</button>
                             </div>
-                            <ul class="pwd-checklist" id="emp_forgot_pwd-checklist">
+                            <ul class="pwd-checklist" id="emp_reset_pwd-checklist">
                                 <li data-rule="length">8 caractères minimum</li>
                                 <li data-rule="upper">Une majuscule</li>
                                 <li data-rule="digit">Un chiffre</li>
@@ -392,12 +390,9 @@
                         <div class="form-group">
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
-                                <input type="password" id="emp_forgot_pwd2" autocomplete="new-password" placeholder="••••••••">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_forgot_pwd2', this)">👁</button>
+                                <input type="password" id="emp_reset_pwd2" autocomplete="new-password" placeholder="••••••••">
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd2', this)">👁</button>
                             </div>
-                        </div>
-                        <div style="text-align:right;margin-top:6px;">
-                            <a href="#" style="font-size:0.7rem;color:var(--muted);" onclick="cancelForgot();return false;">← Retour</a>
                         </div>
                     </div>
 
@@ -578,16 +573,7 @@
                                 <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_confirm', this)">👁</button>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Nouvelle question secrète (optionnel)</label>
-                            <input type="text" id="emp_question_new" placeholder="Ex: Nom de mon premier animal ?">
-                        </div>
-                        <div class="form-group">
-                            <label>Nouvelle réponse</label>
-                            <input type="text" id="emp_answer_new" placeholder="Ex: Abou">
-                        </div>
                     </div>
-                    <p class="input-hint" style="margin-top:-8px;margin-bottom:4px;">Laissez la question et la réponse vides pour ne pas changer votre question secrète.</p>
                     <div id="emp-pwd-feedback" style="display:none;margin-top:10px;"></div>
                     <button class="btn btn-primary" style="margin-top:14px;" onclick="changeEmployeePassword()">Mettre à jour</button>
                 </div>
@@ -785,6 +771,7 @@
                                 <li>Filtres du calendrier par statut et par salarié · journal enrichi (décalages, propositions)</li>
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
+                                <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
                                 <li>Vrais emails automatiques (GitHub Action + compte Gmail dédié) pour chaque notification : nouvelle demande, décision, décalage, proposition, réponse, annulation — les boutons Gmail restent disponibles en secours · bouton « Tester l'email » pour la Direction</li>
                             </ul>
                         </div>
@@ -1027,7 +1014,8 @@
     let calYear = new Date().getFullYear();
     let calMonth = new Date().getMonth();
     let cachedDB = null;
-    let empLoginMode = 'password'; // 'password' | 'setup' | 'forgot'
+    let empLoginMode = 'password'; // 'password' | 'setup' | 'forgot-choice' (demande du lien) | 'reset' (arrivée par le lien email)
+    let pendingReset = null;       // { name, token } quand la page est ouverte depuis un lien de réinitialisation
 
     // Private joke temporaire (accord de l'intéressée) : fond discret sur l'espace Direction de Camille uniquement,
     // se désactive tout seul après la date `until`. Pour l'enlever avant : supprimer l'image ou passer `until` à hier.
@@ -1251,7 +1239,7 @@
         if (db.notifications.length > 300) db.notifications = db.notifications.slice(0, 300);
     }
     function myNotifications(db) {
-        return (db.notifications || []).filter(n => n.to && n.to.includes(currentUser));
+        return (db.notifications || []).filter(n => n.to && n.to.includes(currentUser) && n.kind !== 'reset');
     }
     function unreadCount(db) {
         const seen = (db.notifSeen && db.notifSeen[currentUser]) || 0;
@@ -1297,6 +1285,7 @@
                 const sorted = [...db.employees].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
                 sel.innerHTML = '<option value="">— Sélectionner —</option>' + sorted.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
                 // Pré-sélection du dernier prénom utilisé sur ce navigateur → le champ mot de passe s'affiche direct
+                if (await handleResetLink()) return;
                 const last = getLastUser();
                 if (last && sorted.some(e => e.name === last)) {
                     sel.value = last;
@@ -1396,9 +1385,8 @@
         document.getElementById('emp_login_user').value = name;
         usernameSyncing = false;
         if (!name) {
-            document.getElementById('emp-pwd-wrap').style.display = 'none';
-            document.getElementById('emp-setup-wrap').style.display = 'none';
-            document.getElementById('emp-forgot-wrap').style.display = 'none';
+            ['emp-pwd-wrap', 'emp-setup-wrap', 'emp-forgot-choice-wrap', 'emp-reset-wrap'].forEach(id => document.getElementById(id).style.display = 'none');
+            document.getElementById('emp-login-btn').style.display = 'block';
             return;
         }
         const { db } = cachedDB || await fetchFromGitHub();
@@ -1408,29 +1396,81 @@
 
     function setEmpLoginMode(mode) {
         empLoginMode = mode;
-        document.getElementById('emp-pwd-wrap').style.display    = mode === 'password' ? 'block' : 'none';
-        document.getElementById('emp-setup-wrap').style.display  = mode === 'setup'    ? 'block' : 'none';
-        document.getElementById('emp-forgot-wrap').style.display = mode === 'forgot'   ? 'block' : 'none';
+        document.getElementById('emp-pwd-wrap').style.display           = mode === 'password'      ? 'block' : 'none';
+        document.getElementById('emp-setup-wrap').style.display         = mode === 'setup'         ? 'block' : 'none';
+        document.getElementById('emp-forgot-choice-wrap').style.display = mode === 'forgot-choice' ? 'block' : 'none';
+        document.getElementById('emp-reset-wrap').style.display         = mode === 'reset'         ? 'block' : 'none';
         const btn = document.getElementById('emp-login-btn');
-        btn.textContent = mode === 'setup' ? 'Créer mon mot de passe →' : mode === 'forgot' ? 'Réinitialiser le mot de passe →' : 'Accéder à mon espace →';
+        btn.style.display = mode === 'forgot-choice' ? 'none' : 'block';
+        btn.textContent = mode === 'setup' ? 'Créer mon mot de passe →' : mode === 'reset' ? 'Enregistrer le nouveau mot de passe →' : 'Accéder à mon espace →';
     }
+
+    /* ── Mot de passe oublié : lien par email (envoyé par l'Action) ── */
+    const RESET_TTL_MS = 30 * 60 * 1000;          // validité du lien
+    const RESET_MIN_INTERVAL_MS = 2 * 60 * 1000;  // délai minimum entre deux demandes
+    function randomToken() { const a = new Uint8Array(24); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); }
+    function maskEmail(m) { const [u, d] = (m || '').split('@'); if (!d) return m || ''; return u.slice(0, 1) + '•••' + (u.length > 3 ? u.slice(-1) : '') + '@' + d; }
 
     async function showForgotPassword() {
         const name = document.getElementById('user-selector').value;
         if (!name) return;
         const { db } = cachedDB || await fetchFromGitHub();
         const emp = db.employees.find(e => e.name === name);
-        if (!emp || !emp.recoveryQuestion) {
-            hideLoginFeedback();
-            return showLoginFeedback('Aucune question secrète enregistrée — demandez à la direction de réinitialiser votre accès.', false);
-        }
-        document.getElementById('emp_forgot_question_label').textContent = emp.recoveryQuestion;
-        document.getElementById('emp_forgot_answer').value = '';
-        document.getElementById('emp_forgot_pwd').value = '';
-        document.getElementById('emp_forgot_pwd2').value = '';
-        updatePasswordChecklist('', 'emp_forgot_pwd-checklist');
+        if (!emp) return;
         hideLoginFeedback();
-        setEmpLoginMode('forgot');
+        if (!EMAIL_NOTIFY.enabled || !emp.email) return showLoginFeedback("Aucune adresse email sur votre compte — demandez à la direction de réinitialiser votre accès.", false);
+        const btnMail = document.getElementById('btn-reset-email');
+        btnMail.disabled = false;
+        document.getElementById('reset-email-hint').textContent = `Le lien sera envoyé à ${maskEmail(emp.email)} (sous ${EMAIL_NOTIFY.delay}), valable 30 minutes.`;
+        setEmpLoginMode('forgot-choice');
+    }
+
+    async function requestPasswordReset() {
+        const name = document.getElementById('user-selector').value;
+        if (!name) return;
+        const btn = document.getElementById('btn-reset-email');
+        btn.disabled = true;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === name);
+            if (!emp || !emp.email) { btn.disabled = false; return showLoginFeedback("Aucune adresse email sur votre compte — demandez à la direction.", false); }
+            if (!db.passwordResets) db.passwordResets = {};
+            const prev = db.passwordResets[name];
+            if (prev && Date.now() - prev.requestedAt < RESET_MIN_INTERVAL_MS) return showLoginFeedback("Un lien vient déjà d'être envoyé. Patientez 2 minutes avant d'en redemander un (pensez à vérifier les spams).", false);
+            const token = randomToken();
+            db.passwordResets[name] = { hash: await sha256(token), requestedAt: Date.now(), expires: Date.now() + RESET_TTL_MS };
+            const link = `${location.href.split('#')[0].split('?')[0]}#reset=${token}&u=${encodeURIComponent(name)}`;
+            addNotification(db, [name], 'reset', `🔑 Bonjour ${name}, une réinitialisation de votre mot de passe a été demandée le ${fmtTs(Date.now())}. Ouvrez ce lien pour choisir un nouveau mot de passe (valable 30 minutes, utilisable une seule fois) : ${link}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe actuel reste valable.`);
+            addLogEntry(db, 'employe', name, 'Lien de réinitialisation envoyé', `${name} · lien envoyé à ${emp.email} (valable 30 min)`);
+            await saveToGitHub(db, sha);
+            showLoginFeedback(`✓ Lien envoyé à ${maskEmail(emp.email)} — il arrive sous ${EMAIL_NOTIFY.delay} et reste valable 30 minutes. Pensez à vérifier les spams.`, true);
+        } catch(e) { btn.disabled = false; showLoginFeedback('Erreur : ' + e.message, false); }
+    }
+
+    // Ouverture depuis un lien de réinitialisation : #reset=<jeton>&u=<prénom>
+    async function handleResetLink() {
+        const m = location.hash.match(/^#reset=([a-f0-9]{48})&u=([^&]+)$/);
+        if (!m) return false;
+        const token = m[1], name = decodeURIComponent(m[2]);
+        history.replaceState(null, '', location.pathname + location.search);
+        try {
+            const { db } = await fetchFromGitHub();
+            const sel = document.getElementById('user-selector');
+            if (!Array.from(sel.options).some(o => o.value === name)) return showLoginFeedback('Ce lien ne correspond à aucun compte.', false);
+            sel.value = name;
+            document.getElementById('emp_login_user').value = name;
+            const r = db.passwordResets && db.passwordResets[name];
+            if (!r || r.hash !== await sha256(token)) { setEmpLoginMode('password'); return showLoginFeedback("Ce lien de réinitialisation n'est pas valable (déjà utilisé ou incorrect). Cliquez sur « Mot de passe oublié ? » pour en recevoir un nouveau.", false); }
+            if (Date.now() > r.expires) { setEmpLoginMode('password'); return showLoginFeedback('Ce lien a expiré (30 minutes). Cliquez sur « Mot de passe oublié ? » pour en recevoir un nouveau.', false); }
+            pendingReset = { name, token };
+            document.getElementById('emp_reset_pwd').value = '';
+            document.getElementById('emp_reset_pwd2').value = '';
+            updatePasswordChecklist('', 'emp_reset_pwd-checklist');
+            hideLoginFeedback();
+            setEmpLoginMode('reset');
+            setTimeout(() => document.getElementById('emp_reset_pwd').focus(), 100);
+            return true;
+        } catch(e) { showLoginFeedback('Erreur : ' + e.message, false); return false; }
     }
 
     async function cancelForgot() {
@@ -1451,9 +1491,8 @@
     function resetEmpLoginForm() {
         document.getElementById('user-selector').value = '';
         document.getElementById('emp_login_user').value = '';
-        document.getElementById('emp-pwd-wrap').style.display = 'none';
-        document.getElementById('emp-setup-wrap').style.display = 'none';
-        document.getElementById('emp-forgot-wrap').style.display = 'none';
+        ['emp-pwd-wrap', 'emp-setup-wrap', 'emp-forgot-choice-wrap', 'emp-reset-wrap'].forEach(id => document.getElementById(id).style.display = 'none');
+        document.getElementById('emp-login-btn').style.display = 'block';
         document.getElementById('emp_login_pwd').value = '';
         hideLoginFeedback();
         // Après déconnexion : on re-propose le dernier prénom utilisé
@@ -1472,17 +1511,12 @@
         if (empLoginMode === 'setup') {
             const pwd  = document.getElementById('emp_setup_pwd').value;
             const pwd2 = document.getElementById('emp_setup_pwd2').value;
-            const question = document.getElementById('emp_setup_question').value.trim();
-            const answer   = document.getElementById('emp_setup_answer').value.trim();
             const issues = passwordIssues(pwd);
             if (issues.length) return showLoginFeedback('Mot de passe trop faible — il manque : ' + issues.join(', ') + '.', false);
             if (pwd !== pwd2) return showLoginFeedback('Les mots de passe ne correspondent pas.', false);
-            if (!question) return showLoginFeedback('Indiquez votre question secrète.', false);
-            if (!answer || answer.length < 2) return showLoginFeedback('Indiquez une réponse (2 caractères min.).', false);
             emp.passHash = await sha256(pwd);
-            emp.recoveryQuestion = question;
-            emp.recoveryHash = await sha256(answer.toLowerCase());
-            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe défini', 'Première connexion — mot de passe et question secrète enregistrés');
+            delete emp.recoveryQuestion; delete emp.recoveryHash;
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe défini', 'Première connexion — mot de passe enregistré');
             await saveToGitHub(db, sha);
             currentUser = name;
             rememberLastUser(name);
@@ -1490,23 +1524,26 @@
             return enterEmployeeSpace(db, emp);
         }
 
-        if (empLoginMode === 'forgot') {
-            const answer = document.getElementById('emp_forgot_answer').value.trim();
-            const pwd  = document.getElementById('emp_forgot_pwd').value;
-            const pwd2 = document.getElementById('emp_forgot_pwd2').value;
-            if (!emp.recoveryHash) return showLoginFeedback('Aucune question secrète enregistrée — demandez à la direction de réinitialiser votre accès.', false);
-            const answerHash = await sha256(answer.toLowerCase());
-            if (answerHash !== emp.recoveryHash) return showLoginFeedback('Réponse incorrecte.', false);
-            const forgotIssues = passwordIssues(pwd);
-            if (forgotIssues.length) return showLoginFeedback('Mot de passe trop faible — il manque : ' + forgotIssues.join(', ') + '.', false);
+        if (empLoginMode === 'reset') {
+            const pwd  = document.getElementById('emp_reset_pwd').value;
+            const pwd2 = document.getElementById('emp_reset_pwd2').value;
+            if (!pendingReset || pendingReset.name !== name) return showLoginFeedback('Lien de réinitialisation invalide — refaites une demande.', false);
+            const r = db.passwordResets && db.passwordResets[name];
+            if (!r || r.hash !== await sha256(pendingReset.token)) return showLoginFeedback("Ce lien n'est plus valable — refaites une demande.", false);
+            if (Date.now() > r.expires) return showLoginFeedback('Ce lien a expiré (30 minutes) — refaites une demande.', false);
+            const resetIssues = passwordIssues(pwd);
+            if (resetIssues.length) return showLoginFeedback('Mot de passe trop faible — il manque : ' + resetIssues.join(', ') + '.', false);
             if (pwd !== pwd2) return showLoginFeedback('Les mots de passe ne correspondent pas.', false);
             emp.passHash = await sha256(pwd);
-            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe réinitialisé', 'Réinitialisation via question secrète');
+            delete db.passwordResets[name];
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe réinitialisé', 'Réinitialisation via le lien reçu par email');
             await saveToGitHub(db, sha);
+            pendingReset = null;
             offerToSaveCredential(name, pwd);
             showLoginFeedback('✓ Mot de passe mis à jour. Vous pouvez vous connecter.', true);
             setEmpLoginMode('password');
             document.getElementById('emp_login_pwd').value = '';
+            setTimeout(() => document.getElementById('emp_login_pwd').focus(), 100);
             return;
         }
 
@@ -1638,8 +1675,6 @@
         const current     = document.getElementById('emp_pwd_current').value;
         const newPwd       = document.getElementById('emp_pwd_new').value;
         const confirmPwd   = document.getElementById('emp_pwd_confirm').value;
-        const newQuestion  = document.getElementById('emp_question_new').value.trim();
-        const newAnswer    = document.getElementById('emp_answer_new').value.trim();
         const feedback = document.getElementById('emp-pwd-feedback');
         const showMsg = (msg, ok) => {
             feedback.style.display = 'flex';
@@ -1650,7 +1685,6 @@
         if (newPwd !== confirmPwd) return showMsg('Les deux nouveaux mots de passe ne correspondent pas.', false);
         const empPwdIssues = passwordIssues(newPwd);
         if (empPwdIssues.length) return showMsg('Mot de passe trop faible — il manque : ' + empPwdIssues.join(', ') + '.', false);
-        if (!!newQuestion !== !!newAnswer) return showMsg('Renseignez à la fois la question et la réponse (ou laissez les deux vides).', false);
         try {
             const { db, sha } = await fetchFromGitHub();
             const emp = db.employees.find(e => e.name === currentUser);
@@ -1658,21 +1692,12 @@
             const currentHash = await sha256(current);
             if (!emp.passHash || currentHash !== emp.passHash) return showMsg('Mot de passe actuel incorrect.', false);
             emp.passHash = await sha256(newPwd);
-            let detail = "Changement depuis l'espace salarié";
-            if (newQuestion && newAnswer) {
-                if (newAnswer.length < 2) return showMsg('La nouvelle réponse doit faire au moins 2 caractères.', false);
-                emp.recoveryQuestion = newQuestion;
-                emp.recoveryHash = await sha256(newAnswer.toLowerCase());
-                detail += ' (+ question secrète mise à jour)';
-            }
-            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe modifié', detail);
+            addLogEntry(db, 'employe', `${emp.name} ${emp.lastname||''}`.trim(), 'Mot de passe modifié', "Changement depuis l'espace salarié");
             await saveToGitHub(db, sha);
             offerToSaveCredential(currentUser, newPwd);
             document.getElementById('emp_pwd_current').value = '';
             document.getElementById('emp_pwd_new').value = '';
             document.getElementById('emp_pwd_confirm').value = '';
-            document.getElementById('emp_question_new').value = '';
-            document.getElementById('emp_answer_new').value = '';
             updatePasswordChecklist('', 'emp_pwd_new-checklist');
             showMsg('✓ Mot de passe mis à jour avec succès.', true);
         } catch(e) { showMsg('Erreur : '+e.message, false); }
@@ -2631,7 +2656,7 @@
 
     async function resetEmployeePassword(name) {
         if (!isSuperAdmin()) return;
-        if (!confirm(`Réinitialiser le mot de passe et la question secrète de ${name} ? Il/elle devra en redéfinir au prochain accès.`)) return;
+        if (!confirm(`Réinitialiser le mot de passe de ${name} ? Il/elle devra en redéfinir un au prochain accès.`)) return;
         try {
             const { db, sha } = await fetchFromGitHub();
             const emp = db.employees.find(e => e.name === name);
@@ -2639,7 +2664,8 @@
             delete emp.passHash;
             delete emp.recoveryHash;
             delete emp.recoveryQuestion;
-            addLogEntry(db, 'employe', actorName(), 'Accès salarié réinitialisé', `${name}${emp.lastname?' '+emp.lastname:''} — mot de passe et question secrète effacés`);
+            if (db.passwordResets) delete db.passwordResets[name];
+            addLogEntry(db, 'employe', actorName(), 'Accès salarié réinitialisé', `${name}${emp.lastname?' '+emp.lastname:''} — mot de passe effacé`);
             await saveToGitHub(db, sha);
             await renderManagerDashboard();
             alert(`Accès de ${name} réinitialisé.`);
