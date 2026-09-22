@@ -185,6 +185,19 @@
       "date_demande": "2026-09-22",
       "startTime": "12:30",
       "endTime": "18:00"
+    },
+    {
+      "id": 1790083771711,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2027-03-02",
+      "end": "2027-03-16",
+      "days": 11,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-22"
     }
   ],
   "soldes": {
@@ -281,6 +294,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790083771712,
+      "date": "2026-09-22",
+      "heure": "15:29",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 02/03/2027 au 16/03/2027 (11 j)"
+    },
     {
       "ts": 1790083425729,
       "date": "2026-09-22",
@@ -732,6 +754,17 @@
     "Adam": 0
   },
   "notifications": [
+    {
+      "id": 1790083772655,
+      "ts": 1790083771712,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 02/03/2027 au 16/03/2027 (11 j)",
+      "reqId": 1790083771711
+    },
     {
       "id": 1790083426648,
       "ts": 1790083425729,
