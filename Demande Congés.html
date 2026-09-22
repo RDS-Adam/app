@@ -5,166 +5,192 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RH — Congés | Rue du Store</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bleu: #25737d;
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bleu: #1f6f78;
+            --bleu-dark: #185960;
+            --bleu-soft: #e6f1f2;
             --orange: #ff7200;
-            --text: #1a1a1a;
-            --muted: #999;
-            --border: #eeeeee;
-            --bg: #fcfcfc;
-            --success: #2d9e6b;
-            --danger: #e53935;
-            --warning: #e08c00;
+            --text: #1d1d1f;
+            --text-2: #515154;
+            --muted: #86868b;
+            --border: #e5e5ea;
+            --line: #f0f0f2;
+            --bg: #f5f5f7;
+            --field: #f2f2f4;
+            --success: #2e9e6b; --success-soft: #e7f6ee;
+            --danger: #e0362f;  --danger-soft: #fdecea;
+            --warning: #d98a00; --warning-soft: #fff4e0;
+            --radius: 16px; --radius-sm: 10px;
+            --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+            --ring: 0 0 0 3px rgba(31,111,120,0.18);
+            --teal: var(--bleu);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 20px 50px; }
-        .container { max-width: 980px; margin: 0 auto; }
-        .app-header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
-        .logo-text { color: var(--bleu); font-weight: 600; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 1px; }
-        .logo-text span { color: var(--orange); }
-        .nav-tabs { display: flex; gap: 6px; }
-        .nav-tab { padding: 7px 18px; border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 500; color: var(--muted); transition: all 0.2s; }
-        .nav-tab.active { background: var(--bleu); color: white; border-color: var(--bleu); }
-        .nav-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
-        .header-ver { font-size: 0.68rem; color: #ccc; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 28px 20px 60px; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1040px; margin: 0 auto; }
+        .app-header { padding-bottom: 8px; margin-bottom: 26px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .logo-text { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; color: var(--text); display: flex; align-items: baseline; gap: 10px; }
+        .logo-text span { color: var(--muted); font-weight: 500; font-size: 0.8rem; letter-spacing: 0; }
+        .nav-tabs, .mgr-tabs, .cal-view-toggle, .seg { display: inline-flex; background: #e8e8ed; border-radius: 999px; padding: 3px; gap: 2px; }
+        .nav-tab, .mgr-tab, .cal-view-toggle button, .seg button { border: none; background: transparent; padding: 7px 16px; border-radius: 999px; font-family: var(--font); font-size: 0.82rem; font-weight: 500; color: var(--text-2); cursor: pointer; transition: background 0.2s, color 0.2s, box-shadow 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+        .nav-tab.active, .mgr-tab.active, .cal-view-toggle button.active, .seg button.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        .nav-tab:hover:not(.active), .mgr-tab:hover:not(.active), .cal-view-toggle button:hover:not(.active), .seg button:hover:not(.active) { color: var(--text); }
+        .mgr-tabs { margin-bottom: 22px; }
+        .seg button { padding: 6px 12px; font-size: 0.76rem; }
+        .seg .count { background: #d1d1d6; color: var(--text); border-radius: 999px; font-size: 0.64rem; font-weight: 600; padding: 1px 6px; min-width: 18px; text-align: center; line-height: 1.4; }
+        .seg button.active .count { background: var(--bleu); color: #fff; }
+        .header-ver { font-size: 0.72rem; color: var(--muted); }
         .page { display: none; }
         .page.active { display: block; }
-        .card { background: white; border: 1px solid #f0f0f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 18px; }
-        .card-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .card-header h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0; font-weight: 500; }
-        .card-body { padding: 22px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+        .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        .card-header { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .card-header h2 { font-size: 0.98rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .card-body { padding: 24px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; }
         .form-grid .full { grid-column: span 2; }
-        .form-group label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.88rem; outline: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--text); transition: border-color 0.2s; }
-        .form-group select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 2px center; padding-right: 18px; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-bottom-color: var(--orange); }
-        .form-group input:disabled { color: var(--muted); cursor: not-allowed; background: transparent; }
-        .form-group textarea { resize: vertical; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-top: 2px; }
-        .form-group textarea:focus { border-color: var(--orange); outline: none; }
-        .time-hint { font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
-        .time-tag { display: inline-block; font-size: 0.68rem; color: var(--teal, #25737d); font-weight: 600; margin-left: 4px; }
-        .input-hint { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
-        .pwd-field { display: flex; align-items: center; border-bottom: 1px solid #ddd; transition: border-color 0.2s; }
-        .pwd-field input[type="password"], .pwd-field input[type="text"] { border-bottom: none; flex: 1; min-width: 0; }
-        .pwd-field:focus-within { border-bottom-color: var(--orange); }
-        .pwd-toggle-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.78rem; padding: 4px 2px; flex-shrink: 0; font-family: 'Poppins', sans-serif; }
-        .pwd-toggle-btn:hover { color: var(--bleu); }
-        .pwd-input-wrap .pwd-field input { text-align: center; }
-        .pwd-checklist { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-direction: column; gap: 2px; }
-        .pwd-checklist li { font-size: 0.68rem; color: var(--danger); display: flex; align-items: center; gap: 5px; transition: color 0.15s; }
-        .pwd-checklist li::before { content: '✕'; font-size: 0.6rem; width: 12px; text-align: center; flex-shrink: 0; }
+        .form-group label { font-size: 0.74rem; font-weight: 500; color: var(--text-2); display: block; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.92rem; outline: none; background: var(--field); font-family: var(--font); color: var(--text); transition: background 0.15s, border-color 0.15s, box-shadow 0.15s; }
+        .form-group select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { background: #fff; border-color: var(--bleu); box-shadow: var(--ring); }
+        .form-group input:disabled { color: var(--muted); cursor: not-allowed; background: var(--field); }
+        .form-group textarea { resize: vertical; }
+        .time-hint { font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
+        .time-tag { display: inline-block; font-size: 0.7rem; color: var(--bleu); font-weight: 600; margin-left: 4px; }
+        .input-hint { font-size: 0.72rem; color: var(--muted); margin-top: 5px; line-height: 1.45; }
+        .pwd-field { display: flex; align-items: center; background: var(--field); border: 1px solid transparent; border-radius: var(--radius-sm); padding-right: 6px; transition: background 0.15s, border-color 0.15s, box-shadow 0.15s; }
+        .pwd-field input[type="password"], .pwd-field input[type="text"] { background: transparent; border: none; flex: 1; min-width: 0; box-shadow: none; }
+        .pwd-field:focus-within { background: #fff; border-color: var(--bleu); box-shadow: var(--ring); }
+        .pwd-toggle-btn { background: none; border: none; cursor: pointer; color: var(--bleu); font-size: 0.74rem; font-weight: 500; padding: 6px 8px; flex-shrink: 0; font-family: var(--font); border-radius: 8px; }
+        .pwd-toggle-btn:hover { background: var(--bleu-soft); }
+        .pwd-checklist { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+        .pwd-checklist li { font-size: 0.7rem; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: color 0.15s; }
+        .pwd-checklist li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #d1d1d6; flex-shrink: 0; }
         .pwd-checklist li.ok { color: var(--success); }
-        .pwd-checklist li.ok::before { content: '✓'; }
-        .btn { cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 500; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 9px 18px; border: none; }
-        .btn-primary { background: var(--bleu); color: white; }
-        .btn-primary:hover { background: #1d5f68; }
-        .btn-orange { background: var(--orange); color: white; }
-        .btn-orange:hover { opacity: 0.88; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { opacity: 0.88; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { opacity: 0.88; }
-        .btn-ghost { background: transparent; border: 1px solid var(--border); color: #666; }
-        .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
-        .btn-ghost-danger { background: transparent; border: 1px solid var(--border); color: var(--danger); }
-        .btn-ghost-danger:hover { border-color: var(--danger); }
-        .btn-sm { padding: 5px 12px; font-size: 0.72rem; }
-        .btn-full { width: 100%; justify-content: center; }
+        .pwd-checklist li.ok::before { background: var(--success); }
+        .btn { cursor: pointer; font-family: var(--font); font-weight: 500; border-radius: 999px; transition: background 0.15s, color 0.15s, opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.84rem; padding: 9px 16px; border: none; line-height: 1.2; white-space: nowrap; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: default; }
+        .btn-primary { background: var(--bleu); color: #fff; }
+        .btn-primary:hover { background: var(--bleu-dark); }
+        .btn-orange { background: var(--orange); color: #fff; }
+        .btn-orange:hover { opacity: 0.9; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { opacity: 0.9; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { opacity: 0.9; }
+        .btn-ghost { background: var(--field); color: var(--text); }
+        .btn-ghost:hover { background: #e6e6ea; }
+        .btn-ghost-danger { background: var(--danger-soft); color: var(--danger); }
+        .btn-ghost-danger:hover { background: #fadbd8; }
+        .btn-sm { padding: 6px 12px; font-size: 0.76rem; }
+        .btn-full { width: 100%; }
         .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
-        .kpi-card { background: white; border: 1px solid #f0f0f0; border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .kpi-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .kpi-val { font-size: 1.9rem; font-weight: 300; color: var(--bleu); line-height: 1; }
+        .kpi-card { background: #fff; border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+        .kpi-label { font-size: 0.74rem; color: var(--text-2); font-weight: 500; margin-bottom: 8px; }
+        .kpi-val { font-size: 1.8rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text); line-height: 1; }
         .kpi-val.orange { color: var(--orange); }
         .kpi-val.green { color: var(--success); }
         .kpi-val.red { color: var(--danger); }
-        .login-wrap { max-width: 380px; margin: 50px auto; }
-        .login-title { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 5px; }
-        .login-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 22px; }
+        .login-wrap { max-width: 400px; margin: 40px auto; }
+        .login-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin-bottom: 4px; }
+        .login-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
         .pwd-input-wrap { margin-bottom: 18px; }
-        .pwd-input-wrap input { width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.95rem; text-align: center; font-family: 'Poppins', sans-serif; outline: none; }
-        .pwd-input-wrap input:focus { border-bottom-color: var(--orange); }
-        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 500; }
-        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-        .badge-pending { background: #fff3e0; color: #e65100; }
-        .badge-valid { background: #e8f5e9; color: #2e7d32; }
-        .badge-refused { background: #ffebee; color: #c62828; }
-        .badge-cancelled { background: #eceff1; color: #546e7a; }
-        .btn-cancel-req { background: none; border: 1px solid #ffcdd2; color: #c62828; border-radius: 5px; padding: 4px 9px; font-size: 0.68rem; cursor: pointer; font-family: inherit; margin-top: 5px; white-space: nowrap; }
-        .btn-cancel-req:hover { background: #ffebee; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 500; white-space: nowrap; }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+        .badge-pending { background: var(--warning-soft); color: #b26f00; }
+        .badge-valid { background: var(--success-soft); color: #23784f; }
+        .badge-refused { background: var(--danger-soft); color: #b3261e; }
+        .badge-cancelled { background: #ececf0; color: #5b5b60; }
+        .btn-cancel-req { background: none; border: 1px solid var(--border); color: var(--danger); border-radius: 999px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; font-family: var(--font); margin-top: 6px; white-space: nowrap; }
+        .btn-cancel-req:hover { background: var(--danger-soft); border-color: transparent; }
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        thead th { padding: 8px 14px; font-size: 0.58rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); background: #fafafa; }
-        tbody td { padding: 13px 14px; border-bottom: 1px solid #f5f5f5; font-size: 0.8rem; vertical-align: middle; }
+        thead th { padding: 10px 16px; font-size: 0.72rem; font-weight: 500; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); background: transparent; white-space: nowrap; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid var(--line); font-size: 0.86rem; vertical-align: middle; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #fafafa; }
-        .reason-tag { display: inline-block; background: #ffebee; color: #c62828; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; margin-top: 4px; }
-        .rattrapage-tag { display: inline-block; background: #e3f2fd; color: #0d47a1; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; margin-top: 4px; }
+        .reason-tag { display: inline-block; background: var(--danger-soft); color: #b3261e; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 5px; }
+        .rattrapage-tag { display: inline-block; background: #e8f1fb; color: #1b5fa8; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 5px; }
         .ratt-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
-        .ratt-row input { width: 100%; padding: 7px 0; border: none; border-bottom: 1px solid #ddd; font-size: 0.82rem; outline: none; background: transparent; font-family: 'Poppins', sans-serif; color: var(--text); }
-        .ratt-row input:focus { border-bottom-color: var(--bleu); }
-        .ratt-row .ratt-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 3px; }
-        .ratt-del { background: none; border: 1px solid #eee; border-radius: 5px; color: #c62828; cursor: pointer; padding: 5px 9px; font-size: 0.75rem; font-family: inherit; }
-        .ratt-del:hover { border-color: #c62828; }
-        .notif-card { border-left: 3px solid var(--orange); }
-        .notif-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.78rem; color: #555; }
+        .ratt-row input { width: 100%; padding: 8px 10px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 0.86rem; outline: none; background: var(--field); font-family: var(--font); color: var(--text); }
+        .ratt-row input:focus { background: #fff; border-color: var(--bleu); box-shadow: var(--ring); }
+        .ratt-row .ratt-lbl { font-size: 0.7rem; color: var(--text-2); font-weight: 500; display: block; margin-bottom: 4px; }
+        .ratt-del { background: var(--field); border: none; border-radius: 999px; color: var(--danger); cursor: pointer; padding: 8px 12px; font-size: 0.78rem; font-family: var(--font); }
+        .ratt-del:hover { background: var(--danger-soft); }
+        /* Centre de notifications */
+        .notif-card .card-header { flex-wrap: wrap; }
+        .notif-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .notif-item { display: flex; gap: 14px; align-items: flex-start; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; color: var(--text-2); line-height: 1.5; }
         .notif-item:last-child { border-bottom: none; }
-        .notif-item.unread { color: var(--text); font-weight: 500; }
-        .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; flex-shrink: 0; margin-top: 6px; }
-        .notif-item.unread .notif-dot { background: var(--orange); }
-        .notif-meta { font-size: 0.66rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
-        .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--orange); color: white; font-size: 0.62rem; font-weight: 600; margin-left: 6px; }
-        .req-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; transition: box-shadow 0.2s; }
-        .req-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+        .notif-item.unread { color: var(--text); }
+        .notif-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 600; flex-shrink: 0; background: var(--field); color: var(--text-2); }
+        .notif-icon.demande { background: var(--bleu-soft); color: var(--bleu); }
+        .notif-icon.ok { background: var(--success-soft); color: var(--success); }
+        .notif-icon.ko { background: var(--danger-soft); color: var(--danger); }
+        .notif-icon.decalage { background: #ede9fb; color: #5b45c8; }
+        .notif-icon.proposition { background: var(--warning-soft); color: var(--warning); }
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-meta { font-size: 0.72rem; color: var(--muted); font-weight: 400; margin-top: 4px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 13px; visibility: hidden; }
+        .notif-item.unread .notif-dot { visibility: visible; }
+        .notif-mark { background: none; border: none; color: var(--bleu); font-size: 0.72rem; font-weight: 500; cursor: pointer; padding: 0; font-family: var(--font); }
+        .notif-mark:hover { text-decoration: underline; }
+        .notif-more { text-align: center; padding: 12px 0 4px; }
+        .notif-empty { text-align: center; color: var(--muted); font-size: 0.82rem; padding: 22px 0 14px; }
+        .nav-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--orange); color: white; font-size: 0.64rem; font-weight: 600; margin-left: 4px; }
+        .req-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; transition: box-shadow 0.2s, border-color 0.2s; }
+        .req-card:hover { box-shadow: var(--shadow); border-color: transparent; }
         .req-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-        .req-avatar { width: 36px; height: 36px; border-radius: 8px; background: #e0eff0; color: var(--bleu); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .req-name { font-weight: 600; font-size: 0.88rem; color: var(--text); }
-        .req-meta { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+        .req-avatar { width: 38px; height: 38px; border-radius: 12px; background: var(--bleu-soft); color: var(--bleu); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .req-name { font-weight: 600; font-size: 0.92rem; color: var(--text); letter-spacing: -0.01em; }
+        .req-meta { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
         .req-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-        .chip { display: inline-flex; align-items: center; gap: 4px; background: #f7f7f7; border: 1px solid #eee; border-radius: 4px; padding: 3px 9px; font-size: 0.7rem; color: #555; }
-        .req-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-        .decision-panel { background: #f6fafb; border: 1.5px solid var(--bleu); border-radius: 10px; padding: 18px; margin-top: 14px; display: none; }
-        .decision-panel h4 { font-size: 0.78rem; font-weight: 600; color: var(--bleu); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .alert { padding: 10px 14px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .alert-warning { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+        .chip { display: inline-flex; align-items: center; gap: 4px; background: var(--field); border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.74rem; color: var(--text-2); }
+        .req-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+        .decision-panel { background: var(--field); border: none; border-radius: 14px; padding: 18px; margin-top: 14px; display: none; }
+        .decision-panel h4 { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+        .decision-panel .form-group input, .decision-panel .form-group textarea { background: #fff; }
+        .alert { padding: 11px 14px; border-radius: 12px; font-size: 0.82rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; line-height: 1.45; }
+        .alert-success { background: var(--success-soft); color: #23784f; }
+        .alert-warning { background: var(--warning-soft); color: #9a5c00; }
         .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-        .filter-row select, .filter-row input { padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.75rem; background: white; color: var(--text); outline: none; }
-        .filter-row select:focus, .filter-row input:focus { border-color: var(--bleu); }
-        .gmail-btn { display: inline-flex; align-items: center; gap: 6px; background: #ea4335; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 0.78rem; text-decoration: none; }
-        .days-preview { margin: 14px 0; padding: 10px 14px; background: #e0eff0; border-radius: 6px; font-size: 0.8rem; color: var(--bleu); font-weight: 500; display: none; }
-        .mgr-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
-        .mgr-top h1 { font-size: 1.1rem; font-weight: 600; color: var(--text); }
-        .mgr-top p { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
-        .mgr-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .emp-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 18px; }
-        .empty-state { text-align: center; padding: 40px; color: var(--muted); }
-        .empty-state .empty-icon { font-size: 2rem; margin-bottom: 10px; }
-        .empty-state strong { display: block; font-size: 0.88rem; color: #555; margin-bottom: 4px; }
-        .empty-state span { font-size: 0.78rem; }
-        .solde-display { display: inline-flex; align-items: center; gap: 6px; background: #e0eff0; color: var(--bleu); border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; font-weight: 500; margin-top: 8px; }
-        .solde-display.low { background: #fff3e0; color: #e65100; }
-        .solde-display.critical { background: #ffebee; color: #c62828; }
-        .mgr-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
-        .mgr-tab { padding: 6px 16px; border: 1px solid var(--border); border-radius: 6px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 500; color: var(--muted); transition: all 0.2s; }
-        .mgr-tab.active { background: var(--bleu); color: white; border-color: var(--bleu); }
-        .mgr-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
+        .filter-row select, .filter-row input { padding: 8px 12px; border: 1px solid transparent; border-radius: var(--radius-sm); font-family: var(--font); font-size: 0.8rem; background: var(--field); color: var(--text); outline: none; }
+        .filter-row select { -webkit-appearance: none; appearance: none; padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+        .filter-row select:focus, .filter-row input:focus { background-color: #fff; border-color: var(--bleu); box-shadow: var(--ring); }
+        .gmail-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--text); color: #fff; padding: 9px 16px; border-radius: 999px; font-weight: 500; font-size: 0.8rem; text-decoration: none; }
+        .gmail-btn:hover { background: #000; }
+        .days-preview { margin: 14px 0; padding: 10px 14px; background: var(--bleu-soft); border-radius: 12px; font-size: 0.82rem; color: var(--bleu); font-weight: 500; display: none; }
+        .mgr-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; gap: 14px; }
+        .mgr-top h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+        .mgr-top p { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+        .mgr-top-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .emp-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; }
+        .emp-grid > *, .form-grid > *, .kpi-row > *, .card { min-width: 0; }
+        .empty-state { text-align: center; padding: 36px 20px; color: var(--muted); }
+        .empty-state strong { display: block; font-size: 0.92rem; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+        .empty-state span { font-size: 0.8rem; }
+        .solde-display { display: inline-flex; align-items: center; gap: 6px; background: var(--bleu-soft); color: var(--bleu); border-radius: 10px; padding: 7px 12px; font-size: 0.86rem; font-weight: 600; margin-top: 8px; }
+        .solde-display.low { background: var(--warning-soft); color: #9a5c00; }
+        .solde-display.critical { background: var(--danger-soft); color: #b3261e; }
         .mgr-section { display: none; }
         .mgr-section.active { display: block; }
+        .emp-list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--line); font-size: 0.86rem; gap: 12px; flex-wrap: wrap; }
+        .emp-list-item:last-child { border-bottom: none; }
+        .emp-list-name { font-weight: 600; color: var(--text); }
+        .emp-list-meta { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+        .emp-solde-badge { font-size: 0.74rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+        .role-select { padding: 6px 28px 6px 10px; border: none; border-radius: 8px; font-family: var(--font); font-size: 0.74rem; color: var(--text); background: var(--field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center; -webkit-appearance: none; appearance: none; cursor: pointer; }
         /* === Calendrier direction : vue Mois (type agenda) & vue Planning === */
         .cal-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
         .cal-toolbar-left, .cal-toolbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .cal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); min-width: 150px; text-align: center; text-transform: capitalize; }
-        .cal-view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-        .cal-view-toggle button { border: none; background: white; padding: 6px 14px; font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s; }
-        .cal-view-toggle button.active { background: var(--bleu); color: white; }
-        .cal-view-toggle button:hover:not(.active) { color: var(--orange); }
+        .cal-title { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; color: var(--text); min-width: 150px; text-align: center; text-transform: capitalize; }
         .cal-hint { font-size: 0.68rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-        .gcal { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: white; }
+        .gcal { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: white; }
         .gcal-head { display: grid; grid-template-columns: repeat(7, 1fr); background: #fafafa; border-bottom: 1px solid var(--border); }
-        .gcal-head div { text-align: center; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 7px 0; }
+        .gcal-head div { text-align: center; font-size: 0.68rem; font-weight: 500; color: var(--muted); padding: 8px 0; }
         .gcal-week { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--border); }
         .gcal-week:last-child { border-bottom: none; }
         .gcal-day { border-right: 1px solid #f3f3f3; padding: 5px 6px; position: relative; min-width: 0; transition: background 0.15s; }
@@ -175,9 +201,9 @@
         .gcal-day.has-conflict { background: #fff7f7; }
         .gcal-day.drop-target { background: #e0eff0; box-shadow: inset 0 0 0 2px var(--bleu); }
         .gcal-date { font-size: 0.7rem; font-weight: 600; color: #555; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
-        .gcal-conflict { position: absolute; top: 7px; right: 6px; font-size: 0.58rem; font-weight: 700; color: #c62828; background: #ffebee; border: 1px solid #ffcdd2; border-radius: 10px; padding: 1px 6px; cursor: help; white-space: nowrap; }
+        .gcal-conflict { position: absolute; top: 7px; right: 6px; font-size: 0.6rem; font-weight: 600; color: #b3261e; background: var(--danger-soft); border-radius: 10px; padding: 2px 7px; cursor: help; white-space: nowrap; }
         .gcal-events { position: absolute; left: 0; right: 0; top: 34px; pointer-events: none; }
-        .gcal-bar { position: absolute; height: 20px; line-height: 20px; border-radius: 4px; color: white; font-size: 0.66rem; font-weight: 500; padding: 0 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: grab; pointer-events: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.15); transition: transform 0.1s, box-shadow 0.1s; }
+        .gcal-bar { position: absolute; height: 20px; line-height: 20px; border-radius: 6px; color: white; font-size: 0.66rem; font-weight: 500; padding: 0 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: grab; pointer-events: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.15); transition: transform 0.1s, box-shadow 0.1s; }
         .gcal-bar:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.22); z-index: 2; }
         .gcal-bar:active { cursor: grabbing; }
         .gcal-bar.pending, .plan-abs.pending { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.28) 0 4px, transparent 4px 8px); }
@@ -185,10 +211,10 @@
         .gcal-bar.cont-left { border-top-left-radius: 0; border-bottom-left-radius: 0; }
         .gcal-bar.cont-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .gcal-bar.dragging, .plan-abs.dragging { opacity: 0.4; }
-        .plan-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+        .plan-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
         .plan-table { border-collapse: collapse; width: 100%; min-width: 760px; }
         .plan-table th, .plan-table td { border-bottom: 1px solid #f3f3f3; border-right: 1px solid #f7f7f7; }
-        .plan-table thead th { font-size: 0.56rem; text-transform: uppercase; color: var(--muted); background: #fafafa; padding: 6px 1px; text-align: center; font-weight: 500; line-height: 1.3; }
+        .plan-table thead th { font-size: 0.6rem; color: var(--muted); background: #fafafa; padding: 6px 1px; text-align: center; font-weight: 500; line-height: 1.3; }
         .plan-table thead th.weekend, .plan-table td.weekend { background: #f5f5f5; }
         .plan-table thead th.today { color: var(--orange); font-weight: 700; }
         .plan-table thead th.conflict { background: #ffebee; color: #c62828; font-weight: 700; }
@@ -201,34 +227,34 @@
         .plan-abs.first { border-radius: 5px 0 0 5px; margin-left: 2px; }
         .plan-abs.last { border-radius: 0 5px 5px 0; margin-right: 2px; }
         .plan-abs.first.last { border-radius: 5px; }
-        .export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: #f6fafb; border: 1px solid #d5e6e8; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
-        .export-bar .export-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--bleu); font-weight: 600; margin-right: 4px; }
-        .export-bar select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; background: white; color: var(--text); outline: none; }
+        .export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--field); border: none; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+        .export-bar .btn-ghost { background: #fff; }
+        .export-bar .export-lbl { font-size: 0.78rem; color: var(--text); font-weight: 600; margin-right: 4px; }
+        .export-bar select { padding: 7px 28px 7px 10px; border: none; border-radius: 8px; font-family: var(--font); font-size: 0.76rem; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center; -webkit-appearance: none; appearance: none; color: var(--text); outline: none; }
         .export-bar .input-hint { flex-basis: 100%; margin-top: 2px; }
         .agenda-btns { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
-        .agenda-btn { background: none; border: 1px solid var(--border); color: var(--bleu); border-radius: 5px; padding: 3px 7px; font-size: 0.64rem; cursor: pointer; font-family: inherit; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
-        .agenda-btn:hover { border-color: var(--bleu); background: #e0eff0; }
-        .conflict-box { background: #fff8f0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
-        .conflict-box h4 { font-size: 0.72rem; font-weight: 600; color: #e65100; margin-bottom: 6px; }
+        .agenda-btn { background: var(--field); border: none; color: var(--bleu); border-radius: 999px; padding: 4px 9px; font-size: 0.68rem; font-weight: 500; cursor: pointer; font-family: var(--font); text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+        .agenda-btn:hover { background: var(--bleu-soft); }
+        .conflict-box { background: var(--warning-soft); border: none; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
+        .conflict-box h4 { font-size: 0.8rem; font-weight: 600; color: #9a5c00; margin-bottom: 6px; }
         .conflict-item { font-size: 0.74rem; color: #555; padding: 3px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .conflict-item .who { font-weight: 600; color: var(--text); cursor: pointer; text-decoration: underline dotted; }
         .conflict-item .who:hover { color: var(--orange); }
-        .conflict-ok { background: #e8f5e9; border: 1px solid #c8e6c9; color: #2e7d32; border-radius: 8px; padding: 8px 14px; font-size: 0.74rem; margin-bottom: 12px; }
+        .conflict-ok { background: var(--success-soft); border: none; color: #23784f; border-radius: 12px; padding: 10px 16px; font-size: 0.78rem; margin-bottom: 12px; }
         .cal-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
         .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #555; }
         .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-        .emp-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f5f5f5; font-size: 0.8rem; }
-        .emp-list-item:last-child { border-bottom: none; }
-        .emp-list-name { font-weight: 600; color: var(--text); }
-        .emp-list-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-        .emp-solde-badge { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
         @media (max-width: 768px) {
-            body { padding: 16px 14px 40px; }
+            body { padding: 14px 12px 40px; }
+            .app-header { flex-wrap: wrap; }
+            .card-header { padding: 14px 16px; }
+            .card-body { padding: 16px; }
+            .emp-list-item { padding: 12px 16px; }
             .kpi-row { grid-template-columns: 1fr 1fr; }
             .emp-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
             .form-grid .full { grid-column: span 1; }
-            .nav-tab { font-size: 0.7rem; padding: 6px 11px; }
+            .nav-tab, .mgr-tab { font-size: 0.76rem; padding: 6px 11px; }
             .header-ver { display: none; }
             .mgr-top { flex-direction: column; gap: 12px; }
         }
@@ -238,59 +264,60 @@
         .log-list { padding: 4px 0; }
         .log-entry { display: flex; gap: 14px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #f5f5f5; }
         .log-entry:last-child { border-bottom: none; }
-        .log-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0; }
-        .log-icon.demande  { background: #e0eff0; }
-        .log-icon.validation { background: #e8f5e9; }
-        .log-icon.refus    { background: #ffebee; }
-        .log-icon.annulation { background: #eceff1; }
-        .log-icon.solde    { background: #fff3e0; }
-        .log-icon.employe  { background: #f3e5f5; }
-        .log-icon.systeme  { background: #f5f5f5; }
+        .log-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; flex-shrink: 0; color: var(--text-2); }
+        .log-icon.demande  { background: var(--bleu-soft); color: var(--bleu); }
+        .log-icon.validation { background: var(--success-soft); color: var(--success); }
+        .log-icon.refus    { background: var(--danger-soft); color: var(--danger); }
+        .log-icon.annulation { background: #ececf0; color: #5b5b60; }
+        .log-icon.solde    { background: var(--warning-soft); color: var(--warning); }
+        .log-icon.employe  { background: #f1e8f7; color: #7b3fa0; }
+        .log-icon.systeme  { background: var(--field); color: var(--muted); }
         .log-body { flex: 1; min-width: 0; }
-        .log-label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+        .log-label { font-size: 0.84rem; font-weight: 600; color: var(--text); }
         .log-detail { font-size: 0.73rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .log-meta { font-size: 0.63rem; color: #bbb; flex-shrink: 0; text-align: right; line-height: 1.5; }
         .log-actor { font-weight: 500; color: #aaa; font-size: 0.63rem; }
         .changelog-item { padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
         .changelog-item:last-child { border-bottom: none; }
         .changelog-ver { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-        .changelog-badge { background: var(--bleu); color: white; padding: 2px 9px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; }
+        .changelog-badge { background: var(--bleu-soft); color: var(--bleu); padding: 2px 9px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
         .changelog-date { font-size: 0.68rem; color: var(--muted); }
         .changelog-title { font-size: 0.8rem; font-weight: 600; color: var(--text); }
         .changelog-notes { list-style: none; padding: 0; margin: 6px 0 0; }
         .changelog-notes li { font-size: 0.75rem; color: #555; padding: 2px 0; display: flex; gap: 6px; }
-        .changelog-notes li::before { content: '→'; color: var(--orange); font-weight: 700; flex-shrink: 0; }
+        .changelog-notes li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 7px; }
         .log-filter-bar { display: flex; gap: 8px; align-items: center; }
-        .log-filter-bar select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; color: var(--text); background: white; outline: none; cursor: pointer; }
+        .log-filter-bar select { padding: 7px 28px 7px 10px; border: none; border-radius: 8px; font-family: var(--font); font-size: 0.76rem; color: var(--text); background: var(--field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center; -webkit-appearance: none; appearance: none; outline: none; cursor: pointer; }
         .log-filter-bar select:focus { border-color: var(--bleu); }
         .post-submit-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .log-icon.decalage    { background: #ede7f6; }
-        .log-icon.proposition { background: #fff8e1; }
+        .log-icon.decalage    { background: #ede9fb; color: #5b45c8; }
+        .log-icon.proposition { background: var(--warning-soft); color: var(--warning); }
 
         /* === Fiche demande (modale) === */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.38); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.32); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
         .modal-overlay.open { display: flex; }
-        .modal { background: white; border-radius: 14px; width: 100%; max-width: 660px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+        .modal { background: white; border-radius: 20px; width: 100%; max-width: 660px; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 70px rgba(0,0,0,0.22); }
         .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 1; }
         .modal-body { padding: 18px 22px 22px; }
-        .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); padding: 4px 6px; }
-        .modal-close:hover { color: var(--danger); }
+        .modal-close { background: var(--field); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 0.9rem; cursor: pointer; color: var(--text-2); display: inline-flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: #e6e6ea; color: var(--text); }
         .modal-section { margin-top: 16px; }
-        .modal-section h4 { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+        .modal-section h4 { font-size: 0.76rem; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
         .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .sub-form { background: #f6fafb; border: 1.5px solid var(--bleu); border-radius: 10px; padding: 14px; margin-top: 12px; display: none; }
+        .sub-form { background: var(--field); border: none; border-radius: 14px; padding: 16px; margin-top: 12px; display: none; }
+        .sub-form .form-group input, .sub-form .form-group textarea { background: #fff; }
         .sub-form.open { display: block; }
-        .proposal-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px 12px; font-size: 0.76rem; color: #5d4037; margin-top: 10px; line-height: 1.5; }
-        .proposal-box strong { color: #e65100; }
+        .proposal-box { background: var(--warning-soft); border: none; border-radius: 12px; padding: 12px 14px; font-size: 0.8rem; color: #6b4a00; margin-top: 10px; line-height: 1.5; }
+        .proposal-box strong { color: #9a5c00; }
         .overlap-list { font-size: 0.74rem; }
         .overlap-list div { padding: 5px 0; border-bottom: 1px solid #f5f5f5; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .overlap-list div:last-child { border-bottom: none; }
         .overlap-list a { color: var(--text); font-weight: 600; text-decoration: none; }
         .overlap-list a:hover { color: var(--orange); }
-        .emp-proposal { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: 8px 10px; font-size: 0.72rem; color: #5d4037; margin-top: 6px; line-height: 1.5; }
-        .emp-proposal strong { color: #e65100; }
+        .emp-proposal { background: var(--warning-soft); border: none; border-radius: 10px; padding: 10px 12px; font-size: 0.76rem; color: #6b4a00; margin-top: 8px; line-height: 1.5; }
+        .emp-proposal strong { color: #9a5c00; }
         .emp-proposal .btns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-        .moved-tag { display: inline-block; background: #ede7f6; color: #4527a0; padding: 2px 7px; border-radius: 4px; font-size: 0.66rem; margin-top: 4px; }
+        .moved-tag { display: inline-block; background: #ede9fb; color: #5b45c8; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; margin-top: 5px; }
 
         /* === Fond temporaire (private joke, voir EASTER_EGG dans le script) : discret, bas droite, ne gêne pas la lecture === */
         body.easter-egg::before { content: ''; position: fixed; right: 0; bottom: 0; width: min(38vw, 340px); aspect-ratio: 2 / 3; background: var(--egg-img) no-repeat center bottom / contain; opacity: 0.22; pointer-events: none; z-index: 0; -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%); mask-image: linear-gradient(to top, black 55%, transparent 100%); }
@@ -301,7 +328,7 @@
 <div class="container">
 
     <div class="app-header">
-        <div class="logo-text">Congés <span>|</span> RDS</div>
+        <div class="logo-text">Congés<span>Rue du Store</span></div>
         <div class="nav-tabs">
             <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
             <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
@@ -336,7 +363,7 @@
                             <label>Mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_login_pwd" name="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();this.form.requestSubmit();}">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_login_pwd', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_login_pwd', this)">Afficher</button>
                             </div>
                         </div>
                         <div style="text-align:right;">
@@ -350,7 +377,7 @@
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_setup_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_setup_pwd-checklist')">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd', this)">Afficher</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_setup_pwd-checklist">
                                 <li data-rule="length">8 caractères minimum</li>
@@ -363,14 +390,14 @@
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_setup_pwd2" autocomplete="new-password" placeholder="••••••••">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd2', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_setup_pwd2', this)">Afficher</button>
                             </div>
                         </div>
                     </div>
 
                     <div id="emp-forgot-choice-wrap" style="display:none;margin-bottom:6px;">
                         <div class="alert alert-warning" style="display:block;">Mot de passe oublié — nous vous envoyons un lien pour en choisir un nouveau.</div>
-                        <button type="button" class="btn btn-primary btn-full" id="btn-reset-email" style="margin-bottom:8px;" onclick="requestPasswordReset()">📧 Recevoir le lien par email</button>
+                        <button type="button" class="btn btn-primary btn-full" id="btn-reset-email" style="margin-bottom:8px;" onclick="requestPasswordReset()">Recevoir le lien par email</button>
                         <div id="reset-email-hint" class="input-hint" style="text-align:center;margin-bottom:10px;"></div>
                         <div style="text-align:right;margin-top:10px;">
                             <a href="#" style="font-size:0.7rem;color:var(--muted);" onclick="cancelForgot();return false;">← Retour</a>
@@ -378,12 +405,12 @@
                     </div>
 
                     <div id="emp-reset-wrap" style="display:none;margin-bottom:6px;">
-                        <div class="alert alert-success" style="display:block;">🔑 Lien vérifié — choisissez votre nouveau mot de passe.</div>
+                        <div class="alert alert-success" style="display:block;">Lien vérifié — choisissez votre nouveau mot de passe.</div>
                         <div class="form-group" style="margin:14px 0;">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_reset_pwd" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_reset_pwd-checklist')">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd', this)">Afficher</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_reset_pwd-checklist">
                                 <li data-rule="length">8 caractères minimum</li>
@@ -396,7 +423,7 @@
                             <label>Confirmer le mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_reset_pwd2" autocomplete="new-password" placeholder="••••••••">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd2', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_reset_pwd2', this)">Afficher</button>
                             </div>
                         </div>
                     </div>
@@ -412,10 +439,17 @@
         <div id="emp-content" style="display:none;">
             <div class="card notif-card" id="notif-card" style="display:none;">
                 <div class="card-header">
-                    <h2>🔔 Notifications <span id="notif-badge" class="nav-badge" style="display:none;">0</span></h2>
-                    <button class="btn btn-ghost btn-sm" onclick="markNotificationsRead()">✓ Tout marquer comme lu</button>
+                    <h2>Notifications <span id="notif-badge" class="nav-badge" style="display:none;">0</span></h2>
+                    <div class="notif-tools">
+                        <div class="seg" id="notif-filter">
+                            <button id="nf-unread" onclick="setNotifFilter('unread')">Non lus <span class="count" id="nf-unread-count">0</span></button>
+                            <button id="nf-read" onclick="setNotifFilter('read')">Lus</button>
+                            <button id="nf-all" onclick="setNotifFilter('all')">Tous</button>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" id="btn-notif-readall" onclick="markNotificationsRead()">Tout marquer comme lu</button>
+                    </div>
                 </div>
-                <div class="card-body" id="notif-list" style="padding-top:10px;padding-bottom:10px;"></div>
+                <div class="card-body" id="notif-list" style="padding-top:4px;padding-bottom:12px;"></div>
             </div>
             <div class="kpi-row">
                 <div class="kpi-card"><div class="kpi-label">Total demandes</div><div class="kpi-val" id="kpi-total">—</div></div>
@@ -441,7 +475,7 @@
                                     </div>
                                     <div id="solde-n1-edit" style="display:none;margin-top:8px;">
                                         <div style="display:flex;align-items:center;gap:8px;">
-                                            <input type="number" id="solde-n1-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 5">
+                                            <input type="number" id="solde-n1-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:var(--font);font-size:0.82rem;" placeholder="Ex: 5">
                                             <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee('n1')">OK</button>
                                             <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n1')">Annuler</button>
                                         </div>
@@ -455,7 +489,7 @@
                                     </div>
                                     <div id="solde-n-edit" style="display:none;margin-top:8px;">
                                         <div style="display:flex;align-items:center;gap:8px;">
-                                            <input type="number" id="solde-n-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.82rem;" placeholder="Ex: 25">
+                                            <input type="number" id="solde-n-edit-input" step="0.5" min="0" style="width:80px;padding:6px 8px;border:1px solid var(--bleu);border-radius:6px;font-family:var(--font);font-size:0.82rem;" placeholder="Ex: 25">
                                             <button class="btn btn-primary btn-sm" onclick="saveSoldeEmployee('n')">OK</button>
                                             <button class="btn btn-ghost btn-sm" onclick="toggleSoldeEdit('n')">Annuler</button>
                                         </div>
@@ -494,7 +528,7 @@
                                 <input type="time" id="time_end" step="900" onchange="updateDaysPreview()">
                             </div>
                             <div class="form-group full" style="margin-top:-12px;">
-                                <div class="time-hint">🕐 Laissez les heures vides pour des journées complètes. Une demi-journée est comptée si l'absence commence à 12h00 ou après (après-midi) ou se termine à 13h00 ou avant (matin).</div>
+                                <div class="time-hint">Laissez les heures vides pour des journées complètes. Une demi-journée est comptée si l'absence commence à 12h00 ou après (après-midi) ou se termine à 13h00 ou avant (matin).</div>
                             </div>
                             <div class="form-group full">
                                 <label>Type de congés</label>
@@ -515,14 +549,14 @@
                                 <div class="input-hint">Vous pouvez ajouter plusieurs créneaux sur plusieurs jours. Laissez les heures vides pour une journée complète.</div>
                             </div>
                         </div>
-                        <div class="days-preview" id="days-preview">📅 <span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
-                        <div id="overlap-warning" class="alert alert-warning" style="display:none;margin-top:10px;">⚠ Vous avez déjà une demande sur cette période.</div>
+                        <div class="days-preview" id="days-preview"><span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
+                        <div id="overlap-warning" class="alert alert-warning" style="display:none;margin-top:10px;">Vous avez déjà une demande sur cette période.</div>
                         <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">Soumettre la demande →</button>
                         <div id="action-request" style="display:none;margin-top:14px;">
                             <div class="alert alert-success">✓ Demande enregistrée avec succès !</div>
                             <div class="post-submit-actions">
-                                <button class="btn btn-ghost" onclick="printLastRequest()">🖨 Imprimer / PDF de la demande</button>
-                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier la direction</a>
+                                <button class="btn btn-ghost" onclick="printLastRequest()">Imprimer / PDF</button>
+                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">Notifier par Gmail</a>
                             </div>
                             <div id="email-status-request" class="input-hint" style="display:none;margin-top:8px;"></div>
                         </div>
@@ -532,8 +566,8 @@
                     <div class="card-header">
                         <h2>Mon historique</h2>
                         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                            <button class="btn btn-ghost btn-sm" id="btn-my-agenda" style="display:none;" onclick="downloadMyValidatedICS()" title="Fichier agenda (.ics) de tous vos congés validés — s'ouvre dans Apple Calendrier, Outlook ou s'importe dans Google Agenda">📅 Mes congés validés (.ics)</button>
-                            <button class="btn btn-ghost btn-sm" onclick="renderEmployeeTable()">↻ Actualiser</button>
+                            <button class="btn btn-ghost btn-sm" id="btn-my-agenda" style="display:none;" onclick="downloadMyValidatedICS()" title="Fichier agenda (.ics) de tous vos congés validés — s'ouvre dans Apple Calendrier, Outlook ou s'importe dans Google Agenda">Mes congés validés (.ics)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="renderEmployeeTable()">Actualiser</button>
                         </div>
                     </div>
                     <div class="card-body" style="padding:0;">
@@ -555,14 +589,14 @@
                             <label>Mot de passe actuel</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_pwd_current" autocomplete="current-password" placeholder="••••••••">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_current', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_current', this)">Afficher</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Nouveau mot de passe</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_pwd_new" autocomplete="new-password" placeholder="••••••••" oninput="updatePasswordChecklist(this.value, 'emp_pwd_new-checklist')">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_new', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_new', this)">Afficher</button>
                             </div>
                             <ul class="pwd-checklist" id="emp_pwd_new-checklist">
                                 <li data-rule="length">8 caractères minimum</li>
@@ -575,7 +609,7 @@
                             <label>Confirmer le nouveau</label>
                             <div class="pwd-field">
                                 <input type="password" id="emp_pwd_confirm" autocomplete="new-password" placeholder="••••••••">
-                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_confirm', this)">👁</button>
+                                <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('emp_pwd_confirm', this)">Afficher</button>
                             </div>
                         </div>
                     </div>
@@ -592,11 +626,11 @@
             <div class="mgr-top">
                 <div><h1>Tableau de bord RH</h1><p>Vue d'ensemble des demandes de congés</p></div>
                 <div class="mgr-top-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">↻ Actualiser</button>
-                    <button class="btn btn-ghost btn-sm" id="btn-test-email" style="display:none;" onclick="testEmail()" title="Envoie un email de test à votre adresse pour vérifier la configuration">📧 Tester l'email</button>
-                    <button class="btn btn-ghost btn-sm" id="btn-export-backup" style="display:none;" onclick="exportBackup()">↓ Export JSON</button>
-                    <button class="btn btn-ghost-danger btn-sm" id="btn-clear-all" style="display:none;" onclick="confirmClearAll()">🗑 Effacer tout</button>
-                    <button class="btn btn-ghost btn-sm" onclick="switchTab('employee')">← Mon espace</button>
+                    <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">Actualiser</button>
+                    <button class="btn btn-ghost btn-sm" id="btn-test-email" style="display:none;" onclick="testEmail()" title="Envoie un email de test à votre adresse pour vérifier la configuration">Tester l'email</button>
+                    <button class="btn btn-ghost btn-sm" id="btn-export-backup" style="display:none;" onclick="exportBackup()">Export JSON</button>
+                    <button class="btn btn-ghost-danger btn-sm" id="btn-clear-all" style="display:none;" onclick="confirmClearAll()">Effacer tout</button>
+                    <button class="btn btn-ghost btn-sm" onclick="switchTab('employee')">Mon espace</button>
                 </div>
             </div>
             <div class="kpi-row">
@@ -628,14 +662,14 @@
                                 <textarea id="refusal_reason" rows="3" placeholder="Précisez un motif si vous refusez la demande..."></textarea>
                             </div>
                             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                <button class="btn btn-success" onclick="processDecision('Validé')">✓ Valider</button>
-                                <button class="btn btn-danger" onclick="processDecision('Refusé')">✕ Refuser</button>
+                                <button class="btn btn-success" onclick="processDecision('Validé')">Valider</button>
+                                <button class="btn btn-danger" onclick="processDecision('Refusé')">Refuser</button>
                                 <button class="btn btn-ghost" onclick="document.getElementById('approval-form').style.display='none'">Annuler</button>
                             </div>
                         </div>
                         <div id="action-decision" style="display:none;margin-top:12px;">
                             <div class="alert alert-success">✓ Décision enregistrée.</div>
-                            <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">✉ Envoyer la réponse au salarié (copie direction)</a>
+                            <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">Envoyer la réponse par Gmail</a>
                             <div id="email-status-decision" class="input-hint" style="display:none;margin-top:8px;"></div>
                         </div>
                     </div>
@@ -651,7 +685,7 @@
                                 <button id="cal-view-month" class="active" onclick="setCalView('month')">Mois</button>
                                 <button id="cal-view-planning" onclick="setCalView('planning')">Planning</button>
                             </div>
-                            <button class="btn btn-ghost btn-sm" id="btn-cal-export" onclick="toggleExportBar()">↓ Exporter</button>
+                            <button class="btn btn-ghost btn-sm" id="btn-cal-export" onclick="toggleExportBar()">Exporter</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -662,10 +696,10 @@
                                 <option value="year">Année affichée</option>
                                 <option value="all">Toutes les demandes</option>
                             </select>
-                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('pdf')">📄 PDF</button>
-                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('csv')">📊 CSV (Excel / Numbers)</button>
-                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('ics')">🍎 Apple / Outlook (.ics)</button>
-                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('google')">📅 Google Agenda</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('pdf')">PDF</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('csv')">CSV</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('ics')">Fichier agenda (.ics)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('google')">Google Agenda</button>
                             <span class="input-hint">Les filtres statut / salarié ci-dessous s'appliquent à l'export. Le fichier agenda (.ics) s'ajoute au calendrier existant de votre choix à l'ouverture, sans en créer un nouveau.</span>
                         </div>
                         <div class="cal-toolbar">
@@ -777,6 +811,8 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Nouvelle interface, plus sobre : typographie système, boutons et onglets arrondis, sans pictogrammes superflus</li>
+                                <li>Centre de notifications : filtres Non lus / Lus / Tous, marquage individuel ou global, affichage par groupes de 8</li>
                                 <li>Connexion : identifiant visible « Prénom · Congés RDS » pour que Chrome / Safari proposent d'enregistrer le mot de passe et le retrouvent facilement</li>
                                 <li>Vrais emails automatiques (GitHub Action + compte Gmail dédié) pour chaque notification : nouvelle demande, décision, décalage, proposition, réponse, annulation — les boutons Gmail restent disponibles en secours · bouton « Tester l'email » pour la Direction</li>
                             </ul>
@@ -961,7 +997,7 @@
                                 <option value="employe">Équipe</option>
                                 <option value="systeme">Système</option>
                             </select>
-                            <button class="btn btn-ghost btn-sm" onclick="renderJournal()">↻</button>
+                            <button class="btn btn-ghost btn-sm" onclick="renderJournal()">Actualiser</button>
                         </div>
                     </div>
                     <div class="card-body" style="padding: 4px 22px 16px;">
@@ -1080,7 +1116,7 @@
         const input = document.getElementById(id);
         const show = input.type === 'password';
         input.type = show ? 'text' : 'password';
-        btn.textContent = show ? '🙈' : '👁';
+        btn.textContent = show ? 'Masquer' : 'Afficher';
     }
 
     const PWD_RULES = [
@@ -1218,7 +1254,7 @@
         return slots.map(s => `${formatDate(s.date)}${s.from ? ' de ' + fmtTime(s.from) + ' à ' + fmtTime(s.to) : ' (journée)'}`).join(sep || ' ; ');
     }
     function rattrapageTag(r) {
-        return r.rattrapage && r.rattrapage.length ? `<div class="rattrapage-tag">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</div>` : '';
+        return r.rattrapage && r.rattrapage.length ? `<div class="rattrapage-tag">Rattrapage : ${fmtRattrapage(r.rattrapage)}</div>` : '';
     }
 
     /* ── Notifications internes ──────────────────────────────────────────
@@ -1247,29 +1283,80 @@
     function myNotifications(db) {
         return (db.notifications || []).filter(n => n.to && n.to.includes(currentUser) && n.kind !== 'reset');
     }
-    function unreadCount(db) {
+    // Lu = plus ancien que la dernière lecture globale (notifSeen) ou marqué individuellement (notifRead)
+    function notifIsRead(db, n) {
         const seen = (db.notifSeen && db.notifSeen[currentUser]) || 0;
-        return myNotifications(db).filter(n => n.ts > seen).length;
+        const readIds = (db.notifRead && db.notifRead[currentUser]) || [];
+        return n.ts <= seen || readIds.includes(n.id);
     }
+    function unreadCount(db) { return myNotifications(db).filter(n => !notifIsRead(db, n)).length; }
+    const NOTIF_PAGE = 8;
+    const NOTIF_KIND_LABELS = { demande: 'Demande', decision: 'Décision', annulation: 'Annulation', decalage: 'Décalage', proposition: 'Proposition', test: 'Test' };
+    let notifFilter = null;   // 'unread' | 'read' | 'all' — choisi automatiquement au premier affichage
+    let notifLimit = NOTIF_PAGE;
+    function notifIcon(n) {
+        const t = n.text || '';
+        if (n.kind === 'demande') return ['demande', '+'];
+        if (n.kind === 'decision') return t.startsWith('✅') ? ['ok', '✓'] : t.startsWith('❌') ? ['ko', '✕'] : ['', '•'];
+        if (n.kind === 'annulation') return ['', '–'];
+        if (n.kind === 'decalage') return ['decalage', '↔'];
+        if (n.kind === 'proposition') return t.startsWith('✅') ? ['ok', '✓'] : t.startsWith('↩') ? ['ko', '↩'] : ['proposition', '→'];
+        if (n.kind === 'test') return ['', '@'];
+        return ['', '•'];
+    }
+    // Les textes stockés commencent par un emoji : on l'enlève à l'affichage (l'icône colorée le remplace)
+    function stripLeadEmoji(t) { return String(t || '').replace(/^(?:\s*(?:[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|\uFE0F|\u21A9))+\s*/, ''); }
+    function setNotifFilter(f) {
+        notifFilter = f; notifLimit = NOTIF_PAGE;
+        if (cachedDB) renderNotifications(cachedDB.db); else fetchFromGitHub().then(({ db }) => renderNotifications(db));
+    }
+    function notifShowMore() { notifLimit += NOTIF_PAGE; if (cachedDB) renderNotifications(cachedDB.db); else fetchFromGitHub().then(({ db }) => renderNotifications(db)); }
     function renderNotifications(db) {
         const card = document.getElementById('notif-card');
         if (!currentUser || !card) return;
-        const mine = myNotifications(db).slice(0, 20);
-        const seen = (db.notifSeen && db.notifSeen[currentUser]) || 0;
-        const unread = mine.filter(n => n.ts > seen).length;
+        const mine = myNotifications(db);
+        const unread = mine.filter(n => !notifIsRead(db, n));
         const badge = document.getElementById('notif-badge');
-        badge.textContent = unread;
-        badge.style.display = unread ? 'inline-flex' : 'none';
-        // Badge sur l'onglet Direction
+        badge.textContent = unread.length;
+        badge.style.display = unread.length ? 'inline-flex' : 'none';
         const tab = document.getElementById('nav-tab-manager');
-        if (tab) tab.innerHTML = 'Direction' + (unread && isAdmin() ? `<span class="nav-badge">${unread}</span>` : '');
+        if (tab) tab.innerHTML = 'Direction' + (unread.length && isAdmin() ? `<span class="nav-badge">${unread.length}</span>` : '');
         if (!mine.length) { card.style.display = 'none'; return; }
         card.style.display = 'block';
-        document.getElementById('notif-list').innerHTML = mine.map(n => {
-            const d = new Date(n.ts);
-            const when = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} à ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
-            return `<div class="notif-item ${n.ts > seen ? 'unread' : ''}"><span class="notif-dot"></span><div>${n.text}<div class="notif-meta">${when}</div></div></div>`;
-        }).join('');
+        if (!notifFilter) notifFilter = unread.length ? 'unread' : 'all';
+        ['unread', 'read', 'all'].forEach(f => document.getElementById('nf-' + f).classList.toggle('active', notifFilter === f));
+        document.getElementById('nf-unread-count').textContent = unread.length;
+        document.getElementById('btn-notif-readall').style.display = unread.length ? 'inline-flex' : 'none';
+        const list = notifFilter === 'unread' ? unread : notifFilter === 'read' ? mine.filter(n => notifIsRead(db, n)) : mine;
+        const listEl = document.getElementById('notif-list');
+        if (!list.length) {
+            listEl.innerHTML = `<div class="notif-empty">${notifFilter === 'unread' ? 'Aucune notification non lue.' : notifFilter === 'read' ? 'Aucune notification lue.' : 'Aucune notification.'}</div>`;
+            return;
+        }
+        const shown = list.slice(0, notifLimit);
+        listEl.innerHTML = shown.map(n => {
+            const isRead = notifIsRead(db, n);
+            const [cls, glyph] = notifIcon(n);
+            return `<div class="notif-item ${isRead ? '' : 'unread'}">
+                <div class="notif-icon ${cls}">${glyph}</div>
+                <div class="notif-body">${stripLeadEmoji(n.text)}
+                    <div class="notif-meta"><span>${fmtTs(n.ts)}</span><span>${NOTIF_KIND_LABELS[n.kind] || ''}</span>${isRead ? '' : `<button class="notif-mark" onclick="markNotificationRead(${n.id})">Marquer comme lu</button>`}</div>
+                </div>
+                <span class="notif-dot"></span>
+            </div>`;
+        }).join('') + (list.length > shown.length ? `<div class="notif-more"><button class="btn btn-ghost btn-sm" onclick="notifShowMore()">Afficher ${Math.min(NOTIF_PAGE, list.length - shown.length)} de plus (${list.length - shown.length} restantes)</button></div>` : '');
+    }
+    async function markNotificationRead(id) {
+        if (!currentUser) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (!db.notifRead) db.notifRead = {};
+            const ids = db.notifRead[currentUser] || [];
+            if (!ids.includes(id)) ids.push(id);
+            db.notifRead[currentUser] = ids.slice(-300);
+            await saveToGitHub(db, sha);
+            renderNotifications(db);
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
     async function markNotificationsRead() {
         if (!currentUser) return;
@@ -1277,6 +1364,7 @@
             const { db, sha } = await fetchFromGitHub();
             if (!db.notifSeen) db.notifSeen = {};
             db.notifSeen[currentUser] = Date.now();
+            if (db.notifRead) delete db.notifRead[currentUser];
             await saveToGitHub(db, sha);
             renderNotifications(db);
         } catch(e) { alert('Erreur : ' + e.message); }
@@ -1677,6 +1765,7 @@
         document.getElementById('nav-tab-manager').style.display = 'none';
         document.getElementById('nav-tab-manager').innerHTML = 'Direction';
         document.getElementById('notif-card').style.display = 'none';
+        notifFilter = null; notifLimit = NOTIF_PAGE;
         switchTab('employee');
         document.getElementById('emp-login').style.display = 'block';
         document.getElementById('emp-content').style.display = 'none';
@@ -1749,7 +1838,7 @@
             // Notification interne → toute la direction (sauf l'auteur)
             const adminNames = adminFirstNames(db, currentUser);
             addNotification(db, adminNames, 'demande',
-                `📥 <strong>${req.user} ${req.lastname}</strong> a déposé une demande : ${typeVal}${noteVal ? ' — ' + noteVal : ''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${ratt.slots.length ? ' · 🔁 Rattrapage : ' + fmtRattrapage(ratt.slots) : ''}`, req.id);
+                `📥 <strong>${req.user} ${req.lastname}</strong> a déposé une demande : ${typeVal}${noteVal ? ' — ' + noteVal : ''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${ratt.slots.length ? ' · Rattrapage : ' + fmtRattrapage(ratt.slots) : ''}`, req.id);
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
             lastRequestId = req.id;
@@ -1757,7 +1846,7 @@
             const body = `${greet},\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}${ratt.slots.length ? '\nRattrapage prévu : ' + fmtRattrapage(ratt.slots, '\n                   ') : ''}\n\nMerci de traiter cette demande.`;
             const gl = document.getElementById('gmail_link');
             gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
-            gl.textContent = '✉ Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par email';
+            gl.textContent = 'Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par Gmail';
             document.getElementById('action-request').style.display = 'block';
             setEmailHint('email-status-request', adminNames);
             btn.textContent = '✓ Demande envoyée';
@@ -1834,16 +1923,16 @@
                 const typeLabel = r.type + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 const p = r.proposal;
-                const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal">💡 <strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">✓ Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">✕ Refuser</button></div></div>` : '';
+                const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal"><strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">Refuser</button></div></div>` : '';
                 const movedHtml = movedTag(r);
                 return `<tr>
                     <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}${movedHtml}</td>
                     <td><strong>${fmtDays(r.days)}</strong> j</td>
                     <td style="font-size:0.75rem">${typeLabel}${rattrapageTag(r)}</td>
                     <td>${statusBadge(r.status)}${reasonHtml}${proposalHtml}</td>
-                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${agendaButtons(r)}${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">✕ Annuler</button>` : ''}</td>
+                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${agendaButtons(r)}${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">Annuler</button>` : ''}</td>
                 </tr>`;
-            }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
+            }).join('') : `<tr><td colspan="5"><div class="empty-state"><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
             document.getElementById('btn-my-agenda').style.display = validated.length ? 'inline-flex' : 'none';
             renderNotifications(db);
         } catch(e) { console.error(e.message); }
@@ -1870,20 +1959,20 @@
                             <div class="req-avatar">${initials(r.user)}</div>
                             <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? (+((db.soldesN1&&db.soldesN1[r.user]||0)+db.soldes[r.user]).toFixed(2))+' j (dont '+(db.soldesN1&&db.soldesN1[r.user]||0)+' j N-1)' : '?'}</div></div>
                         </div>
-                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-ghost btn-sm" onclick="openRequestModal(${r.id})" title="Fiche complète : chevauchements, décaler, proposer d'autres dates">📅 Fiche</button><button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
+                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-ghost btn-sm" onclick="openRequestModal(${r.id})" title="Fiche complète : chevauchements, décaler, proposer d'autres dates">Fiche</button><button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
                     <div class="req-chips">
-                        <span class="chip">📅 ${fmtPeriod(r)}</span>
+                        <span class="chip">${fmtPeriod(r)}</span>
                         <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
                         <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
-                        ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e3f2fd;border-color:#bbdefb;color:#0d47a1;">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
+                        ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
                         <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
                         ${overlapChip(db, r)}
-                        ${r.proposal ? `<span class="chip" style="background:#fff8e1;border-color:#ffe082;color:#e65100;">💡 Proposition envoyée : ${fmtPeriod(r.proposal).replace(/^Du/, 'du')}</span>` : ''}
-                        ${r.moves && r.moves.length ? `<span class="chip" style="background:#ede7f6;border-color:#d1c4e9;color:#4527a0;">📆 Décalée par ${r.moves[r.moves.length-1].by}</span>` : ''}
+                        ${r.proposal ? `<span class="chip" style="background:var(--warning-soft);color:#9a5c00;">Proposition envoyée : ${fmtPeriod(r.proposal).replace(/^Du/, 'du')}</span>` : ''}
+                        ${r.moves && r.moves.length ? `<span class="chip" style="background:#ede9fb;color:#5b45c8;">Décalée par ${r.moves[r.moves.length-1].by}</span>` : ''}
                     </div>
                 </div>`).join('')
-                : `<div class="empty-state"><div class="empty-icon">🎉</div><strong>Aucune demande en attente</strong><span>Toutes les demandes ont été traitées.</span></div>`;
+                : `<div class="empty-state"><strong>Aucune demande en attente</strong><span>Toutes les demandes ont été traitées.</span></div>`;
             allArchiveData = db.requests.filter(r => r.status !== 'En attente').reverse();
             populateEmployeeFilter(db);
             renderArchiveTable(allArchiveData);
@@ -2004,7 +2093,7 @@
     const EMAIL_NOTIFY = { enabled: true, delay: '1 à 2 minutes' };
     function emailHintHtml(names) {
         if (!EMAIL_NOTIFY.enabled || !names || !names.length) return '';
-        return `<span style="color:var(--success);">📧 ${names.join(', ')} ${names.length > 1 ? 'reçoivent' : 'reçoit'} aussi un email automatique (sous ${EMAIL_NOTIFY.delay}).</span>`;
+        return `<span style="color:var(--success);">${names.join(', ')} ${names.length > 1 ? 'reçoivent' : 'reçoit'} aussi un email automatique (sous ${EMAIL_NOTIFY.delay}).</span>`;
     }
     function setEmailHint(elId, names) {
         const el = document.getElementById(elId); if (!el) return;
@@ -2106,12 +2195,12 @@
     }
     function overlapChip(db, r) {
         const o = otherOverlapping(db, r);
-        return o.length ? `<span class="chip" style="background:#ffebee;border-color:#ffcdd2;color:#c62828;">⚠ Chevauche : ${[...new Set(o.map(x => x.user))].join(', ')}</span>` : '';
+        return o.length ? `<span class="chip" style="background:var(--danger-soft);color:#b3261e;">Chevauche : ${[...new Set(o.map(x => x.user))].join(', ')}</span>` : '';
     }
     function movedTag(r) {
         if (!r.moves || !r.moves.length) return '';
         const last = r.moves[r.moves.length - 1];
-        return `<div class="moved-tag" title="${r.moves.map(m => `${fmtTs(m.ts)} — ${m.by} : ${fmtPeriod(m.from)} → ${fmtPeriod(m.to)}`).join('\n')}">📆 Décalée par ${last.by} (initialement ${fmtPeriod(r.moves[0].from).replace(/^Du/, 'du')})</div>`;
+        return `<div class="moved-tag" title="${r.moves.map(m => `${fmtTs(m.ts)} — ${m.by} : ${fmtPeriod(m.from)} → ${fmtPeriod(m.to)}`).join('\n')}">Décalée par ${last.by} (initialement ${fmtPeriod(r.moves[0].from).replace(/^Du/, 'du')})</div>`;
     }
 
     async function calRefresh() {
@@ -2159,7 +2248,7 @@
         const list = computeOverlaps(reqs, from, to);
         const filtered = calFilterEmp || calFilterStatus !== 'both';
         if (!list.length) { el.innerHTML = `<div class="conflict-ok">✓ Aucun chevauchement entre salariés ce mois-ci${filtered ? ' (avec les filtres actifs)' : ''}.</div>`; return; }
-        el.innerHTML = `<div class="conflict-box"><h4>⚠ ${list.length} chevauchement(s) ce mois-ci</h4>${list.map(o => `
+        el.innerHTML = `<div class="conflict-box"><h4>${list.length} chevauchement(s) ce mois-ci</h4>${list.map(o => `
             <div class="conflict-item">
                 <span class="who" onclick="openRequestModal(${o.a.id})">${o.a.user}</span><span>×</span><span class="who" onclick="openRequestModal(${o.b.id})">${o.b.user}</span>
                 <span style="color:var(--muted);">${o.from === o.to ? 'le ' + formatDate(o.from) : 'du ' + formatDate(o.from) + ' au ' + formatDate(o.to)}</span>
@@ -2198,7 +2287,7 @@
                 const conflict = absents.length >= 2 && !wk;
                 days += `<div class="gcal-day${d.getMonth() !== calMonth ? ' other-month' : ''}${wk ? ' weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' has-conflict' : ''}" data-date="${iso}">
                     <span class="gcal-date">${d.getDate()}</span>
-                    ${conflict ? `<span class="gcal-conflict" title="Absents ce jour : ${absents.join(', ')}">${absents.length} ⚠</span>` : ''}
+                    ${conflict ? `<span class="gcal-conflict" title="Absents ce jour : ${absents.join(', ')}">${absents.length} absents</span>` : ''}
                 </div>`;
             }
             const bars = segs.map(s => {
@@ -2206,7 +2295,7 @@
                 return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}"
                     style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;background-color:${colorMap[r.user] || '#999'}"
                     draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"
-                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}">${r.proposal ? '💡 ' : ''}${r.user}${r.startTime || r.endTime ? ' ⏱' : ''} · ${fmtDays(r.days)} j</div>`;
+                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}">${r.user}${r.startTime || r.endTime ? ' ·' : ''} ${fmtDays(r.days)} j${r.proposal ? ' · prop.' : ''}</div>`;
             }).join('');
             html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px" ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)">${days}<div class="gcal-events">${bars}</div></div>`;
         }
@@ -2483,33 +2572,33 @@
         </div>
         <div class="modal-body">
             <div class="req-chips" style="margin-top:0;">
-                <span class="chip">📅 ${fmtPeriod(r)}</span>
+                <span class="chip">${fmtPeriod(r)}</span>
                 <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
                 <span class="chip">${r.type}${r.note ? ' — ' + r.note : ''}</span>
                 <span class="chip">Solde actuel : ${solde}</span>
                 <span class="chip">Déposée le ${formatDate(r.date_demande)}</span>
                 ${r.date_decision ? `<span class="chip">Décision le ${formatDate(r.date_decision)}</span>` : ''}
-                ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e3f2fd;border-color:#bbdefb;color:#0d47a1;">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
+                ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
             </div>
             ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
-            ${p ? `<div class="proposal-box">💡 Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
+            ${p ? `<div class="proposal-box">Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
                 ${canAct ? `<div style="margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${r.id})">Retirer la proposition</button></div>` : ''}</div>` : ''}
-            ${r.proposalDeclined ? `<div class="proposal-box" style="background:#fbe9e7;border-color:#ffccbc;">↩ ${r.user} a refusé la proposition ${fmtPeriod(r.proposalDeclined).replace(/^Du/, 'du')} de ${r.proposalDeclined.by || 'la direction'} le ${fmtTs(r.proposalDeclined.ts)}${r.proposalDeclined.reason ? ` — « ${r.proposalDeclined.reason} »` : ''}</div>` : ''}
-            ${r.proposalAccepted ? `<div class="proposal-box" style="background:#e8f5e9;border-color:#c8e6c9;color:#2e7d32;">✅ Proposition de ${r.proposalAccepted.by} acceptée le ${fmtTs(r.proposalAccepted.ts)}</div>` : ''}
-            ${r.moves && r.moves.length ? `<div class="modal-section"><h4>Décalages</h4>${r.moves.map(m => `<div style="font-size:0.74rem;color:#555;padding:2px 0;">📆 ${fmtTs(m.ts)} — <strong>${m.by}</strong> : ${fmtPeriod(m.from).replace(/^Du/, 'du')} (${fmtDays(m.from.days)} j) → ${fmtPeriod(m.to).replace(/^Du/, 'du')} (${fmtDays(m.to.days)} j)</div>`).join('')}</div>` : ''}
+            ${r.proposalDeclined ? `<div class="proposal-box" style="background:#fbe9e7;border-color:#ffccbc;">${r.user} a refusé la proposition ${fmtPeriod(r.proposalDeclined).replace(/^Du/, 'du')} de ${r.proposalDeclined.by || 'la direction'} le ${fmtTs(r.proposalDeclined.ts)}${r.proposalDeclined.reason ? ` — « ${r.proposalDeclined.reason} »` : ''}</div>` : ''}
+            ${r.proposalAccepted ? `<div class="proposal-box" style="background:#e8f5e9;border-color:#c8e6c9;color:#2e7d32;">Proposition de ${r.proposalAccepted.by} acceptée le ${fmtTs(r.proposalAccepted.ts)}</div>` : ''}
+            ${r.moves && r.moves.length ? `<div class="modal-section"><h4>Décalages</h4>${r.moves.map(m => `<div style="font-size:0.74rem;color:#555;padding:2px 0;">${fmtTs(m.ts)} — <strong>${m.by}</strong> : ${fmtPeriod(m.from).replace(/^Du/, 'du')} (${fmtDays(m.from.days)} j) → ${fmtPeriod(m.to).replace(/^Du/, 'du')} (${fmtDays(m.to.days)} j)</div>`).join('')}</div>` : ''}
             <div class="modal-section"><h4>Chevauchements avec d'autres salariés</h4>
                 ${others.length ? `<div class="overlap-list">${others.map(o => `<div><span class="cal-legend-dot" style="background:${colorMap[o.user]}"></span><a href="#" onclick="openRequestModal(${o.id});return false;">${o.user} ${o.lastname || ''}</a><span style="color:var(--muted);">${fmtPeriod(o).replace(/^Du/, 'du')} · ${fmtDays(o.days)} j</span>${statusBadge(o.status)}</div>`).join('')}</div>`
                     : `<div style="font-size:0.74rem;color:var(--success);">✓ Aucun chevauchement avec un autre salarié.</div>`}
             </div>
-            ${feedback ? `<div class="alert alert-success" style="margin-top:14px;">${feedback}</div>${mailUrl ? `<a href="${mailUrl}" class="gmail-btn" target="_blank">✉ Prévenir ${r.user} par email (copie direction)</a>` : ''}` : ''}
+            ${feedback ? `<div class="alert alert-success" style="margin-top:14px;">${feedback}</div>${mailUrl ? `<a href="${mailUrl}" class="gmail-btn" target="_blank">Prévenir ${r.user} par Gmail</a>` : ''}` : ''}
             ${canAct ? `
             <div class="modal-section"><h4>Actions</h4>
                 <div class="modal-actions">
-                    ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">✓ Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">✕ Refuser</button>` : ''}
-                    <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">📆 Décaler</button>
-                    <button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">💡 Proposer d'autres dates</button>
+                    ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">Refuser</button>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">Décaler</button>
+                    <button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">Proposer d'autres dates</button>
                     <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>
-                    ${r.status === 'Validé' ? `<button class="btn btn-ghost btn-sm" onclick="downloadICS(${r.id}, true)" title="Fichier agenda : Apple Calendrier, Outlook, import Google Agenda">🍎 .ics</button><a class="btn btn-ghost btn-sm" href="${googleCalUrl(r, true)}" target="_blank" title="Ouvrir dans Google Agenda (choix du calendrier à l'enregistrement)">📅 Google Agenda</a>` : ''}
+                    ${r.status === 'Validé' ? `<button class="btn btn-ghost btn-sm" onclick="downloadICS(${r.id}, true)" title="Fichier agenda : Apple Calendrier, Outlook, import Google Agenda">Fichier .ics</button><a class="btn btn-ghost btn-sm" href="${googleCalUrl(r, true)}" target="_blank" title="Ouvrir dans Google Agenda (choix du calendrier à l'enregistrement)">Google Agenda</a>` : ''}
                 </div>
                 <div id="sub-refuse" class="sub-form">
                     <div class="form-group"><label>Motif du refus (optionnel)</label><textarea id="modal-refuse-reason" rows="2" placeholder="Précisez un motif..."></textarea></div>
@@ -2526,7 +2615,7 @@
                     ${modalDateFields('propose', r)}
                     <div class="form-group" style="margin-top:10px;"><label>Message (optionnel)</label><input type="text" id="modal-propose-msg" placeholder="Ex: Karine est déjà absente cette semaine, ces dates seraient plus simples"></div>
                     <div id="modal-propose-preview" class="time-hint" style="margin-top:8px;"></div>
-                    <div class="modal-actions" style="margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="autoSuggestSlot()">🔍 Trouver le prochain créneau libre</button><button class="btn btn-orange btn-sm" onclick="submitProposal()">Envoyer la proposition</button><button class="btn btn-ghost btn-sm" onclick="toggleSubForm('propose')">Annuler</button></div>
+                    <div class="modal-actions" style="margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="autoSuggestSlot()">Trouver le prochain créneau libre</button><button class="btn btn-orange btn-sm" onclick="submitProposal()">Envoyer la proposition</button><button class="btn btn-ghost btn-sm" onclick="toggleSubForm('propose')">Annuler</button></div>
                 </div>
             </div>` : ''}
         </div>`;
@@ -2551,9 +2640,9 @@
         const days = calculateWorkDays(d.start, d.end, d.startTime, d.endTime);
         const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, d));
         const others = otherOverlapping(db, r, d);
-        el.innerHTML = `📅 ${fmtDays(days)} jour(s) ouvré(s)`
+        el.innerHTML = `${fmtDays(days)} jour(s) ouvré(s)`
             + (self ? `<br><span style="color:var(--danger);">✕ ${r.user} a déjà une autre demande sur cette période.</span>` : '')
-            + (others.length ? `<br><span style="color:var(--warning);">⚠ Chevauche : ${others.map(o => `${o.user} (${fmtPeriod(o).replace(/^Du/, 'du')}, ${o.status.toLowerCase()})`).join(' ; ')}</span>`
+            + (others.length ? `<br><span style="color:var(--warning);">Chevauche : ${others.map(o => `${o.user} (${fmtPeriod(o).replace(/^Du/, 'du')}, ${o.status.toLowerCase()})`).join(' ; ')}</span>`
                              : `<br><span style="color:var(--success);">✓ Aucun chevauchement avec un autre salarié.</span>`);
     }
     async function modalDecide(status) {
@@ -2599,7 +2688,7 @@
                 const accessNote = e.passHash ? '' : ' · mot de passe non défini';
                 const role = e.role || 'employee';
                 const roleControl = isSuperAdmin() && !isDirectionAccount(e.name)
-                    ? `<select style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.7rem;color:var(--text);background:white;cursor:pointer;" onchange="setEmployeeRole('${e.name}', this.value)">
+                    ? `<select class="role-select" onchange="setEmployeeRole('${e.name}', this.value)">
                         <option value="employee" ${role==='employee'?'selected':''}>Salarié</option>
                         <option value="admin" ${role==='admin'?'selected':''}>Administrateur RH</option>
                         <option value="superadmin" ${role==='superadmin'?'selected':''}>Direction</option>
@@ -2607,7 +2696,7 @@
                        </select>`
                     : (role !== 'employee' ? `<span class="chip">${ROLE_LABELS[role]}</span>` : '');
                 const adminActions = isSuperAdmin()
-                    ? `<button class="btn btn-ghost btn-sm" onclick="resetEmployeePassword('${e.name}')">🔑 Réinitialiser accès</button>`
+                    ? `<button class="btn btn-ghost btn-sm" onclick="resetEmployeePassword('${e.name}')">Réinitialiser l'accès</button>`
                       + (isDirectionAccount(e.name) ? '' : ` <button class="btn btn-ghost-danger btn-sm" onclick="removeEmployee('${e.name}')">Retirer</button>`)
                     : '';
                 return `<div class="emp-list-item">
@@ -2900,7 +2989,7 @@
     }
     function agendaButtons(r) {
         if (r.status !== 'Validé') return '';
-        return `<div class="agenda-btns"><button class="agenda-btn" onclick="downloadICS(${r.id})" title="Fichier agenda : s'ouvre dans Apple Calendrier / Outlook, ou s'importe dans Google Agenda">🍎 .ics</button><a class="agenda-btn" href="${googleCalUrl(r)}" target="_blank" title="Ouvrir dans Google Agenda (vous choisissez le calendrier à l'enregistrement)">📅 Google</a></div>`;
+        return `<div class="agenda-btns"><button class="agenda-btn" onclick="downloadICS(${r.id})" title="Fichier agenda : s'ouvre dans Apple Calendrier / Outlook, ou s'importe dans Google Agenda">.ics</button><a class="agenda-btn" href="${googleCalUrl(r)}" target="_blank" title="Ouvrir dans Google Agenda (vous choisissez le calendrier à l'enregistrement)">Google</a></div>`;
     }
     async function downloadICS(id, withName) {
         try {
@@ -2991,15 +3080,15 @@
     // ─── Journal ─────────────────────────────────────────────────────────────
 
     const LOG_ICONS = {
-        demande:    '📋',
-        validation: '✅',
-        refus:      '❌',
-        annulation: '🚫',
-        decalage:   '📆',
-        proposition:'💡',
-        solde:      '💰',
-        employe:    '👤',
-        systeme:    '⚙️'
+        demande:    '+',
+        validation: '✓',
+        refus:      '✕',
+        annulation: '–',
+        decalage:   '↔',
+        proposition:'→',
+        solde:      '#',
+        employe:    '@',
+        systeme:    '•'
     };
 
     function addLogEntry(db, type, actor, label, detail) {
@@ -3027,7 +3116,7 @@
             let logs = db.logs || [];
             if (filter) logs = logs.filter(l => l.type === filter);
             if (!logs.length) {
-                listEl.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">📭</div><strong>Aucune action enregistrée</strong><span>${filter ? 'Pour ce filtre.' : 'Le journal est vide.'}</span></div>`;
+                listEl.innerHTML = `<div class="empty-state" style="padding:30px 0;"><strong>Aucune action enregistrée</strong><span>${filter ? 'Pour ce filtre.' : 'Le journal est vide.'}</span></div>`;
                 return;
             }
             listEl.innerHTML = logs.map(l => `
