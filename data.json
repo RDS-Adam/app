@@ -195,7 +195,10 @@
     {
       "name": "Alexandre",
       "lastname": "Morel",
-      "email": "alexandre.morel@ruedustore.fr"
+      "email": "alexandre.morel@ruedustore.fr",
+      "passHash": "e3657fab6e93ac1aee8a4af2cf46c37bd3285ea54b34f7dc65d7a02bbd791bb5",
+      "recoveryQuestion": "Nom de ton premier chat en MAJ",
+      "recoveryHash": "df98cae21ab566fa74a93e45ec6a76b9587fde43c56f33c1579e23530714fadb"
     },
     {
       "name": "Axel",
@@ -263,6 +266,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790082441552,
+      "date": "2026-09-22",
+      "heure": "15:07",
+      "type": "employe",
+      "actor": "Alexandre Morel",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe et question secrète enregistrés"
+    },
     {
       "ts": 1790074033812,
       "date": "2026-09-22",
