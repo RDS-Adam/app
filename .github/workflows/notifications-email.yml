@@ -5,8 +5,6 @@
 # Secrets à créer dans GitHub → Settings → Secrets and variables → Actions → New repository secret :
 #   MAIL_USER  adresse Gmail dédiée (ex. rds.conges@gmail.com)
 #   MAIL_PASS  mot de passe d'application Google (16 caractères), PAS le mot de passe du compte
-# Variable optionnelle (onglet Variables) :
-#   APP_URL    adresse de l'application, pour le bouton « Ouvrir l'application » des emails
 name: Notifications email
 
 on:
@@ -39,6 +37,5 @@ jobs:
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
-          APP_URL: ${{ vars.APP_URL }}
           SENDER_NAME: Congés RH — Rue du Store
         run: node .github/scripts/send-notifications.mjs
