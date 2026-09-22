@@ -153,16 +153,60 @@
         .mgr-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
         .mgr-section { display: none; }
         .mgr-section.active { display: block; }
-        .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .cal-nav span { font-size: 0.88rem; font-weight: 600; color: var(--text); text-transform: capitalize; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-        .cal-day-name { text-align: center; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; color: var(--muted); padding: 4px 0; }
-        .cal-cell { min-height: 54px; border-radius: 6px; padding: 4px 5px; background: #fafafa; border: 1px solid #f0f0f0; }
-        .cal-cell.other-month { opacity: 0.35; }
-        .cal-cell.today { border-color: var(--orange); background: #fff8f0; }
-        .cal-date { font-size: 0.68rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
-        .cal-cell.today .cal-date { color: var(--orange); }
-        .cal-dot { font-size: 0.58rem; padding: 1px 4px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; color: white; font-weight: 500; }
+        /* === Calendrier direction : vue Mois (type agenda) & vue Planning === */
+        .cal-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .cal-toolbar-left, .cal-toolbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .cal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); min-width: 150px; text-align: center; text-transform: capitalize; }
+        .cal-view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .cal-view-toggle button { border: none; background: white; padding: 6px 14px; font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+        .cal-view-toggle button.active { background: var(--bleu); color: white; }
+        .cal-view-toggle button:hover:not(.active) { color: var(--orange); }
+        .cal-hint { font-size: 0.68rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+        .gcal { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: white; }
+        .gcal-head { display: grid; grid-template-columns: repeat(7, 1fr); background: #fafafa; border-bottom: 1px solid var(--border); }
+        .gcal-head div { text-align: center; font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 7px 0; }
+        .gcal-week { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--border); }
+        .gcal-week:last-child { border-bottom: none; }
+        .gcal-day { border-right: 1px solid #f3f3f3; padding: 5px 6px; position: relative; min-width: 0; transition: background 0.15s; }
+        .gcal-day:last-child { border-right: none; }
+        .gcal-day.weekend { background: #fafafa; }
+        .gcal-day.other-month .gcal-date { color: #ccc; }
+        .gcal-day.today .gcal-date { background: var(--orange); color: white; }
+        .gcal-day.has-conflict { background: #fff7f7; }
+        .gcal-day.drop-target { background: #e0eff0; box-shadow: inset 0 0 0 2px var(--bleu); }
+        .gcal-date { font-size: 0.7rem; font-weight: 600; color: #555; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .gcal-conflict { position: absolute; top: 7px; right: 6px; font-size: 0.58rem; font-weight: 700; color: #c62828; background: #ffebee; border: 1px solid #ffcdd2; border-radius: 10px; padding: 1px 6px; cursor: help; white-space: nowrap; }
+        .gcal-events { position: absolute; left: 0; right: 0; top: 34px; pointer-events: none; }
+        .gcal-bar { position: absolute; height: 20px; line-height: 20px; border-radius: 4px; color: white; font-size: 0.66rem; font-weight: 500; padding: 0 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: grab; pointer-events: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.15); transition: transform 0.1s, box-shadow 0.1s; }
+        .gcal-bar:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.22); z-index: 2; }
+        .gcal-bar:active { cursor: grabbing; }
+        .gcal-bar.pending, .plan-abs.pending { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.28) 0 4px, transparent 4px 8px); }
+        .gcal-bar.pending { border: 1px dashed rgba(255,255,255,0.75); line-height: 18px; }
+        .gcal-bar.cont-left { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+        .gcal-bar.cont-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+        .gcal-bar.dragging, .plan-abs.dragging { opacity: 0.4; }
+        .plan-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+        .plan-table { border-collapse: collapse; width: 100%; min-width: 760px; }
+        .plan-table th, .plan-table td { border-bottom: 1px solid #f3f3f3; border-right: 1px solid #f7f7f7; }
+        .plan-table thead th { font-size: 0.56rem; text-transform: uppercase; color: var(--muted); background: #fafafa; padding: 6px 1px; text-align: center; font-weight: 500; line-height: 1.3; }
+        .plan-table thead th.weekend, .plan-table td.weekend { background: #f5f5f5; }
+        .plan-table thead th.today { color: var(--orange); font-weight: 700; }
+        .plan-table thead th.conflict { background: #ffebee; color: #c62828; font-weight: 700; }
+        .plan-table th.plan-name { text-align: left; padding: 8px 12px; font-size: 0.74rem; font-weight: 600; color: var(--text); white-space: nowrap; position: sticky; left: 0; background: white; z-index: 1; min-width: 120px; text-transform: none; }
+        .plan-table thead th.plan-name { background: #fafafa; }
+        .plan-table tr.no-abs th.plan-name { color: var(--muted); font-weight: 400; }
+        .plan-table td { height: 34px; padding: 0; transition: background 0.15s; }
+        .plan-table td.drop-target { background: #e0eff0 !important; box-shadow: inset 0 0 0 2px var(--bleu); }
+        .plan-abs { height: 24px; margin: 5px 0; cursor: grab; }
+        .plan-abs.first { border-radius: 5px 0 0 5px; margin-left: 2px; }
+        .plan-abs.last { border-radius: 0 5px 5px 0; margin-right: 2px; }
+        .plan-abs.first.last { border-radius: 5px; }
+        .conflict-box { background: #fff8f0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
+        .conflict-box h4 { font-size: 0.72rem; font-weight: 600; color: #e65100; margin-bottom: 6px; }
+        .conflict-item { font-size: 0.74rem; color: #555; padding: 3px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .conflict-item .who { font-weight: 600; color: var(--text); cursor: pointer; text-decoration: underline dotted; }
+        .conflict-item .who:hover { color: var(--orange); }
+        .conflict-ok { background: #e8f5e9; border: 1px solid #c8e6c9; color: #2e7d32; border-radius: 8px; padding: 8px 14px; font-size: 0.74rem; margin-bottom: 12px; }
         .cal-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
         .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: #555; }
         .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
@@ -213,6 +257,37 @@
         .log-filter-bar select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; color: var(--text); background: white; outline: none; cursor: pointer; }
         .log-filter-bar select:focus { border-color: var(--bleu); }
         .post-submit-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .log-icon.decalage    { background: #ede7f6; }
+        .log-icon.proposition { background: #fff8e1; }
+
+        /* === Fiche demande (modale) === */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.38); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 14px; width: 100%; max-width: 660px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 1; }
+        .modal-body { padding: 18px 22px 22px; }
+        .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); padding: 4px 6px; }
+        .modal-close:hover { color: var(--danger); }
+        .modal-section { margin-top: 16px; }
+        .modal-section h4 { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+        .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sub-form { background: #f6fafb; border: 1.5px solid var(--bleu); border-radius: 10px; padding: 14px; margin-top: 12px; display: none; }
+        .sub-form.open { display: block; }
+        .proposal-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px 12px; font-size: 0.76rem; color: #5d4037; margin-top: 10px; line-height: 1.5; }
+        .proposal-box strong { color: #e65100; }
+        .overlap-list { font-size: 0.74rem; }
+        .overlap-list div { padding: 5px 0; border-bottom: 1px solid #f5f5f5; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .overlap-list div:last-child { border-bottom: none; }
+        .overlap-list a { color: var(--text); font-weight: 600; text-decoration: none; }
+        .overlap-list a:hover { color: var(--orange); }
+        .emp-proposal { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: 8px 10px; font-size: 0.72rem; color: #5d4037; margin-top: 6px; line-height: 1.5; }
+        .emp-proposal strong { color: #e65100; }
+        .emp-proposal .btns { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+        .moved-tag { display: inline-block; background: #ede7f6; color: #4527a0; padding: 2px 7px; border-radius: 4px; font-size: 0.66rem; margin-top: 4px; }
+
+        /* === Fond temporaire (private joke, voir EASTER_EGG dans le script) : discret, bas droite, ne gêne pas la lecture === */
+        body.easter-egg::before { content: ''; position: fixed; right: 0; bottom: 0; width: min(38vw, 340px); aspect-ratio: 2 / 3; background: var(--egg-img) no-repeat center bottom / contain; opacity: 0.22; pointer-events: none; z-index: 0; -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%); mask-image: linear-gradient(to top, black 55%, transparent 100%); }
+        body.easter-egg .container { position: relative; z-index: 1; }
     </style>
 </head>
 <body>
@@ -224,7 +299,7 @@
             <button class="nav-tab active" id="nav-tab-employee" onclick="switchTab('employee')">Mon espace</button>
             <button class="nav-tab" id="nav-tab-manager" onclick="switchTab('manager')" style="display:none;">Direction</button>
         </div>
-        <div class="header-ver">V4.0 — RH Rue du Store</div>
+        <div class="header-ver">V4.1 — RH Rue du Store</div>
     </div>
 
     <!-- ESPACE SALARIÉ -->
@@ -565,16 +640,34 @@
 
             <div id="mgr-section-calendrier" class="mgr-section">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
                         <h2>Calendrier des absences</h2>
-                        <div class="cal-nav">
-                            <button class="btn btn-ghost btn-sm" onclick="calPrev()">‹</button>
-                            <span id="cal-title"></span>
-                            <button class="btn btn-ghost btn-sm" onclick="calNext()">›</button>
+                        <div class="cal-view-toggle">
+                            <button id="cal-view-month" class="active" onclick="setCalView('month')">Mois</button>
+                            <button id="cal-view-planning" onclick="setCalView('planning')">Planning</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="cal-grid" id="cal-grid"></div>
+                        <div class="cal-toolbar">
+                            <div class="cal-toolbar-left">
+                                <button class="btn btn-ghost btn-sm" onclick="calPrev()" title="Mois précédent">‹</button>
+                                <span class="cal-title" id="cal-title"></span>
+                                <button class="btn btn-ghost btn-sm" onclick="calNext()" title="Mois suivant">›</button>
+                                <button class="btn btn-ghost btn-sm" onclick="calToday()">Aujourd'hui</button>
+                            </div>
+                            <div class="cal-toolbar-right filter-row" style="margin-bottom:0;">
+                                <select id="cal-filter-status" onchange="calSetFilters()">
+                                    <option value="both">Validées + en attente</option>
+                                    <option value="Validé">Validées seulement</option>
+                                    <option value="En attente">En attente seulement</option>
+                                </select>
+                                <select id="cal-filter-emp" onchange="calSetFilters()"><option value="">Tous les salariés</option></select>
+                            </div>
+                        </div>
+                        <div class="cal-hint">Cliquez sur une absence pour la traiter, la décaler ou proposer d'autres dates au salarié · glissez-déposez une absence sur un autre jour pour la décaler directement · les jours où plusieurs salariés sont absents en même temps sont signalés en rouge · hachuré = en attente de validation.</div>
+                        <div id="cal-conflicts"></div>
+                        <div id="cal-month"></div>
+                        <div id="cal-planning" style="display:none;"></div>
                         <div class="cal-legend" id="cal-legend"></div>
                     </div>
                 </div>
@@ -647,6 +740,22 @@
                         <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
                     </div>
                     <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V4.1</span>
+                                <span class="changelog-title">Calendrier type agenda, décalages & propositions</span>
+                                <span class="changelog-date">Septembre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Nouveau rôle « Développeur » (Axel) : accès complet à l'espace Direction pour la maintenance de l'application, sans recevoir les notifications RH</li>
+                                <li>Nouveau calendrier des absences : vue Mois type agenda (barres colorées par salarié, hachurées si en attente) et vue Planning (une ligne par salarié, un jour par colonne)</li>
+                                <li>Chevauchements repérés automatiquement : liste des conflits du mois, jours en rouge avec le nombre d'absents, détail dans la fiche de chaque demande</li>
+                                <li>Fiche demande : cliquer sur une absence pour valider/refuser, la décaler (nouvelles dates, solde recalculé si validée) ou proposer d'autres dates au salarié</li>
+                                <li>Glisser-déposer une absence sur un autre jour pour la décaler directement (confirmation avant enregistrement)</li>
+                                <li>Proposition de dates : le salarié reçoit une notification et peut accepter (demande validée directement sur les nouvelles dates) ou refuser (demande initiale inchangée) depuis son historique · bouton « Trouver le prochain créneau libre » sans chevauchement</li>
+                                <li>Filtres du calendrier par statut et par salarié · journal enrichi (décalages, propositions)</li>
+                            </ul>
+                        </div>
                         <div class="changelog-item">
                             <div class="changelog-ver">
                                 <span class="changelog-badge">V4.0</span>
@@ -821,6 +930,8 @@
                                 <option value="validation">Validations</option>
                                 <option value="refus">Refus</option>
                                 <option value="annulation">Annulations</option>
+                                <option value="decalage">Décalages</option>
+                                <option value="proposition">Propositions de dates</option>
                                 <option value="solde">Soldes</option>
                                 <option value="employe">Équipe</option>
                                 <option value="systeme">Système</option>
@@ -837,6 +948,9 @@
         </div>
     </div>
 </div>
+<div id="req-modal" class="modal-overlay" onclick="if(event.target===this) closeRequestModal()">
+    <div class="modal" role="dialog" aria-modal="true" id="req-modal-content"></div>
+</div>
 <div id="pdf-template"><div id="pdf_body"></div></div>
 
 <script>
@@ -846,14 +960,35 @@
     const FILE_PATH  = "data.json";
     const MGR_NAME   = "Nicolas Decoster";
     const MGR_EMAIL  = "nicolas.decoster@ruedustore.fr";
-    const CAL_COLORS = ["#25737d","#ff7200","#2d9e6b","#9c27b0","#e53935","#0288d1","#f57c00","#00695c"];
-    const BOOTSTRAP_ROLES = { 'nicolas': 'superadmin', 'camille': 'admin' };
+    const CAL_COLORS = ["#25737d","#ff7200","#9c27b0","#0288d1","#2d9e6b","#e53935","#6d4c41","#c2185b","#5c6bc0","#f9a825","#00838f","#7cb342"];
+    const BOOTSTRAP_ROLES = { 'nicolas': 'superadmin', 'camille': 'admin', 'axel': 'dev' };
+    // Rôle accordé une seule fois à ces comptes (même si l'initialisation des rôles a déjà eu lieu), sans jamais
+    // rétrograder un compte Direction. La Direction reste ensuite libre de modifier le rôle depuis l'onglet Équipe.
+    const ROLE_GRANTS = { 'axel': 'dev' };
+    function applyRoleGrants(db) {
+        if (!db.config.roleGrants) db.config.roleGrants = {};
+        let changed = false;
+        Object.entries(ROLE_GRANTS).forEach(([key, role]) => {
+            const grantKey = `${key}:${role}`;
+            if (db.config.roleGrants[grantKey]) return;
+            const emp = db.employees.find(e => (e.name || '').trim().toLowerCase() === key);
+            if (!emp) return; // appliqué dès que le compte existera
+            const oldRole = emp.role || 'employee';
+            if (oldRole !== role && oldRole !== 'superadmin') {
+                emp.role = role;
+                addLogEntry(db, 'systeme', 'Système', 'Rôle attribué', `${emp.name}${emp.lastname ? ' ' + emp.lastname : ''} · ${ROLE_LABELS[oldRole]} → ${ROLE_LABELS[role]}`);
+            }
+            db.config.roleGrants[grantKey] = true;
+            changed = true;
+        });
+        return changed;
+    }
     // Compte Direction garanti : créé automatiquement s'il manque, toujours en rôle Direction, ni supprimable ni rétrogradable.
     const DIRECTION_ACCOUNT = { name: 'Nicolas', lastname: 'Decoster', email: MGR_EMAIL };
     function isDirectionAccount(name) { return (name || '').trim().toLowerCase() === DIRECTION_ACCOUNT.name.toLowerCase(); }
 
     let currentUser = null;
-    let currentRole = 'employee'; // 'employee' | 'admin' | 'superadmin'
+    let currentRole = 'employee'; // 'employee' | 'admin' | 'superadmin' | 'dev' (accès complet, hors notifications RH)
     let selectedRequestId = null;
     let lastRequestId = null;
     let allArchiveData = [];
@@ -862,8 +997,20 @@
     let cachedDB = null;
     let empLoginMode = 'password'; // 'password' | 'setup' | 'forgot'
 
-    function isAdmin() { return currentRole === 'admin' || currentRole === 'superadmin'; }
-    function isSuperAdmin() { return currentRole === 'superadmin'; }
+    // Private joke temporaire (accord de l'intéressée) : fond discret sur l'espace Direction de Camille uniquement,
+    // se désactive tout seul après la date `until`. Pour l'enlever avant : supprimer l'image ou passer `until` à hier.
+    const EASTER_EGG = { user: 'camille', img: 'camille-bg.webp', until: '2026-09-23', onlyOnTab: 'manager' };
+    function updateEasterEgg() {
+        const active = !!currentUser
+            && currentUser.trim().toLowerCase() === EASTER_EGG.user
+            && todayISO() <= EASTER_EGG.until
+            && document.getElementById('page-' + EASTER_EGG.onlyOnTab).classList.contains('active');
+        document.body.classList.toggle('easter-egg', active);
+        if (active) document.body.style.setProperty('--egg-img', `url("${EASTER_EGG.img}")`);
+    }
+
+    function isAdmin() { return currentRole === 'admin' || isSuperAdmin(); }
+    function isSuperAdmin() { return currentRole === 'superadmin' || currentRole === 'dev'; }
     function actorName() { return currentUser ? currentUser : MGR_NAME; }
 
     async function fetchFromGitHub() {
@@ -938,6 +1085,7 @@
         document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
         document.getElementById('page-' + tab).classList.add('active');
         document.querySelector(`.nav-tab[onclick*="${tab}"]`).classList.add('active');
+        updateEasterEgg();
         if (tab === 'manager') renderManagerDashboard();
     }
 
@@ -946,7 +1094,7 @@
         document.querySelectorAll('.mgr-tab').forEach(b => b.classList.remove('active'));
         document.getElementById('mgr-section-' + name).classList.add('active');
         document.querySelector(`.mgr-tab[onclick*="${name}"]`).classList.add('active');
-        if (name === 'calendrier' && cachedDB) renderCalendar(cachedDB.db);
+        if (name === 'calendrier') calRefresh();
         if (name === 'equipe' && cachedDB) renderEmployeeManagement(cachedDB.db);
         if (name === 'journal') renderJournal();
     }
@@ -1050,6 +1198,7 @@
     /* ── Notifications internes ──────────────────────────────────────────
        Stockées dans data.json (db.notifications). Chaque notification vise une liste de prénoms.
        db.notifSeen[prénom] = timestamp de dernière lecture → tout ce qui est plus récent est "non lu". */
+    // Destinataires des notifications / emails RH : Administrateurs RH et Direction (le rôle Développeur n'en reçoit pas)
     function adminEmployees(db, excludeName) {
         return (db.employees || []).filter(e => (e.role === 'admin' || e.role === 'superadmin') && e.name !== excludeName);
     }
@@ -1165,6 +1314,7 @@
                 changed = true;
             }
             if (ensureDirectionAccount(db)) changed = true;
+            if (applyRoleGrants(db)) changed = true;
             if (changed) await saveToGitHub(db, sha);
         } catch(e) { console.error('ensureRoleBootstrap:', e.message); }
     }
@@ -1610,11 +1760,14 @@
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
                 const typeLabel = r.type + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
+                const p = r.proposal;
+                const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal">💡 <strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">✓ Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">✕ Refuser</button></div></div>` : '';
+                const movedHtml = movedTag(r);
                 return `<tr>
-                    <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
+                    <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}${movedHtml}</td>
                     <td><strong>${fmtDays(r.days)}</strong> j</td>
                     <td style="font-size:0.75rem">${typeLabel}${rattrapageTag(r)}</td>
-                    <td>${statusBadge(r.status)}${reasonHtml}</td>
+                    <td>${statusBadge(r.status)}${reasonHtml}${proposalHtml}</td>
                     <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">✕ Annuler</button>` : ''}</td>
                 </tr>`;
             }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
@@ -1643,7 +1796,7 @@
                             <div class="req-avatar">${initials(r.user)}</div>
                             <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? (+((db.soldesN1&&db.soldesN1[r.user]||0)+db.soldes[r.user]).toFixed(2))+' j (dont '+(db.soldesN1&&db.soldesN1[r.user]||0)+' j N-1)' : '?'}</div></div>
                         </div>
-                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
+                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-ghost btn-sm" onclick="openRequestModal(${r.id})" title="Fiche complète : chevauchements, décaler, proposer d'autres dates">📅 Fiche</button><button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
                     <div class="req-chips">
                         <span class="chip">📅 ${fmtPeriod(r)}</span>
@@ -1651,6 +1804,9 @@
                         <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
                         ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e3f2fd;border-color:#bbdefb;color:#0d47a1;">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
                         <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
+                        ${overlapChip(db, r)}
+                        ${r.proposal ? `<span class="chip" style="background:#fff8e1;border-color:#ffe082;color:#e65100;">💡 Proposition envoyée : ${fmtPeriod(r.proposal).replace(/^Du/, 'du')}</span>` : ''}
+                        ${r.moves && r.moves.length ? `<span class="chip" style="background:#ede7f6;border-color:#d1c4e9;color:#4527a0;">📆 Décalée par ${r.moves[r.moves.length-1].by}</span>` : ''}
                     </div>
                 </div>`).join('')
                 : `<div class="empty-state"><div class="empty-icon">🎉</div><strong>Aucune demande en attente</strong><span>Toutes les demandes ont été traitées.</span></div>`;
@@ -1731,84 +1887,595 @@
         db.soldes[user] = +((db.soldes[user] || 0) + fromN).toFixed(2);
     }
 
-    async function processDecision(newStatus) {
-        if (!isAdmin()) return;
-        try {
-            const { db, sha } = await fetchFromGitHub();
-            const idx = db.requests.findIndex(x => x.id === selectedRequestId);
-            const r = db.requests[idx];
-            const prevStatus = r.status;
-            r.status = newStatus;
-            r.reason = document.getElementById('refusal_reason').value;
-            r.date_decision = new Date().toISOString().split('T')[0];
-            if (newStatus === 'Validé' && prevStatus !== 'Validé' && db.soldes[r.user] !== undefined) {
-                const result = deductLeave(db, r.user, r.days || 0);
-                r.fromN1 = result.fromN1;
-                r.fromN = result.fromN;
-            } else if (newStatus === 'Refusé' && prevStatus === 'Validé') {
-                const fromN1 = r.fromN1 || 0;
-                const fromN  = r.fromN !== undefined ? r.fromN : (r.days || 0);
-                restoreLeave(db, r.user, fromN1, fromN);
-            }
-            const logType = newStatus === 'Validé' ? 'validation' : 'refus';
-            const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
-            const logDetail = `${r.user} ${r.lastname} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason?' — Motif : '+r.reason:''}`;
-            addLogEntry(db, logType, actorName(), logLabel, logDetail);
-            // Notifications internes : le salarié + les autres membres de la direction
-            const verb = newStatus === 'Validé' ? 'validé' : 'refusé';
-            const icon = newStatus === 'Validé' ? '✅' : '❌';
-            addNotification(db, [r.user], 'decision',
-                `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actorName()}${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
-            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'decision',
-                `${icon} <strong>${actorName()}</strong> a ${verb} la demande de <strong>${r.user} ${r.lastname}</strong> : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
-            await saveToGitHub(db, sha);
-            const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
-            const ccList = adminEmails(db, actorName()).filter(m => m !== r.email);
-            document.getElementById('gmail_link_val').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(r.email)}${ccList.length ? '&cc=' + encodeURIComponent(ccList.join(',')) : ''}&su=${encodeURIComponent('Réponse — Demande de congés')}&body=${encodeURIComponent(body)}`;
-            document.getElementById('action-decision').style.display = 'block';
-            document.getElementById('approval-form').style.display = 'none';
-            await renderManagerDashboard();
-        } catch(e) { alert('Erreur : '+e.message); }
+    // Applique une décision (validation / refus) sur une demande : statut, solde, journal, notifications.
+    // `quiet` = pas de notifications (utilisé quand le salarié accepte lui-même une proposition de dates).
+    function applyDecision(db, r, newStatus, reason, actor, quiet) {
+        actor = actor || actorName();
+        const prevStatus = r.status;
+        r.status = newStatus;
+        r.reason = reason || '';
+        r.date_decision = todayISO();
+        if (newStatus === 'Validé' && prevStatus !== 'Validé' && db.soldes[r.user] !== undefined) {
+            const result = deductLeave(db, r.user, r.days || 0);
+            r.fromN1 = result.fromN1;
+            r.fromN = result.fromN;
+        } else if (newStatus === 'Refusé' && prevStatus === 'Validé') {
+            const fromN1 = r.fromN1 || 0;
+            const fromN  = r.fromN !== undefined ? r.fromN : (r.days || 0);
+            restoreLeave(db, r.user, fromN1, fromN);
+        }
+        if (newStatus === 'Refusé') delete r.proposal;
+        const logType = newStatus === 'Validé' ? 'validation' : 'refus';
+        const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
+        addLogEntry(db, logType, actor, logLabel, `${r.user} ${r.lastname} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason?' — Motif : '+r.reason:''}`);
+        if (quiet) return;
+        // Notifications internes : le salarié + les autres membres de la direction
+        const verb = newStatus === 'Validé' ? 'validé' : 'refusé';
+        const icon = newStatus === 'Validé' ? '✅' : '❌';
+        addNotification(db, [r.user], 'decision',
+            `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actor}${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
+        addNotification(db, adminFirstNames(db, actor).filter(n => n !== r.user), 'decision',
+            `${icon} <strong>${actor}</strong> a ${verb} la demande de <strong>${r.user} ${r.lastname}</strong> : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
     }
 
-    function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } if(cachedDB) renderCalendar(cachedDB.db); }
-    function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } if(cachedDB) renderCalendar(cachedDB.db); }
+    function gmailUrl(to, cc, subject, body) {
+        return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to || '')}${cc && cc.length ? '&cc=' + encodeURIComponent(cc.join(',')) : ''}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    // Décision + sauvegarde + rafraîchissement. Retourne { r, mailUrl } ou null.
+    async function decideRequest(id, newStatus, reason) {
+        if (!isAdmin()) return null;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) { alert('Demande introuvable.'); return null; }
+            applyDecision(db, r, newStatus, reason);
+            await saveToGitHub(db, sha);
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
+            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Réponse — Demande de congés', body);
+            await renderManagerDashboard();
+            return { r, mailUrl };
+        } catch(e) { alert('Erreur : '+e.message); return null; }
+    }
+
+    async function processDecision(newStatus) {
+        if (!isAdmin()) return;
+        const res = await decideRequest(selectedRequestId, newStatus, document.getElementById('refusal_reason').value);
+        if (!res) return;
+        document.getElementById('gmail_link_val').href = res.mailUrl;
+        document.getElementById('action-decision').style.display = 'block';
+        document.getElementById('approval-form').style.display = 'none';
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       CALENDRIER DIRECTION — vue Mois (type agenda) & vue Planning
+       - chevauchements entre salariés repérés automatiquement
+       - clic sur une absence → fiche (valider / refuser / décaler / proposer)
+       - glisser-déposer pour décaler une absence
+       ══════════════════════════════════════════════════════════════════════ */
+    let calView = 'month';          // 'month' | 'planning'
+    let calFilterEmp = '';
+    let calFilterStatus = 'both';   // 'both' | 'Validé' | 'En attente'
+    let dragState = null;           // { id, grabbedDate }
+    let modalRequestId = null;
+
+    const pad2 = n => String(n).padStart(2, '0');
+    function toISO(d) { return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+    function addDaysISO(iso, n) { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return toISO(d); }
+    function diffDays(a, b) { return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000); }
+    function overlaps(a, b) { return !(a.end < b.start || a.start > b.end); }
+    function isCalStatus(s) { return s === 'Validé' || s === 'En attente'; }
+    function hasWorkDay(from, to) { for (let d = from; d <= to; d = addDaysISO(d, 1)) if (isWorkDay(d)) return true; return false; }
+    function fmtTs(ts) {
+        const d = new Date(ts);
+        return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} à ${pad2(d.getHours())}h${pad2(d.getMinutes())}`;
+    }
+    const fieldVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+
+    // Couleur stable par salarié (basée sur la liste complète, pas seulement le mois affiché)
+    function employeeColorMap(db) {
+        const names = [...new Set([...(db.employees || []).map(e => e.name), ...db.requests.map(r => r.user)])].sort((a, b) => a.localeCompare(b, 'fr'));
+        const map = {}; names.forEach((n, i) => map[n] = CAL_COLORS[i % CAL_COLORS.length]); return map;
+    }
+    function calRequests(db) {
+        return db.requests.filter(r => isCalStatus(r.status)
+            && (calFilterStatus === 'both' || r.status === calFilterStatus)
+            && (!calFilterEmp || r.user === calFilterEmp));
+    }
+    // Chevauchements entre salariés différents dont l'intersection touche la plage [from, to] et contient un jour ouvré
+    function computeOverlaps(reqs, from, to) {
+        const out = [];
+        for (let i = 0; i < reqs.length; i++) for (let j = i + 1; j < reqs.length; j++) {
+            const a = reqs[i], b = reqs[j];
+            if (a.user === b.user || !overlaps(a, b)) continue;
+            const s = a.start > b.start ? a.start : b.start, e = a.end < b.end ? a.end : b.end;
+            if (e < from || s > to || !hasWorkDay(s, e)) continue;
+            out.push({ a, b, from: s, to: e });
+        }
+        return out.sort((x, y) => x.from.localeCompare(y.from));
+    }
+    function otherOverlapping(db, r, range) {
+        range = range || r;
+        return db.requests.filter(x => x.id !== r.id && x.user !== r.user && isCalStatus(x.status) && overlaps(x, range) && hasWorkDay(x.start > range.start ? x.start : range.start, x.end < range.end ? x.end : range.end));
+    }
+    function overlapChip(db, r) {
+        const o = otherOverlapping(db, r);
+        return o.length ? `<span class="chip" style="background:#ffebee;border-color:#ffcdd2;color:#c62828;">⚠ Chevauche : ${[...new Set(o.map(x => x.user))].join(', ')}</span>` : '';
+    }
+    function movedTag(r) {
+        if (!r.moves || !r.moves.length) return '';
+        const last = r.moves[r.moves.length - 1];
+        return `<div class="moved-tag" title="${r.moves.map(m => `${fmtTs(m.ts)} — ${m.by} : ${fmtPeriod(m.from)} → ${fmtPeriod(m.to)}`).join('\n')}">📆 Décalée par ${last.by} (initialement ${fmtPeriod(r.moves[0].from).replace(/^Du/, 'du')})</div>`;
+    }
+
+    async function calRefresh() {
+        try { const { db } = cachedDB || await fetchFromGitHub(); renderCalendar(db); } catch(e) { console.error('calRefresh:', e.message); }
+    }
+    function calPrev()  { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } calRefresh(); }
+    function calNext()  { calMonth++; if (calMonth > 11) { calMonth = 0;  calYear++; } calRefresh(); }
+    function calToday() { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); calRefresh(); }
+    function setCalView(v) {
+        calView = v;
+        document.getElementById('cal-view-month').classList.toggle('active', v === 'month');
+        document.getElementById('cal-view-planning').classList.toggle('active', v === 'planning');
+        calRefresh();
+    }
+    function calSetFilters() {
+        calFilterStatus = fieldVal('cal-filter-status') || 'both';
+        calFilterEmp = fieldVal('cal-filter-emp');
+        calRefresh();
+    }
 
     function renderCalendar(db) {
         const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         document.getElementById('cal-title').textContent = `${months[calMonth]} ${calYear}`;
-        const employees = [...new Set(db.requests.filter(r => r.status==='Validé'||r.status==='En attente').map(r => r.user))].sort();
-        const colorMap = {};
-        employees.forEach((e,i) => colorMap[e] = CAL_COLORS[i % CAL_COLORS.length]);
-        const firstDay = new Date(calYear, calMonth, 1);
-        const lastDay  = new Date(calYear, calMonth+1, 0);
-        const today = new Date(); today.setHours(0,0,0,0);
-        let startDow = firstDay.getDay() - 1; if (startDow < 0) startDow = 6;
-        const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-        let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
-        const prevLast = new Date(calYear, calMonth, 0).getDate();
-        for (let i = startDow-1; i >= 0; i--) html += `<div class="cal-cell other-month"><div class="cal-date">${prevLast-i}</div></div>`;
-        for (let d = 1; d <= lastDay.getDate(); d++) {
-            const date = new Date(calYear, calMonth, d);
-            const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const isToday = date.getTime() === today.getTime();
-            const isWeekend = date.getDay()===0||date.getDay()===6;
-            const absents = db.requests.filter(r => (r.status==='Validé'||r.status==='En attente') && dateStr>=r.start && dateStr<=r.end);
-            html += `<div class="cal-cell${isToday?' today':''}" style="${isWeekend?'background:#f5f5f5;':''}">
-                <div class="cal-date">${d}</div>
-                ${absents.map(r => `<div class="cal-dot" style="background:${colorMap[r.user]||'#999'};opacity:${r.status==='En attente'?'0.6':'1'}" title="${r.user} (${r.status})">${r.user.substring(0,3)}</div>`).join('')}
-            </div>`;
-        }
-        const totalCells = startDow + lastDay.getDate();
-        const remaining = totalCells%7===0 ? 0 : 7-(totalCells%7);
-        for (let i = 1; i <= remaining; i++) html += `<div class="cal-cell other-month"><div class="cal-date">${i}</div></div>`;
-        document.getElementById('cal-grid').innerHTML = html;
-        document.getElementById('cal-legend').innerHTML = employees.map(e =>
-            `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`
-        ).join('');
+        const sel = document.getElementById('cal-filter-emp');
+        const names = [...new Set(db.requests.filter(r => isCalStatus(r.status)).map(r => r.user))].sort((a, b) => a.localeCompare(b, 'fr'));
+        if (calFilterEmp && !names.includes(calFilterEmp)) calFilterEmp = '';
+        sel.innerHTML = '<option value="">Tous les salariés</option>' + names.map(n => `<option value="${n}" ${n === calFilterEmp ? 'selected' : ''}>${n}</option>`).join('');
+        document.getElementById('cal-filter-status').value = calFilterStatus;
+        const reqs = calRequests(db);
+        const colorMap = employeeColorMap(db);
+        const monthStart = `${calYear}-${pad2(calMonth+1)}-01`;
+        const monthEnd = toISO(new Date(calYear, calMonth + 1, 0));
+        renderConflicts(reqs, monthStart, monthEnd);
+        document.getElementById('cal-month').style.display = calView === 'month' ? 'block' : 'none';
+        document.getElementById('cal-planning').style.display = calView === 'planning' ? 'block' : 'none';
+        if (calView === 'month') renderMonthView(reqs, colorMap); else renderPlanningView(db, reqs, colorMap);
+        const shown = [...new Set(reqs.filter(r => !(r.end < monthStart || r.start > monthEnd)).map(r => r.user))].sort((a, b) => a.localeCompare(b, 'fr'));
+        document.getElementById('cal-legend').innerHTML = shown.map(e =>
+            `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`).join('')
+            + (shown.length ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '');
     }
 
-    const ROLE_LABELS = { employee: 'Salarié', admin: 'Administrateur RH', superadmin: 'Direction' };
+    function renderConflicts(reqs, from, to) {
+        const el = document.getElementById('cal-conflicts');
+        const list = computeOverlaps(reqs, from, to);
+        const filtered = calFilterEmp || calFilterStatus !== 'both';
+        if (!list.length) { el.innerHTML = `<div class="conflict-ok">✓ Aucun chevauchement entre salariés ce mois-ci${filtered ? ' (avec les filtres actifs)' : ''}.</div>`; return; }
+        el.innerHTML = `<div class="conflict-box"><h4>⚠ ${list.length} chevauchement(s) ce mois-ci</h4>${list.map(o => `
+            <div class="conflict-item">
+                <span class="who" onclick="openRequestModal(${o.a.id})">${o.a.user}</span><span>×</span><span class="who" onclick="openRequestModal(${o.b.id})">${o.b.user}</span>
+                <span style="color:var(--muted);">${o.from === o.to ? 'le ' + formatDate(o.from) : 'du ' + formatDate(o.from) + ' au ' + formatDate(o.to)}</span>
+                ${o.a.status === 'En attente' || o.b.status === 'En attente' ? '<span class="badge badge-pending" style="font-size:0.6rem;">au moins une en attente</span>' : '<span class="badge badge-valid" style="font-size:0.6rem;">les deux validées</span>'}
+            </div>`).join('')}</div>`;
+    }
+
+    function renderMonthView(reqs, colorMap) {
+        const el = document.getElementById('cal-month');
+        const first = new Date(calYear, calMonth, 1);
+        let startDow = first.getDay() - 1; if (startDow < 0) startDow = 6;
+        const gridStart = new Date(calYear, calMonth, 1 - startDow);
+        const lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+        const weeks = Math.ceil((startDow + lastDay) / 7);
+        const today = todayISO();
+        let html = `<div class="gcal"><div class="gcal-head">${['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => `<div>${d}</div>`).join('')}</div>`;
+        for (let w = 0; w < weeks; w++) {
+            const wStart = toISO(new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + w * 7));
+            const wEnd = addDaysISO(wStart, 6);
+            // Segments de la semaine, puis attribution d'une ligne (lane) à chacun pour éviter les superpositions
+            const segs = reqs.filter(r => !(r.end < wStart || r.start > wEnd))
+                .map(r => ({ r, from: r.start > wStart ? r.start : wStart, to: r.end < wEnd ? r.end : wEnd }))
+                .sort((a, b) => a.from.localeCompare(b.from) || diffDays(b.r.start, b.r.end) - diffDays(a.r.start, a.r.end) || a.r.user.localeCompare(b.r.user, 'fr'));
+            const laneEnd = [];
+            segs.forEach(s => {
+                let l = laneEnd.findIndex(e => e < s.from);
+                if (l < 0) { l = laneEnd.length; laneEnd.push(s.to); } else laneEnd[l] = s.to;
+                s.lane = l;
+            });
+            let days = '';
+            for (let i = 0; i < 7; i++) {
+                const iso = addDaysISO(wStart, i);
+                const d = new Date(iso + 'T00:00:00');
+                const wk = d.getDay() === 0 || d.getDay() === 6;
+                const absents = [...new Set(reqs.filter(r => iso >= r.start && iso <= r.end).map(r => r.user))];
+                const conflict = absents.length >= 2 && !wk;
+                days += `<div class="gcal-day${d.getMonth() !== calMonth ? ' other-month' : ''}${wk ? ' weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' has-conflict' : ''}" data-date="${iso}">
+                    <span class="gcal-date">${d.getDate()}</span>
+                    ${conflict ? `<span class="gcal-conflict" title="Absents ce jour : ${absents.join(', ')}">${absents.length} ⚠</span>` : ''}
+                </div>`;
+            }
+            const bars = segs.map(s => {
+                const r = s.r, left = diffDays(wStart, s.from), span = diffDays(s.from, s.to) + 1;
+                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}"
+                    style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;background-color:${colorMap[r.user] || '#999'}"
+                    draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"
+                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}">${r.proposal ? '💡 ' : ''}${r.user}${r.startTime || r.endTime ? ' ⏱' : ''} · ${fmtDays(r.days)} j</div>`;
+            }).join('');
+            html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px" ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)">${days}<div class="gcal-events">${bars}</div></div>`;
+        }
+        el.innerHTML = html + '</div>';
+    }
+
+    function renderPlanningView(db, reqs, colorMap) {
+        const el = document.getElementById('cal-planning');
+        const lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+        const today = todayISO();
+        const dayLetters = ['D','L','M','M','J','V','S'];
+        const dates = []; for (let d = 1; d <= lastDay; d++) dates.push(`${calYear}-${pad2(calMonth+1)}-${pad2(d)}`);
+        const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => iso >= r.start && iso <= r.end).map(r => r.user)).size);
+        const people = [...new Set([...(db.employees || []).map(e => e.name), ...reqs.map(r => r.user)])]
+            .filter(n => !calFilterEmp || n === calFilterEmp).sort((a, b) => a.localeCompare(b, 'fr'));
+        let html = `<div class="plan-wrap"><table class="plan-table"><thead><tr><th class="plan-name">Salarié</th>${dates.map(iso => {
+            const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6;
+            const conflict = counts[iso] >= 2 && !wk;
+            return `<th class="${wk ? 'weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' conflict' : ''}" title="${conflict ? counts[iso] + ' salariés absents ce jour' : formatDate(iso)}">${dayLetters[d.getDay()]}<br>${d.getDate()}</th>`;
+        }).join('')}</tr></thead><tbody>`;
+        people.forEach(name => {
+            const mine = reqs.filter(r => r.user === name && !(r.end < dates[0] || r.start > dates[dates.length - 1]));
+            html += `<tr class="${mine.length ? '' : 'no-abs'}"><th class="plan-name">${name}</th>`;
+            dates.forEach(iso => {
+                const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6;
+                const r = mine.find(x => iso >= x.start && iso <= x.end);
+                html += `<td class="${wk ? 'weekend' : ''}" data-date="${iso}" ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)">${r
+                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}" style="background-color:${colorMap[name] || '#999'}" draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})" title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j · ${r.status}${r.proposal ? ' · proposition envoyée' : ''}"></div>`
+                    : ''}</td>`;
+            });
+            html += '</tr>';
+        });
+        el.innerHTML = html + '</tbody></table></div>';
+    }
+
+    /* ── Glisser-déposer ────────────────────────────────────────────────── */
+    function dateFromWeekX(week, x) {
+        const rect = week.getBoundingClientRect();
+        const col = Math.min(6, Math.max(0, Math.floor((x - rect.left) / rect.width * 7)));
+        return addDaysISO(week.dataset.start, col);
+    }
+    function clearDropTargets() { document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target')); }
+    function startDrag(e, id, grabbedDate) {
+        dragState = { id, grabbedDate };
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', String(id)); } catch(_) {}
+        e.target.classList.add('dragging');
+    }
+    function onBarDragStart(e, id) {
+        const week = e.target.closest('.gcal-week');
+        startDrag(e, id, week ? dateFromWeekX(week, e.clientX) : null);
+    }
+    function onPlanDragStart(e, id, iso) { startDrag(e, id, iso); }
+    function onDragEnd(e) { e.target.classList.remove('dragging'); clearDropTargets(); }
+    function onWeekDragOver(e) {
+        if (!dragState) return;
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        const week = e.currentTarget, rect = week.getBoundingClientRect();
+        const col = Math.min(6, Math.max(0, Math.floor((e.clientX - rect.left) / rect.width * 7)));
+        clearDropTargets();
+        const day = week.querySelectorAll('.gcal-day')[col]; if (day) day.classList.add('drop-target');
+    }
+    function onWeekDrop(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        const target = dateFromWeekX(e.currentTarget, e.clientX);
+        const { id, grabbedDate } = dragState; dragState = null; clearDropTargets();
+        dropRequestOn(id, target, grabbedDate);
+    }
+    function onPlanDragOver(e) { if (!dragState) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; clearDropTargets(); e.currentTarget.classList.add('drop-target'); }
+    function onPlanDragLeave(e) { e.currentTarget.classList.remove('drop-target'); }
+    function onPlanDrop(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        const { id, grabbedDate } = dragState; dragState = null; clearDropTargets();
+        dropRequestOn(id, e.currentTarget.dataset.date, grabbedDate);
+    }
+    async function dropRequestOn(id, targetDate, grabbedDate) {
+        const { db } = cachedDB || await fetchFromGitHub();
+        const r = db.requests.find(x => x.id === id); if (!r) return;
+        const delta = diffDays(grabbedDate || r.start, targetDate);
+        if (!delta) return;
+        await moveRequest(id, addDaysISO(r.start, delta), addDaysISO(r.end, delta), r.startTime || '', r.endTime || '');
+    }
+
+    /* ── Décalage d'une demande (nouvelles dates) ───────────────────────── */
+    function validateDates(start, end, st, et) {
+        if (!start || !end) return 'Dates de début et de fin requises.';
+        if (start > end) return 'La date de fin doit être après la date de début.';
+        if (start === end && st && et && st >= et) return "L'heure de fin doit être après l'heure de début.";
+        return null;
+    }
+    // Remplace les dates d'une demande (solde recalculé si elle est validée) et trace le décalage
+    function applyDates(db, r, start, end, st, et, by) {
+        const newDays = calculateWorkDays(start, end, st, et);
+        const before = { start: r.start, end: r.end, startTime: r.startTime, endTime: r.endTime, days: r.days };
+        if (r.status === 'Validé' && db.soldes[r.user] !== undefined) {
+            restoreLeave(db, r.user, r.fromN1 || 0, r.fromN !== undefined ? r.fromN : (r.days || 0));
+            const res = deductLeave(db, r.user, newDays); r.fromN1 = res.fromN1; r.fromN = res.fromN;
+        }
+        r.start = start; r.end = end; r.days = newDays;
+        if (st) r.startTime = st; else delete r.startTime;
+        if (et) r.endTime = et; else delete r.endTime;
+        if (!r.moves) r.moves = [];
+        r.moves.push({ ts: Date.now(), by, from: before, to: { start, end, startTime: st || undefined, endTime: et || undefined, days: newDays } });
+        return before;
+    }
+    async function moveRequest(id, start, end, st, et) {
+        if (!isAdmin()) return false;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) { alert('Demande introuvable.'); return false; }
+            if (!isCalStatus(r.status)) { alert('Seules les demandes en attente ou validées peuvent être décalées.'); return false; }
+            const err = validateDates(start, end, st, et); if (err) { alert(err); return false; }
+            if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) return false;
+            const range = { start, end };
+            if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, range))) { alert(`${r.user} a déjà une autre demande sur cette période.`); return false; }
+            const newDays = calculateWorkDays(start, end, st, et);
+            const others = otherOverlapping(db, r, range).map(x => `${x.user} (${fmtPeriod(x).replace(/^Du/, 'du')}, ${x.status.toLowerCase()})`);
+            const preview = { start, end, startTime: st, endTime: et };
+            let msg = `Décaler la demande de ${r.user} ${r.lastname || ''} ?\n\nAvant : ${fmtPeriod(r)} (${fmtDays(r.days)} j)\nAprès : ${fmtPeriod(preview)} (${fmtDays(newDays)} j)`;
+            if (r.status === 'Validé') msg += `\n\nLa demande est validée : le solde sera recalculé (${fmtDays(r.days)} j recrédités, ${fmtDays(newDays)} j déduits).`;
+            if (r.proposal) msg += `\n\nLa proposition de dates en cours sera retirée.`;
+            msg += others.length ? `\n\n⚠ Chevauchement avec : ${others.join(' ; ')}` : `\n\n✓ Aucun chevauchement avec un autre salarié.`;
+            if (!confirm(msg)) return false;
+            const before = applyDates(db, r, start, end, st, et, actorName());
+            delete r.proposal;
+            const who = `${r.user} ${r.lastname || ''}`.trim();
+            addLogEntry(db, 'decalage', actorName(), 'Demande décalée', `${who} · ${fmtPeriod(before)} → ${fmtPeriod(r)} (${fmtDays(newDays)} j)${r.status === 'Validé' ? ' · solde recalculé' : ''}`);
+            addNotification(db, [r.user], 'decalage', `📆 <strong>${actorName()}</strong> a décalé votre demande${r.status === 'Validé' ? ' validée' : ''} : ${fmtPeriod(before).replace(/^Du/, 'du')} → <strong>${fmtPeriod(r).replace(/^Du/, 'du')}</strong> (${fmtDays(newDays)} j)`, r.id);
+            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'decalage', `📆 <strong>${actorName()}</strong> a décalé la demande de <strong>${who}</strong> : ${fmtPeriod(before).replace(/^Du/, 'du')} → ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} j)`, r.id);
+            await saveToGitHub(db, sha);
+            const body = `Bonjour ${r.user},\n\nVotre demande de congés initialement ${fmtPeriod(before).replace(/^Du/, 'du')} a été décalée ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} jour(s) ouvré(s)).${r.status === 'Validé' ? '\nElle reste validée sur ces nouvelles dates.' : '\nElle reste en attente de validation.'}\n\nN'hésitez pas à revenir vers nous en cas de question.\n\nCordialement,\n${actorName()}`;
+            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Décalage — Demande de congés', body);
+            await renderManagerDashboard();
+            if (modalRequestId === id && document.getElementById('req-modal').classList.contains('open')) openRequestModal(id, `✓ Demande décalée ${fmtPeriod(r).replace(/^Du/, 'du')}.`, mailUrl);
+            return true;
+        } catch(e) { alert('Erreur : ' + e.message); return false; }
+    }
+
+    /* ── Proposition d'autres dates au salarié ──────────────────────────── */
+    async function proposeDates(id, start, end, st, et, message) {
+        if (!isAdmin()) return false;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) { alert('Demande introuvable.'); return false; }
+            if (!isCalStatus(r.status)) { alert('Une proposition ne peut être faite que sur une demande en attente ou validée.'); return false; }
+            const err = validateDates(start, end, st, et); if (err) { alert(err); return false; }
+            if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) { alert('Ces dates sont identiques à la demande actuelle.'); return false; }
+            const days = calculateWorkDays(start, end, st, et);
+            const p = { start, end, days, by: actorName(), ts: Date.now(), message: (message || '').trim() };
+            if (st) p.startTime = st; if (et) p.endTime = et;
+            r.proposal = p;
+            delete r.proposalDeclined;
+            const who = `${r.user} ${r.lastname || ''}`.trim();
+            addLogEntry(db, 'proposition', actorName(), 'Nouvelles dates proposées', `${who} · demande ${fmtPeriod(r)} · proposition ${fmtPeriod(p)} (${fmtDays(days)} j)${p.message ? ' — ' + p.message : ''}`);
+            addNotification(db, [r.user], 'proposition', `💡 <strong>${actorName()}</strong> vous propose d'autres dates pour votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(days)} j)${p.message ? ' — « ' + p.message + ' »' : ''}. Acceptez ou refusez depuis « Mon historique ».`, r.id);
+            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'proposition', `💡 <strong>${actorName()}</strong> a proposé à <strong>${who}</strong> de nouvelles dates : ${fmtPeriod(p).replace(/^Du/, 'du')} (à la place ${fmtPeriod(r).replace(/^Du/, 'du')})`, r.id);
+            await saveToGitHub(db, sha);
+            const body = `Bonjour ${r.user},\n\nConcernant votre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')}, nous vous proposons les dates suivantes : ${fmtPeriod(p).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s)).${p.message ? '\n\n' + p.message : ''}\n\nVous pouvez accepter ou refuser cette proposition directement depuis votre espace Congés (rubrique « Mon historique »).\n\nCordialement,\n${actorName()}`;
+            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Proposition de dates — Demande de congés', body);
+            await renderManagerDashboard();
+            openRequestModal(id, `✓ Proposition envoyée à ${r.user} : ${fmtPeriod(p).replace(/^Du/, 'du')}.`, mailUrl);
+            return true;
+        } catch(e) { alert('Erreur : ' + e.message); return false; }
+    }
+    async function withdrawProposal(id) {
+        if (!isAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r || !r.proposal) return;
+            if (!confirm(`Retirer la proposition ${fmtPeriod(r.proposal).replace(/^Du/, 'du')} faite à ${r.user} ?`)) return;
+            const p = r.proposal; delete r.proposal;
+            addLogEntry(db, 'proposition', actorName(), 'Proposition retirée', `${r.user} ${r.lastname || ''} · ${fmtPeriod(p)}`);
+            addNotification(db, [r.user], 'proposition', `↩ <strong>${actorName()}</strong> a retiré la proposition de dates ${fmtPeriod(p).replace(/^Du/, 'du')}. Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} reste ${r.status === 'Validé' ? 'validée' : 'en attente'}.`, r.id);
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+            openRequestModal(id, '✓ Proposition retirée.');
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    // Réponse du salarié à une proposition (depuis Mon historique)
+    async function respondProposal(id, accept) {
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r || r.user !== currentUser) return;
+            if (!r.proposal) { alert('Cette proposition n\'est plus d\'actualité.'); await renderEmployeeTable(); return; }
+            const p = r.proposal;
+            const emp = db.employees.find(e => e.name === currentUser) || {};
+            const who = `${currentUser} ${emp.lastname || ''}`.trim();
+            if (accept) {
+                if (!confirm(`Accepter les dates proposées ${fmtPeriod(p).replace(/^Du/, 'du')} (${fmtDays(p.days)} j) ?\n\nVotre demande sera ${r.status === 'Validé' ? 'déplacée sur ces dates' : 'validée directement sur ces dates'}.`)) return;
+                if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, p))) return alert("Vous avez déjà une autre demande sur cette période. Refusez la proposition ou annulez l'autre demande.");
+                const before = applyDates(db, r, p.start, p.end, p.startTime || '', p.endTime || '', p.by);
+                delete r.proposal;
+                r.proposalAccepted = { ts: Date.now(), by: p.by, from: { start: before.start, end: before.end } };
+                if (r.status === 'En attente') applyDecision(db, r, 'Validé', '', p.by, true);
+                addLogEntry(db, 'proposition', who, 'Proposition acceptée', `${who} · ${fmtPeriod(before)} → ${fmtPeriod(r)} (${fmtDays(r.days)} j) · proposée par ${p.by} · demande validée`);
+                addNotification(db, adminFirstNames(db, currentUser), 'proposition', `✅ <strong>${who}</strong> a accepté la proposition de ${p.by} : demande validée <strong>${fmtPeriod(r).replace(/^Du/, 'du')}</strong> (${fmtDays(r.days)} j), à la place ${fmtPeriod(before).replace(/^Du/, 'du')}`, r.id);
+            } else {
+                const reason = prompt(`Refuser la proposition ${fmtPeriod(p).replace(/^Du/, 'du')} ?\nVotre demande initiale ${fmtPeriod(r).replace(/^Du/, 'du')} reste ${r.status === 'Validé' ? 'validée' : 'en attente'}.\n\nVous pouvez indiquer une raison (facultatif) :`);
+                if (reason === null) return;
+                delete r.proposal;
+                r.proposalDeclined = { ts: Date.now(), start: p.start, end: p.end, startTime: p.startTime, endTime: p.endTime, by: p.by, reason: reason.trim() };
+                addLogEntry(db, 'proposition', who, 'Proposition refusée', `${who} · proposition ${fmtPeriod(p)} de ${p.by} refusée${reason.trim() ? ' — ' + reason.trim() : ''} · demande initiale ${fmtPeriod(r)} inchangée`);
+                addNotification(db, adminFirstNames(db, currentUser), 'proposition', `↩ <strong>${who}</strong> a refusé la proposition ${fmtPeriod(p).replace(/^Du/, 'du')}${reason.trim() ? ' — « ' + reason.trim() + ' »' : ''}. Sa demande ${fmtPeriod(r).replace(/^Du/, 'du')} reste ${r.status === 'Validé' ? 'validée' : 'en attente'}.`, r.id);
+            }
+            await saveToGitHub(db, sha);
+            const fresh = await fetchFromGitHub();
+            renderEmployeeSoldeUI(fresh.db);
+            await renderEmployeeTable();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    // Prochain créneau (jours ouvrés entiers, même durée) sans chevauchement avec une autre absence
+    function findFreeSlot(db, r, fromISO) {
+        const need = Math.max(1, Math.ceil(r.days || 1));
+        const blocking = db.requests.filter(x => x.id !== r.id && isCalStatus(x.status));
+        let start = fromISO;
+        for (let guard = 0; guard < 500; guard++) {
+            if (!isWorkDay(start)) { start = addDaysISO(start, 1); continue; }
+            let end = start, c = 1;
+            while (c < need) { end = addDaysISO(end, 1); if (isWorkDay(end)) c++; }
+            const cand = { start, end };
+            if (!blocking.some(x => overlaps(x, cand))) return cand;
+            start = addDaysISO(start, 1);
+        }
+        return null;
+    }
+
+    /* ── Fiche demande (modale) ─────────────────────────────────────────── */
+    async function openRequestModal(id, feedback, mailUrl) {
+        if (!isAdmin()) return;
+        try {
+            modalRequestId = id;
+            const { db } = cachedDB || await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) return alert('Demande introuvable.');
+            document.getElementById('req-modal-content').innerHTML = renderRequestModal(db, r, feedback, mailUrl);
+            document.getElementById('req-modal').classList.add('open');
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    function closeRequestModal() { document.getElementById('req-modal').classList.remove('open'); modalRequestId = null; }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('req-modal').classList.contains('open')) closeRequestModal(); });
+
+    function modalDateFields(kind, r) {
+        return `<div class="form-grid" style="gap:12px 20px;">
+            <div class="form-group"><label>Date de début</label><input type="date" id="modal-${kind}-start" value="${r.start}" onchange="previewModalDates('${kind}')"></div>
+            <div class="form-group"><label>Date de fin</label><input type="date" id="modal-${kind}-end" value="${r.end}" onchange="previewModalDates('${kind}')"></div>
+            <div class="form-group"><label>Heure de début <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label><input type="time" id="modal-${kind}-st" step="900" value="${r.startTime || ''}" onchange="previewModalDates('${kind}')"></div>
+            <div class="form-group"><label>Heure de fin <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label><input type="time" id="modal-${kind}-et" step="900" value="${r.endTime || ''}" onchange="previewModalDates('${kind}')"></div>
+        </div>`;
+    }
+    function renderRequestModal(db, r, feedback, mailUrl) {
+        const colorMap = employeeColorMap(db);
+        const others = otherOverlapping(db, r);
+        const n = db.soldes[r.user], n1 = (db.soldesN1 && db.soldesN1[r.user]) || 0;
+        const solde = n !== undefined ? `${+(n + n1).toFixed(2)} j (dont ${n1} j N-1)` : '?';
+        const canAct = isCalStatus(r.status);
+        const p = r.proposal;
+        return `
+        <div class="modal-head">
+            <div style="display:flex;gap:12px;align-items:center;min-width:0;">
+                <div class="req-avatar" style="background:${colorMap[r.user] || '#999'};color:white;">${initials(r.user)}</div>
+                <div style="min-width:0;"><div class="req-name">${r.user} ${r.lastname || ''}</div><div class="req-meta" style="overflow:hidden;text-overflow:ellipsis;">${r.email || ''}</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">${statusBadge(r.status)}<button class="modal-close" onclick="closeRequestModal()" title="Fermer (Échap)">✕</button></div>
+        </div>
+        <div class="modal-body">
+            <div class="req-chips" style="margin-top:0;">
+                <span class="chip">📅 ${fmtPeriod(r)}</span>
+                <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
+                <span class="chip">${r.type}${r.note ? ' — ' + r.note : ''}</span>
+                <span class="chip">Solde actuel : ${solde}</span>
+                <span class="chip">Déposée le ${formatDate(r.date_demande)}</span>
+                ${r.date_decision ? `<span class="chip">Décision le ${formatDate(r.date_decision)}</span>` : ''}
+                ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e3f2fd;border-color:#bbdefb;color:#0d47a1;">🔁 Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
+            </div>
+            ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
+            ${p ? `<div class="proposal-box">💡 Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
+                ${canAct ? `<div style="margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${r.id})">Retirer la proposition</button></div>` : ''}</div>` : ''}
+            ${r.proposalDeclined ? `<div class="proposal-box" style="background:#fbe9e7;border-color:#ffccbc;">↩ ${r.user} a refusé la proposition ${fmtPeriod(r.proposalDeclined).replace(/^Du/, 'du')} de ${r.proposalDeclined.by || 'la direction'} le ${fmtTs(r.proposalDeclined.ts)}${r.proposalDeclined.reason ? ` — « ${r.proposalDeclined.reason} »` : ''}</div>` : ''}
+            ${r.proposalAccepted ? `<div class="proposal-box" style="background:#e8f5e9;border-color:#c8e6c9;color:#2e7d32;">✅ Proposition de ${r.proposalAccepted.by} acceptée le ${fmtTs(r.proposalAccepted.ts)}</div>` : ''}
+            ${r.moves && r.moves.length ? `<div class="modal-section"><h4>Décalages</h4>${r.moves.map(m => `<div style="font-size:0.74rem;color:#555;padding:2px 0;">📆 ${fmtTs(m.ts)} — <strong>${m.by}</strong> : ${fmtPeriod(m.from).replace(/^Du/, 'du')} (${fmtDays(m.from.days)} j) → ${fmtPeriod(m.to).replace(/^Du/, 'du')} (${fmtDays(m.to.days)} j)</div>`).join('')}</div>` : ''}
+            <div class="modal-section"><h4>Chevauchements avec d'autres salariés</h4>
+                ${others.length ? `<div class="overlap-list">${others.map(o => `<div><span class="cal-legend-dot" style="background:${colorMap[o.user]}"></span><a href="#" onclick="openRequestModal(${o.id});return false;">${o.user} ${o.lastname || ''}</a><span style="color:var(--muted);">${fmtPeriod(o).replace(/^Du/, 'du')} · ${fmtDays(o.days)} j</span>${statusBadge(o.status)}</div>`).join('')}</div>`
+                    : `<div style="font-size:0.74rem;color:var(--success);">✓ Aucun chevauchement avec un autre salarié.</div>`}
+            </div>
+            ${feedback ? `<div class="alert alert-success" style="margin-top:14px;">${feedback}</div>${mailUrl ? `<a href="${mailUrl}" class="gmail-btn" target="_blank">✉ Prévenir ${r.user} par email (copie direction)</a>` : ''}` : ''}
+            ${canAct ? `
+            <div class="modal-section"><h4>Actions</h4>
+                <div class="modal-actions">
+                    ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">✓ Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">✕ Refuser</button>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">📆 Décaler</button>
+                    <button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">💡 Proposer d'autres dates</button>
+                    <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>
+                </div>
+                <div id="sub-refuse" class="sub-form">
+                    <div class="form-group"><label>Motif du refus (optionnel)</label><textarea id="modal-refuse-reason" rows="2" placeholder="Précisez un motif..."></textarea></div>
+                    <div class="modal-actions" style="margin-top:10px;"><button class="btn btn-danger btn-sm" onclick="modalDecide('Refusé')">Confirmer le refus</button><button class="btn btn-ghost btn-sm" onclick="toggleSubForm('refuse')">Annuler</button></div>
+                </div>
+                <div id="sub-move" class="sub-form">
+                    <div style="font-size:0.72rem;color:var(--muted);margin-bottom:10px;">Les nouvelles dates remplacent les anciennes${r.status === 'Validé' ? ' et le solde est recalculé' : ''}. ${r.user} est prévenu(e) automatiquement.</div>
+                    ${modalDateFields('move', r)}
+                    <div id="modal-move-preview" class="time-hint" style="margin-top:8px;"></div>
+                    <div class="modal-actions" style="margin-top:10px;"><button class="btn btn-primary btn-sm" onclick="submitMove()">Enregistrer le décalage</button><button class="btn btn-ghost btn-sm" onclick="toggleSubForm('move')">Annuler</button></div>
+                </div>
+                <div id="sub-propose" class="sub-form">
+                    <div style="font-size:0.72rem;color:var(--muted);margin-bottom:10px;">${r.user} reçoit la proposition et peut l'accepter (la demande est alors ${r.status === 'Validé' ? 'déplacée' : 'validée directement'} sur ces dates) ou la refuser (la demande initiale reste inchangée).</div>
+                    ${modalDateFields('propose', r)}
+                    <div class="form-group" style="margin-top:10px;"><label>Message (optionnel)</label><input type="text" id="modal-propose-msg" placeholder="Ex: Karine est déjà absente cette semaine, ces dates seraient plus simples"></div>
+                    <div id="modal-propose-preview" class="time-hint" style="margin-top:8px;"></div>
+                    <div class="modal-actions" style="margin-top:10px;"><button class="btn btn-ghost btn-sm" onclick="autoSuggestSlot()">🔍 Trouver le prochain créneau libre</button><button class="btn btn-orange btn-sm" onclick="submitProposal()">Envoyer la proposition</button><button class="btn btn-ghost btn-sm" onclick="toggleSubForm('propose')">Annuler</button></div>
+                </div>
+            </div>` : ''}
+        </div>`;
+    }
+    function toggleSubForm(kind) {
+        ['refuse', 'move', 'propose'].forEach(k => {
+            const el = document.getElementById('sub-' + k); if (!el) return;
+            const open = k === kind && !el.classList.contains('open');
+            el.classList.toggle('open', open);
+            if (open && k !== 'refuse') previewModalDates(k);
+        });
+    }
+    function readModalDates(kind) {
+        return { start: fieldVal(`modal-${kind}-start`), end: fieldVal(`modal-${kind}-end`), startTime: fieldVal(`modal-${kind}-st`), endTime: fieldVal(`modal-${kind}-et`) };
+    }
+    async function previewModalDates(kind) {
+        const el = document.getElementById(`modal-${kind}-preview`); if (!el) return;
+        const d = readModalDates(kind);
+        if (!d.start || !d.end || d.start > d.end) { el.innerHTML = d.start && d.end ? '<span style="color:var(--danger);">✕ La date de fin doit être après la date de début.</span>' : ''; return; }
+        const { db } = cachedDB || await fetchFromGitHub();
+        const r = db.requests.find(x => x.id === modalRequestId); if (!r) return;
+        const days = calculateWorkDays(d.start, d.end, d.startTime, d.endTime);
+        const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, d));
+        const others = otherOverlapping(db, r, d);
+        el.innerHTML = `📅 ${fmtDays(days)} jour(s) ouvré(s)`
+            + (self ? `<br><span style="color:var(--danger);">✕ ${r.user} a déjà une autre demande sur cette période.</span>` : '')
+            + (others.length ? `<br><span style="color:var(--warning);">⚠ Chevauche : ${others.map(o => `${o.user} (${fmtPeriod(o).replace(/^Du/, 'du')}, ${o.status.toLowerCase()})`).join(' ; ')}</span>`
+                             : `<br><span style="color:var(--success);">✓ Aucun chevauchement avec un autre salarié.</span>`);
+    }
+    async function modalDecide(status) {
+        if (!modalRequestId) return;
+        const reason = status === 'Refusé' ? fieldVal('modal-refuse-reason') : '';
+        if (status === 'Validé' && !confirm('Valider cette demande ?')) return;
+        const id = modalRequestId;
+        const res = await decideRequest(id, status, reason);
+        if (res) openRequestModal(id, `✓ Demande ${status === 'Validé' ? 'validée' : 'refusée'}.`, res.mailUrl);
+    }
+    async function submitMove() {
+        const d = readModalDates('move');
+        await moveRequest(modalRequestId, d.start, d.end, d.startTime, d.endTime);
+    }
+    async function submitProposal() {
+        const d = readModalDates('propose');
+        await proposeDates(modalRequestId, d.start, d.end, d.startTime, d.endTime, fieldVal('modal-propose-msg'));
+    }
+    async function autoSuggestSlot() {
+        const { db } = cachedDB || await fetchFromGitHub();
+        const r = db.requests.find(x => x.id === modalRequestId); if (!r) return;
+        const tomorrow = addDaysISO(todayISO(), 1);
+        const from = r.end >= tomorrow ? addDaysISO(r.end, 1) : tomorrow;
+        const slot = findFreeSlot(db, r, from);
+        if (!slot) return alert('Aucun créneau libre trouvé dans les 500 prochains jours.');
+        document.getElementById('modal-propose-start').value = slot.start;
+        document.getElementById('modal-propose-end').value = slot.end;
+        document.getElementById('modal-propose-st').value = '';
+        document.getElementById('modal-propose-et').value = '';
+        previewModalDates('propose');
+    }
+
+    const ROLE_LABELS = { employee: 'Salarié', admin: 'Administrateur RH', superadmin: 'Direction', dev: 'Développeur' };
 
     function renderEmployeeManagement(db) {
         document.getElementById('adjust_emp').innerHTML = db.employees.map(e => `<option value="${e.name}">${e.name} ${e.lastname}</option>`).join('');
@@ -1825,6 +2492,7 @@
                         <option value="employee" ${role==='employee'?'selected':''}>Salarié</option>
                         <option value="admin" ${role==='admin'?'selected':''}>Administrateur RH</option>
                         <option value="superadmin" ${role==='superadmin'?'selected':''}>Direction</option>
+                        <option value="dev" ${role==='dev'?'selected':''}>Développeur</option>
                        </select>`
                     : (role !== 'employee' ? `<span class="chip">${ROLE_LABELS[role]}</span>` : '');
                 const adminActions = isSuperAdmin()
@@ -2063,6 +2731,8 @@
         validation: '✅',
         refus:      '❌',
         annulation: '🚫',
+        decalage:   '📆',
+        proposition:'💡',
         solde:      '💰',
         employe:    '👤',
         systeme:    '⚙️'
