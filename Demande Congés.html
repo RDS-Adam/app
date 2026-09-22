@@ -201,6 +201,13 @@
         .plan-abs.first { border-radius: 5px 0 0 5px; margin-left: 2px; }
         .plan-abs.last { border-radius: 0 5px 5px 0; margin-right: 2px; }
         .plan-abs.first.last { border-radius: 5px; }
+        .export-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: #f6fafb; border: 1px solid #d5e6e8; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+        .export-bar .export-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--bleu); font-weight: 600; margin-right: 4px; }
+        .export-bar select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.72rem; background: white; color: var(--text); outline: none; }
+        .export-bar .input-hint { flex-basis: 100%; margin-top: 2px; }
+        .agenda-btns { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+        .agenda-btn { background: none; border: 1px solid var(--border); color: var(--bleu); border-radius: 5px; padding: 3px 7px; font-size: 0.64rem; cursor: pointer; font-family: inherit; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+        .agenda-btn:hover { border-color: var(--bleu); background: #e0eff0; }
         .conflict-box { background: #fff8f0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
         .conflict-box h4 { font-size: 0.72rem; font-weight: 600; color: #e65100; margin-bottom: 6px; }
         .conflict-item { font-size: 0.74rem; color: #555; padding: 3px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -517,18 +524,22 @@
                                 <button class="btn btn-ghost" onclick="printLastRequest()">🖨 Imprimer / PDF de la demande</button>
                                 <a href="#" id="gmail_link" class="gmail-btn" target="_blank">✉ Notifier la direction</a>
                             </div>
+                            <div id="email-status-request" class="input-hint" style="display:none;margin-top:8px;"></div>
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
                         <h2>Mon historique</h2>
-                        <button class="btn btn-ghost btn-sm" onclick="renderEmployeeTable()">↻ Actualiser</button>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button class="btn btn-ghost btn-sm" id="btn-my-agenda" style="display:none;" onclick="downloadMyValidatedICS()" title="Fichier agenda (.ics) de tous vos congés validés — s'ouvre dans Apple Calendrier, Outlook ou s'importe dans Google Agenda">📅 Mes congés validés (.ics)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="renderEmployeeTable()">↻ Actualiser</button>
+                        </div>
                     </div>
                     <div class="card-body" style="padding:0;">
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Période</th><th>Jours</th><th>Type</th><th>Statut</th><th>PDF</th></tr></thead>
+                                <thead><tr><th>Période</th><th>Jours</th><th>Type</th><th>Statut</th><th>PDF / Agenda</th></tr></thead>
                                 <tbody id="my-requests-body"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px;font-size:0.78rem;">Chargement...</td></tr></tbody>
                             </table>
                         </div>
@@ -591,6 +602,7 @@
                 <div><h1>Tableau de bord RH</h1><p>Vue d'ensemble des demandes de congés</p></div>
                 <div class="mgr-top-actions">
                     <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">↻ Actualiser</button>
+                    <button class="btn btn-ghost btn-sm" id="btn-test-email" style="display:none;" onclick="testEmail()" title="Envoie un email de test à votre adresse pour vérifier la configuration">📧 Tester l'email</button>
                     <button class="btn btn-ghost btn-sm" id="btn-export-backup" style="display:none;" onclick="exportBackup()">↓ Export JSON</button>
                     <button class="btn btn-ghost-danger btn-sm" id="btn-clear-all" style="display:none;" onclick="confirmClearAll()">🗑 Effacer tout</button>
                     <button class="btn btn-ghost btn-sm" onclick="switchTab('employee')">← Mon espace</button>
@@ -633,6 +645,7 @@
                         <div id="action-decision" style="display:none;margin-top:12px;">
                             <div class="alert alert-success">✓ Décision enregistrée.</div>
                             <a href="#" id="gmail_link_val" class="gmail-btn" target="_blank">✉ Envoyer la réponse au salarié (copie direction)</a>
+                            <div id="email-status-decision" class="input-hint" style="display:none;margin-top:8px;"></div>
                         </div>
                     </div>
                 </div>
@@ -642,12 +655,28 @@
                 <div class="card">
                     <div class="card-header" style="flex-wrap:wrap;gap:10px;">
                         <h2>Calendrier des absences</h2>
-                        <div class="cal-view-toggle">
-                            <button id="cal-view-month" class="active" onclick="setCalView('month')">Mois</button>
-                            <button id="cal-view-planning" onclick="setCalView('planning')">Planning</button>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <div class="cal-view-toggle">
+                                <button id="cal-view-month" class="active" onclick="setCalView('month')">Mois</button>
+                                <button id="cal-view-planning" onclick="setCalView('planning')">Planning</button>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" id="btn-cal-export" onclick="toggleExportBar()">↓ Exporter</button>
                         </div>
                     </div>
                     <div class="card-body">
+                        <div id="cal-export-bar" class="export-bar" style="display:none;">
+                            <span class="export-lbl">Exporter</span>
+                            <select id="cal-export-scope">
+                                <option value="month">Mois affiché</option>
+                                <option value="year">Année affichée</option>
+                                <option value="all">Toutes les demandes</option>
+                            </select>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('pdf')">📄 PDF</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('csv')">📊 CSV (Excel / Numbers)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('ics')">🍎 Apple / Outlook (.ics)</button>
+                            <button class="btn btn-ghost btn-sm" onclick="exportPlanning('google')">📅 Google Agenda</button>
+                            <span class="input-hint">Les filtres statut / salarié ci-dessous s'appliquent à l'export. Le fichier agenda (.ics) s'ajoute au calendrier existant de votre choix à l'ouverture, sans en créer un nouveau.</span>
+                        </div>
                         <div class="cal-toolbar">
                             <div class="cal-toolbar-left">
                                 <button class="btn btn-ghost btn-sm" onclick="calPrev()" title="Mois précédent">‹</button>
@@ -754,6 +783,9 @@
                                 <li>Glisser-déposer une absence sur un autre jour pour la décaler directement (confirmation avant enregistrement)</li>
                                 <li>Proposition de dates : le salarié reçoit une notification et peut accepter (demande validée directement sur les nouvelles dates) ou refuser (demande initiale inchangée) depuis son historique · bouton « Trouver le prochain créneau libre » sans chevauchement</li>
                                 <li>Filtres du calendrier par statut et par salarié · journal enrichi (décalages, propositions)</li>
+                                <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
+                                <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
+                                <li>Vrais emails automatiques (GitHub Action + compte Gmail dédié) pour chaque notification : nouvelle demande, décision, décalage, proposition, réponse, annulation — les boutons Gmail restent disponibles en secours · bouton « Tester l'email » pour la Direction</li>
                             </ul>
                         </div>
                         <div class="changelog-item">
@@ -1501,6 +1533,7 @@
         document.getElementById('nav-tab-manager').style.display = isAdmin() ? 'inline-flex' : 'none';
         document.getElementById('card-add-employee').style.display = isSuperAdmin() ? 'block' : 'none';
         document.getElementById('btn-export-backup').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
+        document.getElementById('btn-test-email').style.display = isSuperAdmin() && EMAIL_NOTIFY.enabled ? 'inline-flex' : 'none';
         document.getElementById('btn-clear-all').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
         await checkMonthlyAccrual();
         const fresh = await fetchFromGitHub();
@@ -1687,6 +1720,7 @@
             gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
             gl.textContent = '✉ Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par email';
             document.getElementById('action-request').style.display = 'block';
+            setEmailHint('email-status-request', adminNames);
             btn.textContent = '✓ Demande envoyée';
             document.getElementById('date_start').value = '';
             document.getElementById('date_end').value = '';
@@ -1768,9 +1802,10 @@
                     <td><strong>${fmtDays(r.days)}</strong> j</td>
                     <td style="font-size:0.75rem">${typeLabel}${rattrapageTag(r)}</td>
                     <td>${statusBadge(r.status)}${reasonHtml}${proposalHtml}</td>
-                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">✕ Annuler</button>` : ''}</td>
+                    <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${agendaButtons(r)}${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">✕ Annuler</button>` : ''}</td>
                 </tr>`;
             }).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><strong>Aucune demande</strong><span>Vous n'avez pas encore fait de demande.</span></div></td></tr>`;
+            document.getElementById('btn-my-agenda').style.display = validated.length ? 'inline-flex' : 'none';
             renderNotifications(db);
         } catch(e) { console.error(e.message); }
     }
@@ -1922,6 +1957,36 @@
         return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to || '')}${cc && cc.length ? '&cc=' + encodeURIComponent(cc.join(',')) : ''}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
+    /* ── Emails automatiques ─────────────────────────────────────────────
+       Aucun envoi depuis la page : chaque sauvegarde de data.json déclenche la GitHub Action
+       « Notifications email » (.github/workflows/notifications-email.yml) qui envoie par Gmail les
+       notifications internes (db.notifications) ajoutées depuis le commit précédent. Voir NOTIFICATIONS-EMAIL.md.
+       Mettre enabled à false si l'Action n'est pas configurée (masque simplement les mentions dans l'interface). */
+    const EMAIL_NOTIFY = { enabled: true, delay: '1 à 2 minutes' };
+    function emailHintHtml(names) {
+        if (!EMAIL_NOTIFY.enabled || !names || !names.length) return '';
+        return `<span style="color:var(--success);">📧 ${names.join(', ')} ${names.length > 1 ? 'reçoivent' : 'reçoit'} aussi un email automatique (sous ${EMAIL_NOTIFY.delay}).</span>`;
+    }
+    function setEmailHint(elId, names) {
+        const el = document.getElementById(elId); if (!el) return;
+        el.innerHTML = emailHintHtml(names);
+        el.style.display = el.innerHTML ? 'block' : 'none';
+    }
+    // Test : enregistre une notification de test pour soi-même → l'Action doit l'envoyer par email
+    async function testEmail() {
+        if (!isSuperAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const me = db.employees.find(e => e.name === currentUser);
+            if (!me || !me.email) return alert("Votre compte n'a pas d'adresse email.");
+            addNotification(db, [currentUser], 'test', `📧 Email de test demandé par ${currentUser} le ${fmtTs(Date.now())}. Si vous recevez cet email, les notifications automatiques fonctionnent.`);
+            addLogEntry(db, 'systeme', actorName(), 'Test des emails', `Notification de test enregistrée pour ${currentUser} (${me.email})`);
+            await saveToGitHub(db, sha);
+            alert(`✓ Notification de test enregistrée.\n\nUn email doit arriver sur ${me.email} sous ${EMAIL_NOTIFY.delay}. Sinon, vérifiez l'onglet Actions du dépôt GitHub (workflow « Notifications email ») et NOTIFICATIONS-EMAIL.md.`);
+            renderNotifications(db);
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
     // Décision + sauvegarde + rafraîchissement. Retourne { r, mailUrl } ou null.
     async function decideRequest(id, newStatus, reason) {
         if (!isAdmin()) return null;
@@ -1932,9 +1997,10 @@
             applyDecision(db, r, newStatus, reason);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
-            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Réponse — Demande de congés', body);
+            const ccList = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const mailUrl = gmailUrl(r.email, ccList, 'Réponse — Demande de congés', body);
             await renderManagerDashboard();
-            return { r, mailUrl };
+            return { r, mailUrl, db, notified: [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)] };
         } catch(e) { alert('Erreur : '+e.message); return null; }
     }
 
@@ -1945,6 +2011,7 @@
         document.getElementById('gmail_link_val').href = res.mailUrl;
         document.getElementById('action-decision').style.display = 'block';
         document.getElementById('approval-form').style.display = 'none';
+        setEmailHint('email-status-decision', res.notified);
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -2235,9 +2302,11 @@
             addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'decalage', `📆 <strong>${actorName()}</strong> a décalé la demande de <strong>${who}</strong> : ${fmtPeriod(before).replace(/^Du/, 'du')} → ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} j)`, r.id);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés initialement ${fmtPeriod(before).replace(/^Du/, 'du')} a été décalée ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} jour(s) ouvré(s)).${r.status === 'Validé' ? '\nElle reste validée sur ces nouvelles dates.' : '\nElle reste en attente de validation.'}\n\nN'hésitez pas à revenir vers nous en cas de question.\n\nCordialement,\n${actorName()}`;
-            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Décalage — Demande de congés', body);
+            const ccMove = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const mailUrl = gmailUrl(r.email, ccMove, 'Décalage — Demande de congés', body);
+            const notified = [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)];
             await renderManagerDashboard();
-            if (modalRequestId === id && document.getElementById('req-modal').classList.contains('open')) openRequestModal(id, `✓ Demande décalée ${fmtPeriod(r).replace(/^Du/, 'du')}.`, mailUrl);
+            if (modalRequestId === id && document.getElementById('req-modal').classList.contains('open')) openRequestModal(id, `✓ Demande décalée ${fmtPeriod(r).replace(/^Du/, 'du')}. ${emailHintHtml(notified)}`, mailUrl);
             return true;
         } catch(e) { alert('Erreur : ' + e.message); return false; }
     }
@@ -2263,9 +2332,11 @@
             addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'proposition', `💡 <strong>${actorName()}</strong> a proposé à <strong>${who}</strong> de nouvelles dates : ${fmtPeriod(p).replace(/^Du/, 'du')} (à la place ${fmtPeriod(r).replace(/^Du/, 'du')})`, r.id);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nConcernant votre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')}, nous vous proposons les dates suivantes : ${fmtPeriod(p).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s)).${p.message ? '\n\n' + p.message : ''}\n\nVous pouvez accepter ou refuser cette proposition directement depuis votre espace Congés (rubrique « Mon historique »).\n\nCordialement,\n${actorName()}`;
-            const mailUrl = gmailUrl(r.email, adminEmails(db, actorName()).filter(m => m !== r.email), 'Proposition de dates — Demande de congés', body);
+            const ccProp = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const mailUrl = gmailUrl(r.email, ccProp, 'Proposition de dates — Demande de congés', body);
+            const notified = [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)];
             await renderManagerDashboard();
-            openRequestModal(id, `✓ Proposition envoyée à ${r.user} : ${fmtPeriod(p).replace(/^Du/, 'du')}.`, mailUrl);
+            openRequestModal(id, `✓ Proposition envoyée à ${r.user} : ${fmtPeriod(p).replace(/^Du/, 'du')}. ${emailHintHtml(notified)}`, mailUrl);
             return true;
         } catch(e) { alert('Erreur : ' + e.message); return false; }
     }
@@ -2399,6 +2470,7 @@
                     <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">📆 Décaler</button>
                     <button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">💡 Proposer d'autres dates</button>
                     <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>
+                    ${r.status === 'Validé' ? `<button class="btn btn-ghost btn-sm" onclick="downloadICS(${r.id}, true)" title="Fichier agenda : Apple Calendrier, Outlook, import Google Agenda">🍎 .ics</button><a class="btn btn-ghost btn-sm" href="${googleCalUrl(r, true)}" target="_blank" title="Ouvrir dans Google Agenda (choix du calendrier à l'enregistrement)">📅 Google Agenda</a>` : ''}
                 </div>
                 <div id="sub-refuse" class="sub-form">
                     <div class="form-group"><label>Motif du refus (optionnel)</label><textarea id="modal-refuse-reason" rows="2" placeholder="Précisez un motif..."></textarea></div>
@@ -2451,7 +2523,7 @@
         if (status === 'Validé' && !confirm('Valider cette demande ?')) return;
         const id = modalRequestId;
         const res = await decideRequest(id, status, reason);
-        if (res) openRequestModal(id, `✓ Demande ${status === 'Validé' ? 'validée' : 'refusée'}.`, res.mailUrl);
+        if (res) openRequestModal(id, `✓ Demande ${status === 'Validé' ? 'validée' : 'refusée'}. ${emailHintHtml(res.notified)}`, res.mailUrl);
     }
     async function submitMove() {
         const d = readModalDates('move');
@@ -2676,11 +2748,12 @@
         </div>`;
     }
 
-    async function makePDF(name) {
+    async function makePDF(name, landscape) {
         const el = document.getElementById('pdf-template');
         el.style.display = 'block';
-        await html2pdf().set({ margin:15, filename:name, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4'} }).from(el).save();
-        el.style.display = 'none';
+        try {
+            await html2pdf().set({ margin: landscape ? 10 : 15, filename:name, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4',orientation: landscape ? 'landscape' : 'portrait'} }).from(el).save();
+        } finally { el.style.display = 'none'; }
     }
 
     async function downloadPDF(id) {
@@ -2722,6 +2795,157 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
             a.download = `RH_Backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
         } catch(e) { alert('Erreur export : '+e.message); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       EXPORTS — PDF / CSV / fichier agenda (.ics pour Apple, Outlook, Google) / lien Google Agenda
+       Le .ics ne contient pas de nom de calendrier : à l'ouverture, Apple Calendrier / Outlook /
+       l'import Google demandent dans quel calendrier existant ajouter les événements.
+       ══════════════════════════════════════════════════════════════════════ */
+    const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    function downloadBlob(content, filename, type) {
+        const blob = new Blob([content], { type });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    }
+    function eventTitle(r, withName) {
+        const base = r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
+        return (withName ? `${r.user} ${r.lastname || ''}`.trim() + ' — ' : '') + base + (r.status === 'En attente' ? ' (en attente)' : '');
+    }
+    function eventDescription(r) {
+        return [`${r.type}${r.note ? ' — ' + r.note : ''}`, `${fmtPeriod(r)} · ${fmtDays(r.days)} jour(s) ouvré(s)`, `Statut : ${r.status}`,
+            r.rattrapage && r.rattrapage.length ? 'Rattrapage : ' + fmtRattrapage(r.rattrapage) : '', 'Source : Congés RH — Rue du Store'].filter(Boolean).join('\n');
+    }
+    // Un congé avec heures = événement horaire (heures manquantes remplacées par 08h00 / 18h00), sinon journée(s) entière(s)
+    function eventTimes(r) {
+        const timed = !!(r.startTime || r.endTime);
+        return timed
+            ? { timed, start: r.start.replace(/-/g, '') + 'T' + (r.startTime || '08:00').replace(':', '') + '00', end: r.end.replace(/-/g, '') + 'T' + (r.endTime || '18:00').replace(':', '') + '00' }
+            : { timed, start: r.start.replace(/-/g, ''), end: addDaysISO(r.end, 1).replace(/-/g, '') };
+    }
+    function icsText(v) { return String(v || '').replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+    // Pliage des lignes longues (RFC 5545) sans couper une séquence d'échappement ni un emoji
+    function icsFold(line) { const out = []; while (line.length > 74) { let cut = 74; if (line[cut - 1] === '\\') cut--; if (/[\uD800-\uDBFF]/.test(line[cut - 1])) cut--; out.push(line.slice(0, cut)); line = ' ' + line.slice(cut); } out.push(line); return out.join('\r\n'); }
+    function buildICS(reqs, withName) {
+        const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Rue du Store//Congés RH//FR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+            'BEGIN:VTIMEZONE', 'TZID:Europe/Paris',
+            'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
+            'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU', 'END:STANDARD',
+            'END:VTIMEZONE'];
+        reqs.forEach(r => {
+            const t = eventTimes(r);
+            lines.push('BEGIN:VEVENT', `UID:conges-${r.id}@ruedustore.fr`, `DTSTAMP:${stamp}`);
+            if (t.timed) lines.push(`DTSTART;TZID=Europe/Paris:${t.start}`, `DTEND;TZID=Europe/Paris:${t.end}`);
+            else lines.push(`DTSTART;VALUE=DATE:${t.start}`, `DTEND;VALUE=DATE:${t.end}`);
+            lines.push(`SUMMARY:${icsText(eventTitle(r, withName))}`, `DESCRIPTION:${icsText(eventDescription(r))}`);
+            if (r.status === 'En attente') lines.push('STATUS:TENTATIVE');
+            lines.push('END:VEVENT');
+        });
+        lines.push('END:VCALENDAR');
+        return lines.map(icsFold).join('\r\n') + '\r\n';
+    }
+    // Lien "ajouter un événement" Google Agenda : Google demande dans quel calendrier l'enregistrer
+    function googleCalUrl(r, withName) {
+        const t = eventTimes(r);
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle(r, withName))}&dates=${t.start}/${t.end}&details=${encodeURIComponent(eventDescription(r))}&ctz=Europe%2FParis`;
+    }
+    function buildCSV(reqs) {
+        const head = ['Prénom', 'Nom', 'Début', 'Heure début', 'Fin', 'Heure fin', 'Jours ouvrés', 'Type', 'Motif', 'Statut', 'Déposée le', 'Décision le', 'Rattrapage'];
+        const esc = v => { v = String(v === undefined || v === null ? '' : v); return /[";\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+        const rows = reqs.map(r => [r.user, r.lastname || '', formatDate(r.start), fmtTime(r.startTime), formatDate(r.end), fmtTime(r.endTime), fmtDays(r.days), r.type, r.note || '', r.status, formatDate(r.date_demande), formatDate(r.date_decision), fmtRattrapage(r.rattrapage)]);
+        return '\ufeff' + [head, ...rows].map(row => row.map(esc).join(';')).join('\r\n');
+    }
+    function agendaButtons(r) {
+        if (r.status !== 'Validé') return '';
+        return `<div class="agenda-btns"><button class="agenda-btn" onclick="downloadICS(${r.id})" title="Fichier agenda : s'ouvre dans Apple Calendrier / Outlook, ou s'importe dans Google Agenda">🍎 .ics</button><a class="agenda-btn" href="${googleCalUrl(r)}" target="_blank" title="Ouvrir dans Google Agenda (vous choisissez le calendrier à l'enregistrement)">📅 Google</a></div>`;
+    }
+    async function downloadICS(id, withName) {
+        try {
+            const { db } = cachedDB || await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r) return alert('Demande introuvable.');
+            if (r.user !== currentUser && !isAdmin()) return;
+            downloadBlob(buildICS([r], !!withName), `Conges_${r.user}_${r.start}.ics`, 'text/calendar;charset=utf-8');
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    async function downloadMyValidatedICS() {
+        try {
+            const { db } = cachedDB || await fetchFromGitHub();
+            const mine = db.requests.filter(r => r.user === currentUser && r.status === 'Validé').sort((a, b) => a.start.localeCompare(b.start));
+            if (!mine.length) return alert('Aucun congé validé à exporter.');
+            downloadBlob(buildICS(mine, false), `Mes_conges_${currentUser}_${todayISO()}.ics`, 'text/calendar;charset=utf-8');
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
+    /* ── Export du planning (espace Direction) ──────────────────────────── */
+    function toggleExportBar() {
+        const bar = document.getElementById('cal-export-bar');
+        bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+    }
+    function exportScope() { return fieldVal('cal-export-scope') || 'month'; }
+    function exportScopeLabel() {
+        const s = exportScope();
+        return s === 'month' ? `${MONTHS_FR[calMonth]} ${calYear}` : s === 'year' ? `Année ${calYear}` : 'Toutes les demandes';
+    }
+    function exportScopeRequests(db) {
+        const s = exportScope();
+        let list = calRequests(db);
+        if (s === 'month') { const ms = `${calYear}-${pad2(calMonth+1)}-01`, me = toISO(new Date(calYear, calMonth + 1, 0)); list = list.filter(r => !(r.end < ms || r.start > me)); }
+        else if (s === 'year') { const ys = `${calYear}-01-01`, ye = `${calYear}-12-31`; list = list.filter(r => !(r.end < ys || r.start > ye)); }
+        return list.sort((a, b) => a.start.localeCompare(b.start) || a.user.localeCompare(b.user, 'fr'));
+    }
+    function exportFileSuffix() { const s = exportScope(); return s === 'month' ? `${calYear}-${pad2(calMonth+1)}` : s === 'year' ? String(calYear) : 'complet'; }
+    async function exportPlanning(format) {
+        if (!isAdmin()) return;
+        try {
+            const { db } = cachedDB || await fetchFromGitHub();
+            const reqs = exportScopeRequests(db);
+            if (!reqs.length) return alert(`Aucune absence à exporter pour « ${exportScopeLabel()} » avec les filtres actuels.`);
+            const suffix = exportFileSuffix();
+            if (format === 'csv') return downloadBlob(buildCSV(reqs), `Planning_conges_${suffix}.csv`, 'text/csv;charset=utf-8');
+            if (format === 'ics') return downloadBlob(buildICS(reqs, true), `Planning_conges_${suffix}.ics`, 'text/calendar;charset=utf-8');
+            if (format === 'google') {
+                if (reqs.length === 1) { window.open(googleCalUrl(reqs[0], true), '_blank'); return; }
+                downloadBlob(buildICS(reqs, true), `Planning_conges_${suffix}.ics`, 'text/calendar;charset=utf-8');
+                alert(`Fichier agenda téléchargé (${reqs.length} absences).\n\nPour l'ajouter à un calendrier Google existant :\nGoogle Agenda (sur ordinateur) → ⚙ Paramètres → Importer et exporter → Sélectionner le fichier → choisir le calendrier de destination → Importer.\n\nAstuce : pour une seule absence, le bouton « Google Agenda » de sa fiche ouvre directement le formulaire d'ajout.`);
+                return;
+            }
+            if (format === 'pdf') {
+                document.getElementById('pdf_body').innerHTML = buildPlanningPDFHTML(db, reqs);
+                await makePDF(`Planning_conges_${suffix}.pdf`, true);
+            }
+        } catch(e) { alert('Erreur export : ' + e.message); }
+    }
+    function buildPlanningPDFHTML(db, reqs) {
+        const colorMap = employeeColorMap(db);
+        const filters = [calFilterStatus !== 'both' ? `Statut : ${calFilterStatus === 'Validé' ? 'validées' : 'en attente'}` : 'Validées + en attente', calFilterEmp ? `Salarié : ${calFilterEmp}` : ''].filter(Boolean).join(' · ');
+        let grid = '';
+        if (exportScope() === 'month') {
+            const lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+            const dates = []; for (let d = 1; d <= lastDay; d++) dates.push(`${calYear}-${pad2(calMonth+1)}-${pad2(d)}`);
+            const letters = ['D','L','M','M','J','V','S'];
+            const people = [...new Set([...(db.employees || []).map(e => e.name), ...reqs.map(r => r.user)])].filter(n => !calFilterEmp || n === calFilterEmp).sort((a, b) => a.localeCompare(b, 'fr'));
+            const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => iso >= r.start && iso <= r.end).map(r => r.user)).size);
+            grid = `<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:18px;font-size:9px;">
+                <thead><tr><th style="width:110px;text-align:left;padding:4px 6px;border:1px solid #ccc;background:#f2f2f2;">Salarié</th>${dates.map(iso => { const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6; const c = counts[iso] >= 2 && !wk;
+                    return `<th style="padding:3px 0;border:1px solid #ccc;text-align:center;font-weight:${c ? 700 : 500};background:${c ? '#ffe0e0' : wk ? '#e8e8e8' : '#f2f2f2'};color:${c ? '#b71c1c' : '#333'};">${letters[d.getDay()]}<br>${d.getDate()}</th>`; }).join('')}</tr></thead>
+                <tbody>${people.map(name => `<tr><td style="padding:4px 6px;border:1px solid #ccc;font-weight:600;white-space:nowrap;overflow:hidden;">${name}</td>${dates.map(iso => { const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6; const r = reqs.find(x => x.user === name && iso >= x.start && iso <= x.end);
+                    return `<td style="height:16px;border:1px solid #ddd;background:${r ? colorMap[name] : wk ? '#f0f0f0' : 'white'};opacity:${r && r.status === 'En attente' ? 0.45 : 1};"></td>`; }).join('')}</tr>`).join('')}</tbody></table>
+                <p style="font-size:9px;color:#666;margin:-10px 0 16px;">Couleur pleine = validée · couleur pâle = en attente · en-tête rouge = plusieurs salariés absents le même jour</p>`;
+        }
+        const list = `<table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <thead><tr>${['Salarié','Période','Jours ouvrés','Type','Statut','Rattrapage'].map(h => `<th style="text-align:left;padding:5px 6px;border-bottom:2px solid #333;">${h}</th>`).join('')}</tr></thead>
+            <tbody>${reqs.map(r => `<tr><td style="padding:4px 6px;border-bottom:1px solid #ddd;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${colorMap[r.user]};margin-right:5px;"></span>${r.user} ${r.lastname || ''}</td><td style="padding:4px 6px;border-bottom:1px solid #ddd;">${fmtPeriod(r)}</td><td style="padding:4px 6px;border-bottom:1px solid #ddd;">${fmtDays(r.days)}</td><td style="padding:4px 6px;border-bottom:1px solid #ddd;">${r.type}${r.note ? ' — ' + r.note : ''}</td><td style="padding:4px 6px;border-bottom:1px solid #ddd;">${r.status}</td><td style="padding:4px 6px;border-bottom:1px solid #ddd;">${fmtRattrapage(r.rattrapage) || '—'}</td></tr>`).join('')}</tbody></table>`;
+        return `<div style="padding:10px 14px;font-family:Arial, sans-serif;color:#000;width:1080px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;border-bottom:2px solid #25737d;padding-bottom:8px;">
+                <div><div style="font-size:18px;font-weight:700;">Planning des absences — ${exportScopeLabel()}</div><div style="font-size:10px;color:#555;margin-top:3px;">${filters} · ${reqs.length} absence(s)</div></div>
+                <div style="font-size:10px;color:#555;text-align:right;">Rue du Store — Congés RH<br>Édité le ${formatDate(todayISO())} par ${actorName()}</div>
+            </div>
+            ${grid}${list}
+        </div>`;
     }
 
     // ─── Journal ─────────────────────────────────────────────────────────────
