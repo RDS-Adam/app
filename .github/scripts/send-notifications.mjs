@@ -22,6 +22,7 @@ const KIND_LABELS = {
   decalage: 'Congés décalés',
   proposition: 'Proposition de dates',
   offert: 'Jours de congé offerts',
+  tt: 'Télétravail',
   reset: 'Réinitialisation de votre mot de passe',
   test: 'Test des notifications'
 };
