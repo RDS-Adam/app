@@ -200,8 +200,12 @@
       "days": 11,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-22"
+      "status": "Validé",
+      "date_demande": "2026-09-22",
+      "reason": "",
+      "date_decision": "2026-09-24",
+      "fromN1": 0,
+      "fromN": 11
     },
     {
       "id": 1790242708532,
@@ -237,7 +241,7 @@
   "soldes": {
     "Adam": 30.24,
     "Alexandre": 10.74,
-    "Axel": 2.08,
+    "Axel": 0,
     "Baptiste": 6.24,
     "Camille": 31.24,
     "Cindy": 6.24,
@@ -328,6 +332,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790246427451,
+      "date": "2026-09-24",
+      "heure": "12:40",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Axel Seigneury · Du 02/03/2027 au 16/03/2027 (11 j)"
+    },
     {
       "ts": 1790246421123,
       "date": "2026-09-24",
@@ -879,6 +892,26 @@
     "Alexandre": 0
   },
   "notifications": [
+    {
+      "id": 1790246427743,
+      "ts": 1790246427451,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Axel Seigneury</strong> : Congés Payés · Du 02/03/2027 au 16/03/2027 (11 j)",
+      "reqId": 1790083771711
+    },
+    {
+      "id": 1790246427477,
+      "ts": 1790246427451,
+      "to": [
+        "Axel"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 02/03/2027 au 16/03/2027 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1790083771711
+    },
     {
       "id": 1790246422117,
       "ts": 1790246421123,
