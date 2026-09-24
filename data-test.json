@@ -42,6 +42,19 @@
       "note": "Déménagement",
       "status": "En attente",
       "date_demande": "2026-09-23"
+    },
+    {
+      "id": 1790245846087,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury+axel@ruedustore.fr",
+      "start": "2026-09-26",
+      "end": "2026-09-30",
+      "days": 3,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24"
     }
   ],
   "soldes": {
@@ -110,6 +123,15 @@
   },
   "logs": [
     {
+      "ts": 1790245846087,
+      "date": "2026-09-24",
+      "heure": "12:30",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 26/09/2026 au 30/09/2026 (3 j)"
+    },
+    {
       "ts": 1790244638568,
       "date": "2026-09-24",
       "heure": "09:00",
@@ -119,6 +141,18 @@
       "detail": "6 comptes fictifs, mot de passe commun « Test1234! », emails vers axel.seigneury+prénom@ruedustore.fr"
     }
   ],
-  "notifications": [],
+  "notifications": [
+    {
+      "id": 1790245846933,
+      "ts": 1790245846087,
+      "to": [
+        "Nicolas",
+        "Camille"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 26/09/2026 au 30/09/2026 (3 j)",
+      "reqId": 1790245846087
+    }
+  ],
   "notifSeen": {}
 }
