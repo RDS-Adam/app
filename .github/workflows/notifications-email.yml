@@ -11,6 +11,7 @@ on:
   push:
     paths:
       - 'data.json'
+      - 'data-test.json'
   workflow_dispatch:
 
 concurrency:
@@ -33,9 +34,19 @@ jobs:
           node-version: '20'
       - name: Installer nodemailer
         run: npm install --no-save --no-package-lock --no-audit --no-fund nodemailer@6
-      - name: Envoyer les nouvelles notifications
+      - name: Envoyer les nouvelles notifications (production)
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           SENDER_NAME: Congés RH — Rue du Store
+          DATA_FILE: data.json
+        run: node .github/scripts/send-notifications.mjs
+      - name: Envoyer les nouvelles notifications (environnement de test)
+        if: always()
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          SENDER_NAME: '[TEST] Congés RH'
+          DATA_FILE: data-test.json
+          SUBJECT_PREFIX: '[TEST] '
         run: node .github/scripts/send-notifications.mjs
