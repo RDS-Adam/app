@@ -211,6 +211,9 @@
         .gcal-day.has-conflict { background: #fff7f7; }
         .gcal-day.drop-target { background: #e0eff0; box-shadow: inset 0 0 0 2px var(--bleu); }
         .gcal-date { font-size: 0.7rem; font-weight: 600; color: #555; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .gcal-holiday { position: absolute; left: 6px; bottom: 5px; right: 6px; font-size: 0.6rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .plan-table thead th.holiday { color: var(--bleu); font-weight: 600; }
+        .plan-table td.offday { background-image: repeating-linear-gradient(135deg, transparent 0 4px, #e9e9ee 4px 6px); }
         .gcal-conflict { position: absolute; top: 7px; right: 6px; font-size: 0.6rem; font-weight: 600; color: #b3261e; background: var(--danger-soft); border-radius: 10px; padding: 2px 7px; cursor: help; white-space: nowrap; }
         .gcal-events { position: absolute; left: 0; right: 0; top: 34px; pointer-events: none; }
         .gcal-bar { position: absolute; height: 20px; line-height: 20px; border-radius: 6px; color: white; font-size: 0.66rem; font-weight: 500; padding: 0 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: grab; pointer-events: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.15); transition: transform 0.1s, box-shadow 0.1s; }
@@ -222,6 +225,8 @@
         .gcal-bar.cont-right { border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .gcal-bar.dragging, .plan-abs.dragging { opacity: 0.4; }
         .gcal-bar.readonly, .plan-abs.readonly { cursor: default; }
+        .gcal-bar.offered, .plan-abs.offered { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.75); }
+        .offered-tag { display: inline-block; background: var(--success-soft); color: #23784f; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 5px; }
         .gcal-bar.readonly:hover { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .gcal-bar.mine, .plan-abs.mine { outline: 2px solid var(--text); outline-offset: 1px; }
         .plan-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
@@ -305,6 +310,8 @@
         .post-submit-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .log-icon.decalage    { background: #ede9fb; color: #5b45c8; }
         .log-icon.proposition { background: var(--warning-soft); color: var(--warning); }
+        .log-icon.offert { background: var(--success-soft); color: var(--success); }
+        .notif-icon.offert { background: var(--success-soft); color: var(--success); }
 
         /* === Fiche demande (modale) === */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.32); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
@@ -509,7 +516,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="margin-top:10px;font-size:0.72rem;color:var(--muted);">Total disponible : <strong id="solde-total-display">— j</strong></div>
+                            <div style="margin-top:10px;font-size:0.72rem;color:var(--muted);">Total disponible : <strong id="solde-total-display">— j</strong> <span id="pattern-display" style="margin-left:10px;"></span></div>
                         </div>
                         <div class="form-grid">
                             <div class="form-group">
@@ -562,7 +569,7 @@
                                 <div class="input-hint">Vous pouvez ajouter plusieurs créneaux sur plusieurs jours. Laissez les heures vides pour une journée complète.</div>
                             </div>
                         </div>
-                        <div class="days-preview" id="days-preview"><span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
+                        <div class="days-preview" id="days-preview"><span id="days-count"></span> jour(s) ouvré(s) concerné(s)<div id="days-hint" style="display:none;font-weight:400;font-size:0.74rem;margin-top:4px;opacity:.85;"></div></div>
                         <div id="past-warning" class="alert alert-warning" style="display:none;margin-top:10px;"></div>
                         <div id="overlap-warning" class="alert alert-warning" style="display:none;margin-top:10px;">Vous avez déjà une demande sur cette période.</div>
                         <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">Soumettre la demande →</button>
@@ -643,6 +650,7 @@
                 <div><h1>Tableau de bord RH</h1><p>Vue d'ensemble des demandes de congés</p></div>
                 <div class="mgr-top-actions">
                     <button class="btn btn-ghost btn-sm" onclick="renderManagerDashboard()">Actualiser</button>
+                    <button class="btn btn-primary btn-sm" id="btn-offer-days" style="display:none;" onclick="toggleOfferCard()" title="Jours de congé offerts à l'équipe, sans décompte des soldes">Offrir des jours</button>
                     <button class="btn btn-ghost btn-sm" id="btn-test-email" style="display:none;" onclick="testEmail()" title="Envoie un email de test à votre adresse pour vérifier la configuration">Tester l'email</button>
                     <button class="btn btn-ghost btn-sm" id="btn-export-backup" style="display:none;" onclick="exportBackup()">Export JSON</button>
                     <button class="btn btn-ghost-danger btn-sm" id="btn-clear-all" style="display:none;" onclick="confirmClearAll()">Effacer tout</button>
@@ -664,6 +672,23 @@
             </div>
 
             <div id="mgr-section-demandes" class="mgr-section active">
+                <div class="card" id="card-offer" style="display:none;">
+                    <div class="card-header"><h2>Offrir des jours de congé</h2><button class="btn btn-ghost btn-sm" onclick="toggleOfferCard()">Fermer</button></div>
+                    <div class="card-body">
+                        <p class="input-hint" style="margin:0 0 16px;">Les jours offerts sont enregistrés comme des congés validés pour chaque salarié sélectionné, <strong>sans rien décompter de leur solde</strong>. Ils apparaissent dans les calendriers et dans l'historique de chacun, qui est prévenu par notification et email.</p>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Du</label><input type="date" id="offer_start" onchange="previewOffer()"></div>
+                            <div class="form-group"><label>Au</label><input type="date" id="offer_end" onchange="previewOffer()"></div>
+                            <div class="form-group full"><label>Intitulé</label><input type="text" id="offer_label" placeholder="Ex: Fermeture de janvier, pont offert…"></div>
+                            <div class="form-group full">
+                                <label>Salariés concernés <span style="text-transform:none;letter-spacing:0;font-weight:400;">· <a href="#" onclick="offerSelectAll(true);return false;">tous</a> · <a href="#" onclick="offerSelectAll(false);return false;">aucun</a></span></label>
+                                <div id="offer_people" style="display:flex;flex-wrap:wrap;gap:8px 16px;padding-top:6px;"></div>
+                            </div>
+                        </div>
+                        <div class="days-preview" id="offer_preview"></div>
+                        <button class="btn btn-primary" style="margin-top:8px;" onclick="submitOffer()">Offrir ces jours</button>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-header">
                         <h2>Demandes en attente</h2>
@@ -751,6 +776,60 @@
                     <div class="card-header"><h2>Gestion de l'équipe</h2></div>
                     <div class="card-body" style="padding:0;"><div id="emp-management-list"></div></div>
                 </div>
+                <div class="card" id="pattern-editor" style="display:none;">
+                    <div class="card-header"><h2 id="pattern-editor-title">Temps de travail</h2><button class="btn btn-ghost btn-sm" onclick="document.getElementById('pattern-editor').style.display='none'">Fermer</button></div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Temps de travail</label>
+                                <select id="pattern-percent">
+                                    <option value="100">100 % — temps plein</option>
+                                    <option value="90">90 %</option>
+                                    <option value="80">80 % — 4 jours par semaine</option>
+                                    <option value="70">70 %</option>
+                                    <option value="60">60 % — 3 jours par semaine</option>
+                                    <option value="50">50 % — mi-temps</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Jours non travaillés</label>
+                                <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:8px;font-size:0.84rem;">
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-off-1" style="width:auto;"> Lundi</label>
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-off-2" style="width:auto;"> Mardi</label>
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-off-3" style="width:auto;"> Mercredi</label>
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-off-4" style="width:auto;"> Jeudi</label>
+                                    <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-off-5" style="width:auto;"> Vendredi</label>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="input-hint" style="margin-top:12px;">Le pourcentage est indicatif (et sert à l'acquisition si la méthode proportionnelle est choisie ci-dessous). Ce sont les jours non travaillés qui pilotent le décompte.</p>
+                        <button class="btn btn-primary" style="margin-top:14px;" onclick="saveWorkPattern()">Enregistrer</button>
+                    </div>
+                </div>
+                <div class="card" id="card-rules">
+                    <div class="card-header"><h2>Règles de décompte</h2><span style="font-size:0.74rem;color:var(--muted);">Fériés <span id="holiday-year"></span></span></div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Temps partiel</label>
+                                <select id="rule-method" onchange="saveRules()" class="admin-only">
+                                    <option value="legal">Méthode légale — jours ouvrés de l'entreprise, jusqu'à la veille de la reprise · acquisition pleine (25 j)</option>
+                                    <option value="proportional">Méthode proportionnelle — seuls les jours travaillés sont décomptés · acquisition au prorata du temps de travail</option>
+                                </select>
+                                <div class="input-hint">Exemple pour un 80 % sans mercredi : une semaine entière = 5 j dans les deux cas. Lundi + mardi avec reprise jeudi = 3 j en méthode légale (le mercredi compte), 2 j en proportionnelle.</div>
+                            </div>
+                            <div class="form-group full">
+                                <label>Jours fériés <span id="holiday-year-lbl"></span></label>
+                                <div id="holiday-list" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                                <div class="input-hint" id="holiday-extra-future" style="margin-top:8px;"></div>
+                                <label class="admin-only" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.8rem;color:var(--text);"><input type="checkbox" id="rule-alsace" onchange="saveRules()" style="width:auto;"> Alsace-Moselle (Vendredi saint et 26 décembre fériés)</label>
+                            </div>
+                            <div class="form-group admin-only"><label>Ajouter une fermeture (pont, inventaire…)</label><input type="date" id="holiday-new-date"></div>
+                            <div class="form-group admin-only"><label>Libellé</label><input type="text" id="holiday-new-label" placeholder="Ex: Pont de l'Ascension"></div>
+                        </div>
+                        <button class="btn btn-ghost admin-only" style="margin-top:14px;" onclick="addExtraHoliday()">Ajouter la fermeture</button>
+                    </div>
+                </div>
                 <div class="card" id="card-add-employee" style="display:none;">
                     <div class="card-header"><h2>Ajouter un salarié</h2></div>
                     <div class="card-body">
@@ -830,6 +909,9 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>« Offrir des jours » (direction) : congés offerts à tout ou partie de l'équipe sur une période, validés d'office sans décompte des soldes, visibles dans les calendriers et l'historique, chacun prévenu · retrait possible depuis la fiche</li>
+                                <li>Jours fériés français calculés automatiquement (Pâques, Ascension, Pentecôte inclus) et exclus du décompte, option Alsace-Moselle, fermetures d'entreprise ajoutables par la direction · fériés affichés dans les calendriers</li>
+                                <li>Temps partiel : pourcentage et jours non travaillés par salarié (onglet Équipe), décompte selon la méthode légale (par défaut) ou proportionnelle, au choix de la direction · détail du calcul affiché au moment de la demande</li>
                                 <li>Impossible pour un salarié de poser des jours dans le passé (le sélecteur de date s'arrête à aujourd'hui, message si l'année est fausse) · la direction garde la possibilité de régulariser</li>
                                 <li>Agenda de l'équipe dans l'espace salarié : le même calendrier (vues Mois et Planning) limité aux congés validés, en lecture seule, ses propres absences entourées</li>
                                 <li>Chargements plus fluides : gabarits scintillants à la place des « Chargement… », contenu conservé pendant les rafraîchissements, fondu à l'ouverture des onglets</li>
@@ -1015,6 +1097,7 @@
                                 <option value="annulation">Annulations</option>
                                 <option value="decalage">Décalages</option>
                                 <option value="proposition">Propositions de dates</option>
+                                <option value="offert">Jours offerts</option>
                                 <option value="solde">Soldes</option>
                                 <option value="employe">Équipe</option>
                                 <option value="systeme">Système</option>
@@ -1131,6 +1214,7 @@
             if (!db.config)   db.config    = {};
             if (!db.logs)     db.logs      = [];
         }
+        syncRulesFromDb(db);
         cachedDB = { sha: data.sha, db };
         return cachedDB;
     }
@@ -1203,18 +1287,105 @@
 
     function formatDate(d) { if(!d) return ''; const [y,m,j] = d.split('-'); return `${j}/${m}/${y}`; }
 
-    function isWorkDay(d) { const wd = new Date(d + 'T00:00:00').getDay(); return wd !== 0 && wd !== 6; }
+    /* ══════════════════════════════════════════════════════════════════════
+       JOURS FÉRIÉS, TEMPS DE TRAVAIL ET DÉCOMPTE DES JOURS OUVRÉS
+       - fériés français calculés chaque année (Pâques via l'algorithme de Meeus), option Alsace-Moselle,
+         fermetures d'entreprise ajoutées par la direction (db.config.extraHolidays)
+       - temps de travail par salarié : pourcentage + jours non travaillés (emp.workPattern)
+       - méthode de décompte (db.config.partTimeMethod) :
+           'legal'        (défaut) : jours ouvrés de l'entreprise, du 1er jour où le salarié aurait dû travailler
+                                     à la veille de sa reprise (règle du Code du travail) ; acquisition pleine
+           'proportional'          : seuls les jours travaillés par le salarié sont décomptés ;
+                                     acquisition mensuelle × pourcentage
+       ══════════════════════════════════════════════════════════════════════ */
+    const DAY_NAMES = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    let holidayCfg = { alsace: false, extra: [] };   // rempli depuis db.config à chaque lecture
+    let workPatterns = {};                            // prénom → { percent, offDays:[1..5] }
+    function syncRulesFromDb(db) {
+        holidayCfg = { alsace: !!(db.config && db.config.holidaysAlsace), extra: (db.config && db.config.extraHolidays) || [] };
+        workPatterns = {};
+        (db.employees || []).forEach(e => { if (e.workPattern) workPatterns[e.name] = e.workPattern; });
+        partTimeMethod = (db.config && db.config.partTimeMethod) || 'legal';
+    }
+    let partTimeMethod = 'legal';
+    function easterSunday(y) {
+        const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+        const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+        return new Date(y, month - 1, day);
+    }
+    const holidayCache = {};
+    function holidaysOfYear(y) {
+        const key = y + '|' + holidayCfg.alsace + '|' + holidayCfg.extra.map(x => x.date).join(',');
+        if (holidayCache[key]) return holidayCache[key];
+        const e = easterSunday(y);
+        const plus = n => { const d = new Date(e); d.setDate(e.getDate() + n); return toISO(d); };
+        const list = {
+            [`${y}-01-01`]: "Jour de l'an", [plus(1)]: 'Lundi de Pâques', [`${y}-05-01`]: 'Fête du Travail', [`${y}-05-08`]: 'Victoire 1945',
+            [plus(39)]: 'Ascension', [plus(50)]: 'Lundi de Pentecôte', [`${y}-07-14`]: 'Fête nationale', [`${y}-08-15`]: 'Assomption',
+            [`${y}-11-01`]: 'Toussaint', [`${y}-11-11`]: 'Armistice', [`${y}-12-25`]: 'Noël'
+        };
+        if (holidayCfg.alsace) { list[plus(-2)] = 'Vendredi saint'; list[`${y}-12-26`] = 'Saint-Étienne'; }
+        holidayCfg.extra.forEach(x => { if (x.date && x.date.startsWith(String(y))) list[x.date] = x.label || 'Fermeture'; });
+        holidayCache[key] = list;
+        return list;
+    }
+    function holidayName(iso) { return holidaysOfYear(+iso.slice(0, 4))[iso] || null; }
+    function isWeekend(iso) { const wd = new Date(iso + 'T00:00:00').getDay(); return wd === 0 || wd === 6; }
+    // Jour ouvré de l'entreprise : lundi à vendredi, hors fériés
+    function isWorkDay(iso) { return !isWeekend(iso) && !holidayName(iso); }
+    function patternOf(user) { const p = user && workPatterns[user]; return { percent: p && p.percent ? p.percent : 100, offDays: (p && p.offDays) || [] }; }
+    function isOffDayFor(iso, user) { return patternOf(user).offDays.includes(new Date(iso + 'T00:00:00').getDay()); }
+    // Jour effectivement travaillé par le salarié
+    function isWorkedBy(iso, user) { return isWorkDay(iso) && !isOffDayFor(iso, user); }
+    function fmtPattern(user) {
+        const p = patternOf(user);
+        if (p.percent === 100 && !p.offDays.length) return 'Temps plein';
+        return `${p.percent} %` + (p.offDays.length ? ' · ' + p.offDays.map(d => DAY_NAMES[d]).join(', ') + ' non travaillé' + (p.offDays.length > 1 ? 's' : '') : '');
+    }
 
-    // Jours ouvrés entre deux dates. Heures facultatives : départ à 12h00 ou plus tard = demi-journée
-    // (après-midi) sur le 1er jour, retour à 13h00 ou plus tôt = demi-journée (matin) sur le dernier jour.
-    function calculateWorkDays(start, end, startTime, endTime) {
-        let c = 0, cur = new Date(start + 'T00:00:00'), stop = new Date(end + 'T00:00:00');
-        while (cur <= stop) { if (cur.getDay() !== 0 && cur.getDay() !== 6) c++; cur.setDate(cur.getDate()+1); }
-        if (c === 0) return 0;
+    // Décompte détaillé : { days, counted:[iso], holidays:[{date,name}], offCounted:[iso], shiftedStart, shiftedEnd }
+    function workDaysDetail(start, end, startTime, endTime, user) {
+        const out = { days: 0, counted: [], holidays: [], offCounted: [], shiftedStart: null, shiftedEnd: null };
+        if (!start || !end || start > end) return out;
+        let s = start, e = end;
+        if (partTimeMethod === 'legal' && patternOf(user).offDays.length) {
+            // 1er jour de congé = 1er jour où le salarié aurait dû travailler ; fin = veille de la reprise effective
+            let guard = 0; while (s <= e && !isWorkedBy(s, user) && guard++ < 14) s = addDaysISO(s, 1);
+            if (s !== start) out.shiftedStart = s;
+            let next = addDaysISO(e, 1); guard = 0;
+            while (!isWorkedBy(next, user) && guard++ < 14) next = addDaysISO(next, 1);
+            const newEnd = addDaysISO(next, -1);
+            if (newEnd > e) { out.shiftedEnd = newEnd; e = newEnd; }
+        }
+        for (let d = s; d <= e; d = addDaysISO(d, 1)) {
+            const h = holidayName(d);
+            if (h && !isWeekend(d)) { out.holidays.push({ date: d, name: h }); continue; }
+            if (isWeekend(d)) continue;
+            if (partTimeMethod === 'proportional' && isOffDayFor(d, user)) continue;
+            if (isOffDayFor(d, user)) out.offCounted.push(d);
+            out.counted.push(d);
+        }
+        let c = out.counted.length;
+        if (!c) return out;
         let half = 0;
-        if (startTime && startTime >= '12:00' && isWorkDay(start)) half += 0.5;
-        if (endTime && endTime <= '13:00' && isWorkDay(end)) half += 0.5;
-        return Math.max(0.5, +(c - half).toFixed(1));
+        if (startTime && startTime >= '12:00' && out.counted.includes(start)) half += 0.5;
+        if (endTime && endTime <= '13:00' && out.counted.includes(end)) half += 0.5;
+        out.days = Math.max(0.5, +(c - half).toFixed(1));
+        return out;
+    }
+    // Jours ouvrés entre deux dates pour un salarié (fériés exclus, temps partiel selon la méthode).
+    // Heures facultatives : départ à 12h00 ou plus tard = ½ j sur le 1er jour, retour à 13h00 ou plus tôt = ½ j sur le dernier.
+    function calculateWorkDays(start, end, startTime, endTime, user) { return workDaysDetail(start, end, startTime, endTime, user).days; }
+    function workDaysHint(detail, user) {
+        const bits = [];
+        if (detail.holidays.length) bits.push(`${detail.holidays.length} férié${detail.holidays.length > 1 ? 's' : ''} exclu${detail.holidays.length > 1 ? 's' : ''} : ${detail.holidays.map(h => formatDate(h.date) + ' ' + h.name).join(', ')}`);
+        const p = patternOf(user);
+        if (p.offDays.length) {
+            if (partTimeMethod === 'proportional') bits.push(`${p.offDays.map(d => DAY_NAMES[d]).join(', ')} non travaillé${p.offDays.length > 1 ? 's' : ''}, non décompté${p.offDays.length > 1 ? 's' : ''}`);
+            else if (detail.offCounted.length) bits.push(`${detail.offCounted.map(d => formatDate(d)).join(', ')} (jour non travaillé) compté car avant la reprise`);
+            if (detail.shiftedStart) bits.push(`début effectif le ${formatDate(detail.shiftedStart)} (1er jour travaillé)`);
+        }
+        return bits.join(' · ');
     }
 
     function fmtDays(d) { return String(d === undefined || d === null ? 0 : d).replace('.', ','); }
@@ -1244,7 +1415,11 @@
         pastWarn.style.display = isPast ? 'flex' : 'none';
         if (isPast) pastWarn.textContent = `La date de début (${formatDate(s)}) est déjà passée. Vérifiez l'année : nous sommes en ${new Date().getFullYear()}.`;
         if (s && e && s <= e && !(s === e && ts && te && ts >= te)) {
-            document.getElementById('days-count').textContent = fmtDays(calculateWorkDays(s, e, ts, te));
+            const det = workDaysDetail(s, e, ts, te, currentUser);
+            document.getElementById('days-count').textContent = fmtDays(det.days);
+            const hint = workDaysHint(det, currentUser);
+            document.getElementById('days-hint').textContent = hint;
+            document.getElementById('days-hint').style.display = hint ? 'block' : 'none';
             el.style.display = 'block';
             if (cachedDB) {
                 const has = cachedDB.db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && !(e < r.start || s > r.end));
@@ -1335,7 +1510,7 @@
     }
     function unreadCount(db) { return myNotifications(db).filter(n => !notifIsRead(db, n)).length; }
     const NOTIF_PAGE = 8;
-    const NOTIF_KIND_LABELS = { demande: 'Demande', decision: 'Décision', annulation: 'Annulation', decalage: 'Décalage', proposition: 'Proposition', test: 'Test' };
+    const NOTIF_KIND_LABELS = { demande: 'Demande', decision: 'Décision', annulation: 'Annulation', decalage: 'Décalage', proposition: 'Proposition', offert: 'Jours offerts', test: 'Test' };
     let notifFilter = null;   // 'unread' | 'read' | 'all' — choisi automatiquement au premier affichage
     let notifLimit = NOTIF_PAGE;
     function notifIcon(n) {
@@ -1346,6 +1521,7 @@
         if (n.kind === 'decalage') return ['decalage', '↔'];
         if (n.kind === 'proposition') return t.startsWith('✅') ? ['ok', '✓'] : t.startsWith('↩') ? ['ko', '↩'] : ['proposition', '→'];
         if (n.kind === 'test') return ['', '@'];
+        if (n.kind === 'offert') return ['offert', '★'];
         return ['', '•'];
     }
     // Les textes stockés commencent par un emoji : on l'enlève à l'affichage (l'icône colorée le remplace)
@@ -1720,6 +1896,7 @@
         document.getElementById('card-add-employee').style.display = isSuperAdmin() ? 'block' : 'none';
         document.getElementById('btn-export-backup').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
         document.getElementById('btn-test-email').style.display = isSuperAdmin() && EMAIL_NOTIFY.enabled ? 'inline-flex' : 'none';
+        document.getElementById('btn-offer-days').style.display = isAdmin() ? 'inline-flex' : 'none';
         document.getElementById('btn-clear-all').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
         await checkMonthlyAccrual();
         const fresh = await fetchFromGitHub();
@@ -1748,6 +1925,8 @@
         nEl.textContent = `${n} j`;
         nEl.className = soldeBadgeClass(n);
         document.getElementById('solde-total-display').textContent = `${+(n1 + n).toFixed(2)} j`;
+        const pat = fmtPattern(currentUser);
+        document.getElementById('pattern-display').textContent = pat === 'Temps plein' ? '' : '· ' + pat;
         document.getElementById('solde-info').style.display = 'block';
     }
 
@@ -1798,12 +1977,14 @@
             const monthsToApply = last ? monthsBetween(last, currentMonth) : 1;
             if (monthsToApply <= 0) { db.config.lastAccrualMonth = currentMonth; await saveToGitHub(db, sha); return; }
             const credit = +(2.08 * monthsToApply).toFixed(2);
+            syncRulesFromDb(db);
             db.employees.forEach(e => {
                 if (db.soldes[e.name] === undefined) db.soldes[e.name] = 0;
-                db.soldes[e.name] = +(db.soldes[e.name] + credit).toFixed(2);
+                const ratio = partTimeMethod === 'proportional' ? patternOf(e.name).percent / 100 : 1;
+                db.soldes[e.name] = +(db.soldes[e.name] + credit * ratio).toFixed(2);
             });
             db.config.lastAccrualMonth = currentMonth;
-            addLogEntry(db, 'solde', 'Système', 'Accrual mensuel congés (N)', `+${credit} j pour ${db.employees.length} salarié(s) — ${monthsToApply} mois appliqué(s), à jour au ${currentMonth}`);
+            addLogEntry(db, 'solde', 'Système', 'Accrual mensuel congés (N)', `+${credit} j pour ${db.employees.length} salarié(s)${partTimeMethod === 'proportional' ? ' (au prorata du temps de travail)' : ''} — ${monthsToApply} mois appliqué(s), à jour au ${currentMonth}`);
             await saveToGitHub(db, sha);
         } catch(e) { console.error('checkMonthlyAccrual:', e.message); }
     }
@@ -1877,7 +2058,7 @@
         try {
             const typeVal = document.getElementById('leave_type').value;
             const noteVal = typeVal === 'Absence Exceptionnelle' ? document.getElementById('leave_autre').value : '';
-            const days    = calculateWorkDays(start, end, startTime, endTime);
+            const days    = calculateWorkDays(start, end, startTime, endTime, currentUser);
             const emp     = db.employees.find(e => e.name === currentUser) || {};
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
             if (startTime) req.startTime = startTime;
@@ -1923,7 +2104,7 @@
     function todayISO() { return new Date().toISOString().split('T')[0]; }
     // Annulable : en attente (toujours), ou validée tant qu'elle n'a pas commencé
     function canCancel(r) {
-        if (!r || r.user !== currentUser) return false;
+        if (!r || r.user !== currentUser || r.offered) return false;
         if (r.status === 'En attente') return true;
         if (r.status === 'Validé') return r.start > todayISO();
         return false;
@@ -1966,13 +2147,13 @@
         try {
             const { db } = await fetchFromGitHub();
             const my = db.requests.filter(r => r.user === currentUser).reverse();
-            const validated = my.filter(r => r.status === 'Validé');
+            const validated = my.filter(r => r.status === 'Validé' && !r.offered);
             document.getElementById('kpi-total').textContent   = my.length;
             document.getElementById('kpi-pending').textContent = my.filter(r => r.status === 'En attente').length;
             document.getElementById('kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
-                const typeLabel = r.type + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '');
+                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 const p = r.proposal;
                 const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal"><strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">Refuser</button></div></div>` : '';
@@ -1999,7 +2180,7 @@
             await checkMonthlyAccrual();
             const { db } = await fetchFromGitHub();
             const pending   = db.requests.filter(r => r.status === 'En attente');
-            const validated = db.requests.filter(r => r.status === 'Validé');
+            const validated = db.requests.filter(r => r.status === 'Validé' && !r.offered);
             const refused   = db.requests.filter(r => r.status === 'Refusé');
             document.getElementById('mgr-kpi-total').textContent   = db.requests.length;
             document.getElementById('mgr-kpi-pending').textContent = pending.length;
@@ -2140,6 +2321,85 @@
         return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to || '')}${cc && cc.length ? '&cc=' + encodeURIComponent(cc.join(',')) : ''}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
+    /* ── Jours offerts par la direction (validés d'office, sans décompte) ── */
+    const OFFERED_TYPE = 'Congés Offerts';
+    function toggleOfferCard() {
+        const card = document.getElementById('card-offer');
+        const open = card.style.display === 'none';
+        card.style.display = open ? 'block' : 'none';
+        if (!open) return;
+        const db = cachedDB ? cachedDB.db : null;
+        const people = document.getElementById('offer_people');
+        people.innerHTML = (db ? [...db.employees].sort((a, b) => a.name.localeCompare(b.name, 'fr')) : []).map(e =>
+            `<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;color:var(--text);"><input type="checkbox" class="offer-person" value="${e.name}" checked style="width:auto;" onchange="previewOffer()"> ${e.name}</label>`).join('');
+        document.getElementById('offer_preview').style.display = 'none';
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function offerSelectAll(v) { document.querySelectorAll('.offer-person').forEach(c => c.checked = v); previewOffer(); }
+    function offerSelection() { return [...document.querySelectorAll('.offer-person:checked')].map(c => c.value); }
+    function offerAnalysis(db, start, end, names) {
+        const ok = [], skipped = [];
+        names.forEach(name => {
+            const clash = db.requests.find(r => r.user === name && isActiveStatus(r.status) && overlaps(r, { start, end }));
+            if (clash) skipped.push({ name, clash }); else ok.push({ name, days: workDaysDetail(start, end, '', '', name).days });
+        });
+        return { ok, skipped };
+    }
+    function previewOffer() {
+        const el = document.getElementById('offer_preview');
+        const start = fieldVal('offer_start'), end = fieldVal('offer_end');
+        if (!start || !end || start > end || !cachedDB) { el.style.display = 'none'; return; }
+        const { ok, skipped } = offerAnalysis(cachedDB.db, start, end, offerSelection());
+        const det = workDaysDetail(start, end, '', '', null);
+        el.innerHTML = `${fmtDays(det.days)} jour(s) ouvré(s) offert(s) à ${ok.length} salarié(s)${det.holidays.length ? ' · fériés exclus : ' + det.holidays.map(h => formatDate(h.date)).join(', ') : ''}`
+            + (skipped.length ? `<div style="font-weight:400;font-size:0.74rem;margin-top:4px;color:#9a5c00;">Déjà en congé sur cette période, non concerné(s) : ${skipped.map(x => x.name).join(', ')}</div>` : '');
+        el.style.display = 'block';
+    }
+    async function submitOffer() {
+        if (!isAdmin()) return;
+        const start = fieldVal('offer_start'), end = fieldVal('offer_end'), label = fieldVal('offer_label').trim();
+        if (!start || !end) return alert('Indiquez les dates.');
+        if (start > end) return alert('La date de fin doit être après la date de début.');
+        const names = offerSelection();
+        if (!names.length) return alert('Sélectionnez au moins un salarié.');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const { ok, skipped } = offerAnalysis(db, start, end, names);
+            if (!ok.length) return alert('Tous les salariés sélectionnés ont déjà un congé sur cette période.');
+            const period = `du ${formatDate(start)} au ${formatDate(end)}`;
+            if (!confirm(`Offrir ${period} (${fmtDays(workDaysDetail(start, end, '', '', null).days)} j ouvrés) à ${ok.length} salarié(s) : ${ok.map(x => x.name).join(', ')} ?${skipped.length ? '\n\nNon concernés (déjà en congé) : ' + skipped.map(x => x.name).join(', ') : ''}\n\nAucun solde ne sera décompté.`)) return;
+            const today = todayISO(); const base = Date.now();
+            ok.forEach((x, i) => {
+                const emp = db.employees.find(e => e.name === x.name) || {};
+                db.requests.push({ id: base + i, user: x.name, lastname: emp.lastname || '', email: emp.email || '', start, end, days: x.days, type: OFFERED_TYPE, note: label, status: 'Validé', offered: true, offeredBy: actorName(), date_demande: today, date_decision: today, reason: '', fromN1: 0, fromN: 0 });
+                addNotification(db, [x.name], 'offert', `🎁 <strong>${actorName()}</strong> vous offre ${fmtDays(x.days)} jour(s) de congé ${period}${label ? ' — ' + label : ''}. Rien n'est décompté de votre solde.`, base + i);
+            });
+            addLogEntry(db, 'offert', actorName(), 'Jours offerts', `${period}${label ? ' · ' + label : ''} · ${ok.map(x => x.name).join(', ')}${skipped.length ? ' · non concernés : ' + skipped.map(x => x.name).join(', ') : ''}`);
+            addNotification(db, adminFirstNames(db, actorName()), 'offert', `🎁 <strong>${actorName()}</strong> a offert des jours ${period}${label ? ' — ' + label : ''} à ${ok.length} salarié(s).`);
+            await saveToGitHub(db, sha);
+            document.getElementById('card-offer').style.display = 'none';
+            ['offer_start', 'offer_end', 'offer_label'].forEach(id => document.getElementById(id).value = '');
+            await renderManagerDashboard();
+            alert(`✓ Jours offerts à ${ok.length} salarié(s). ${EMAIL_NOTIFY.enabled ? 'Chacun reçoit une notification et un email.' : 'Chacun reçoit une notification.'}`);
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    // Retrait d'un jour offert (direction) : aucun solde à recréditer
+    async function withdrawOffered(id) {
+        if (!isAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r || !r.offered) return;
+            if (!confirm(`Retirer les jours offerts à ${r.user} ${fmtPeriod(r).replace(/^Du/, 'du')} ?`)) return;
+            r.status = 'Annulé'; r.prevStatus = 'Validé'; r.date_annulation = todayISO();
+            addLogEntry(db, 'offert', actorName(), 'Jours offerts retirés', `${r.user} ${r.lastname || ''} · ${fmtPeriod(r)}`);
+            addNotification(db, [r.user], 'offert', `<strong>${actorName()}</strong> a retiré les jours offerts ${fmtPeriod(r).replace(/^Du/, 'du')}${r.note ? ' — ' + r.note : ''}.`, r.id);
+            await saveToGitHub(db, sha);
+            closeRequestModal();
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
     /* ── Emails automatiques ─────────────────────────────────────────────
        Aucun envoi depuis la page : chaque sauvegarde de data.json déclenche la GitHub Action
        « Notifications email » (.github/workflows/notifications-email.yml) qui envoie par Gmail les
@@ -2216,7 +2476,7 @@
     function diffDays(a, b) { return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000); }
     function overlaps(a, b) { return !(a.end < b.start || a.start > b.end); }
     function isCalStatus(s) { return s === 'Validé' || s === 'En attente'; }
-    function hasWorkDay(from, to) { for (let d = from; d <= to; d = addDaysISO(d, 1)) if (isWorkDay(d)) return true; return false; }
+    function hasWorkDay(from, to) { for (let d = from; d <= to; d = addDaysISO(d, 1)) if (!isWeekend(d)) return true; return false; }
     function fmtTs(ts) {
         const d = new Date(ts);
         return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} à ${pad2(d.getHours())}h${pad2(d.getMinutes())}`;
@@ -2254,7 +2514,7 @@
         const out = [];
         for (let i = 0; i < reqs.length; i++) for (let j = i + 1; j < reqs.length; j++) {
             const a = reqs[i], b = reqs[j];
-            if (a.user === b.user || !overlaps(a, b)) continue;
+            if (a.offered || b.offered || a.user === b.user || !overlaps(a, b)) continue;
             const s = a.start > b.start ? a.start : b.start, e = a.end < b.end ? a.end : b.end;
             if (e < from || s > to || !hasWorkDay(s, e)) continue;
             out.push({ a, b, from: s, to: e });
@@ -2263,7 +2523,8 @@
     }
     function otherOverlapping(db, r, range) {
         range = range || r;
-        return db.requests.filter(x => x.id !== r.id && x.user !== r.user && isCalStatus(x.status) && overlaps(x, range) && hasWorkDay(x.start > range.start ? x.start : range.start, x.end < range.end ? x.end : range.end));
+        if (r.offered) return [];
+        return db.requests.filter(x => x.id !== r.id && !x.offered && x.user !== r.user && isCalStatus(x.status) && overlaps(x, range) && hasWorkDay(x.start > range.start ? x.start : range.start, x.end < range.end ? x.end : range.end));
     }
     function overlapChip(db, r) {
         const o = otherOverlapping(db, r);
@@ -2312,7 +2573,8 @@
         const shown = [...new Set(reqs.filter(r => !(r.end < monthStart || r.start > monthEnd)).map(r => r.user))].sort((a, b) => a.localeCompare(b, 'fr'));
         document.getElementById('cal-legend').innerHTML = shown.map(e =>
             `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`).join('')
-            + (shown.length && calMode === 'admin' ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '');
+            + (shown.length && calMode === 'admin' ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '')
+            + (reqs.some(r => r.offered) ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.8);"></div>contour blanc = offert par la direction</div>` : '');
     }
 
     function renderConflicts(reqs, from, to) {
@@ -2356,17 +2618,18 @@
                 const iso = addDaysISO(wStart, i);
                 const d = new Date(iso + 'T00:00:00');
                 const wk = d.getDay() === 0 || d.getDay() === 6;
-                const absents = [...new Set(reqs.filter(r => iso >= r.start && iso <= r.end).map(r => r.user))];
-                const conflict = absents.length >= 2 && !wk;
-                days += `<div class="gcal-day${d.getMonth() !== calMonth ? ' other-month' : ''}${wk ? ' weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' has-conflict' : ''}" data-date="${iso}">
-                    <span class="gcal-date">${d.getDate()}</span>
+                const absents = [...new Set(reqs.filter(r => !r.offered && iso >= r.start && iso <= r.end).map(r => r.user))];
+                const hol = holidayName(iso);
+                const conflict = absents.length >= 2 && !wk && !hol;
+                days += `<div class="gcal-day${d.getMonth() !== calMonth ? ' other-month' : ''}${wk || hol ? ' weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' has-conflict' : ''}" data-date="${iso}">
+                    <span class="gcal-date">${d.getDate()}</span>${hol ? `<span class="gcal-holiday" title="${hol}">${hol}</span>` : ''}
                     ${conflict ? `<span class="gcal-conflict" title="Absents ce jour : ${absents.join(', ')}">${absents.length} absents</span>` : ''}
                 </div>`;
             }
             const bars = segs.map(s => {
                 const r = s.r, left = diffDays(wStart, s.from), span = diffDays(s.from, s.to) + 1;
                 const ro = calMode === 'employee';
-                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
+                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
                     style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;background-color:${colorMap[r.user] || '#999'}"
                     ${ro ? '' : `draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`}
                     title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.startTime || r.endTime ? ' ·' : ''} ${fmtDays(r.days)} j${!ro && r.proposal ? ' · prop.' : ''}</div>`;
@@ -2382,23 +2645,24 @@
         const today = todayISO();
         const dayLetters = ['D','L','M','M','J','V','S'];
         const dates = []; for (let d = 1; d <= lastDay; d++) dates.push(`${calYear}-${pad2(calMonth+1)}-${pad2(d)}`);
-        const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => iso >= r.start && iso <= r.end).map(r => r.user)).size);
+        const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => !r.offered && iso >= r.start && iso <= r.end).map(r => r.user)).size);
         const people = [...new Set([...(db.employees || []).map(e => e.name), ...reqs.map(r => r.user)])]
             .filter(n => !calFilterEmp || n === calFilterEmp).sort((a, b) => a.localeCompare(b, 'fr'));
         let html = `<div class="plan-wrap"><table class="plan-table"><thead><tr><th class="plan-name">Salarié</th>${dates.map(iso => {
-            const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6;
-            const conflict = counts[iso] >= 2 && !wk;
-            return `<th class="${wk ? 'weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' conflict' : ''}" title="${conflict ? counts[iso] + ' salariés absents ce jour' : formatDate(iso)}">${dayLetters[d.getDay()]}<br>${d.getDate()}</th>`;
+            const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6; const hol = holidayName(iso);
+            const conflict = counts[iso] >= 2 && !wk && !hol;
+            return `<th class="${wk || hol ? 'weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' conflict' : ''}${hol ? ' holiday' : ''}" title="${hol ? hol : conflict ? counts[iso] + ' salariés absents ce jour' : formatDate(iso)}">${dayLetters[d.getDay()]}<br>${d.getDate()}</th>`;
         }).join('')}</tr></thead><tbody>`;
         people.forEach(name => {
             const mine = reqs.filter(r => r.user === name && !(r.end < dates[0] || r.start > dates[dates.length - 1]));
             html += `<tr class="${mine.length ? '' : 'no-abs'}"><th class="plan-name">${name}</th>`;
             dates.forEach(iso => {
-                const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6;
+                const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6 || !!holidayName(iso);
+                const off = !wk && isOffDayFor(iso, name);
                 const r = mine.find(x => iso >= x.start && iso <= x.end);
                 const ro = calMode === 'employee';
-                html += `<td class="${wk ? 'weekend' : ''}" data-date="${iso}"${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
-                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="background-color:${colorMap[name] || '#999'}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
+                html += `<td class="${wk ? 'weekend' : ''}${off ? ' offday' : ''}" data-date="${iso}"${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
+                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="background-color:${colorMap[name] || '#999'}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
                     : ''}</td>`;
             });
             html += '</tr>';
@@ -2466,9 +2730,9 @@
     }
     // Remplace les dates d'une demande (solde recalculé si elle est validée) et trace le décalage
     function applyDates(db, r, start, end, st, et, by) {
-        const newDays = calculateWorkDays(start, end, st, et);
+        const newDays = calculateWorkDays(start, end, st, et, r.user);
         const before = { start: r.start, end: r.end, startTime: r.startTime, endTime: r.endTime, days: r.days };
-        if (r.status === 'Validé' && db.soldes[r.user] !== undefined) {
+        if (r.status === 'Validé' && !r.offered && db.soldes[r.user] !== undefined) {
             restoreLeave(db, r.user, r.fromN1 || 0, r.fromN !== undefined ? r.fromN : (r.days || 0));
             const res = deductLeave(db, r.user, newDays); r.fromN1 = res.fromN1; r.fromN = res.fromN;
         }
@@ -2490,7 +2754,7 @@
             if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) return false;
             const range = { start, end };
             if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, range))) { alert(`${r.user} a déjà une autre demande sur cette période.`); return false; }
-            const newDays = calculateWorkDays(start, end, st, et);
+            const newDays = calculateWorkDays(start, end, st, et, r.user);
             const others = otherOverlapping(db, r, range).map(x => `${x.user} (${fmtPeriod(x).replace(/^Du/, 'du')}, ${x.status.toLowerCase()})`);
             const preview = { start, end, startTime: st, endTime: et };
             let msg = `Décaler la demande de ${r.user} ${r.lastname || ''} ?\n\nAvant : ${fmtPeriod(r)} (${fmtDays(r.days)} j)\nAprès : ${fmtPeriod(preview)} (${fmtDays(newDays)} j)`;
@@ -2525,7 +2789,7 @@
             if (!isCalStatus(r.status)) { alert('Une proposition ne peut être faite que sur une demande en attente ou validée.'); return false; }
             const err = validateDates(start, end, st, et); if (err) { alert(err); return false; }
             if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) { alert('Ces dates sont identiques à la demande actuelle.'); return false; }
-            const days = calculateWorkDays(start, end, st, et);
+            const days = calculateWorkDays(start, end, st, et, r.user);
             const p = { start, end, days, by: actorName(), ts: Date.now(), message: (message || '').trim() };
             if (st) p.startTime = st; if (et) p.endTime = et;
             r.proposal = p;
@@ -2598,9 +2862,9 @@
         const blocking = db.requests.filter(x => x.id !== r.id && isCalStatus(x.status));
         let start = fromISO;
         for (let guard = 0; guard < 500; guard++) {
-            if (!isWorkDay(start)) { start = addDaysISO(start, 1); continue; }
+            if (!isWorkedBy(start, r.user)) { start = addDaysISO(start, 1); continue; }
             let end = start, c = 1;
-            while (c < need) { end = addDaysISO(end, 1); if (isWorkDay(end)) c++; }
+            while (c < need) { end = addDaysISO(end, 1); if (isWorkedBy(end, r.user)) c++; }
             const cand = { start, end };
             if (!blocking.some(x => overlaps(x, cand))) return cand;
             start = addDaysISO(start, 1);
@@ -2656,6 +2920,7 @@
                 ${r.date_decision ? `<span class="chip">Décision le ${formatDate(r.date_decision)}</span>` : ''}
                 ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
             </div>
+            ${r.offered ? `<div class="offered-tag" style="margin-top:10px;">Jours offerts par ${r.offeredBy || 'la direction'} · aucun décompte de solde</div>` : ''}
             ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
             ${p ? `<div class="proposal-box">Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
                 ${canAct ? `<div style="margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${r.id})">Retirer la proposition</button></div>` : ''}</div>` : ''}
@@ -2672,7 +2937,7 @@
                 <div class="modal-actions">
                     ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">Refuser</button>` : ''}
                     <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">Décaler</button>
-                    <button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">Proposer d'autres dates</button>
+                    ${r.offered ? `<button class="btn btn-ghost-danger btn-sm" onclick="withdrawOffered(${r.id})">Retirer les jours offerts</button>` : `<button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">Proposer d'autres dates</button>`}
                     <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>
                     ${r.status === 'Validé' ? `<button class="btn btn-ghost btn-sm" onclick="downloadICS(${r.id}, true)" title="Fichier agenda : Apple Calendrier, Outlook, import Google Agenda">Fichier .ics</button><a class="btn btn-ghost btn-sm" href="${googleCalUrl(r, true)}" target="_blank" title="Ouvrir dans Google Agenda (choix du calendrier à l'enregistrement)">Google Agenda</a>` : ''}
                 </div>
@@ -2713,10 +2978,11 @@
         if (!d.start || !d.end || d.start > d.end) { el.innerHTML = d.start && d.end ? '<span style="color:var(--danger);">✕ La date de fin doit être après la date de début.</span>' : ''; return; }
         const { db } = cachedDB || await fetchFromGitHub();
         const r = db.requests.find(x => x.id === modalRequestId); if (!r) return;
-        const days = calculateWorkDays(d.start, d.end, d.startTime, d.endTime);
+        const det = workDaysDetail(d.start, d.end, d.startTime, d.endTime, r.user);
+        const days = det.days, hint = workDaysHint(det, r.user);
         const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, d));
         const others = otherOverlapping(db, r, d);
-        el.innerHTML = `${fmtDays(days)} jour(s) ouvré(s)`
+        el.innerHTML = `${fmtDays(days)} jour(s) ouvré(s)${hint ? ' <span style="color:var(--muted);">· ' + hint + '</span>' : ''}`
             + (self ? `<br><span style="color:var(--danger);">✕ ${r.user} a déjà une autre demande sur cette période.</span>` : '')
             + (others.length ? `<br><span style="color:var(--warning);">Chevauche : ${others.map(o => `${o.user} (${fmtPeriod(o).replace(/^Du/, 'du')}, ${o.status.toLowerCase()})`).join(' ; ')}</span>`
                              : `<br><span style="color:var(--success);">✓ Aucun chevauchement avec un autre salarié.</span>`);
@@ -2762,6 +3028,8 @@
                 const total = +(n + n1).toFixed(2);
                 const cls = total<=5 ? 'background:#ffebee;color:#c62828' : total<=10 ? 'background:#fff3e0;color:#e65100' : 'background:#e8f5e9;color:#2e7d32';
                 const accessNote = e.passHash ? '' : ' · mot de passe non défini';
+                const patTxt = fmtPattern(e.name);
+                const patControl = isAdmin() ? `<button class="btn btn-ghost btn-sm" onclick="editWorkPattern('${e.name}')" title="Temps de travail et jours non travaillés">${patTxt}</button>` : (patTxt !== 'Temps plein' ? `<span class="chip">${patTxt}</span>` : '');
                 const role = e.role || 'employee';
                 const roleControl = isSuperAdmin() && !isDirectionAccount(e.name)
                     ? `<select class="role-select" onchange="setEmployeeRole('${e.name}', this.value)">
@@ -2779,12 +3047,105 @@
                     <div><div class="emp-list-name">${e.name} ${e.lastname}</div><div class="emp-list-meta">${e.email}${accessNote}</div></div>
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                         <span class="emp-solde-badge" style="${cls}" title="dont ${n1} j N-1">${total} j (${n} N / ${n1} N-1)</span>
+                        ${patControl}
                         ${roleControl}
                         ${adminActions}
                     </div>
                 </div>`;
             }).join('')
             : `<div class="empty-state"><span>Aucun salarié enregistré.</span></div>`;
+        renderRulesCard(db);
+    }
+
+    /* ── Temps de travail d'un salarié ─────────────────────────────────── */
+    async function editWorkPattern(name) {
+        if (!isAdmin()) return;
+        const p = patternOf(name);
+        const box = document.getElementById('pattern-editor');
+        box.style.display = 'block';
+        box.dataset.name = name;
+        document.getElementById('pattern-editor-title').textContent = `Temps de travail — ${name}`;
+        document.getElementById('pattern-percent').value = String(p.percent);
+        [1, 2, 3, 4, 5].forEach(d => document.getElementById('pattern-off-' + d).checked = p.offDays.includes(d));
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    async function saveWorkPattern() {
+        if (!isAdmin()) return;
+        const box = document.getElementById('pattern-editor');
+        const name = box.dataset.name; if (!name) return;
+        const percent = parseInt(document.getElementById('pattern-percent').value, 10) || 100;
+        const offDays = [1, 2, 3, 4, 5].filter(d => document.getElementById('pattern-off-' + d).checked);
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === name); if (!emp) return;
+            if (percent === 100 && !offDays.length) delete emp.workPattern; else emp.workPattern = { percent, offDays };
+            syncRulesFromDb(db);
+            addLogEntry(db, 'employe', actorName(), 'Temps de travail modifié', `${name} · ${fmtPattern(name)}`);
+            await saveToGitHub(db, sha);
+            box.style.display = 'none';
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
+    /* ── Règles : méthode temps partiel, fériés, fermetures ─────────────── */
+    function renderRulesCard(db) {
+        const year = new Date().getFullYear();
+        const sel = document.getElementById('rule-method'); if (!sel) return;
+        sel.value = partTimeMethod;
+        document.getElementById('rule-alsace').checked = holidayCfg.alsace;
+        const list = holidaysOfYear(year);
+        const extraDates = new Set(holidayCfg.extra.map(x => x.date));
+        document.getElementById('holiday-year').textContent = year;
+        document.getElementById('holiday-list').innerHTML = Object.entries(list).sort().map(([d, n]) => {
+            const wk = isWeekend(d);
+            return `<span class="chip" style="${wk ? 'opacity:.55;' : ''}${extraDates.has(d) ? 'background:var(--bleu-soft);color:var(--bleu);' : ''}" title="${wk ? 'Tombe un week-end' : ''}">${formatDate(d).slice(0, 5)} ${n}${extraDates.has(d) && isAdmin() ? ` <a href="#" onclick="removeExtraHoliday('${d}');return false;" style="color:inherit;margin-left:4px;text-decoration:none;" title="Retirer">✕</a>` : ''}</span>`;
+        }).join('');
+        const nextYear = holidayCfg.extra.filter(x => x.date && x.date > `${year}-12-31`);
+        document.getElementById('holiday-extra-future').innerHTML = nextYear.length ? 'Fermetures à venir : ' + nextYear.map(x => `${formatDate(x.date)} ${x.label || ''}${isAdmin() ? ` <a href="#" onclick="removeExtraHoliday('${x.date}');return false;" style="color:inherit;text-decoration:none;">✕</a>` : ''}`).join(' · ') : '';
+        document.querySelectorAll('#card-rules .admin-only').forEach(el => el.style.display = isAdmin() ? '' : 'none');
+    }
+    async function saveRules() {
+        if (!isAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const method = document.getElementById('rule-method').value;
+            const alsace = document.getElementById('rule-alsace').checked;
+            const changed = [];
+            if ((db.config.partTimeMethod || 'legal') !== method) { db.config.partTimeMethod = method; changed.push('méthode temps partiel : ' + (method === 'legal' ? 'légale' : 'proportionnelle')); }
+            if (!!db.config.holidaysAlsace !== alsace) { db.config.holidaysAlsace = alsace; changed.push('Alsace-Moselle : ' + (alsace ? 'oui' : 'non')); }
+            if (!changed.length) return;
+            addLogEntry(db, 'systeme', actorName(), 'Règles modifiées', changed.join(' · '));
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    async function addExtraHoliday() {
+        if (!isAdmin()) return;
+        const date = document.getElementById('holiday-new-date').value;
+        const label = document.getElementById('holiday-new-label').value.trim() || 'Fermeture';
+        if (!date) return alert('Indiquez une date.');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            if (!db.config.extraHolidays) db.config.extraHolidays = [];
+            if (db.config.extraHolidays.some(x => x.date === date)) return alert('Cette date est déjà enregistrée.');
+            db.config.extraHolidays.push({ date, label });
+            db.config.extraHolidays.sort((a, b) => a.date.localeCompare(b.date));
+            addLogEntry(db, 'systeme', actorName(), 'Fermeture ajoutée', `${formatDate(date)} · ${label}`);
+            await saveToGitHub(db, sha);
+            document.getElementById('holiday-new-date').value = ''; document.getElementById('holiday-new-label').value = '';
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    async function removeExtraHoliday(date) {
+        if (!isAdmin()) return;
+        if (!confirm(`Retirer la fermeture du ${formatDate(date)} ?`)) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            db.config.extraHolidays = (db.config.extraHolidays || []).filter(x => x.date !== date);
+            addLogEntry(db, 'systeme', actorName(), 'Fermeture retirée', formatDate(date));
+            await saveToGitHub(db, sha);
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
     }
 
     async function setEmployeeRole(name, role) {
@@ -3016,7 +3377,7 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 3000);
     }
     function eventTitle(r, withName) {
-        const base = r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
+        const base = r.offered ? 'Congés offerts' + (r.note ? ' — ' + r.note : '') : r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
         return (withName ? `${r.user} ${r.lastname || ''}`.trim() + ' — ' : '') + base + (r.status === 'En attente' ? ' (en attente)' : '');
     }
     function eventDescription(r) {
@@ -3138,7 +3499,7 @@
                 <thead><tr><th style="width:110px;text-align:left;padding:4px 6px;border:1px solid #ccc;background:#f2f2f2;">Salarié</th>${dates.map(iso => { const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6; const c = counts[iso] >= 2 && !wk;
                     return `<th style="padding:3px 0;border:1px solid #ccc;text-align:center;font-weight:${c ? 700 : 500};background:${c ? '#ffe0e0' : wk ? '#e8e8e8' : '#f2f2f2'};color:${c ? '#b71c1c' : '#333'};">${letters[d.getDay()]}<br>${d.getDate()}</th>`; }).join('')}</tr></thead>
                 <tbody>${people.map(name => `<tr><td style="padding:4px 6px;border:1px solid #ccc;font-weight:600;white-space:nowrap;overflow:hidden;">${name}</td>${dates.map(iso => { const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6; const r = reqs.find(x => x.user === name && iso >= x.start && iso <= x.end);
-                    return `<td style="height:16px;border:1px solid #ddd;background:${r ? colorMap[name] : wk ? '#f0f0f0' : 'white'};opacity:${r && r.status === 'En attente' ? 0.45 : 1};"></td>`; }).join('')}</tr>`).join('')}</tbody></table>
+                    return `<td style="height:16px;border:1px solid #ddd;background:${r ? colorMap[name] : (wk || holidayName(iso)) ? '#f0f0f0' : 'white'};opacity:${r && r.status === 'En attente' ? 0.45 : 1};"></td>`; }).join('')}</tr>`).join('')}</tbody></table>
                 <p style="font-size:9px;color:#666;margin:-10px 0 16px;">Couleur pleine = validée · couleur pâle = en attente · en-tête rouge = plusieurs salariés absents le même jour</p>`;
         }
         const list = `<table style="width:100%;border-collapse:collapse;font-size:10px;">
@@ -3162,6 +3523,7 @@
         annulation: '–',
         decalage:   '↔',
         proposition:'→',
+        offert:     '★',
         solde:      '#',
         employe:    '@',
         systeme:    '•'
