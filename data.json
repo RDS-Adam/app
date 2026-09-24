@@ -339,6 +339,15 @@
   },
   "logs": [
     {
+      "ts": 1790251917389,
+      "date": "2026-09-24",
+      "heure": "14:11",
+      "type": "employe",
+      "actor": "Karine",
+      "label": "Lien de réinitialisation envoyé",
+      "detail": "Karine · lien envoyé à karine.paillard@ruedustore.fr (valable 30 min)"
+    },
+    {
       "ts": 1790251862541,
       "date": "2026-09-24",
       "heure": "14:11",
@@ -917,6 +926,16 @@
   },
   "notifications": [
     {
+      "id": 1790251917960,
+      "ts": 1790251917389,
+      "to": [
+        "Karine"
+      ],
+      "kind": "reset",
+      "text": "🔑 Bonjour Karine, une réinitialisation de votre mot de passe a été demandée le 24/09/2026 à 14h11. Ouvrez ce lien pour choisir un nouveau mot de passe (valable 30 minutes, utilisable une seule fois) : https://rds-adam.github.io/app/Demande%20Conge%CC%81s.html#reset=96b69caa7cb88b3d202f43e4175efb3d9eb83c81ccba5026&u=Karine\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe actuel reste valable.",
+      "reqId": null
+    },
+    {
       "id": 1790251863056,
       "ts": 1790251862541,
       "to": [
@@ -1309,6 +1328,11 @@
       "hash": "1e8e9fb78f7e4c79570afaf5dafaacb0d06fc297b775c6af8702393df7d6de9c",
       "requestedAt": 1790083425728,
       "expires": 1790085225728
+    },
+    "Karine": {
+      "hash": "5ed73dee88237970516d1b271f035cef0f8bee86a7e5e8669fccf70f786c9cd6",
+      "requestedAt": 1790251917389,
+      "expires": 1790253717389
     }
   },
   "notifRead": {
