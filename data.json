@@ -255,6 +255,31 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-24"
+    },
+    {
+      "id": 1790259058769,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-09-29",
+      "end": "2026-09-29",
+      "days": 1,
+      "type": "Absence Exceptionnelle",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24",
+      "rattrapage": [
+        {
+          "date": "2026-09-24",
+          "from": "17:30",
+          "to": "18:00"
+        },
+        {
+          "date": "2026-09-25",
+          "from": "13:00",
+          "to": "18:00"
+        }
+      ]
     }
   ],
   "soldes": {
@@ -359,6 +384,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790259058770,
+      "date": "2026-09-24",
+      "heure": "16:10",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Absence Exceptionnelle · Du 29/09/2026 au 29/09/2026 (1 j) · Rattrapage : 24/09/2026 de 17h30 à 18h00 ; 25/09/2026 de 13h00 à 18h00"
+    },
     {
       "ts": 1790256784458,
       "date": "2026-09-24",
@@ -1046,6 +1080,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790259059004,
+      "ts": 1790259058770,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Absence Exceptionnelle · Du 29/09/2026 au 29/09/2026 (1 j) · Rattrapage : 24/09/2026 de 17h30 à 18h00 ; 25/09/2026 de 13h00 à 18h00",
+      "reqId": 1790259058769
+    },
     {
       "id": 1790256784849,
       "ts": 1790256784458,
