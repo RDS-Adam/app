@@ -308,6 +308,15 @@
   },
   "logs": [
     {
+      "ts": 1790244686085,
+      "date": "2026-09-24",
+      "heure": "12:11",
+      "type": "employe",
+      "actor": "Nicolas Decoster",
+      "label": "Mot de passe réinitialisé",
+      "detail": "Réinitialisation via le lien reçu par email"
+    },
+    {
       "ts": 1790244446294,
       "date": "2026-09-24",
       "heure": "12:07",
@@ -1103,11 +1112,6 @@
       "hash": "1e8e9fb78f7e4c79570afaf5dafaacb0d06fc297b775c6af8702393df7d6de9c",
       "requestedAt": 1790083425728,
       "expires": 1790085225728
-    },
-    "Nicolas": {
-      "hash": "d656082e75a46f8260123a00e6082f4e1b71b1aad00e5bdcb8ea21b56b4aa9f0",
-      "requestedAt": 1790244446294,
-      "expires": 1790246246294
     }
   }
 }
