@@ -360,6 +360,15 @@
   },
   "logs": [
     {
+      "ts": 1790256784458,
+      "date": "2026-09-24",
+      "heure": "15:33",
+      "type": "tt",
+      "actor": "Axel",
+      "label": "Télétravail habituel modifié",
+      "detail": "Axel · mercredi"
+    },
+    {
       "ts": 1790256774889,
       "date": "2026-09-24",
       "heure": "15:32",
@@ -1037,6 +1046,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790256784849,
+      "ts": 1790256784458,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Axel</strong> a modifié son télétravail habituel : mercredi",
+      "reqId": null
+    },
     {
       "id": 1790256775228,
       "ts": 1790256774889,
