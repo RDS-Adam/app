@@ -12,7 +12,8 @@
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
-const DATA_FILE = 'data.json';
+const DATA_FILE = process.env.DATA_FILE || 'data.json';   // data-test.json pour l'environnement de test
+const SUBJECT_PREFIX = process.env.SUBJECT_PREFIX || '';
 const MAX_AGE_MS = 6 * 60 * 60 * 1000;   // ignore les notifications de plus de 6 h (anti-rafale au premier lancement)
 const KIND_LABELS = {
   demande: 'Nouvelle demande de congés',
@@ -63,7 +64,8 @@ function emailHtml(subject, bodyHtml) {
 }
 
 async function main() {
-  const current = loadJSON(readFileSync(DATA_FILE, 'utf8'));
+  let raw = ''; try { raw = readFileSync(DATA_FILE, 'utf8'); } catch { console.log(`${DATA_FILE} absent, rien à envoyer.`); return; }
+  const current = loadJSON(raw);
   const previous = previousVersion();
   const now = Date.now();
   const seen = new Set(((previous && previous.notifications) || []).map(n => n.id));
@@ -87,7 +89,7 @@ async function main() {
     if (!to.length) { skipped++; console.log(`· ignorée (aucune adresse pour ${JSON.stringify(n.to)}) : ${stripHtml(n.text).slice(0, 80)}`); continue; }
     const plain = stripHtml(n.text);
     const summary = plain.replace(/^[^\p{L}\p{N}]+/u, '').split(/ · |\. /)[0].slice(0, 80);
-    const subject = FIXED_SUBJECT.has(n.kind) ? (KIND_LABELS[n.kind] + ' — Congés RH') : `${KIND_LABELS[n.kind] || 'Congés RH'} — ${summary}`;
+    const subject = SUBJECT_PREFIX + (FIXED_SUBJECT.has(n.kind) ? (KIND_LABELS[n.kind] + ' — Congés RH') : `${KIND_LABELS[n.kind] || 'Congés RH'} — ${summary}`);
     const message = {
       from,
       to: to.join(', '),
