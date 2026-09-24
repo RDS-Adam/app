@@ -211,6 +211,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-24"
+    },
+    {
+      "id": 1790246338482,
+      "user": "Nicolas",
+      "lastname": "Decoster",
+      "email": "nicolas.decoster@ruedustore.fr",
+      "start": "2027-01-29",
+      "end": "2027-02-05",
+      "days": 6,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24"
     }
   ],
   "soldes": {
@@ -307,6 +320,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790246338482,
+      "date": "2026-09-24",
+      "heure": "12:38",
+      "type": "demande",
+      "actor": "Nicolas Decoster",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 29/01/2027 au 05/02/2027 (6 j)"
+    },
     {
       "ts": 1790245493036,
       "date": "2026-09-24",
@@ -830,6 +852,16 @@
     "Adam": 0
   },
   "notifications": [
+    {
+      "id": 1790246338548,
+      "ts": 1790246338482,
+      "to": [
+        "Camille"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Nicolas Decoster</strong> a déposé une demande : Congés Payés · Du 29/01/2027 au 05/02/2027 (6 j)",
+      "reqId": 1790246338482
+    },
     {
       "id": 1790244446815,
       "ts": 1790244446294,
