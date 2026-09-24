@@ -322,7 +322,8 @@
     {
       "name": "Clarisse",
       "lastname": "Guai",
-      "email": "clarisse.guai@ruedustore.fr"
+      "email": "clarisse.guai@ruedustore.fr",
+      "passHash": "8c79e8d443691a7d2a62e0b82da9ebee05e65ea603042b27b9670654e514ecfe"
     },
     {
       "name": "Karine",
@@ -351,6 +352,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790256482910,
+      "date": "2026-09-24",
+      "heure": "15:28",
+      "type": "employe",
+      "actor": "Clarisse Guai",
+      "label": "Mot de passe défini",
+      "detail": "Première connexion — mot de passe enregistré"
+    },
     {
       "ts": 1790252287608,
       "date": "2026-09-24",
