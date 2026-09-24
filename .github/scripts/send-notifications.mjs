@@ -21,6 +21,7 @@ const KIND_LABELS = {
   annulation: 'Annulation de congés',
   decalage: 'Congés décalés',
   proposition: 'Proposition de dates',
+  offert: 'Jours de congé offerts',
   reset: 'Réinitialisation de votre mot de passe',
   test: 'Test des notifications'
 };
