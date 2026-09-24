@@ -353,6 +353,15 @@
   },
   "logs": [
     {
+      "ts": 1790256674781,
+      "date": "2026-09-24",
+      "heure": "15:31",
+      "type": "solde",
+      "actor": "Clarisse",
+      "label": "Solde N-1 modifié",
+      "detail": "Clarisse · nouveau solde N-1 : 18 j"
+    },
+    {
       "ts": 1790256482910,
       "date": "2026-09-24",
       "heure": "15:28",
@@ -981,7 +990,8 @@
     "Baptiste": 23.5,
     "Karine": 13.5,
     "Adam": 0,
-    "Alexandre": 0
+    "Alexandre": 0,
+    "Clarisse": 18
   },
   "notifications": [
     {
