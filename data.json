@@ -292,7 +292,14 @@
       "passHash": "2727935b170e36d9962c814a407e4fd5c07469a21fcbd9bb27d92241e01d6363",
       "recoveryQuestion": "Nom de mon premier vrai chien",
       "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c",
-      "role": "dev"
+      "role": "dev",
+      "workPattern": {
+        "percent": 100,
+        "offDays": [],
+        "teleworkDays": [
+          3
+        ]
+      }
     },
     {
       "name": "Baptiste",
@@ -352,6 +359,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790256774889,
+      "date": "2026-09-24",
+      "heure": "15:32",
+      "type": "tt",
+      "actor": "Axel",
+      "label": "Télétravail habituel modifié",
+      "detail": "Axel · mercredi"
+    },
     {
       "ts": 1790256707136,
       "date": "2026-09-24",
@@ -1021,6 +1037,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790256775228,
+      "ts": 1790256774889,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Axel</strong> a modifié son télétravail habituel : mercredi",
+      "reqId": null
+    },
     {
       "id": 1790251929986,
       "ts": 1790251929898,
