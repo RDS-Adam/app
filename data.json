@@ -203,7 +203,7 @@
   "soldes": {
     "Adam": 30.24,
     "Alexandre": 11.24,
-    "Axel": 0,
+    "Axel": 2.08,
     "Baptiste": 6.24,
     "Camille": 31.24,
     "Cindy": 6.24,
@@ -294,6 +294,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790242572158,
+      "date": "2026-09-24",
+      "heure": "11:36",
+      "type": "solde",
+      "actor": "Axel",
+      "label": "Solde N modifié",
+      "detail": "Axel · nouveau solde N : 2.08 j"
+    },
     {
       "ts": 1790242558777,
       "date": "2026-09-24",
