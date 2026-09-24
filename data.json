@@ -168,8 +168,10 @@
       "days": 5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-21"
+      "status": "Annulé",
+      "date_demande": "2026-09-21",
+      "prevStatus": "En attente",
+      "date_annulation": "2026-09-24"
     },
     {
       "id": 1790082507051,
@@ -336,6 +338,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790251862541,
+      "date": "2026-09-24",
+      "heure": "14:11",
+      "type": "annulation",
+      "actor": "Cindy Masson",
+      "label": "Demande retirée par le salarié",
+      "detail": "Congés Payés · Du 01/03/2026 au 06/03/2026 (5 j)"
+    },
     {
       "ts": 1790246433284,
       "date": "2026-09-24",
@@ -905,6 +916,17 @@
     "Alexandre": 0
   },
   "notifications": [
+    {
+      "id": 1790251863056,
+      "ts": 1790251862541,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Cindy Masson</strong> a annulé sa demande en attente : Congés Payés · Du 01/03/2026 au 06/03/2026 (5 j)",
+      "reqId": 1789974953108
+    },
     {
       "id": 1790246433445,
       "ts": 1790246433285,
