@@ -226,6 +226,10 @@
         .gcal-bar.dragging, .plan-abs.dragging { opacity: 0.4; }
         .gcal-bar.readonly, .plan-abs.readonly { cursor: default; }
         .gcal-bar.offered, .plan-abs.offered { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.75); }
+        .gcal-bar.telework { background: #fff; border: 2px solid; line-height: 16px; box-shadow: none; }
+        .plan-abs.telework { background: #fff; border: 2px solid; box-sizing: border-box; }
+        .plan-table td.tt-recurring { background-image: repeating-linear-gradient(90deg, transparent 0 3px, #dfe9ea 3px 5px); }
+        .tt-tag { display: inline-block; background: var(--bleu-soft); color: var(--bleu); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 5px; }
         .offered-tag { display: inline-block; background: var(--success-soft); color: #23784f; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 5px; }
         .gcal-bar.readonly:hover { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .gcal-bar.mine, .plan-abs.mine { outline: 2px solid var(--text); outline-offset: 1px; }
@@ -311,6 +315,7 @@
         .log-icon.decalage    { background: #ede9fb; color: #5b45c8; }
         .log-icon.proposition { background: var(--warning-soft); color: var(--warning); }
         .log-icon.offert { background: var(--success-soft); color: var(--success); }
+        .log-icon.tt, .notif-icon.tt { background: var(--bleu-soft); color: var(--bleu); }
         .notif-icon.offert { background: var(--success-soft); color: var(--success); }
 
         /* === Fiche demande (modale) === */
@@ -556,7 +561,9 @@
                                     <option value="Congés Payés">Congés Payés</option>
                                     <option value="Congés Sans Solde">Congés Sans Solde</option>
                                     <option value="Absence Exceptionnelle">Absence Exceptionnelle (Autre)</option>
+                                    <option value="Télétravail">Télétravail (déclaration, sans validation)</option>
                                 </select>
+                                <div class="input-hint" id="tt-hint" style="display:none;">Le télétravail est enregistré immédiatement, sans décompte de solde. La direction est simplement prévenue.</div>
                             </div>
                             <div class="form-group full" id="autre-wrap" style="display:none;">
                                 <label>Motif <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
@@ -602,6 +609,20 @@
                 </div>
             </div>
 
+            <div class="card">
+                <div class="card-header"><h2>Mon télétravail habituel</h2><span style="font-size:0.74rem;color:var(--muted);">Rythme récurrent · les jours ponctuels se déclarent via le formulaire</span></div>
+                <div class="card-body">
+                    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+                        <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.86rem;"><input type="checkbox" id="my-tt-1" style="width:auto;"> Lundi</label>
+                        <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.86rem;"><input type="checkbox" id="my-tt-2" style="width:auto;"> Mardi</label>
+                        <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.86rem;"><input type="checkbox" id="my-tt-3" style="width:auto;"> Mercredi</label>
+                        <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.86rem;"><input type="checkbox" id="my-tt-4" style="width:auto;"> Jeudi</label>
+                        <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.86rem;"><input type="checkbox" id="my-tt-5" style="width:auto;"> Vendredi</label>
+                        <button class="btn btn-primary btn-sm" onclick="saveMyTelework()">Enregistrer</button>
+                        <span id="my-tt-status" class="input-hint" style="margin:0;"></span>
+                    </div>
+                </div>
+            </div>
             <div id="emp-agenda-host"></div>
 
             <div class="card">
@@ -802,6 +823,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" style="margin-top:14px;">
+                            <label>Télétravail habituel</label>
+                            <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:8px;">
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-tt-1" style="width:auto;"> Lundi</label>
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-tt-2" style="width:auto;"> Mardi</label>
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-tt-3" style="width:auto;"> Mercredi</label>
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-tt-4" style="width:auto;"> Jeudi</label>
+                                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.84rem;color:var(--text);"><input type="checkbox" id="pattern-tt-5" style="width:auto;"> Vendredi</label>
+                            </div>
+                            <div class="input-hint">Rythme récurrent, affiché dans le planning. Le salarié peut aussi le régler lui-même depuis son espace.</div>
+                        </div>
                         <p class="input-hint" style="margin-top:12px;">Le pourcentage est indicatif (et sert à l'acquisition si la méthode proportionnelle est choisie ci-dessous). Ce sont les jours non travaillés qui pilotent le décompte.</p>
                         <button class="btn btn-primary" style="margin-top:14px;" onclick="saveWorkPattern()">Enregistrer</button>
                     </div>
@@ -909,6 +941,7 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Télétravail : déclaration de jours ponctuels par le salarié (enregistrés sans validation, direction prévenue) et rythme habituel (« tous les lundis »), visibles dans les calendriers en contour, sans décompte ni détection de chevauchement · retrait possible par le salarié ou la direction</li>
                                 <li>« Offrir des jours » (direction) : congés offerts à tout ou partie de l'équipe sur une période, validés d'office sans décompte des soldes, visibles dans les calendriers et l'historique, chacun prévenu · retrait possible depuis la fiche</li>
                                 <li>Jours fériés français calculés automatiquement (Pâques, Ascension, Pentecôte inclus) et exclus du décompte, option Alsace-Moselle, fermetures d'entreprise ajoutables par la direction · fériés affichés dans les calendriers</li>
                                 <li>Temps partiel : pourcentage et jours non travaillés par salarié (onglet Équipe), décompte selon la méthode légale (par défaut) ou proportionnelle, au choix de la direction · détail du calcul affiché au moment de la demande</li>
@@ -1098,6 +1131,7 @@
                                 <option value="decalage">Décalages</option>
                                 <option value="proposition">Propositions de dates</option>
                                 <option value="offert">Jours offerts</option>
+                                <option value="tt">Télétravail</option>
                                 <option value="solde">Soldes</option>
                                 <option value="employe">Équipe</option>
                                 <option value="systeme">Système</option>
@@ -1333,14 +1367,15 @@
     function isWeekend(iso) { const wd = new Date(iso + 'T00:00:00').getDay(); return wd === 0 || wd === 6; }
     // Jour ouvré de l'entreprise : lundi à vendredi, hors fériés
     function isWorkDay(iso) { return !isWeekend(iso) && !holidayName(iso); }
-    function patternOf(user) { const p = user && workPatterns[user]; return { percent: p && p.percent ? p.percent : 100, offDays: (p && p.offDays) || [] }; }
+    function patternOf(user) { const p = user && workPatterns[user]; return { percent: p && p.percent ? p.percent : 100, offDays: (p && p.offDays) || [], teleworkDays: (p && p.teleworkDays) || [] }; }
     function isOffDayFor(iso, user) { return patternOf(user).offDays.includes(new Date(iso + 'T00:00:00').getDay()); }
     // Jour effectivement travaillé par le salarié
     function isWorkedBy(iso, user) { return isWorkDay(iso) && !isOffDayFor(iso, user); }
     function fmtPattern(user) {
         const p = patternOf(user);
-        if (p.percent === 100 && !p.offDays.length) return 'Temps plein';
-        return `${p.percent} %` + (p.offDays.length ? ' · ' + p.offDays.map(d => DAY_NAMES[d]).join(', ') + ' non travaillé' + (p.offDays.length > 1 ? 's' : '') : '');
+        const tt = p.teleworkDays.length ? ' · TT ' + p.teleworkDays.map(d => DAY_NAMES[d]).join(', ') : '';
+        if (p.percent === 100 && !p.offDays.length) return 'Temps plein' + tt;
+        return `${p.percent} %` + (p.offDays.length ? ' · ' + p.offDays.map(d => DAY_NAMES[d]).join(', ') + ' non travaillé' + (p.offDays.length > 1 ? 's' : '') : '') + tt;
     }
 
     // Décompte détaillé : { days, counted:[iso], holidays:[{date,name}], offCounted:[iso], shiftedStart, shiftedEnd }
@@ -1422,7 +1457,8 @@
             document.getElementById('days-hint').style.display = hint ? 'block' : 'none';
             el.style.display = 'block';
             if (cachedDB) {
-                const has = cachedDB.db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && !(e < r.start || s > r.end));
+                const isTTsel = document.getElementById('leave_type').value === 'Télétravail';
+                const has = cachedDB.db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && (isTTsel || !r.telework) && !(e < r.start || s > r.end));
                 document.getElementById('overlap-warning').style.display = has ? 'flex' : 'none';
             }
         } else { el.style.display = 'none'; }
@@ -1431,6 +1467,9 @@
     function toggleAutre() {
         const t = document.getElementById('leave_type').value;
         const isAbs = t === 'Absence Exceptionnelle';
+        document.getElementById('tt-hint').style.display = t === 'Télétravail' ? 'block' : 'none';
+        const submit = document.querySelector('button[onclick="processRequest()"]');
+        if (submit && !submit.disabled) submit.textContent = t === 'Télétravail' ? 'Déclarer le télétravail →' : 'Soumettre la demande →';
         document.getElementById('autre-wrap').style.display = isAbs ? 'block' : 'none';
         document.getElementById('rattrapage-wrap').style.display = isAbs ? 'block' : 'none';
         if (!isAbs) { document.getElementById('leave_autre').value = ''; clearRattrapage(); }
@@ -1510,7 +1549,7 @@
     }
     function unreadCount(db) { return myNotifications(db).filter(n => !notifIsRead(db, n)).length; }
     const NOTIF_PAGE = 8;
-    const NOTIF_KIND_LABELS = { demande: 'Demande', decision: 'Décision', annulation: 'Annulation', decalage: 'Décalage', proposition: 'Proposition', offert: 'Jours offerts', test: 'Test' };
+    const NOTIF_KIND_LABELS = { demande: 'Demande', decision: 'Décision', annulation: 'Annulation', decalage: 'Décalage', proposition: 'Proposition', offert: 'Jours offerts', tt: 'Télétravail', test: 'Test' };
     let notifFilter = null;   // 'unread' | 'read' | 'all' — choisi automatiquement au premier affichage
     let notifLimit = NOTIF_PAGE;
     function notifIcon(n) {
@@ -1522,6 +1561,7 @@
         if (n.kind === 'proposition') return t.startsWith('✅') ? ['ok', '✓'] : t.startsWith('↩') ? ['ko', '↩'] : ['proposition', '→'];
         if (n.kind === 'test') return ['', '@'];
         if (n.kind === 'offert') return ['offert', '★'];
+        if (n.kind === 'tt') return ['tt', '⌂'];
         return ['', '•'];
     }
     // Les textes stockés commencent par un emoji : on l'enlève à l'affichage (l'icône colorée le remplace)
@@ -1927,6 +1967,8 @@
         document.getElementById('solde-total-display').textContent = `${+(n1 + n).toFixed(2)} j`;
         const pat = fmtPattern(currentUser);
         document.getElementById('pattern-display').textContent = pat === 'Temps plein' ? '' : '· ' + pat;
+        const tt = patternOf(currentUser).teleworkDays;
+        [1, 2, 3, 4, 5].forEach(d => { const c = document.getElementById('my-tt-' + d); if (c) { c.checked = tt.includes(d); c.disabled = patternOf(currentUser).offDays.includes(d); } });
         document.getElementById('solde-info').style.display = 'block';
     }
 
@@ -2051,8 +2093,10 @@
         const ratt = isAbsence ? getRattrapageSlots() : { slots: [], error: null };
         if (ratt.error) return alert(ratt.error);
         const { db, sha } = await fetchFromGitHub();
-        const overlap = db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && !(end < r.start || start > r.end));
-        if (overlap) return alert('Vous avez déjà une demande sur cette période.');
+        const isTT = document.getElementById('leave_type').value === 'Télétravail';
+        // Le télétravail ne compte pas comme absence : une demande de congé peut le recouvrir (le congé prime)
+        const overlap = db.requests.some(r => r.user === currentUser && isActiveStatus(r.status) && (isTT || !r.telework) && !(end < r.start || start > r.end));
+        if (overlap) return alert(isTT ? 'Vous avez déjà un congé ou du télétravail sur cette période.' : 'Vous avez déjà une demande sur cette période.');
         const btn = document.querySelector('button[onclick="processRequest()"]');
         btn.disabled = true; btn.textContent = 'Envoi en cours...';
         try {
@@ -2064,6 +2108,28 @@
             if (startTime) req.startTime = startTime;
             if (endTime)   req.endTime   = endTime;
             if (ratt.slots.length) req.rattrapage = ratt.slots;
+            if (isTT) {
+                // Déclaration : validée d'office, aucun solde, direction prévenue
+                Object.assign(req, { status: 'Validé', telework: true, date_decision: req.date_demande, reason: '', fromN1: 0, fromN: 0 });
+                db.requests.push(req);
+                const who = `${currentUser} ${emp.lastname||''}`.trim();
+                addLogEntry(db, 'tt', who, 'Télétravail déclaré', `${fmtPeriod(req)} (${fmtDays(days)} j)`);
+                addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${who}</strong> sera en télétravail ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} j)`, req.id);
+                await saveToGitHub(db, sha);
+                await renderEmployeeTable();
+                mountCalendar('employee'); calRefresh();
+                document.getElementById('action-request').style.display = 'block';
+                document.querySelector('#action-request .alert').textContent = '✓ Télétravail enregistré. La direction est prévenue.';
+                document.querySelector('#action-request .post-submit-actions').style.display = 'none';
+                setEmailHint('email-status-request', adminFirstNames(db, currentUser));
+                btn.textContent = '✓ Télétravail déclaré';
+                ['date_start', 'date_end', 'time_start', 'time_end'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('days-preview').style.display = 'none';
+                setTimeout(() => { btn.disabled = false; toggleAutre(); }, 2000);
+                return;
+            }
+            document.querySelector('#action-request .alert').textContent = '✓ Demande enregistrée avec succès !';
+            document.querySelector('#action-request .post-submit-actions').style.display = 'flex';
             db.requests.push(req);
             const rattTxt = ratt.slots.length ? ' · Rattrapage : ' + fmtRattrapage(ratt.slots) : '';
             addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${rattTxt}`);
@@ -2105,6 +2171,7 @@
     // Annulable : en attente (toujours), ou validée tant qu'elle n'a pas commencé
     function canCancel(r) {
         if (!r || r.user !== currentUser || r.offered) return false;
+        if (r.telework) return r.end >= todayISO();
         if (r.status === 'En attente') return true;
         if (r.status === 'Validé') return r.start > todayISO();
         return false;
@@ -2115,8 +2182,8 @@
             const r = db.requests.find(x => x.id === id);
             if (!r) return alert('Demande introuvable.');
             if (!canCancel(r)) return alert("Cette demande ne peut plus être annulée (déjà commencée, refusée ou annulée).");
-            const wasValid = r.status === 'Validé';
-            const msg = wasValid
+            const wasValid = r.status === 'Validé' && !r.telework;
+            const msg = r.telework ? `Retirer votre télétravail ${fmtPeriod(r).replace(/^Du/, 'du')} ?` : wasValid
                 ? `Annuler votre demande validée ${fmtPeriod(r).replace(/^Du/, 'du')} ?\n\nLes ${fmtDays(r.days)} jour(s) seront recrédités sur votre solde et la direction sera prévenue.`
                 : `Annuler votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} ?`;
             if (!confirm(msg)) return;
@@ -2132,9 +2199,10 @@
             r.date_annulation = todayISO();
             const emp = db.employees.find(e => e.name === currentUser) || {};
             const who = `${currentUser} ${emp.lastname || ''}`.trim();
-            addLogEntry(db, 'annulation', who, wasValid ? 'Demande validée annulée par le salarié' : 'Demande retirée par le salarié',
+            addLogEntry(db, r.telework ? 'tt' : 'annulation', who, r.telework ? 'Télétravail retiré par le salarié' : wasValid ? 'Demande validée annulée par le salarié' : 'Demande retirée par le salarié',
                 `${r.type}${r.note ? ' — ' + r.note : ''} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · Solde recrédité' : ''}`);
-            addNotification(db, adminFirstNames(db, currentUser), 'annulation',
+            if (r.telework) addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${who}</strong> a retiré son télétravail ${fmtPeriod(r).replace(/^Du/, 'du')}`, r.id);
+            else addNotification(db, adminFirstNames(db, currentUser), 'annulation',
                 `🚫 <strong>${who}</strong> a annulé sa demande ${wasValid ? '<strong>validée</strong>' : 'en attente'} : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · solde recrédité' : ''}`, r.id);
             await saveToGitHub(db, sha);
             renderEmployeeSoldeUI(db);
@@ -2147,13 +2215,13 @@
         try {
             const { db } = await fetchFromGitHub();
             const my = db.requests.filter(r => r.user === currentUser).reverse();
-            const validated = my.filter(r => r.status === 'Validé' && !r.offered);
+            const validated = my.filter(r => r.status === 'Validé' && !r.offered && !r.telework);
             document.getElementById('kpi-total').textContent   = my.length;
             document.getElementById('kpi-pending').textContent = my.filter(r => r.status === 'En attente').length;
             document.getElementById('kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
-                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '');
+                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '') + (r.telework ? `<div class="tt-tag">Déclaration · sans décompte</div>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 const p = r.proposal;
                 const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal"><strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">Refuser</button></div></div>` : '';
@@ -2180,7 +2248,7 @@
             await checkMonthlyAccrual();
             const { db } = await fetchFromGitHub();
             const pending   = db.requests.filter(r => r.status === 'En attente');
-            const validated = db.requests.filter(r => r.status === 'Validé' && !r.offered);
+            const validated = db.requests.filter(r => r.status === 'Validé' && !r.offered && !r.telework);
             const refused   = db.requests.filter(r => r.status === 'Refusé');
             document.getElementById('mgr-kpi-total').textContent   = db.requests.length;
             document.getElementById('mgr-kpi-pending').textContent = pending.length;
@@ -2514,7 +2582,7 @@
         const out = [];
         for (let i = 0; i < reqs.length; i++) for (let j = i + 1; j < reqs.length; j++) {
             const a = reqs[i], b = reqs[j];
-            if (a.offered || b.offered || a.user === b.user || !overlaps(a, b)) continue;
+            if (a.offered || b.offered || a.telework || b.telework || a.user === b.user || !overlaps(a, b)) continue;
             const s = a.start > b.start ? a.start : b.start, e = a.end < b.end ? a.end : b.end;
             if (e < from || s > to || !hasWorkDay(s, e)) continue;
             out.push({ a, b, from: s, to: e });
@@ -2523,8 +2591,8 @@
     }
     function otherOverlapping(db, r, range) {
         range = range || r;
-        if (r.offered) return [];
-        return db.requests.filter(x => x.id !== r.id && !x.offered && x.user !== r.user && isCalStatus(x.status) && overlaps(x, range) && hasWorkDay(x.start > range.start ? x.start : range.start, x.end < range.end ? x.end : range.end));
+        if (r.offered || r.telework) return [];
+        return db.requests.filter(x => x.id !== r.id && !x.offered && !x.telework && x.user !== r.user && isCalStatus(x.status) && overlaps(x, range) && hasWorkDay(x.start > range.start ? x.start : range.start, x.end < range.end ? x.end : range.end));
     }
     function overlapChip(db, r) {
         const o = otherOverlapping(db, r);
@@ -2574,7 +2642,8 @@
         document.getElementById('cal-legend').innerHTML = shown.map(e =>
             `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:${colorMap[e]}"></div>${e}</div>`).join('')
             + (shown.length && calMode === 'admin' ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.45) 0 3px, transparent 3px 6px);"></div>hachuré = en attente</div>` : '')
-            + (reqs.some(r => r.offered) ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.8);"></div>contour blanc = offert par la direction</div>` : '');
+            + (reqs.some(r => r.offered) ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#999;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.8);"></div>contour blanc = offert par la direction</div>` : '')
+            + (reqs.some(r => r.telework) || Object.values(workPatterns).some(p => p.teleworkDays && p.teleworkDays.length) ? `<div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fff;border:2px solid #999;box-sizing:border-box;"></div>contour seul = télétravail (TT)</div>` : '');
     }
 
     function renderConflicts(reqs, from, to) {
@@ -2618,7 +2687,7 @@
                 const iso = addDaysISO(wStart, i);
                 const d = new Date(iso + 'T00:00:00');
                 const wk = d.getDay() === 0 || d.getDay() === 6;
-                const absents = [...new Set(reqs.filter(r => !r.offered && iso >= r.start && iso <= r.end).map(r => r.user))];
+                const absents = [...new Set(reqs.filter(r => !r.offered && !r.telework && iso >= r.start && iso <= r.end).map(r => r.user))];
                 const hol = holidayName(iso);
                 const conflict = absents.length >= 2 && !wk && !hol;
                 days += `<div class="gcal-day${d.getMonth() !== calMonth ? ' other-month' : ''}${wk || hol ? ' weekend' : ''}${iso === today ? ' today' : ''}${conflict ? ' has-conflict' : ''}" data-date="${iso}">
@@ -2629,10 +2698,10 @@
             const bars = segs.map(s => {
                 const r = s.r, left = diffDays(wStart, s.from), span = diffDays(s.from, s.to) + 1;
                 const ro = calMode === 'employee';
-                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
-                    style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;background-color:${colorMap[r.user] || '#999'}"
+                return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.telework ? ' telework' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
+                    style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;${r.telework ? `color:${colorMap[r.user] || '#999'};border-color:${colorMap[r.user] || '#999'}` : `background-color:${colorMap[r.user] || '#999'}`}"
                     ${ro ? '' : `draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`}
-                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.startTime || r.endTime ? ' ·' : ''} ${fmtDays(r.days)} j${!ro && r.proposal ? ' · prop.' : ''}</div>`;
+                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.telework ? ' · TT' : (r.startTime || r.endTime ? ' ·' : '') + ' ' + fmtDays(r.days) + ' j'}${!ro && r.proposal ? ' · prop.' : ''}</div>`;
             }).join('');
             html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px"${calMode === 'admin' ? ' ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)"' : ''}>${days}<div class="gcal-events">${bars}</div></div>`;
         }
@@ -2645,7 +2714,7 @@
         const today = todayISO();
         const dayLetters = ['D','L','M','M','J','V','S'];
         const dates = []; for (let d = 1; d <= lastDay; d++) dates.push(`${calYear}-${pad2(calMonth+1)}-${pad2(d)}`);
-        const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => !r.offered && iso >= r.start && iso <= r.end).map(r => r.user)).size);
+        const counts = {}; dates.forEach(iso => counts[iso] = new Set(reqs.filter(r => !r.offered && !r.telework && iso >= r.start && iso <= r.end).map(r => r.user)).size);
         const people = [...new Set([...(db.employees || []).map(e => e.name), ...reqs.map(r => r.user)])]
             .filter(n => !calFilterEmp || n === calFilterEmp).sort((a, b) => a.localeCompare(b, 'fr'));
         let html = `<div class="plan-wrap"><table class="plan-table"><thead><tr><th class="plan-name">Salarié</th>${dates.map(iso => {
@@ -2659,10 +2728,11 @@
             dates.forEach(iso => {
                 const d = new Date(iso + 'T00:00:00'); const wk = d.getDay() === 0 || d.getDay() === 6 || !!holidayName(iso);
                 const off = !wk && isOffDayFor(iso, name);
+                const ttRec = !wk && !off && patternOf(name).teleworkDays.includes(d.getDay());
                 const r = mine.find(x => iso >= x.start && iso <= x.end);
                 const ro = calMode === 'employee';
-                html += `<td class="${wk ? 'weekend' : ''}${off ? ' offday' : ''}" data-date="${iso}"${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
-                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="background-color:${colorMap[name] || '#999'}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
+                html += `<td class="${wk ? 'weekend' : ''}${off ? ' offday' : ''}${ttRec && !r ? ' tt-recurring' : ''}" data-date="${iso}"${ttRec && !r ? ` title="${name} · télétravail habituel"` : ''}${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
+                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.telework ? ' telework' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="${r.telework ? `border-color:${colorMap[name] || '#999'};color:${colorMap[name] || '#999'}` : `background-color:${colorMap[name] || '#999'}`}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
                     : ''}</td>`;
             });
             html += '</tr>';
@@ -2732,7 +2802,7 @@
     function applyDates(db, r, start, end, st, et, by) {
         const newDays = calculateWorkDays(start, end, st, et, r.user);
         const before = { start: r.start, end: r.end, startTime: r.startTime, endTime: r.endTime, days: r.days };
-        if (r.status === 'Validé' && !r.offered && db.soldes[r.user] !== undefined) {
+        if (r.status === 'Validé' && !r.offered && !r.telework && db.soldes[r.user] !== undefined) {
             restoreLeave(db, r.user, r.fromN1 || 0, r.fromN !== undefined ? r.fromN : (r.days || 0));
             const res = deductLeave(db, r.user, newDays); r.fromN1 = res.fromN1; r.fromN = res.fromN;
         }
@@ -2753,7 +2823,7 @@
             const err = validateDates(start, end, st, et); if (err) { alert(err); return false; }
             if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) return false;
             const range = { start, end };
-            if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, range))) { alert(`${r.user} a déjà une autre demande sur cette période.`); return false; }
+            if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && !x.telework && overlaps(x, range))) { alert(`${r.user} a déjà une autre demande sur cette période.`); return false; }
             const newDays = calculateWorkDays(start, end, st, et, r.user);
             const others = otherOverlapping(db, r, range).map(x => `${x.user} (${fmtPeriod(x).replace(/^Du/, 'du')}, ${x.status.toLowerCase()})`);
             const preview = { start, end, startTime: st, endTime: et };
@@ -2835,7 +2905,7 @@
             const who = `${currentUser} ${emp.lastname || ''}`.trim();
             if (accept) {
                 if (!confirm(`Accepter les dates proposées ${fmtPeriod(p).replace(/^Du/, 'du')} (${fmtDays(p.days)} j) ?\n\nVotre demande sera ${r.status === 'Validé' ? 'déplacée sur ces dates' : 'validée directement sur ces dates'}.`)) return;
-                if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, p))) return alert("Vous avez déjà une autre demande sur cette période. Refusez la proposition ou annulez l'autre demande.");
+                if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && !x.telework && overlaps(x, p))) return alert("Vous avez déjà une autre demande sur cette période. Refusez la proposition ou annulez l'autre demande.");
                 const before = applyDates(db, r, p.start, p.end, p.startTime || '', p.endTime || '', p.by);
                 delete r.proposal;
                 r.proposalAccepted = { ts: Date.now(), by: p.by, from: { start: before.start, end: before.end } };
@@ -2859,7 +2929,7 @@
     // Prochain créneau (jours ouvrés entiers, même durée) sans chevauchement avec une autre absence
     function findFreeSlot(db, r, fromISO) {
         const need = Math.max(1, Math.ceil(r.days || 1));
-        const blocking = db.requests.filter(x => x.id !== r.id && isCalStatus(x.status));
+        const blocking = db.requests.filter(x => x.id !== r.id && isCalStatus(x.status) && !x.telework);
         let start = fromISO;
         for (let guard = 0; guard < 500; guard++) {
             if (!isWorkedBy(start, r.user)) { start = addDaysISO(start, 1); continue; }
@@ -2921,6 +2991,7 @@
                 ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
             </div>
             ${r.offered ? `<div class="offered-tag" style="margin-top:10px;">Jours offerts par ${r.offeredBy || 'la direction'} · aucun décompte de solde</div>` : ''}
+            ${r.telework ? `<div class="tt-tag" style="margin-top:10px;">Télétravail déclaré par ${r.user} · aucun décompte, ne compte pas comme absence</div>` : ''}
             ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
             ${p ? `<div class="proposal-box">Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
                 ${canAct ? `<div style="margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${r.id})">Retirer la proposition</button></div>` : ''}</div>` : ''}
@@ -2937,7 +3008,7 @@
                 <div class="modal-actions">
                     ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">Refuser</button>` : ''}
                     <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">Décaler</button>
-                    ${r.offered ? `<button class="btn btn-ghost-danger btn-sm" onclick="withdrawOffered(${r.id})">Retirer les jours offerts</button>` : `<button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">Proposer d'autres dates</button>`}
+                    ${r.offered ? `<button class="btn btn-ghost-danger btn-sm" onclick="withdrawOffered(${r.id})">Retirer les jours offerts</button>` : r.telework ? `<button class="btn btn-ghost-danger btn-sm" onclick="withdrawTelework(${r.id})">Retirer le télétravail</button>` : `<button class="btn btn-orange btn-sm" onclick="toggleSubForm('propose')">Proposer d'autres dates</button>`}
                     <button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>
                     ${r.status === 'Validé' ? `<button class="btn btn-ghost btn-sm" onclick="downloadICS(${r.id}, true)" title="Fichier agenda : Apple Calendrier, Outlook, import Google Agenda">Fichier .ics</button><a class="btn btn-ghost btn-sm" href="${googleCalUrl(r, true)}" target="_blank" title="Ouvrir dans Google Agenda (choix du calendrier à l'enregistrement)">Google Agenda</a>` : ''}
                 </div>
@@ -2980,7 +3051,7 @@
         const r = db.requests.find(x => x.id === modalRequestId); if (!r) return;
         const det = workDaysDetail(d.start, d.end, d.startTime, d.endTime, r.user);
         const days = det.days, hint = workDaysHint(det, r.user);
-        const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && overlaps(x, d));
+        const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && !x.telework && overlaps(x, d));
         const others = otherOverlapping(db, r, d);
         el.innerHTML = `${fmtDays(days)} jour(s) ouvré(s)${hint ? ' <span style="color:var(--muted);">· ' + hint + '</span>' : ''}`
             + (self ? `<br><span style="color:var(--danger);">✕ ${r.user} a déjà une autre demande sur cette période.</span>` : '')
@@ -3066,7 +3137,7 @@
         box.dataset.name = name;
         document.getElementById('pattern-editor-title').textContent = `Temps de travail — ${name}`;
         document.getElementById('pattern-percent').value = String(p.percent);
-        [1, 2, 3, 4, 5].forEach(d => document.getElementById('pattern-off-' + d).checked = p.offDays.includes(d));
+        [1, 2, 3, 4, 5].forEach(d => { document.getElementById('pattern-off-' + d).checked = p.offDays.includes(d); document.getElementById('pattern-tt-' + d).checked = p.teleworkDays.includes(d); });
         box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     async function saveWorkPattern() {
@@ -3075,14 +3146,52 @@
         const name = box.dataset.name; if (!name) return;
         const percent = parseInt(document.getElementById('pattern-percent').value, 10) || 100;
         const offDays = [1, 2, 3, 4, 5].filter(d => document.getElementById('pattern-off-' + d).checked);
+        const teleworkDays = [1, 2, 3, 4, 5].filter(d => document.getElementById('pattern-tt-' + d).checked && !offDays.includes(d));
         try {
             const { db, sha } = await fetchFromGitHub();
             const emp = db.employees.find(e => e.name === name); if (!emp) return;
-            if (percent === 100 && !offDays.length) delete emp.workPattern; else emp.workPattern = { percent, offDays };
+            if (percent === 100 && !offDays.length && !teleworkDays.length) delete emp.workPattern; else emp.workPattern = { percent, offDays, teleworkDays };
             syncRulesFromDb(db);
             addLogEntry(db, 'employe', actorName(), 'Temps de travail modifié', `${name} · ${fmtPattern(name)}`);
             await saveToGitHub(db, sha);
             box.style.display = 'none';
+            await renderManagerDashboard();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+
+    async function saveMyTelework() {
+        if (!currentUser) return;
+        const days = [1, 2, 3, 4, 5].filter(d => document.getElementById('my-tt-' + d).checked);
+        const st = document.getElementById('my-tt-status');
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const emp = db.employees.find(e => e.name === currentUser); if (!emp) return;
+            const p = emp.workPattern || {};
+            const teleworkDays = days.filter(d => !(p.offDays || []).includes(d));
+            if (!teleworkDays.length && !(p.percent && p.percent !== 100) && !(p.offDays || []).length) delete emp.workPattern;
+            else emp.workPattern = { percent: p.percent || 100, offDays: p.offDays || [], teleworkDays };
+            syncRulesFromDb(db);
+            addLogEntry(db, 'tt', currentUser, 'Télétravail habituel modifié', `${currentUser} · ${teleworkDays.length ? teleworkDays.map(d => DAY_NAMES[d]).join(', ') : 'aucun jour'}`);
+            addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${currentUser}</strong> a modifié son télétravail habituel : ${teleworkDays.length ? teleworkDays.map(d => DAY_NAMES[d]).join(', ') : 'aucun jour'}`);
+            await saveToGitHub(db, sha);
+            st.textContent = 'Enregistré'; setTimeout(() => st.textContent = '', 2500);
+            renderEmployeeSoldeUI(db);
+            mountCalendar('employee'); calRefresh();
+        } catch(e) { alert('Erreur : ' + e.message); }
+    }
+    // Retrait d'un télétravail ponctuel par la direction
+    async function withdrawTelework(id) {
+        if (!isAdmin()) return;
+        try {
+            const { db, sha } = await fetchFromGitHub();
+            const r = db.requests.find(x => x.id === id);
+            if (!r || !r.telework) return;
+            if (!confirm(`Retirer le télétravail de ${r.user} ${fmtPeriod(r).replace(/^Du/, 'du')} ?`)) return;
+            r.status = 'Annulé'; r.prevStatus = 'Validé'; r.date_annulation = todayISO();
+            addLogEntry(db, 'tt', actorName(), 'Télétravail retiré', `${r.user} ${r.lastname || ''} · ${fmtPeriod(r)}`);
+            addNotification(db, [r.user], 'tt', `💻 <strong>${actorName()}</strong> a retiré votre télétravail ${fmtPeriod(r).replace(/^Du/, 'du')}.`, r.id);
+            await saveToGitHub(db, sha);
+            closeRequestModal();
             await renderManagerDashboard();
         } catch(e) { alert('Erreur : ' + e.message); }
     }
@@ -3377,7 +3486,7 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 3000);
     }
     function eventTitle(r, withName) {
-        const base = r.offered ? 'Congés offerts' + (r.note ? ' — ' + r.note : '') : r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
+        const base = r.telework ? 'Télétravail' : r.offered ? 'Congés offerts' + (r.note ? ' — ' + r.note : '') : r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
         return (withName ? `${r.user} ${r.lastname || ''}`.trim() + ' — ' : '') + base + (r.status === 'En attente' ? ' (en attente)' : '');
     }
     function eventDescription(r) {
@@ -3524,6 +3633,7 @@
         decalage:   '↔',
         proposition:'→',
         offert:     '★',
+        tt:         '⌂',
         solde:      '#',
         employe:    '@',
         systeme:    '•'
