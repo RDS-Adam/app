@@ -217,8 +217,12 @@
       "days": 2,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-24"
+      "status": "Validé",
+      "date_demande": "2026-09-24",
+      "reason": "",
+      "date_decision": "2026-09-24",
+      "fromN1": 0,
+      "fromN": 2
     },
     {
       "id": 1790246338482,
@@ -332,6 +336,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790246433284,
+      "date": "2026-09-24",
+      "heure": "12:40",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Axel Seigneury · Du 19/11/2026 au 20/11/2026 (2 j)"
+    },
     {
       "ts": 1790246427451,
       "date": "2026-09-24",
@@ -892,6 +905,26 @@
     "Alexandre": 0
   },
   "notifications": [
+    {
+      "id": 1790246433445,
+      "ts": 1790246433285,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Axel Seigneury</strong> : Congés Payés · Du 19/11/2026 au 20/11/2026 (2 j)",
+      "reqId": 1790242708532
+    },
+    {
+      "id": 1790246433729,
+      "ts": 1790246433285,
+      "to": [
+        "Axel"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 19/11/2026 au 20/11/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1790242708532
+    },
     {
       "id": 1790246427743,
       "ts": 1790246427451,
