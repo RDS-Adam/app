@@ -1,84 +1,114 @@
 {
   "tools": {
-    "Calcul trapeze - triangle": {
-      "space": "hidden",
-      "label": ""
+    "boite-a-outils-v11.html": {
+      "space": "adam",
+      "label": "",
+      "order": 0
+    },
+    "Bon-fin-chantier.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 1
     },
     "Calcul-diametre-enroulement.html": {
       "space": "salarie",
-      "label": ""
+      "label": "",
+      "order": 2
     },
     "Calcul-gain-de-temperature.html": {
       "space": "salarie",
-      "label": ""
-    },
-    "Demande Congés.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "Devis-Sotexpro.html": {
-      "space": "adam",
-      "label": ""
-    },
-    "Encombrement SBV2.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "Générateur courrier échantillons.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "Panachage-californien.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "Pix'côtes mobile.html": {
-      "space": "adam",
-      "label": ""
-    },
-    "Pix-cotes.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "STORE MINI COFFRE DIA TUBE 26.html": {
-      "space": "hidden",
-      "label": ""
-    },
-    "STORE UNIVERSAL COFFRE DIA TUBE 36.html": {
-      "space": "hidden",
-      "label": ""
-    },
-    "Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html": {
-      "space": "adam",
-      "label": ""
-    },
-    "calculateur-prix-pose.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "devis-Adam.html": {
-      "space": "adam",
-      "label": ""
-    },
-    "enroulement-toile.html": {
-      "space": "salarie",
-      "label": ""
-    },
-    "messages-type.html": {
-      "space": "adam",
-      "label": ""
-    },
-    "trapèze triangle.html": {
-      "space": "salarie",
-      "label": ""
+      "label": "",
+      "order": 3
     },
     "Calcul-trapeze-triangle": {
       "space": "salarie",
-      "label": "Calcul trapèze / triangle"
+      "label": "Calcul trapèze / triangle",
+      "order": 4
     },
-    "Demande Congés — TEST.html": {
+    "calculateur-prix-pose.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 5
+    },
+    "Demande Congés.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 6
+    },
+    "Demande Congés — TEST.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 7
+    },
+    "devis-Adam.html": {
       "space": "adam",
-      "label": "Congés · TEST"
+      "label": "",
+      "order": 8
+    },
+    "Devis-Sotexpro.html": {
+      "space": "adam",
+      "label": "",
+      "order": 9
+    },
+    "Encombrement SBV2.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 10
+    },
+    "enroulement-toile.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 11
+    },
+    "Générateur courrier échantillons.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 12
+    },
+    "messages-type.html": {
+      "space": "adam",
+      "label": "",
+      "order": 13
+    },
+    "Panachage-californien.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 14
+    },
+    "Pix-cotes.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 15
+    },
+    "Pix'côtes mobile.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 16
+    },
+    "pv-reception-travaux-pro.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 17
+    },
+    "STORE MINI COFFRE DIA TUBE 26.html": {
+      "space": "hidden",
+      "label": "",
+      "order": 18
+    },
+    "STORE UNIVERSAL COFFRE DIA TUBE 36.html": {
+      "space": "hidden",
+      "label": "",
+      "order": 19
+    },
+    "Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html": {
+      "space": "adam",
+      "label": "",
+      "order": 20
+    },
+    "trapèze triangle.html": {
+      "space": "salarie",
+      "label": "",
+      "order": 21
     }
   }
 }
