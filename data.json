@@ -308,6 +308,15 @@
   },
   "logs": [
     {
+      "ts": 1790244446294,
+      "date": "2026-09-24",
+      "heure": "12:07",
+      "type": "employe",
+      "actor": "Nicolas",
+      "label": "Lien de réinitialisation envoyé",
+      "detail": "Nicolas · lien envoyé à nicolas.decoster@ruedustore.fr (valable 30 min)"
+    },
+    {
       "ts": 1790242746647,
       "date": "2026-09-24",
       "heure": "11:39",
@@ -804,6 +813,16 @@
   },
   "notifications": [
     {
+      "id": 1790244446815,
+      "ts": 1790244446294,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "reset",
+      "text": "🔑 Bonjour Nicolas, une réinitialisation de votre mot de passe a été demandée le 24/09/2026 à 12h07. Ouvrez ce lien pour choisir un nouveau mot de passe (valable 30 minutes, utilisable une seule fois) : https://rds-adam.github.io/app/Demande%20Conge%CC%81s.html#reset=2b157d6b7e0d9300f0b0a41e0072b1c48a9cc5b6aaf828e4&u=Nicolas\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe actuel reste valable.",
+      "reqId": null
+    },
+    {
       "id": 1790242746749,
       "ts": 1790242746647,
       "to": [
@@ -1084,6 +1103,11 @@
       "hash": "1e8e9fb78f7e4c79570afaf5dafaacb0d06fc297b775c6af8702393df7d6de9c",
       "requestedAt": 1790083425728,
       "expires": 1790085225728
+    },
+    "Nicolas": {
+      "hash": "d656082e75a46f8260123a00e6082f4e1b71b1aad00e5bdcb8ea21b56b4aa9f0",
+      "requestedAt": 1790244446294,
+      "expires": 1790246246294
     }
   }
 }
