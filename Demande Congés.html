@@ -561,12 +561,14 @@
                                     <option value="Congés Payés">Congés Payés</option>
                                     <option value="Congés Sans Solde">Congés Sans Solde</option>
                                     <option value="Absence Exceptionnelle">Absence Exceptionnelle (Autre)</option>
+                                    <option value="Autorisation d'absence">Autorisation d'absence (sortie ponctuelle, enfant malade, rendez-vous…)</option>
                                     <option value="Télétravail">Télétravail (déclaration, sans validation)</option>
                                 </select>
                                 <div class="input-hint" id="tt-hint" style="display:none;">Le télétravail est enregistré immédiatement, sans décompte de solde. La direction est simplement prévenue.</div>
+                                <div class="input-hint" id="aut-hint" style="display:none;">Indiquez le motif et, si possible, les heures. Une fois validée, l'autorisation signée est disponible en PDF depuis votre historique. La direction précise si l'absence est rémunérée, à récupérer, non rémunérée ou décomptée de vos congés.</div>
                             </div>
                             <div class="form-group full" id="autre-wrap" style="display:none;">
-                                <label>Motif <span style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
+                                <label>Motif <span id="autre-lbl" style="text-transform:none;letter-spacing:0;">(facultatif)</span></label>
                                 <input type="text" id="leave_autre" placeholder="Ex: Mariage, déménagement, rendez-vous...">
                             </div>
                             <div class="form-group full" id="rattrapage-wrap" style="display:none;">
@@ -719,6 +721,16 @@
                         <div id="manager-list"></div>
                         <div id="approval-form" class="decision-panel">
                             <h4 id="val_display_name">Décision</h4>
+                            <div class="form-group" id="treatment-wrap" style="display:none;margin-bottom:14px;">
+                                <label>Traitement de l'absence</label>
+                                <select id="decision_treatment">
+                                    <option value="paid">Rémunérée, sans décompte</option>
+                                    <option value="recover">À récupérer (rattrapage)</option>
+                                    <option value="unpaid">Non rémunérée (retenue sur salaire)</option>
+                                    <option value="conges">Décomptée des congés payés</option>
+                                </select>
+                                <div class="input-hint">Figure sur l'autorisation d'absence en PDF.</div>
+                            </div>
                             <div class="form-group" style="margin-bottom:14px;">
                                 <label>Motif (optionnel)</label>
                                 <textarea id="refusal_reason" rows="3" placeholder="Précisez un motif si vous refusez la demande..."></textarea>
@@ -941,6 +953,8 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Autorisation d'absence : nouveau type de demande (motif obligatoire, heures possibles), validée par la direction qui précise si l'absence est rémunérée, à récupérer, non rémunérée ou décomptée · PDF « Autorisation d'absence » signé, disponible dans l'historique, la fiche et les demandes en attente</li>
+                                <li>Décompte des soldes : seuls les congés payés (et les autorisations « décomptées ») consomment le solde ; congés sans solde et absences exceptionnelles ne le touchent plus</li>
                                 <li>Télétravail : déclaration de jours ponctuels par le salarié (enregistrés sans validation, direction prévenue) et rythme habituel (« tous les lundis »), visibles dans les calendriers en contour, sans décompte ni détection de chevauchement · retrait possible par le salarié ou la direction</li>
                                 <li>« Offrir des jours » (direction) : congés offerts à tout ou partie de l'équipe sur une période, validés d'office sans décompte des soldes, visibles dans les calendriers et l'historique, chacun prévenu · retrait possible depuis la fiche</li>
                                 <li>Jours fériés français calculés automatiquement (Pâques, Ascension, Pentecôte inclus) et exclus du décompte, option Alsace-Moselle, fermetures d'entreprise ajoutables par la direction · fériés affichés dans les calendriers</li>
@@ -1466,8 +1480,10 @@
 
     function toggleAutre() {
         const t = document.getElementById('leave_type').value;
-        const isAbs = t === 'Absence Exceptionnelle';
+        const isAbs = t === 'Absence Exceptionnelle' || t === "Autorisation d'absence";
         document.getElementById('tt-hint').style.display = t === 'Télétravail' ? 'block' : 'none';
+        document.getElementById('aut-hint').style.display = t === "Autorisation d'absence" ? 'block' : 'none';
+        document.getElementById('autre-lbl').textContent = t === "Autorisation d'absence" ? '(obligatoire)' : '(facultatif)';
         const submit = document.querySelector('button[onclick="processRequest()"]');
         if (submit && !submit.disabled) submit.textContent = t === 'Télétravail' ? 'Déclarer le télétravail →' : 'Soumettre la demande →';
         document.getElementById('autre-wrap').style.display = isAbs ? 'block' : 'none';
@@ -2088,8 +2104,9 @@
         if (!start || !end || !email) return alert('Email et dates requis.');
         if (start > end) return alert('La date de fin doit être après la date de début.');
         if (start === end && startTime && endTime && startTime >= endTime) return alert("L'heure de fin doit être après l'heure de début.");
+        if (document.getElementById('leave_type').value === "Autorisation d'absence" && !document.getElementById('leave_autre').value.trim()) return alert("Indiquez le motif de l'autorisation d'absence (ex. enfant malade, rendez-vous médical).");
         if (start < todayISO() && !isAdmin()) return alert(`Impossible de poser des jours dans le passé : la date de début (${formatDate(start)}) est déjà passée.\n\nVérifiez l'année (nous sommes en ${new Date().getFullYear()}). Pour régulariser une absence passée, adressez-vous à la direction.`);
-        const isAbsence = document.getElementById('leave_type').value === 'Absence Exceptionnelle';
+        const isAbsence = ['Absence Exceptionnelle', "Autorisation d'absence"].includes(document.getElementById('leave_type').value);
         const ratt = isAbsence ? getRattrapageSlots() : { slots: [], error: null };
         if (ratt.error) return alert(ratt.error);
         const { db, sha } = await fetchFromGitHub();
@@ -2101,7 +2118,7 @@
         btn.disabled = true; btn.textContent = 'Envoi en cours...';
         try {
             const typeVal = document.getElementById('leave_type').value;
-            const noteVal = typeVal === 'Absence Exceptionnelle' ? document.getElementById('leave_autre').value : '';
+            const noteVal = ['Absence Exceptionnelle', "Autorisation d'absence"].includes(typeVal) ? document.getElementById('leave_autre').value.trim() : '';
             const days    = calculateWorkDays(start, end, startTime, endTime, currentUser);
             const emp     = db.employees.find(e => e.name === currentUser) || {};
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
@@ -2221,7 +2238,7 @@
             document.getElementById('kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
-                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '') + (r.telework ? `<div class="tt-tag">Déclaration · sans décompte</div>` : '');
+                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.type === "Autorisation d'absence" && r.status === 'Validé' ? `<div class="tt-tag">Absence ${TREATMENT_LABELS[r.treatment || 'paid']}</div>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '') + (r.telework ? `<div class="tt-tag">Déclaration · sans décompte</div>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 const p = r.proposal;
                 const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal"><strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">Refuser</button></div></div>` : '';
@@ -2263,7 +2280,7 @@
                             <div class="req-avatar">${initials(r.user)}</div>
                             <div><div class="req-name">${r.user} ${r.lastname}</div><div class="req-meta">${r.email} — Solde : ${db.soldes[r.user]!==undefined ? (+((db.soldesN1&&db.soldesN1[r.user]||0)+db.soldes[r.user]).toFixed(2))+' j (dont '+(db.soldesN1&&db.soldesN1[r.user]||0)+' j N-1)' : '?'}</div></div>
                         </div>
-                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-ghost btn-sm" onclick="openRequestModal(${r.id})" title="Fiche complète : chevauchements, décaler, proposer d'autres dates">Fiche</button><button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
+                        <div class="req-actions">${statusBadge(r.status)}<button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button><button class="btn btn-ghost btn-sm" onclick="openRequestModal(${r.id})" title="Fiche complète : chevauchements, décaler, proposer d'autres dates">Fiche</button><button class="btn btn-primary btn-sm" onclick="selectForDecision(${r.id})">Traiter →</button></div>
                     </div>
                     <div class="req-chips">
                         <span class="chip">${fmtPeriod(r)}</span>
@@ -2333,6 +2350,8 @@
         const r = db.requests.find(x => x.id === id);
         document.getElementById('val_display_name').textContent = `Décision — ${r.user} ${r.lastname} · ${fmtDays(r.days)}j ${fmtPeriod(r).replace(/^Du/, 'du')}`;
         document.getElementById('refusal_reason').value = '';
+        document.getElementById('treatment-wrap').style.display = r.type === "Autorisation d'absence" ? 'block' : 'none';
+        document.getElementById('decision_treatment').value = r.treatment || (r.rattrapage && r.rattrapage.length ? 'recover' : 'paid');
         document.getElementById('action-decision').style.display = 'none';
         document.getElementById('approval-form').style.display = 'block';
         document.getElementById('approval-form').scrollIntoView({ behavior: 'smooth' });
@@ -2356,13 +2375,23 @@
 
     // Applique une décision (validation / refus) sur une demande : statut, solde, journal, notifications.
     // `quiet` = pas de notifications (utilisé quand le salarié accepte lui-même une proposition de dates).
-    function applyDecision(db, r, newStatus, reason, actor, quiet) {
+    // Seuls les congés payés (et les autorisations d'absence « décomptées ») consomment le solde
+    function deductsBalance(r) {
+        if (r.offered || r.telework) return false;
+        if (r.type === 'Congés Payés') return true;
+        if (r.type === "Autorisation d'absence") return r.treatment === 'conges';
+        return false;
+    }
+    const TREATMENT_LABELS = { paid: 'rémunérée, sans décompte', recover: 'à récupérer', unpaid: 'non rémunérée', conges: 'décomptée des congés payés' };
+    function applyDecision(db, r, newStatus, reason, actor, quiet, treatment) {
         actor = actor || actorName();
         const prevStatus = r.status;
         r.status = newStatus;
         r.reason = reason || '';
         r.date_decision = todayISO();
-        if (newStatus === 'Validé' && prevStatus !== 'Validé' && db.soldes[r.user] !== undefined) {
+        r.decidedBy = actor;
+        if (r.type === "Autorisation d'absence" && newStatus === 'Validé') r.treatment = treatment || r.treatment || 'paid';
+        if (newStatus === 'Validé' && prevStatus !== 'Validé' && deductsBalance(r) && db.soldes[r.user] !== undefined) {
             const result = deductLeave(db, r.user, r.days || 0);
             r.fromN1 = result.fromN1;
             r.fromN = result.fromN;
@@ -2374,13 +2403,13 @@
         if (newStatus === 'Refusé') delete r.proposal;
         const logType = newStatus === 'Validé' ? 'validation' : 'refus';
         const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
-        addLogEntry(db, logType, actor, logLabel, `${r.user} ${r.lastname} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason?' — Motif : '+r.reason:''}`);
+        addLogEntry(db, logType, actor, logLabel, `${r.user} ${r.lastname} · ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.treatment && newStatus === 'Validé' ? ' · ' + TREATMENT_LABELS[r.treatment] : ''}${r.reason?' — Motif : '+r.reason:''}`);
         if (quiet) return;
         // Notifications internes : le salarié + les autres membres de la direction
         const verb = newStatus === 'Validé' ? 'validé' : 'refusé';
         const icon = newStatus === 'Validé' ? '✅' : '❌';
         addNotification(db, [r.user], 'decision',
-            `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actor}${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
+            `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actor}${r.treatment && newStatus === 'Validé' ? ' — absence ' + TREATMENT_LABELS[r.treatment] : ''}${r.reason ? ' — Motif : ' + r.reason : ''}${r.type === "Autorisation d'absence" && newStatus === 'Validé' ? ". L'autorisation signée est disponible en PDF dans votre historique." : ''}`, r.id);
         addNotification(db, adminFirstNames(db, actor).filter(n => n !== r.user), 'decision',
             `${icon} <strong>${actor}</strong> a ${verb} la demande de <strong>${r.user} ${r.lastname}</strong> : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
     }
@@ -2499,13 +2528,13 @@
     }
 
     // Décision + sauvegarde + rafraîchissement. Retourne { r, mailUrl } ou null.
-    async function decideRequest(id, newStatus, reason) {
+    async function decideRequest(id, newStatus, reason, treatment) {
         if (!isAdmin()) return null;
         try {
             const { db, sha } = await fetchFromGitHub();
             const r = db.requests.find(x => x.id === id);
             if (!r) { alert('Demande introuvable.'); return null; }
-            applyDecision(db, r, newStatus, reason);
+            applyDecision(db, r, newStatus, reason, undefined, false, treatment);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
             const ccList = adminEmails(db, actorName()).filter(m => m !== r.email);
@@ -2517,7 +2546,7 @@
 
     async function processDecision(newStatus) {
         if (!isAdmin()) return;
-        const res = await decideRequest(selectedRequestId, newStatus, document.getElementById('refusal_reason').value);
+        const res = await decideRequest(selectedRequestId, newStatus, document.getElementById('refusal_reason').value, fieldVal('decision_treatment'));
         if (!res) return;
         document.getElementById('gmail_link_val').href = res.mailUrl;
         document.getElementById('action-decision').style.display = 'block';
@@ -2992,6 +3021,7 @@
             </div>
             ${r.offered ? `<div class="offered-tag" style="margin-top:10px;">Jours offerts par ${r.offeredBy || 'la direction'} · aucun décompte de solde</div>` : ''}
             ${r.telework ? `<div class="tt-tag" style="margin-top:10px;">Télétravail déclaré par ${r.user} · aucun décompte, ne compte pas comme absence</div>` : ''}
+            ${r.type === "Autorisation d'absence" && r.status === 'Validé' ? `<div class="tt-tag" style="margin-top:10px;">Autorisation d'absence ${TREATMENT_LABELS[r.treatment || 'paid']} · PDF signé disponible</div>` : ''}
             ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
             ${p ? `<div class="proposal-box">Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
                 ${canAct ? `<div style="margin-top:8px;"><button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${r.id})">Retirer la proposition</button></div>` : ''}</div>` : ''}
@@ -3005,6 +3035,7 @@
             ${feedback ? `<div class="alert alert-success" style="margin-top:14px;">${feedback}</div>${mailUrl ? `<a href="${mailUrl}" class="gmail-btn" target="_blank">Prévenir ${r.user} par Gmail</a>` : ''}` : ''}
             ${canAct ? `
             <div class="modal-section"><h4>Actions</h4>
+                ${r.type === "Autorisation d'absence" && r.status === 'En attente' ? `<div class="form-group" style="margin-bottom:12px;max-width:360px;"><label>Traitement de l'absence</label><select id="modal-treatment"><option value="paid">Rémunérée, sans décompte</option><option value="recover" ${r.rattrapage && r.rattrapage.length ? 'selected' : ''}>À récupérer (rattrapage)</option><option value="unpaid">Non rémunérée (retenue sur salaire)</option><option value="conges">Décomptée des congés payés</option></select></div>` : ''}
                 <div class="modal-actions">
                     ${r.status === 'En attente' ? `<button class="btn btn-success btn-sm" onclick="modalDecide('Validé')">Valider</button><button class="btn btn-danger btn-sm" onclick="toggleSubForm('refuse')">Refuser</button>` : ''}
                     <button class="btn btn-primary btn-sm" onclick="toggleSubForm('move')">Décaler</button>
@@ -3063,7 +3094,7 @@
         const reason = status === 'Refusé' ? fieldVal('modal-refuse-reason') : '';
         if (status === 'Validé' && !confirm('Valider cette demande ?')) return;
         const id = modalRequestId;
-        const res = await decideRequest(id, status, reason);
+        const res = await decideRequest(id, status, reason, fieldVal('modal-treatment'));
         if (res) openRequestModal(id, `✓ Demande ${status === 'Validé' ? 'validée' : 'refusée'}. ${emailHintHtml(res.notified)}`, res.mailUrl);
     }
     async function submitMove() {
@@ -3373,7 +3404,7 @@
         const n1Cur = db && db.soldesN1 && db.soldesN1[req.user] !== undefined ? db.soldesN1[req.user] : 0;
         const totalCur = nCur === null ? null : +(nCur + n1Cur).toFixed(2);
         let soldeAvant, soldeApres;
-        if (totalCur === null) { soldeAvant = '—'; soldeApres = '—'; }
+        if (totalCur === null || !deductsBalance(req)) { soldeAvant = totalCur === null ? '—' : totalCur; soldeApres = soldeAvant; }
         else if (req.status === 'Validé') {
             const used = (req.fromN1 || 0) + (req.fromN !== undefined ? req.fromN : (req.days || 0));
             soldeApres = totalCur;
@@ -3431,11 +3462,54 @@
         } finally { el.style.display = 'none'; }
     }
 
+    function buildAuthorizationPDFHTML(req, db) {
+        const emp = (db.employees || []).find(e => e.name === req.user) || {};
+        const validated = req.status === 'Validé';
+        const t = req.treatment || 'paid';
+        const box = k => (validated && t === k) ? '☒' : '☐';
+        const when = req.start === req.end
+            ? `le <strong>${formatDate(req.start)}</strong>${req.startTime ? ` de <strong>${fmtTime(req.startTime)}</strong>` : ''}${req.endTime ? ` à <strong>${fmtTime(req.endTime)}</strong>` : ''}`
+            : `du <strong>${formatDate(req.start)}</strong>${req.startTime ? ' à ' + fmtTime(req.startTime) : ''} au <strong>${formatDate(req.end)}</strong>${req.endTime ? ' à ' + fmtTime(req.endTime) : ''}`;
+        const signer = req.decidedBy || 'La Direction';
+        return `<div style="padding:55px 60px;font-family:Arial, sans-serif;color:#000;max-width:750px;line-height:1.7;position:relative;">
+            ${validated ? '' : `<div style="position:absolute;top:40px;right:60px;border:2px solid #999;color:#999;padding:4px 10px;font-size:0.8rem;font-weight:700;transform:rotate(-8deg);">EN ATTENTE DE VALIDATION</div>`}
+            <p style="font-size:0.85rem;color:#444;margin:0 0 4px;">RUE DU STORE</p>
+            <h1 style="font-size:2rem;font-weight:800;letter-spacing:0.5px;margin:0 0 40px;">AUTORISATION D'ABSENCE</h1>
+            <p style="font-size:0.95rem;margin:0 0 18px;">Je soussigné(e), <strong>${signer}</strong>, agissant pour le compte de l'entreprise Rue du Store, autorise :</p>
+            <p style="font-size:0.95rem;margin:0 0 4px;">NOM : <strong>${(req.lastname||'').toUpperCase()}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 22px;">PRÉNOM : <strong>${req.user||''}</strong></p>
+            <p style="font-size:0.95rem;margin:0 0 18px;">à s'absenter de son poste de travail ${when}${req.days ? ` <span style="color:#555;">(${fmtDays(req.days)} jour(s) ouvré(s))</span>` : ''}.</p>
+            <p style="font-size:0.95rem;margin:0 0 26px;">MOTIF : <strong>${req.note || '—'}</strong></p>
+            <p style="font-size:0.95rem;font-weight:700;text-decoration:underline;margin:0 0 10px;">TRAITEMENT DE L'ABSENCE</p>
+            <p style="font-size:0.95rem;margin:0 0 6px;">${box('paid')} Rémunérée, sans décompte de congés</p>
+            <p style="font-size:0.95rem;margin:0 0 6px;">${box('recover')} À récupérer${req.rattrapage && req.rattrapage.length ? ` — rattrapage prévu : <strong>${fmtRattrapage(req.rattrapage)}</strong>` : ''}</p>
+            <p style="font-size:0.95rem;margin:0 0 6px;">${box('unpaid')} Non rémunérée (retenue sur salaire)</p>
+            <p style="font-size:0.95rem;margin:0 0 40px;">${box('conges')} Décomptée des congés payés</p>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr>
+                    <td style="width:50%;font-size:0.95rem;font-weight:700;text-decoration:underline;">SALARIÉ(E)</td>
+                    <td style="width:50%;font-size:0.95rem;font-weight:700;text-decoration:underline;">POUR L'EMPLOYEUR</td>
+                </tr>
+                <tr>
+                    <td style="font-size:0.95rem;padding-top:4px;">Date et signature</td>
+                    <td style="font-size:0.95rem;padding-top:4px;">${validated ? `${signer}, le ${formatDate(req.date_decision)}` : 'Date et signature'}</td>
+                </tr>
+            </table>
+            <p style="font-size:0.8rem;color:#666;margin-top:46px;">Demande déposée le ${formatDate(req.date_demande)}${validated ? ` · autorisation accordée le ${formatDate(req.date_decision)} par ${signer}` : ''}${emp.email ? ` · ${emp.email}` : ''}.</p>
+            ${req.status === 'Refusé' ? `<p style="font-size:0.85rem;color:#b3261e;margin-top:14px;"><strong>REFUSÉE</strong>${req.reason ? ' — ' + req.reason : ''}</p>` : ''}
+        </div>`;
+    }
+
     async function downloadPDF(id) {
         try {
             const { db } = await fetchFromGitHub();
             const r = db.requests.find(x => x.id===id);
             if (!r) return alert('Demande introuvable.');
+            if (r.type === "Autorisation d'absence") {
+                document.getElementById('pdf_body').innerHTML = buildAuthorizationPDFHTML(r, db);
+                await makePDF(`Autorisation_absence_${r.lastname||''}_${r.user}_${r.start}.pdf`);
+                return;
+            }
             document.getElementById('pdf_body').innerHTML = buildPDFHTML(r, db);
             await makePDF(`Demande_conges_${r.lastname||''}_${r.user}_${r.start}.pdf`);
         } catch(e) { alert('Erreur PDF : '+e.message); }
@@ -3486,7 +3560,7 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 3000);
     }
     function eventTitle(r, withName) {
-        const base = r.telework ? 'Télétravail' : r.offered ? 'Congés offerts' + (r.note ? ' — ' + r.note : '') : r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
+        const base = r.telework ? 'Télétravail' : r.offered ? 'Congés offerts' + (r.note ? ' — ' + r.note : '') : r.type === "Autorisation d'absence" ? 'Absence autorisée' + (r.note ? ' — ' + r.note : '') : r.type === 'Congés Payés' ? 'Congés' : r.type === 'Congés Sans Solde' ? 'Congés sans solde' : 'Absence' + (r.note ? ' — ' + r.note : '');
         return (withName ? `${r.user} ${r.lastname || ''}`.trim() + ' — ' : '') + base + (r.status === 'En attente' ? ' (en attente)' : '');
     }
     function eventDescription(r) {
