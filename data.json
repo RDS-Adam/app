@@ -301,6 +301,19 @@
       "decidedBy": "Nicolas",
       "fromN1": 0,
       "fromN": 0.5
+    },
+    {
+      "id": 1790263527716,
+      "user": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr",
+      "start": "2026-12-24",
+      "end": "2026-12-31",
+      "days": 5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24"
     }
   ],
   "soldes": {
@@ -405,6 +418,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790263527716,
+      "date": "2026-09-24",
+      "heure": "17:25",
+      "type": "demande",
+      "actor": "Karine Paillard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 24/12/2026 au 31/12/2026 (5 j)"
+    },
     {
       "ts": 1790262813513,
       "date": "2026-09-24",
@@ -1128,6 +1150,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790263528571,
+      "ts": 1790263527716,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Karine Paillard</strong> a déposé une demande : Congés Payés · Du 24/12/2026 au 31/12/2026 (5 j)",
+      "reqId": 1790263527716
+    },
     {
       "id": 1790262813645,
       "ts": 1790262813513,
