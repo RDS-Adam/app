@@ -563,6 +563,7 @@
                             </div>
                         </div>
                         <div class="days-preview" id="days-preview"><span id="days-count"></span> jour(s) ouvré(s) concerné(s)</div>
+                        <div id="past-warning" class="alert alert-warning" style="display:none;margin-top:10px;"></div>
                         <div id="overlap-warning" class="alert alert-warning" style="display:none;margin-top:10px;">Vous avez déjà une demande sur cette période.</div>
                         <button class="btn btn-orange btn-full" style="margin-top:8px;" onclick="processRequest()">Soumettre la demande →</button>
                         <div id="action-request" style="display:none;margin-top:14px;">
@@ -829,6 +830,7 @@
                                 <li>Export du planning (mois, année ou tout) : PDF paysage, CSV pour Excel / Numbers, fichier agenda .ics pour Apple Calendrier / Outlook / import Google Agenda — à ajouter dans un calendrier existant, sans en créer un nouveau</li>
                                 <li>Espace salarié : chaque congé validé peut être ajouté à son propre agenda (fichier .ics ou bouton Google Agenda), plus un export groupé de tous ses congés validés</li>
                                 <li>Mot de passe oublié : réinitialisation par lien reçu par email (valable 30 minutes, usage unique) · la question secrète est supprimée, la première connexion ne demande plus que le mot de passe</li>
+                                <li>Impossible pour un salarié de poser des jours dans le passé (le sélecteur de date s'arrête à aujourd'hui, message si l'année est fausse) · la direction garde la possibilité de régulariser</li>
                                 <li>Agenda de l'équipe dans l'espace salarié : le même calendrier (vues Mois et Planning) limité aux congés validés, en lecture seule, ses propres absences entourées</li>
                                 <li>Chargements plus fluides : gabarits scintillants à la place des « Chargement… », contenu conservé pendant les rafraîchissements, fondu à l'ouverture des onglets</li>
                                 <li>Nouvelle interface, plus sobre : typographie système, boutons et onglets arrondis, sans pictogrammes superflus</li>
@@ -1237,6 +1239,10 @@
         const te = document.getElementById('time_end').value;
         const el = document.getElementById('days-preview');
         document.getElementById('overlap-warning').style.display = 'none';
+        const pastWarn = document.getElementById('past-warning');
+        const isPast = s && s < todayISO() && !isAdmin();
+        pastWarn.style.display = isPast ? 'flex' : 'none';
+        if (isPast) pastWarn.textContent = `La date de début (${formatDate(s)}) est déjà passée. Vérifiez l'année : nous sommes en ${new Date().getFullYear()}.`;
         if (s && e && s <= e && !(s === e && ts && te && ts >= te)) {
             document.getElementById('days-count').textContent = fmtDays(calculateWorkDays(s, e, ts, te));
             el.style.display = 'block';
@@ -1709,6 +1715,8 @@
         document.getElementById('emp_nom').value = emp ? (emp.lastname || '') : '';
         if (emp) document.getElementById('emp_email').value = emp.email;
         document.getElementById('nav-tab-manager').style.display = isAdmin() ? 'inline-flex' : 'none';
+        // Salariés : pas de date dans le passé (la direction peut régulariser une absence a posteriori)
+        ['date_start', 'date_end'].forEach(id => { const inp = document.getElementById(id); if (isAdmin()) inp.removeAttribute('min'); else inp.min = todayISO(); });
         document.getElementById('card-add-employee').style.display = isSuperAdmin() ? 'block' : 'none';
         document.getElementById('btn-export-backup').style.display = isSuperAdmin() ? 'inline-flex' : 'none';
         document.getElementById('btn-test-email').style.display = isSuperAdmin() && EMAIL_NOTIFY.enabled ? 'inline-flex' : 'none';
@@ -1857,6 +1865,7 @@
         if (!start || !end || !email) return alert('Email et dates requis.');
         if (start > end) return alert('La date de fin doit être après la date de début.');
         if (start === end && startTime && endTime && startTime >= endTime) return alert("L'heure de fin doit être après l'heure de début.");
+        if (start < todayISO() && !isAdmin()) return alert(`Impossible de poser des jours dans le passé : la date de début (${formatDate(start)}) est déjà passée.\n\nVérifiez l'année (nous sommes en ${new Date().getFullYear()}). Pour régulariser une absence passée, adressez-vous à la direction.`);
         const isAbsence = document.getElementById('leave_type').value === 'Absence Exceptionnelle';
         const ratt = isAbsence ? getRattrapageSlots() : { slots: [], error: null };
         if (ratt.error) return alert(ratt.error);
