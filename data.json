@@ -352,6 +352,15 @@
   },
   "logs": [
     {
+      "ts": 1790252240032,
+      "date": "2026-09-24",
+      "heure": "14:17",
+      "type": "solde",
+      "actor": "Karine",
+      "label": "Solde N-1 modifié",
+      "detail": "Karine · nouveau solde N-1 : 13.5 j"
+    },
+    {
       "ts": 1790251971946,
       "date": "2026-09-24",
       "heure": "14:12",
@@ -951,7 +960,7 @@
     "Nicolas": 0,
     "Cindy": 8,
     "Baptiste": 23.5,
-    "Karine": 0,
+    "Karine": 13.5,
     "Adam": 0,
     "Alexandre": 0
   },
