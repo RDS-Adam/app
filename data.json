@@ -282,6 +282,20 @@
       ],
       "prevStatus": "En attente",
       "date_annulation": "2026-09-24"
+    },
+    {
+      "id": 1790261552057,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-09-29",
+      "end": "2026-09-29",
+      "days": 0.5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24",
+      "endTime": "12:30"
     }
   ],
   "soldes": {
@@ -386,6 +400,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790261552058,
+      "date": "2026-09-24",
+      "heure": "16:52",
+      "type": "demande",
+      "actor": "Axel Seigneury",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 29/09/2026 au 29/09/2026 à 12h30 (0,5 j)"
+    },
     {
       "ts": 1790261411053,
       "date": "2026-09-24",
@@ -1091,6 +1114,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790261552369,
+      "ts": 1790261552058,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 29/09/2026 au 29/09/2026 à 12h30 (0,5 j)",
+      "reqId": 1790261552057
+    },
     {
       "id": 1790261411756,
       "ts": 1790261411053,
