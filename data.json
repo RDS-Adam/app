@@ -266,7 +266,7 @@
       "days": 1,
       "type": "Absence Exceptionnelle",
       "note": "",
-      "status": "En attente",
+      "status": "Annulé",
       "date_demande": "2026-09-24",
       "rattrapage": [
         {
@@ -279,7 +279,9 @@
           "from": "13:00",
           "to": "18:00"
         }
-      ]
+      ],
+      "prevStatus": "En attente",
+      "date_annulation": "2026-09-24"
     }
   ],
   "soldes": {
@@ -384,6 +386,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790261411053,
+      "date": "2026-09-24",
+      "heure": "16:50",
+      "type": "annulation",
+      "actor": "Axel Seigneury",
+      "label": "Demande retirée par le salarié",
+      "detail": "Absence Exceptionnelle · Du 29/09/2026 au 29/09/2026 (1 j)"
+    },
     {
       "ts": 1790259058770,
       "date": "2026-09-24",
@@ -1080,6 +1091,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790261411756,
+      "ts": 1790261411053,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Axel Seigneury</strong> a annulé sa demande en attente : Absence Exceptionnelle · Du 29/09/2026 au 29/09/2026 (1 j)",
+      "reqId": 1790259058769
+    },
     {
       "id": 1790259059004,
       "ts": 1790259058770,
