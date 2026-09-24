@@ -242,6 +242,19 @@
       "date_decision": "2026-09-24",
       "fromN1": 0,
       "fromN": 6
+    },
+    {
+      "id": 1790251929898,
+      "user": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr",
+      "start": "2027-03-01",
+      "end": "2027-03-05",
+      "days": 5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-24"
     }
   ],
   "soldes": {
@@ -338,6 +351,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790251929898,
+      "date": "2026-09-24",
+      "heure": "14:12",
+      "type": "demande",
+      "actor": "Cindy Masson",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 01/03/2027 au 05/03/2027 (5 j)"
+    },
     {
       "ts": 1790251917389,
       "date": "2026-09-24",
@@ -925,6 +947,17 @@
     "Alexandre": 0
   },
   "notifications": [
+    {
+      "id": 1790251929986,
+      "ts": 1790251929898,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Cindy Masson</strong> a déposé une demande : Congés Payés · Du 01/03/2027 au 05/03/2027 (5 j)",
+      "reqId": 1790251929898
+    },
     {
       "id": 1790251917960,
       "ts": 1790251917389,
