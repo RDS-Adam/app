@@ -170,53 +170,12 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-21"
-    },
-    {
-      "id": 1790082507051,
-      "user": "Alexandre",
-      "lastname": "Morel",
-      "email": "alexandre.morel@ruedustore.fr",
-      "start": "2026-10-12",
-      "end": "2026-10-12",
-      "days": 0.5,
-      "type": "Congés Sans Solde",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-22",
-      "startTime": "12:30",
-      "endTime": "18:00"
-    },
-    {
-      "id": 1790083771711,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2027-03-02",
-      "end": "2027-03-16",
-      "days": 11,
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-22"
-    },
-    {
-      "id": 1790242708532,
-      "user": "Axel",
-      "lastname": "Seigneury",
-      "email": "axel.seigneury@ruedustore.fr",
-      "start": "2026-11-19",
-      "end": "2026-11-20",
-      "days": 2,
-      "type": "Congés Payés",
-      "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-24"
     }
   ],
   "soldes": {
     "Adam": 30.24,
     "Alexandre": 11.24,
-    "Axel": 2.08,
+    "Axel": 0,
     "Baptiste": 6.24,
     "Camille": 31.24,
     "Cindy": 6.24,
@@ -236,10 +195,7 @@
     {
       "name": "Alexandre",
       "lastname": "Morel",
-      "email": "alexandre.morel@ruedustore.fr",
-      "passHash": "e3657fab6e93ac1aee8a4af2cf46c37bd3285ea54b34f7dc65d7a02bbd791bb5",
-      "recoveryQuestion": "Nom de ton premier chat en MAJ",
-      "recoveryHash": "df98cae21ab566fa74a93e45ec6a76b9587fde43c56f33c1579e23530714fadb"
+      "email": "alexandre.morel@ruedustore.fr"
     },
     {
       "name": "Axel",
@@ -247,8 +203,7 @@
       "email": "axel.seigneury@ruedustore.fr",
       "passHash": "2727935b170e36d9962c814a407e4fd5c07469a21fcbd9bb27d92241e01d6363",
       "recoveryQuestion": "Nom de mon premier vrai chien",
-      "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c",
-      "role": "dev"
+      "recoveryHash": "8517cc01afb629b7bac981ccebf4decec0a5b4d46906cb3c0c3d657cfe6cd01c"
     },
     {
       "name": "Baptiste",
@@ -301,138 +256,9 @@
   "config": {
     "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735",
     "rolesBootstrapped": true,
-    "lastAccrualMonth": "2026-09",
-    "roleGrants": {
-      "axel:dev": true
-    }
+    "lastAccrualMonth": "2026-09"
   },
   "logs": [
-    {
-      "ts": 1790244686085,
-      "date": "2026-09-24",
-      "heure": "12:11",
-      "type": "employe",
-      "actor": "Nicolas Decoster",
-      "label": "Mot de passe réinitialisé",
-      "detail": "Réinitialisation via le lien reçu par email"
-    },
-    {
-      "ts": 1790244446294,
-      "date": "2026-09-24",
-      "heure": "12:07",
-      "type": "employe",
-      "actor": "Nicolas",
-      "label": "Lien de réinitialisation envoyé",
-      "detail": "Nicolas · lien envoyé à nicolas.decoster@ruedustore.fr (valable 30 min)"
-    },
-    {
-      "ts": 1790242746647,
-      "date": "2026-09-24",
-      "heure": "11:39",
-      "type": "systeme",
-      "actor": "Axel",
-      "label": "Test des emails",
-      "detail": "Notification de test enregistrée pour Axel (axel.seigneury@ruedustore.fr)"
-    },
-    {
-      "ts": 1790242708532,
-      "date": "2026-09-24",
-      "heure": "11:38",
-      "type": "demande",
-      "actor": "Axel Seigneury",
-      "label": "Nouvelle demande soumise",
-      "detail": "Congés Payés · Du 19/11/2026 au 20/11/2026 (2 j)"
-    },
-    {
-      "ts": 1790242572158,
-      "date": "2026-09-24",
-      "heure": "11:36",
-      "type": "solde",
-      "actor": "Axel",
-      "label": "Solde N modifié",
-      "detail": "Axel · nouveau solde N : 2.08 j"
-    },
-    {
-      "ts": 1790242558777,
-      "date": "2026-09-24",
-      "heure": "11:35",
-      "type": "solde",
-      "actor": "Axel",
-      "label": "Solde N-1 modifié",
-      "detail": "Axel · nouveau solde N-1 : 0 j"
-    },
-    {
-      "ts": 1790083771712,
-      "date": "2026-09-22",
-      "heure": "15:29",
-      "type": "demande",
-      "actor": "Axel Seigneury",
-      "label": "Nouvelle demande soumise",
-      "detail": "Congés Payés · Du 02/03/2027 au 16/03/2027 (11 j)"
-    },
-    {
-      "ts": 1790083425729,
-      "date": "2026-09-22",
-      "heure": "15:23",
-      "type": "employe",
-      "actor": "Axel",
-      "label": "Lien de réinitialisation envoyé",
-      "detail": "Axel · lien envoyé à axel.seigneury@ruedustore.fr (valable 30 min)"
-    },
-    {
-      "ts": 1790082507051,
-      "date": "2026-09-22",
-      "heure": "15:08",
-      "type": "demande",
-      "actor": "Alexandre Morel",
-      "label": "Nouvelle demande soumise",
-      "detail": "Congés Sans Solde · Du 12/10/2026 à 12h30 au 12/10/2026 à 18h00 (0,5 j)"
-    },
-    {
-      "ts": 1790082441552,
-      "date": "2026-09-22",
-      "heure": "15:07",
-      "type": "employe",
-      "actor": "Alexandre Morel",
-      "label": "Mot de passe défini",
-      "detail": "Première connexion — mot de passe et question secrète enregistrés"
-    },
-    {
-      "ts": 1790074033812,
-      "date": "2026-09-22",
-      "heure": "12:47",
-      "type": "systeme",
-      "actor": "Axel",
-      "label": "Test des emails",
-      "detail": "Notification de test enregistrée pour Axel (axel.seigneury@ruedustore.fr)"
-    },
-    {
-      "ts": 1790073138289,
-      "date": "2026-09-22",
-      "heure": "12:32",
-      "type": "systeme",
-      "actor": "Axel",
-      "label": "Test des emails",
-      "detail": "Notification de test enregistrée pour Axel (axel.seigneury@ruedustore.fr)"
-    },
-    {
-      "ts": 1790073112162,
-      "date": "2026-09-22",
-      "heure": "12:31",
-      "type": "systeme",
-      "actor": "Axel",
-      "label": "Test des emails",
-      "detail": "Notification de test enregistrée pour Axel (axel.seigneury@ruedustore.fr)"
-    },
-    {
-      "ts": 1790073094209,
-      "date": "2026-09-22",
-      "heure": "12:31",
-      "type": "systeme",
-      "actor": "Système",
-      "label": "Rôle attribué",
-      "detail": "Axel Seigneury · Salarié → Développeur"
-    },
     {
       "ts": 1789979838149,
       "date": "2026-09-21",
@@ -822,99 +648,6 @@
   },
   "notifications": [
     {
-      "id": 1790244446815,
-      "ts": 1790244446294,
-      "to": [
-        "Nicolas"
-      ],
-      "kind": "reset",
-      "text": "🔑 Bonjour Nicolas, une réinitialisation de votre mot de passe a été demandée le 24/09/2026 à 12h07. Ouvrez ce lien pour choisir un nouveau mot de passe (valable 30 minutes, utilisable une seule fois) : https://rds-adam.github.io/app/Demande%20Conge%CC%81s.html#reset=2b157d6b7e0d9300f0b0a41e0072b1c48a9cc5b6aaf828e4&u=Nicolas\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe actuel reste valable.",
-      "reqId": null
-    },
-    {
-      "id": 1790242746749,
-      "ts": 1790242746647,
-      "to": [
-        "Axel"
-      ],
-      "kind": "test",
-      "text": "📧 Email de test demandé par Axel le 24/09/2026 à 11h39. Si vous recevez cet email, les notifications automatiques fonctionnent.",
-      "reqId": null
-    },
-    {
-      "id": 1790242708851,
-      "ts": 1790242708533,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "demande",
-      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 19/11/2026 au 20/11/2026 (2 j)",
-      "reqId": 1790242708532
-    },
-    {
-      "id": 1790083772655,
-      "ts": 1790083771712,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "demande",
-      "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 02/03/2027 au 16/03/2027 (11 j)",
-      "reqId": 1790083771711
-    },
-    {
-      "id": 1790083426648,
-      "ts": 1790083425729,
-      "to": [
-        "Axel"
-      ],
-      "kind": "reset",
-      "text": "🔑 Bonjour Axel, une réinitialisation de votre mot de passe a été demandée le 22/09/2026 à 15h23. Ouvrez ce lien pour choisir un nouveau mot de passe (valable 30 minutes, utilisable une seule fois) : https://rds-adam.github.io/app/Demande%20Conge%CC%81s.html#reset=609ba6bf92df051c30076ba19349a18184867bf5734a6ee0&u=Axel\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe actuel reste valable.",
-      "reqId": null
-    },
-    {
-      "id": 1790082507073,
-      "ts": 1790082507051,
-      "to": [
-        "Camille",
-        "Nicolas"
-      ],
-      "kind": "demande",
-      "text": "📥 <strong>Alexandre Morel</strong> a déposé une demande : Congés Sans Solde · Du 12/10/2026 à 12h30 au 12/10/2026 à 18h00 (0,5 j)",
-      "reqId": 1790082507051
-    },
-    {
-      "id": 1790074034597,
-      "ts": 1790074033812,
-      "to": [
-        "Axel"
-      ],
-      "kind": "test",
-      "text": "📧 Email de test demandé par Axel le 22/09/2026 à 12h47. Si vous recevez cet email, les notifications automatiques fonctionnent.",
-      "reqId": null
-    },
-    {
-      "id": 1790073138918,
-      "ts": 1790073138289,
-      "to": [
-        "Axel"
-      ],
-      "kind": "test",
-      "text": "📧 Email de test demandé par Axel le 22/09/2026 à 12h32. Si vous recevez cet email, les notifications automatiques fonctionnent.",
-      "reqId": null
-    },
-    {
-      "id": 1790073112468,
-      "ts": 1790073112162,
-      "to": [
-        "Axel"
-      ],
-      "kind": "test",
-      "text": "📧 Email de test demandé par Axel le 22/09/2026 à 12h31. Si vous recevez cet email, les notifications automatiques fonctionnent.",
-      "reqId": null
-    },
-    {
       "id": 1789976900598,
       "ts": 1789976900526,
       "to": [
@@ -1104,14 +837,6 @@
     }
   ],
   "notifSeen": {
-    "Camille": 1789979872517,
-    "Axel": 1790083743490
-  },
-  "passwordResets": {
-    "Axel": {
-      "hash": "1e8e9fb78f7e4c79570afaf5dafaacb0d06fc297b775c6af8702393df7d6de9c",
-      "requestedAt": 1790083425728,
-      "expires": 1790085225728
-    }
+    "Camille": 1789979872517
   }
 }

@@ -75,6 +75,10 @@
     "Calcul-trapeze-triangle": {
       "space": "salarie",
       "label": "Calcul trapèze / triangle"
+    },
+    "Demande Congés — TEST.html": {
+      "space": "adam",
+      "label": "Congés · TEST"
     }
   }
 }

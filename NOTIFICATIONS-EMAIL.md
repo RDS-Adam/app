@@ -31,10 +31,6 @@ Sur le dépôt de l'app (`RDS-Adam/app`) : **Settings → Secrets and variables 
 | `MAIL_USER` | l'adresse Gmail créée, ex. `rds.conges@gmail.com` |
 | `MAIL_PASS` | le mot de passe d'application de 16 caractères (les espaces affichés par Google peuvent être retirés) |
 
-Optionnel, onglet **Variables** du même écran : `APP_URL` = adresse exacte de l'app, pour le bouton
-« Ouvrir l'application » des emails. Sans cette variable, le lien est construit automatiquement
-(`https://<compte>.github.io/<dépôt>/Demande%20Cong%C3%A9s.html`).
-
 ## 3. Envoyer les fichiers sur GitHub (2 min)
 
 Mettre en ligne, en plus de `Demande Congés.html`, le dossier `.github` avec ses deux fichiers :
@@ -69,6 +65,7 @@ puis **Commit changes**. Dès ce commit, l'onglet **Actions** du dépôt affiche
 | Proposition de dates / retrait | Salarié + les autres membres de la direction |
 | Proposition acceptée / refusée par le salarié | Direction |
 | Annulation par le salarié | Direction |
+| Mot de passe oublié → « Recevoir un lien par email » | Le salarié (lien valable 30 min, usage unique) |
 | Bouton « Tester l'email » | Vous-même |
 
 Le rôle **Développeur** ne reçoit pas les emails RH. Les boutons Gmail restent disponibles en secours dans l'app.
@@ -84,3 +81,18 @@ Les destinataires sont trouvés via l'adresse renseignée dans l'onglet Équipe 
   https://myaccount.google.com/apppasswords → supprimer « GitHub congés ».
 - Couper les emails : désactiver le workflow (onglet Actions → « Notifications email » → ⋯ → Disable workflow) et
   passer `EMAIL_NOTIFY.enabled` à `false` dans `Demande Congés.html` pour masquer les mentions dans l'interface.
+
+## Environnement de test (bac à sable)
+
+`Demande Congés — TEST.html` est une copie de l'app qui lit et écrit dans **`data-test.json`** au lieu de `data.json` :
+les vraies données ne sont jamais touchées. Bandeau orange en haut, titre préfixé [TEST], visible uniquement dans
+l'espace Adam de la boîte à outils (« Congés · TEST »), ou directement à l'adresse de la page sur GitHub Pages.
+
+- Équipe fictive : Nicolas (Direction), Camille (Administrateur RH), Axel (Développeur), Karine, Cindy, Adam.
+- Mot de passe commun : `Test1234!`
+- Toutes les adresses sont `axel.seigneury+<prénom>@ruedustore.fr` : chaque email arrive dans la boîte d'Axel, avec le
+  destinataire lisible dans l'adresse (si le « + » n'est pas accepté par la messagerie, remplacer par l'adresse simple).
+- Les emails de test partent avec le sujet préfixé **[TEST]**, envoyés par la même Action une à deux minutes après
+  l'action (étape « environnement de test » du workflow).
+- Pour repartir de zéro : remettre en ligne `data-test.json` d'origine, ou utiliser « Effacer tout » avec Nicolas.
+- `Demande Congés — TEST.html` est générée depuis `Demande Congés.html` : à regénérer après chaque évolution de l'app.

@@ -1,0 +1,557 @@
+<script>
+/**
+ * BOÎTE À OUTILS RDS v11.0
+ * 2 espaces : Salarié / Adam (sans mdp)
+ * Adam gère quels outils vont dans quel espace via le panneau « Gérer les espaces »
+ * + fichiers masqués (invisibles de tous les espaces)
+ *
+ * v9.8  — FIX URL : chaque segment est encodé séparément (buildUrl), le "/" reste intact.
+ * v9.9  — Mot de passe WordPress : champs autocomplete pour que le navigateur propose l'enregistrement.
+ * v10.0 — On reste sur son outil : outil + espace mémorisés dans l'URL (#outil=…) et en secours en session.
+ * v11.0 — Nouvelle interface (typo système, fond clair, pilules, sans pictogrammes),
+ *         « Congés » épinglé en tête dans les deux espaces, configurateur déplacé en bas,
+ *         dossiers techniques (.github, scripts, workflows, .md) exclus de la liste,
+ *         sélecteur d'espace en contrôle segmenté, panneau de gestion refait.
+ * v11.2 — Chargements fluides : squelettes scintillants (menu, ouverture d'un outil) et fondus.
+ * v11.1 — Ordre des outils : glisser-déposer (poignée) ou flèches dans le panneau de gestion,
+ *         enregistré dans config-outils.json (clé "order"), appliqué au menu de chaque espace.
+ */
+(function () {
+    const BASE_URL  = atob('aHR0cHM6Ly9yZHMtYWRhbS5naXRodWIuaW8vYXBwLw==');
+    const API_URL   = atob('aHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9SRFMtQWRhbS9hcHAvY29udGVudHMv');
+    const WORKER    = 'https://rds-github.cwmpw5qpc5.workers.dev';
+    const CONFIG    = 'config-outils.json';
+    const SYSTEM_RE = /index|robots|secure|bdd|noindex/i;
+    // Jamais listés : dossiers/fichiers techniques (commencent par un point, dossiers de l'Action GitHub, notices .md)
+    const TECH_RE   = /^\.|^(scripts|workflows|worker|node_modules)$|\.(md|json|js|webp|png|jpe?g|txt)$/i;
+    const FIXED_LIST = ['Gestion des tournees.html'];
+    // Outils épinglés en tête de liste, dans tous les espaces (sauf s'ils sont masqués)
+    const FEATURED = [
+        { file: 'Demande Congés.html', title: 'Congés', sub: 'Demandes, soldes, agenda de l\'équipe' }
+    ];
+    let config       = { tools: {} };
+    let configSha    = null;
+    let tools        = [];
+    let currentSpace = 'salarie';
+
+    /* ── Mémoire de navigation (outil ouvert + espace) ── */
+    const KEY_TOOL  = 'rds_last_tool';
+    const KEY_SPACE = 'rds_space';
+    const norm = v => String(v || '').normalize('NFC');
+    function readHashTool() {
+        const m = (location.hash || '').match(/outil=([^&]+)/);
+        if (m) { try { return decodeURIComponent(m[1]); } catch (e) { return null; } }
+        return null;
+    }
+    function rememberTool(key) {
+        try { if (key) sessionStorage.setItem(KEY_TOOL, key); else sessionStorage.removeItem(KEY_TOOL); } catch (e) {}
+        const clean = location.pathname + location.search;
+        try { history.replaceState(null, '', key ? clean + '#outil=' + encodeURIComponent(key) : clean); } catch (e) {}
+    }
+    function rememberSpace(space) { try { localStorage.setItem(KEY_SPACE, space); } catch (e) {} }
+    function restoreSpace() {
+        try { const v = localStorage.getItem(KEY_SPACE); if (v === 'salarie' || v === 'adam') currentSpace = v; } catch (e) {}
+    }
+    function lastToolKey() {
+        const h = readHashTool();
+        if (h) return h;
+        try { return sessionStorage.getItem(KEY_TOOL); } catch (e) { return null; }
+    }
+    /* ── URL : on encode chaque segment, jamais le "/" ── */
+    function buildUrl(path) { return BASE_URL + String(path).split('/').map(encodeURIComponent).join('/'); }
+
+    /* ── GitHub config ── */
+    async function loadConfig() {
+        try {
+            const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, { headers: { 'Cache-Control': 'no-cache' } });
+            if (!r.ok) return { tools: {} };
+            const d = await r.json();
+            configSha = d.sha;
+            return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
+        } catch { return { tools: {} }; }
+    }
+    async function saveConfigToGitHub(newConfig) {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
+        const body = JSON.stringify({ message: 'Update config', content, sha: configSha });
+        const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
+        if (!r.ok) throw new Error('Sauvegarde échouée (' + r.status + ')');
+        configSha = (await r.json()).content.sha;
+    }
+    /* ── Chargement des outils depuis GitHub ── */
+    async function loadTools() {
+        const r = await fetch(API_URL + '?t=' + Date.now()).catch(() => null);
+        if (!r || !r.ok) return;
+        const data = await r.json().catch(() => []);
+        tools = [];
+        data.forEach(item => {
+            const isH = item.name.endsWith('.html');
+            const isD = item.type === 'dir';
+            if (!isH && !isD) return;
+            if (SYSTEM_RE.test(item.name) || TECH_RE.test(item.name)) return;
+            if (FIXED_LIST.includes(item.name)) return;
+            const label = decodeURIComponent(item.name).replace('.html', '').replace(/[-_]/g, ' ');
+            tools.push({ name: item.name, label, isDir: isD });
+        });
+    }
+    /* ── Helpers config ── */
+    function getToolSpace(name) { return (config.tools[name] && config.tools[name].space) || 'salarie'; }
+    function getToolLabel(name) {
+        const t = tools.find(x => x.name === name);
+        return (config.tools[name] && config.tools[name].label) || (t ? t.label : name);
+    }
+    function getToolOrder(name) {
+        const o = config.tools[name] && config.tools[name].order;
+        return Number.isFinite(o) ? o : 9999;
+    }
+    // Ordre manuel (panneau de gestion), puis alphabétique pour les outils sans ordre
+    function sortTools(list) {
+        return [...list].sort((a, b) => getToolOrder(a.name) - getToolOrder(b.name) || getToolLabel(a.name).localeCompare(getToolLabel(b.name), 'fr'));
+    }
+    function toolPath(tool) {
+        let path = tool.name;
+        if (tool.isDir) path += path.toLowerCase().includes('trapeze') ? '/triangles.html' : '/index.html';
+        return path;
+    }
+    function isFeatured(name) { return FEATURED.some(f => norm(f.file) === norm(name)); }
+
+    /* ── Sidebar ── */
+    const SPACE_META = { salarie: 'Espace Salarié', adam: 'Espace Adam' };
+    function setSpaceUI(space) {
+        document.querySelectorAll('#rds-space-seg button').forEach(b => b.classList.toggle('active', b.dataset.space === space));
+        document.getElementById('rds-space-lbl').textContent = SPACE_META[space];
+    }
+    function refreshSidebar() {
+        const list = document.getElementById('rds-tool-list');
+        list.innerHTML = '';
+        setSpaceUI(currentSpace);
+        // Épinglés en tête (dans tous les espaces), sauf masqués
+        FEATURED.forEach(f => {
+            const tool = tools.find(t => norm(t.name) === norm(f.file));
+            if (!tool || getToolSpace(tool.name) === 'hidden') return;
+            const el = document.createElement('div');
+            el.className = 'rds-nav-item rds-featured';
+            el.dataset.key = tool.name;
+            el.innerHTML = `<span class="rds-featured-title"></span><span class="rds-featured-sub"></span>`;
+            el.querySelector('.rds-featured-title').textContent = f.title || getToolLabel(tool.name);
+            el.querySelector('.rds-featured-sub').textContent = f.sub || '';
+            el.onclick = () => openTool(buildUrl(toolPath(tool)), el, tool.name);
+            list.appendChild(el);
+        });
+        const spaceTools = sortTools(tools.filter(t => getToolSpace(t.name) === currentSpace && !isFeatured(t.name)));
+        if (spaceTools.length) {
+            const lbl = document.createElement('div');
+            lbl.className = 'rds-group-lbl';
+            lbl.textContent = 'Outils';
+            list.appendChild(lbl);
+        }
+        spaceTools.forEach(tool => {
+            const el = document.createElement('div');
+            el.className = 'rds-nav-item';
+            el.textContent = getToolLabel(tool.name);
+            el.dataset.key = tool.name;
+            el.onclick = () => openTool(buildUrl(toolPath(tool)), el, tool.name);
+            list.appendChild(el);
+        });
+        if (!spaceTools.length && currentSpace !== 'adam') {
+            const empty = document.createElement('div');
+            empty.className = 'rds-empty';
+            empty.textContent = 'Aucun outil dans cet espace.';
+            list.appendChild(empty);
+        }
+        document.getElementById('rds-manage').style.display = currentSpace === 'adam' ? '' : 'none';
+    }
+
+    /* ── Panneau de gestion ── */
+    function openPanel() { document.getElementById('rds-panel-overlay').style.display = 'flex'; renderPanel(); }
+    function closePanel() { document.getElementById('rds-panel-overlay').style.display = 'none'; }
+    function updateHiddenBanner() {
+        const body = document.getElementById('rds-panel-body');
+        const n = Array.from(body.querySelectorAll('select[data-role="space"]')).filter(s => s.value === 'hidden').length;
+        let banner = body.querySelector('.rds-hidden-banner');
+        if (n > 0) {
+            if (!banner) { banner = document.createElement('div'); banner.className = 'rds-hidden-banner'; body.insertBefore(banner, body.firstChild); }
+            banner.textContent = `${n} outil${n > 1 ? 's' : ''} masqué${n > 1 ? 's' : ''}, invisible${n > 1 ? 's' : ''} de tous les espaces.`;
+        } else if (banner) banner.remove();
+    }
+    function renderPanel() {
+        const body = document.getElementById('rds-panel-body');
+        body.innerHTML = '';
+        if (!tools.length) { body.innerHTML = '<p class="rds-empty" style="padding:30px;text-align:center;">Aucun outil chargé.</p>'; return; }
+        const table = document.createElement('table');
+        table.className = 'rds-table';
+        table.innerHTML = '<thead><tr><th style="width:44px"></th><th>Outil</th><th style="width:170px">Nom affiché</th><th style="width:140px">Espace</th><th style="width:64px"></th></tr></thead>';
+        const tbody = document.createElement('tbody');
+        const sorted = sortTools(tools);
+        sorted.forEach(tool => {
+            const cfg = config.tools[tool.name] || {};
+            const space = cfg.space || 'salarie';
+            const tr = document.createElement('tr');
+            tr.classList.toggle('is-hidden', space === 'hidden');
+            tr.dataset.file = tool.name;
+            // Poignée : la ligne n'est déplaçable que pendant qu'on la tient (les champs texte restent sélectionnables)
+            const td0 = document.createElement('td');
+            td0.className = 'rds-handle-cell';
+            td0.innerHTML = '<span class="rds-handle" title="Glisser pour réordonner"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>';
+            const handle = td0.querySelector('.rds-handle');
+            handle.onmousedown = () => { tr.draggable = true; };
+            handle.ontouchstart = () => { tr.draggable = true; };
+            tr.ondragstart = e => { if (!tr.draggable) { e.preventDefault(); return; } dragRow = tr; tr.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', tool.name); } catch (_) {} };
+            tr.ondragend = () => { tr.classList.remove('dragging'); tr.draggable = false; dragRow = null; tbody.querySelectorAll('.drop-before, .drop-after').forEach(r => r.classList.remove('drop-before', 'drop-after')); };
+            tr.ondragover = e => {
+                if (!dragRow || dragRow === tr) return;
+                e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+                const rect = tr.getBoundingClientRect();
+                const before = e.clientY < rect.top + rect.height / 2;
+                tbody.querySelectorAll('.drop-before, .drop-after').forEach(r => r.classList.remove('drop-before', 'drop-after'));
+                tr.classList.add(before ? 'drop-before' : 'drop-after');
+            };
+            tr.ondrop = e => {
+                if (!dragRow || dragRow === tr) return;
+                e.preventDefault();
+                const rect = tr.getBoundingClientRect();
+                const before = e.clientY < rect.top + rect.height / 2;
+                tbody.insertBefore(dragRow, before ? tr : tr.nextSibling);
+                tbody.querySelectorAll('.drop-before, .drop-after').forEach(r => r.classList.remove('drop-before', 'drop-after'));
+                markOrderDirty();
+            };
+            const td1 = document.createElement('td');
+            td1.innerHTML = '<div class="rds-t-name"></div><div class="rds-t-file"></div>';
+            td1.querySelector('.rds-t-name').textContent = tool.label + (isFeatured(tool.name) ? ' · épinglé' : '');
+            td1.querySelector('.rds-t-file').textContent = tool.name;
+            const td2 = document.createElement('td');
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.value = cfg.label || ''; inp.placeholder = tool.label;
+            inp.dataset.file = tool.name; inp.dataset.role = 'label'; inp.className = 'rds-input';
+            inp.disabled = space === 'hidden';
+            td2.appendChild(inp);
+            const td3 = document.createElement('td');
+            const sel = document.createElement('select');
+            sel.dataset.file = tool.name; sel.dataset.role = 'space'; sel.className = 'rds-input rds-select';
+            [['salarie', 'Salarié'], ['adam', 'Adam'], ['hidden', 'Masqué']].forEach(([v, t]) => {
+                const o = document.createElement('option'); o.value = v; o.textContent = t; if (v === space) o.selected = true; sel.appendChild(o);
+            });
+            sel.onchange = () => { const h = sel.value === 'hidden'; tr.classList.toggle('is-hidden', h); inp.disabled = h; updateHiddenBanner(); };
+            td3.appendChild(sel);
+            // Flèches (utile au doigt, sans glisser-déposer)
+            const td4 = document.createElement('td');
+            td4.className = 'rds-arrows';
+            const up = document.createElement('button'); up.type = 'button'; up.className = 'rds-arrow'; up.title = 'Monter'; up.textContent = '↑';
+            const down = document.createElement('button'); down.type = 'button'; down.className = 'rds-arrow'; down.title = 'Descendre'; down.textContent = '↓';
+            up.onclick = () => { if (tr.previousElementSibling) { tbody.insertBefore(tr, tr.previousElementSibling); markOrderDirty(); } };
+            down.onclick = () => { if (tr.nextElementSibling) { tbody.insertBefore(tr.nextElementSibling, tr); markOrderDirty(); } };
+            td4.append(up, down);
+            tr.append(td0, td1, td2, td3, td4);
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        body.appendChild(table);
+        updateHiddenBanner();
+    }
+    let dragRow = null;
+    function markOrderDirty() {
+        const info = document.getElementById('rds-panel-info');
+        info.textContent = 'Ordre modifié, pensez à enregistrer'; info.className = '';
+    }
+    async function savePanel() {
+        const btn  = document.getElementById('rds-panel-save');
+        const info = document.getElementById('rds-panel-info');
+        btn.disabled = true; btn.textContent = 'Enregistrement…';
+        try {
+            const newTools = {};
+            // L'ordre des lignes du tableau devient l'ordre du menu
+            document.querySelectorAll('#rds-panel-body tbody tr').forEach((tr, i) => {
+                const sel = tr.querySelector('select[data-role="space"]');
+                const inp = tr.querySelector('input[data-role="label"]');
+                if (!sel) return;
+                newTools[sel.dataset.file] = { space: sel.value, label: inp ? inp.value.trim() : '', order: i };
+            });
+            await saveConfigToGitHub({ tools: newTools });
+            config = { tools: newTools };
+            refreshSidebar();
+            info.textContent = 'Enregistré'; info.className = 'ok';
+            btn.textContent = 'Enregistré';
+            setTimeout(() => { info.textContent = 'Sauvegardé sur GitHub'; info.className = ''; btn.textContent = 'Enregistrer'; btn.disabled = false; }, 2500);
+        } catch (e) {
+            info.textContent = e.message; info.className = 'err';
+            btn.textContent = 'Enregistrer'; btn.disabled = false;
+        }
+    }
+
+    /* ── Ouvrir un outil ── */
+    function openTool(url, el, key) {
+        document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
+        if (el) el.classList.add('active');
+        rememberTool(key || (el && el.dataset.key) || null);
+        document.getElementById('rds-welcome').style.display = 'none';
+        document.getElementById('rds-iframe-wrap').style.display = 'block';
+        const loader = document.getElementById('rds-loader');
+        loader.classList.remove('fade');
+        loader.style.display = 'block';
+        const f = document.getElementById('rds-frame');
+        f.src = url;
+        // Le squelette s'efface en fondu une fois l'outil chargé (petit délai pour laisser l'outil peindre son écran)
+        f.onload = () => setTimeout(() => { loader.classList.add('fade'); setTimeout(() => { loader.style.display = 'none'; }, 300); }, 120);
+        if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden');
+    }
+    function goHome() {
+        document.querySelectorAll('.rds-nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('rds-iframe-wrap').style.display = 'none';
+        document.getElementById('rds-welcome').style.display = 'flex';
+        document.getElementById('rds-frame').src = 'about:blank';
+        rememberTool(null);
+    }
+    /* ── Rouvre l'outil mémorisé (après F5, ou après le mot de passe WP) ── */
+    function reopenLastTool() {
+        const key = lastToolKey();
+        if (!key) return;
+        if (key === '__config')   { document.getElementById('rds-fixed-config').click(); return; }
+        if (key === '__tournees') { document.getElementById('rds-tournees').click(); return; }
+        const findItem = () => Array.from(document.querySelectorAll('#rds-tool-list .rds-nav-item[data-key]')).find(e => norm(e.dataset.key) === norm(key));
+        let el = findItem();
+        if (!el) {
+            const tool = tools.find(t => norm(t.name) === norm(key));
+            const space = tool ? getToolSpace(tool.name) : null;
+            if ((space === 'salarie' || space === 'adam') && space !== currentSpace) {
+                currentSpace = space; rememberSpace(space); refreshSidebar(); el = findItem();
+            }
+        }
+        if (el) el.click(); else rememberTool(null);
+    }
+    function switchSpace(target) {
+        if (target === currentSpace) return;
+        currentSpace = target; rememberSpace(target); refreshSidebar();
+    }
+
+    /* ── Formulaire mot de passe WordPress : le navigateur doit proposer l'enregistrement ── */
+    function handlePasswordForm() {
+        const form = document.querySelector('.post-password-form');
+        if (!form) return false;
+        const inp = form.querySelector('input[type="password"]');
+        const btn = form.querySelector('input[type="submit"], button[type="submit"]');
+        if (!inp) return true;
+        form.setAttribute('autocomplete', 'on');
+        inp.setAttribute('autocomplete', 'current-password');
+        if (!inp.name) inp.name = 'post_password';
+        if (!form.querySelector('input[autocomplete="username"]')) {
+            const user = document.createElement('input');
+            user.type = 'text'; user.name = 'rds_user'; user.value = 'Rue du Store';
+            user.setAttribute('autocomplete', 'username'); user.setAttribute('aria-hidden', 'true'); user.tabIndex = -1;
+            user.style.cssText = 'position:absolute;left:-10000px;top:0;width:200px;height:30px;opacity:.01;';
+            form.insertBefore(user, form.firstChild);
+        }
+        const saved = localStorage.getItem('rds_wp_pwd');
+        if (saved) { inp.value = saved; setTimeout(() => btn ? btn.click() : form.submit(), 50); return true; }
+        setTimeout(() => { try { inp.focus(); } catch (e) {} }, 100);
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:10px 0;display:flex;align-items:center;gap:8px;font-size:13px;';
+        wrap.innerHTML = '<input type="checkbox" id="_rds_rem"> <label for="_rds_rem">Mémoriser sur cet ordinateur</label>';
+        (btn ? btn.parentNode : form).insertBefore(wrap, btn || null);
+        form.addEventListener('submit', () => {
+            const cb = document.getElementById('_rds_rem');
+            if (cb && cb.checked && inp.value) localStorage.setItem('rds_wp_pwd', inp.value);
+        }, true);
+        return true;
+    }
+
+    /* ── Lancement ── */
+    function launch() {
+        if (document.querySelector('.post-password-form')) { handlePasswordForm(); return; }
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        const st = document.createElement('style');
+        st.textContent = `
+:root { --rds-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; --rds-bleu: #1f6f78; --rds-bleu-soft: #e6f1f2; --rds-orange: #ff7200; --rds-text: #1d1d1f; --rds-text-2: #515154; --rds-muted: #86868b; --rds-border: #e5e5ea; --rds-bg: #f5f5f7; --rds-field: #ececf0; }
+#rds-app, #rds-app *, #rds-panel-overlay, #rds-panel-overlay * { font-family: var(--rds-font) !important; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+#rds-app { position:fixed !important; inset:0; display:flex !important; z-index:9999999 !important; overflow:hidden; margin:0; padding:0; background:#fff; color:var(--rds-text); }
+#rds-toggle { position:absolute; top:14px; left:14px; z-index:10000001; width:36px; height:36px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; border:none; background:#fff; color:var(--rds-text); box-shadow:0 1px 3px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06); transition:background .2s; }
+#rds-toggle:hover { background:var(--rds-bg); }
+#rds-toggle svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; }
+#rds-sidebar { width:280px; flex-shrink:0; background:var(--rds-bg); border-right:1px solid var(--rds-border); display:flex; flex-direction:column; transition:transform .3s cubic-bezier(.4,0,.2,1); position:relative; z-index:10000000; }
+#rds-app.menu-hidden #rds-sidebar { transform:translateX(-280px); margin-right:-280px; }
+.rds-side-header { padding:64px 18px 10px; }
+.rds-side-header h2 { margin:0 0 2px; font-size:1.25rem; font-weight:700; letter-spacing:-.02em; color:var(--rds-text); cursor:pointer; }
+#rds-space-lbl { font-size:.72rem; font-weight:500; color:var(--rds-muted); }
+#rds-space-seg { display:flex; background:#e3e3e8; border-radius:999px; padding:3px; margin:12px 18px 8px; }
+#rds-space-seg button { flex:1; border:none; background:transparent; border-radius:999px; padding:7px 10px; font-size:.78rem; font-weight:500; color:var(--rds-text-2); cursor:pointer; transition:background .2s, color .2s; }
+#rds-space-seg button.active { background:#fff; color:var(--rds-text); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.rds-search { padding:4px 18px 10px; }
+.rds-search input { width:100%; background:var(--rds-field); border:1px solid transparent; border-radius:10px; padding:9px 12px; color:var(--rds-text); font-size:.82rem; outline:none; transition:.15s; }
+.rds-search input:focus { background:#fff; border-color:var(--rds-bleu); box-shadow:0 0 0 3px rgba(31,111,120,.18); }
+.rds-search input::placeholder { color:var(--rds-muted); }
+#rds-tool-list { flex:1; overflow-y:auto; padding:4px 10px 10px; scrollbar-width:thin; scrollbar-color:#d1d1d6 transparent; }
+.rds-group-lbl { font-size:.68rem; font-weight:600; color:var(--rds-muted); padding:14px 12px 6px; }
+.rds-nav-item { padding:9px 12px; margin:2px 0; border-radius:10px; cursor:pointer; font-size:.86rem; font-weight:500; color:var(--rds-text-2); transition:background .15s, color .15s; }
+.rds-nav-item:hover { background:#e6e6eb; color:var(--rds-text); }
+.rds-nav-item.active { background:#dedee4; color:var(--rds-text); font-weight:600; }
+.rds-featured { background:var(--rds-bleu); color:#fff; padding:14px 14px; margin:2px 0 6px; border-radius:14px; display:flex; flex-direction:column; gap:2px; box-shadow:0 6px 16px rgba(31,111,120,.25); }
+.rds-featured:hover { background:#185960; color:#fff; }
+.rds-featured.active { background:#185960; color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); }
+.rds-featured-title { font-size:1rem; font-weight:700; letter-spacing:-.01em; }
+.rds-featured-sub { font-size:.72rem; opacity:.85; font-weight:400; }
+.rds-empty { padding:16px 12px; font-size:.78rem; color:var(--rds-muted); }
+#rds-bottom { border-top:1px solid var(--rds-border); padding:8px 10px 6px; }
+#rds-bottom .rds-nav-item { font-size:.8rem; }
+#rds-manage { color:var(--rds-bleu); }
+.rds-foot { padding:8px 12px 14px; font-size:.66rem; color:var(--rds-muted); }
+#rds-content { flex:1; position:relative; overflow:hidden; }
+#rds-welcome { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#fff; text-align:center; padding:24px; }
+.rds-welcome-inner h1 { font-size:1.9rem; font-weight:700; letter-spacing:-.03em; color:var(--rds-text); margin:0; line-height:1.2; }
+.rds-welcome-inner p { font-size:.9rem; color:var(--rds-muted); margin:10px 0 22px; }
+.rds-welcome-btn { display:inline-flex; align-items:center; gap:8px; background:var(--rds-bleu); color:#fff; border:none; border-radius:999px; padding:11px 22px; font-size:.9rem; font-weight:500; cursor:pointer; }
+.rds-welcome-btn:hover { background:#185960; }
+#rds-iframe-wrap { position:absolute; inset:0; display:none; }
+#rds-frame { position:absolute; inset:0; width:100% !important; height:100% !important; border:none !important; }
+#rds-loader { position:absolute; inset:0; background:var(--rds-bg); display:none; z-index:10; padding:28px 20px; overflow:hidden; opacity:1; transition:opacity .28s ease; }
+#rds-loader.fade { opacity:0; pointer-events:none; }
+.rds-skel-page { max-width:1040px; margin:0 auto; }
+@keyframes rds-shimmer { 0% { background-position:100% 0; } 100% { background-position:-100% 0; } }
+.rds-skel { background:linear-gradient(90deg, #e9e9ee 25%, #f4f4f7 45%, #e9e9ee 65%); background-size:200% 100%; animation:rds-shimmer 1.6s ease-in-out infinite; border-radius:10px; display:block; }
+.rds-skel-bar { height:36px; width:260px; border-radius:999px; margin:0 auto 26px; }
+.rds-skel-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.rds-skel-card { background:#fff; border-radius:16px; box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05); padding:20px; }
+.rds-skel-card .rds-skel { height:12px; margin:8px 0; }
+.rds-skel-big { min-height:260px; }
+#rds-tool-list .rds-skel { height:14px; margin:14px 12px; }
+@keyframes rds-fade { from { opacity:0; } to { opacity:1; } }
+#rds-iframe-wrap, #rds-welcome { animation:rds-fade .22s ease; }
+@media (max-width:850px) { .rds-skel-kpis { grid-template-columns:1fr 1fr; } }
+@media (prefers-reduced-motion:reduce) { .rds-skel { animation:none; } }
+#rds-panel-overlay { display:none; position:fixed; inset:0; z-index:10001000; background:rgba(0,0,0,.32); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px; }
+#rds-panel { background:#fff; border-radius:20px; width:100%; max-width:720px; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 70px rgba(0,0,0,.22); overflow:hidden; }
+#rds-panel-head { padding:18px 22px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f0f0f2; flex-shrink:0; }
+#rds-panel-head h3 { margin:0; font-size:1rem; font-weight:600; letter-spacing:-.01em; color:var(--rds-text); }
+#rds-panel-head p  { margin:3px 0 0; font-size:.74rem; color:var(--rds-muted); }
+#rds-panel-body { flex:1; overflow-y:auto; }
+.rds-hidden-banner { margin:14px 22px 0; padding:10px 14px; background:#fff4e0; color:#9a5c00; border-radius:12px; font-size:.78rem; }
+.rds-table { width:100%; border-collapse:collapse; }
+.rds-table th { padding:14px 22px 8px; text-align:left; font-size:.72rem; font-weight:500; color:var(--rds-muted); border-bottom:1px solid var(--rds-border); }
+.rds-table td { padding:10px 22px; border-bottom:1px solid #f0f0f2; vertical-align:middle; }
+.rds-table tr.is-hidden td { opacity:.55; }
+.rds-table tr.dragging { opacity:.35; }
+.rds-table tr.drop-before td { box-shadow: inset 0 2px 0 var(--rds-bleu); }
+.rds-table tr.drop-after td { box-shadow: inset 0 -2px 0 var(--rds-bleu); }
+.rds-handle-cell { padding-right:0 !important; }
+.rds-handle { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; color:#b0b0b6; cursor:grab; user-select:none; -webkit-user-select:none; }
+.rds-handle:hover { background:var(--rds-field); color:var(--rds-text-2); }
+.rds-handle:active { cursor:grabbing; }
+.rds-handle svg { fill:currentColor; }
+.rds-arrows { white-space:nowrap; text-align:right; }
+.rds-arrow { width:26px; height:26px; border:none; border-radius:8px; background:var(--rds-field); color:var(--rds-text-2); cursor:pointer; font-size:.8rem; margin-left:4px; }
+.rds-arrow:hover { background:#e0e0e5; color:var(--rds-text); }
+.rds-t-name { font-size:.86rem; font-weight:500; color:var(--rds-text); }
+.rds-t-file { font-size:.7rem; color:var(--rds-muted); margin-top:2px; }
+.rds-input { width:100%; border:1px solid transparent; background:var(--rds-field); border-radius:10px; padding:8px 10px; font-size:.82rem; color:var(--rds-text); outline:none; transition:.15s; }
+.rds-input:focus { background:#fff; border-color:var(--rds-bleu); box-shadow:0 0 0 3px rgba(31,111,120,.18); }
+.rds-input:disabled { opacity:.5; cursor:not-allowed; }
+.rds-select { -webkit-appearance:none; appearance:none; cursor:pointer; padding-right:28px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2386868b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; }
+#rds-panel-foot { padding:14px 22px; border-top:1px solid #f0f0f2; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; background:#fafafa; }
+#rds-panel-info { font-size:.74rem; color:var(--rds-muted); }
+#rds-panel-info.ok { color:#23784f; }
+#rds-panel-info.err { color:#b3261e; }
+.rds-btn { cursor:pointer; font-weight:500; border-radius:999px; border:none; font-size:.82rem; padding:9px 16px; transition:.15s; display:inline-flex; align-items:center; gap:6px; }
+.rds-btn-primary { background:var(--rds-bleu); color:#fff; }
+.rds-btn-primary:hover { background:#185960; }
+.rds-btn-primary:disabled { opacity:.6; cursor:not-allowed; }
+.rds-btn-ghost { background:var(--rds-field); color:var(--rds-text); }
+.rds-btn-ghost:hover { background:#e0e0e5; }
+.rds-btn-close { background:var(--rds-field); color:var(--rds-text-2); width:30px; height:30px; padding:0; border-radius:50%; justify-content:center; }
+.rds-btn-close:hover { background:#e0e0e5; color:var(--rds-text); }
+@media (max-width:850px) {
+    #rds-sidebar { position:fixed; height:100%; box-shadow:10px 0 30px rgba(0,0,0,.15); }
+    #rds-app.menu-hidden #rds-sidebar { transform:translateX(-100%); margin-right:0; }
+}`;
+        document.head.appendChild(st);
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.margin = '0';
+        document.body.innerHTML = `
+<div id="rds-app">
+  <button id="rds-toggle" title="Menu"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+  <div id="rds-sidebar">
+    <div class="rds-side-header">
+      <h2 id="rds-home" title="Retour à l'accueil">Boîte à outils</h2>
+      <div id="rds-space-lbl">Espace Salarié</div>
+    </div>
+    <div id="rds-space-seg">
+      <button data-space="salarie" class="active">Salarié</button>
+      <button data-space="adam">Adam</button>
+    </div>
+    <div class="rds-search"><input id="rds-search" type="text" placeholder="Rechercher un outil"></div>
+    <div id="rds-tool-list"><span class="rds-skel" style="width:88%;height:44px;margin:10px 4px 12px;border-radius:14px"></span><span class="rds-skel" style="width:70%"></span><span class="rds-skel" style="width:55%"></span><span class="rds-skel" style="width:64%"></span><span class="rds-skel" style="width:48%"></span><span class="rds-skel" style="width:60%"></span></div>
+    <div id="rds-bottom">
+      <div class="rds-nav-item" id="rds-tournees">Gestion des tournées</div>
+      <div class="rds-nav-item" id="rds-fixed-config">Configurateur RDS</div>
+      <div class="rds-nav-item" id="rds-manage" style="display:none;">Gérer les espaces</div>
+      <div class="rds-foot">Rue du Store · 2026</div>
+    </div>
+  </div>
+  <div id="rds-content">
+    <div id="rds-welcome">
+      <div class="rds-welcome-inner">
+        <h1>Boîte à outils</h1>
+        <p>Choisissez un outil dans le menu.</p>
+        <button class="rds-welcome-btn" id="rds-welcome-conges">Ouvrir Congés</button>
+      </div>
+    </div>
+    <div id="rds-iframe-wrap">
+      <div id="rds-loader"><div class="rds-skel-page">
+        <span class="rds-skel rds-skel-bar"></span>
+        <div class="rds-skel-kpis"><div class="rds-skel-card"><span class="rds-skel" style="width:60%"></span><span class="rds-skel" style="width:35%;height:22px"></span></div><div class="rds-skel-card"><span class="rds-skel" style="width:55%"></span><span class="rds-skel" style="width:30%;height:22px"></span></div><div class="rds-skel-card"><span class="rds-skel" style="width:62%"></span><span class="rds-skel" style="width:38%;height:22px"></span></div><div class="rds-skel-card"><span class="rds-skel" style="width:50%"></span><span class="rds-skel" style="width:28%;height:22px"></span></div></div>
+        <div class="rds-skel-card rds-skel-big"><span class="rds-skel" style="width:30%;height:16px"></span><span class="rds-skel" style="width:85%"></span><span class="rds-skel" style="width:70%"></span><span class="rds-skel" style="width:78%"></span><span class="rds-skel" style="width:40%"></span></div>
+      </div></div>
+      <iframe id="rds-frame" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+<div id="rds-panel-overlay">
+  <div id="rds-panel">
+    <div id="rds-panel-head">
+      <div>
+        <h3>Gestion des outils</h3>
+        <p>Espace de chaque outil, nom affiché, masquage. Glissez les lignes par leur poignée (ou utilisez les flèches) pour changer l'ordre du menu.</p>
+      </div>
+      <button class="rds-btn rds-btn-close" id="rds-panel-close" title="Fermer">✕</button>
+    </div>
+    <div id="rds-panel-body"></div>
+    <div id="rds-panel-foot">
+      <span id="rds-panel-info">Sauvegardé sur GitHub</span>
+      <div style="display:flex;gap:8px;">
+        <button class="rds-btn rds-btn-ghost" id="rds-panel-cancel">Fermer</button>
+        <button class="rds-btn rds-btn-primary" id="rds-panel-save">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+        document.getElementById('rds-fixed-config').onclick = () =>
+            openTool('https://prod.seriousframes.com/Configurateur_RDS/', document.getElementById('rds-fixed-config'), '__config');
+        document.getElementById('rds-tournees').onclick = () =>
+            openTool(buildUrl('Gestion des tournees.html'), document.getElementById('rds-tournees'), '__tournees');
+        document.getElementById('rds-manage').onclick = openPanel;
+        document.getElementById('rds-home').onclick = goHome;
+        document.getElementById('rds-welcome-conges').onclick = () => {
+            const el = document.querySelector('#rds-tool-list .rds-featured');
+            if (el) el.click();
+        };
+        document.getElementById('rds-search').oninput = e => {
+            const v = e.target.value.toLowerCase();
+            document.querySelectorAll('#rds-tool-list .rds-nav-item').forEach(el => {
+                el.style.display = el.textContent.toLowerCase().includes(v) ? '' : 'none';
+            });
+        };
+        document.querySelectorAll('#rds-space-seg button').forEach(b => b.onclick = () => switchSpace(b.dataset.space));
+        restoreSpace();
+        document.getElementById('rds-toggle').onclick = e => { e.stopPropagation(); document.getElementById('rds-app').classList.toggle('menu-hidden'); };
+        document.getElementById('rds-content').onclick = () => { if (window.innerWidth <= 850) document.getElementById('rds-app').classList.add('menu-hidden'); };
+        document.getElementById('rds-panel-close').onclick  = closePanel;
+        document.getElementById('rds-panel-cancel').onclick = closePanel;
+        document.getElementById('rds-panel-save').onclick   = savePanel;
+        document.getElementById('rds-panel-overlay').onclick = e => { if (e.target.id === 'rds-panel-overlay') closePanel(); };
+        (async () => {
+            config = await loadConfig();
+            await loadTools();
+            refreshSidebar();
+            reopenLastTool();
+        })();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', launch);
+    else launch();
+})();
+</script>
