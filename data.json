@@ -125,12 +125,18 @@
       "days": 1,
       "type": "Congés Payés",
       "note": "",
-      "status": "Validé",
+      "status": "Annulé",
       "date_demande": "2026-09-15",
       "reason": "",
       "date_decision": "2026-09-21",
       "fromN1": 1,
-      "fromN": 0
+      "fromN": 0,
+      "restored": {
+        "fromN1": 1,
+        "fromN": 0
+      },
+      "prevStatus": "Validé",
+      "date_annulation": "2026-09-25"
     },
     {
       "id": 1789726890461,
@@ -418,6 +424,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790319247953,
+      "date": "2026-09-25",
+      "heure": "08:54",
+      "type": "annulation",
+      "actor": "Cindy Masson",
+      "label": "Demande validée annulée par le salarié",
+      "detail": "Congés Payés · Du 23/10/2026 au 23/10/2026 (1 j) · Solde recrédité"
+    },
     {
       "ts": 1790263527716,
       "date": "2026-09-24",
@@ -1142,7 +1157,7 @@
   "soldesN1": {
     "Axel": 0,
     "Nicolas": 0,
-    "Cindy": 8,
+    "Cindy": 9,
     "Baptiste": 23.5,
     "Karine": 13.5,
     "Adam": 0,
@@ -1150,6 +1165,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790319248258,
+      "ts": 1790319247953,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Cindy Masson</strong> a annulé sa demande <strong>validée</strong> : Congés Payés · Du 23/10/2026 au 23/10/2026 (1 j) · solde recrédité",
+      "reqId": 1789486373321
+    },
     {
       "id": 1790263528571,
       "ts": 1790263527716,
