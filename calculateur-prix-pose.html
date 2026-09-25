@@ -25,6 +25,14 @@
         .config-area { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
         .selection-box { border: 2px solid var(--primary); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
         .product-inputs { display: grid; grid-template-columns: 1.5fr 1.5fr 80px; gap: 15px; }
+        .vitrage-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .vitrage-row input { margin: 0; min-width: 0; flex: 1; }
+        .vitrage-row .vit-x { color: #777; }
+        .vitrage-row .vit-m2 { width: 70px; text-align: right; font-size: 0.85rem; color: #555; white-space: nowrap; }
+        .vitrage-row .vit-del { border: 1px solid #e74c3c; background: #fff; color: #e74c3c; border-radius: 4px; cursor: pointer; padding: 4px 8px; }
+        .vit-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+        .vit-add { border: 1px dashed var(--primary); background: #fff; color: var(--primary); border-radius: 6px; cursor: pointer; padding: 6px 10px; font-weight: bold; }
+        .vit-total { font-size: 0.9rem; }
         .options-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
         .opt-group { padding: 10px; border-radius: 6px; border: 1px solid #ddd; }
         .opt-yellow { background: #fff9c4; border-color: #fbc02d; }
@@ -232,8 +240,13 @@
             <div>
                 <label id="pSubLabel">2. Dimensions / Type</label>
                 <select id="pSub" onchange="updateSurfaceInfo()"></select>
-                <input type="number" id="pSurface" min="0" step="0.01" placeholder="Surface en m² (ex : 12.5)" style="display:none;" oninput="updateSurfaceInfo()">
-                <div id="pSurfaceInfo" style="display:none; font-size:0.8rem; color:#555; margin-top:-5px;"></div>
+                <div id="pVitrages" style="display:none;">
+                    <div id="pVitrageRows"></div>
+                    <div class="vit-foot">
+                        <button type="button" class="vit-add" onclick="addVitrageRow(true)">+ Ajouter un vitrage</button>
+                        <span class="vit-total">Surface totale : <strong id="pSurfaceTotal">0 m²</strong></span>
+                    </div>
+                </div>
             </div>
             <div id="pQtyWrap">
                 <label>3. Qté</label>
@@ -506,18 +519,48 @@ function ensureFilmSolaire() {
     if (!TARIFS_CATEGORIES.film_solaire) TARIFS_CATEGORIES.film_solaire = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES.film_solaire));
 }
 function fmtM2(n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }); }
-function readSurface() { return Math.round((parseFloat(String(document.getElementById('pSurface').value).replace(',', '.')) || 0) * 100) / 100; }
+// Vitrages saisis en cm (largeur × hauteur) ; la surface totale en m² sert au calcul du prix
+function vitrageRowHTML() {
+    return `<input type="number" class="vit-l" min="0" step="0.1" placeholder="Largeur (cm)" oninput="updateSurfaceInfo()">
+            <span class="vit-x">×</span>
+            <input type="number" class="vit-h" min="0" step="0.1" placeholder="Hauteur (cm)" oninput="updateSurfaceInfo()">
+            <span class="vit-m2">0 m²</span>
+            <button type="button" class="vit-del" title="Retirer ce vitrage" onclick="removeVitrageRow(this)">✕</button>`;
+}
+function addVitrageRow(focus) {
+    const row = document.createElement('div');
+    row.className = 'vitrage-row';
+    row.innerHTML = vitrageRowHTML();
+    document.getElementById('pVitrageRows').appendChild(row);
+    if (focus) row.querySelector('.vit-l').focus();
+    updateSurfaceInfo();
+}
+function removeVitrageRow(btn) {
+    const rows = document.getElementById('pVitrageRows');
+    if (rows.children.length > 1) btn.closest('.vitrage-row').remove();
+    else btn.closest('.vitrage-row').querySelectorAll('input').forEach(i => i.value = '');
+    updateSurfaceInfo();
+}
+function resetVitrages() {
+    document.getElementById('pVitrageRows').innerHTML = '';
+    addVitrageRow(false);
+}
+function numVal(input) { return parseFloat(String(input.value).replace(',', '.')) || 0; }
+function readVitrages() {
+    return [...document.querySelectorAll('#pVitrageRows .vitrage-row')]
+        .map(r => ({ l: numVal(r.querySelector('.vit-l')), h: numVal(r.querySelector('.vit-h')) }))
+        .filter(v => v.l > 0 && v.h > 0);
+}
+function readSurface() {
+    const m2 = readVitrages().reduce((acc, v) => acc + (v.l * v.h) / 10000, 0);
+    return Math.round(m2 * 100) / 100;
+}
 function updateSurfaceInfo() {
-    const main = document.getElementById('pMain').value;
-    const info = document.getElementById('pSurfaceInfo');
-    if (!isM2Cat(main) || !TARIFS_PRODUITS[main]) { info.innerHTML = ''; return; }
-    const sub = document.getElementById('pSub').value;
-    const t = TARIFS_PRODUITS[main][sub] || Object.values(TARIFS_PRODUITS[main])[0];
-    if (!t) { info.innerHTML = ''; return; }
-    const surf = readSurface();
-    let txt = `<span class="col-achat">Achat ${t[0]} €/m²</span> · <span class="col-vente">Vente ${t[1]} €/m²</span>`;
-    if (surf > 0) txt += ` → <strong><span class="col-achat">${(surf * t[0]).toFixed(2)} €</span> / <span class="col-vente">${(surf * t[1]).toFixed(2)} €</span></strong>`;
-    info.innerHTML = txt;
+    document.querySelectorAll('#pVitrageRows .vitrage-row').forEach(r => {
+        const l = numVal(r.querySelector('.vit-l')), h = numVal(r.querySelector('.vit-h'));
+        r.querySelector('.vit-m2').textContent = (l > 0 && h > 0) ? fmtM2((l * h) / 10000) + ' m²' : '0 m²';
+    });
+    document.getElementById('pSurfaceTotal').textContent = fmtM2(readSurface()) + ' m²';
 }
 const DEFAULT_TARIFS_OPTIONS = {
     // Frais Fixes
@@ -713,9 +756,9 @@ function populateSub() {
     sub.innerHTML = "";
     // Produit au m² (film solaire) : champ surface à la place des dimensions, pas de quantité
     const m2 = isM2Cat(main);
-    document.getElementById('pSubLabel').textContent = m2 ? '2. Surface (m²)' : '2. Dimensions / Type';
-    document.getElementById('pSurface').style.display = m2 ? 'block' : 'none';
-    document.getElementById('pSurfaceInfo').style.display = m2 ? 'block' : 'none';
+    document.getElementById('pSubLabel').textContent = m2 ? '2. Vitrages (largeur × hauteur en cm)' : '2. Dimensions / Type';
+    document.getElementById('pVitrages').style.display = m2 ? 'block' : 'none';
+    if (m2 && !document.querySelector('#pVitrageRows .vitrage-row')) addVitrageRow(false);
     document.getElementById('pQtyWrap').style.visibility = m2 ? 'hidden' : 'visible';
     sub.style.display = 'block';
     let bExt = document.getElementById('block-opt-ext');
@@ -755,7 +798,7 @@ function resetDevis() {
         document.getElementById('mesuresQty').value = 1; document.getElementById('mesures').value = "0";
         document.getElementById('trajet').value = "standard"; document.getElementById('zone').value = "province";
         document.getElementById('globalAchatProd').value = ""; document.getElementById('globalVenteProd').value = "";
-        document.getElementById('pSurface').value = "";
+        resetVitrages();
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
         resetEscalFloor();
         populateSub(); updateUI();
@@ -807,15 +850,16 @@ function addItem() {
     let baseA = TARIFS_PRODUITS[mSelect.value][sub][0];
     let baseV = TARIFS_PRODUITS[mSelect.value][sub][1];
     let baseName = getCatName(mSelect.value) + " (" + sub + ")";
-    let surface = 0;
+    let surface = 0, vitrages = [];
     if (isM2Cat(mSelect.value)) {
         // Prix au m² × surface saisie ; la ligne compte pour 1 pose
+        vitrages = readVitrages();
         surface = readSurface();
-        if (surface <= 0) { alert("Saisissez la surface en m²."); document.getElementById('pSurface').focus(); return; }
+        if (surface <= 0) { alert("Saisissez la largeur et la hauteur (en cm) d'au moins un vitrage."); const f = document.querySelector('#pVitrageRows .vit-l'); if (f) f.focus(); return; }
         baseA = Math.round(baseA * surface * 100) / 100;
         baseV = Math.round(baseV * surface * 100) / 100;
         const nbTypes = Object.keys(TARIFS_PRODUITS[mSelect.value]).length;
-        baseName = getCatName(mSelect.value) + (nbTypes > 1 ? " — " + sub : "") + " (" + fmtM2(surface) + " m²)";
+        baseName = getCatName(mSelect.value) + (nbTypes > 1 ? " — " + sub : "") + " (" + vitrages.length + " vitrage" + (vitrages.length > 1 ? "s" : "") + " · " + fmtM2(surface) + " m²)";
         qty = 1;
     }
     let optList = [];
@@ -873,7 +917,7 @@ function addItem() {
         totA += a; totV += v;
     }
     const newItem = { isFrais: false, mainCat: mSelect.value, name: baseName, baseA: baseA, baseV: baseV, options: optList, qty: qty, unitA: totA, unitV: totV };
-    if (surface > 0) { newItem.surface = surface; document.getElementById('pSurface').value = ''; updateSurfaceInfo(); }
+    if (surface > 0) { newItem.surface = surface; newItem.vitrages = vitrages; resetVitrages(); }
     panier.push(newItem);
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
@@ -964,7 +1008,7 @@ function updateUI() {
             const fS = (n) => { const s = Math.abs(n).toFixed(2) + ' €'; return n >= 0 ? `<span style="color:#27ae60">+${s}</span>` : `<span style="color:#e74c3c">−${Math.abs(n).toFixed(2)} €</span>`; };
             let rows = '';
             rows += `<tr>
-                <td><span class="detail-step">①</span> <strong>${item.surface ? 'Pose au m² : ' + fmtM2(item.surface) + ' m² × prix au m²' : 'Base pose unitaire'}</strong></td>
+                <td><span class="detail-step">①</span> <strong>${item.surface ? 'Pose au m² : ' + fmtM2(item.surface) + ' m² × prix au m²' : 'Base pose unitaire'}</strong>${(item.vitrages && item.vitrages.length) ? '<br><em style="font-size:0.8rem;color:#666;">Vitrages : ' + item.vitrages.map(v => fmtM2(v.l) + ' × ' + fmtM2(v.h) + ' cm').join(' · ') + '</em>' : ''}</td>
                 <td class="col-r detail-col-a">${fA(item.baseA)}</td>
                 <td class="col-r detail-col-v">${fA(item.baseV)}</td>
             </tr>`;
