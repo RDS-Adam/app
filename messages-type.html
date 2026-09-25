@@ -401,8 +401,8 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
             <div class="hist-entry">
                 <div class="hist-icon ${l.action}">${LOG_ICONS[l.action] || '•'}</div>
                 <div class="hist-body">
-                    <div class="hist-label">${LOG_LABELS[l.action] || l.action} — ${escHtml(l.titre)}</div>
-                    ${l.categorie ? `<div class="hist-detail">${l.categorie}</div>` : ''}
+                    <div class="hist-label">${LOG_LABELS[l.action] || escHtml(l.action)} — ${escHtml(l.titre)}</div>
+                    ${l.categorie ? `<div class="hist-detail">${escHtml(l.categorie)}</div>` : ''}
                 </div>
                 <div class="hist-meta">${formatDate(l.date)}<br>${l.heure}</div>
             </div>`).join('');
@@ -481,7 +481,7 @@ Suite à notre échange, veuillez trouver ci-dessous notre devis…"></textarea>
             <div class="msg-card" id="card-${m.id}">
                 <div class="msg-card-head" onclick="toggleCard(${m.id})">
                     <div class="msg-card-left">
-                        <span class="cat-badge ${catClass}">${m.categorie}</span>
+                        <span class="cat-badge ${catClass}">${escHtml(m.categorie)}</span>
                         <div>
                             <div class="msg-titre">${escHtml(m.titre)}</div>
                             <div class="msg-excerpt">${escHtml(excerpt)}</div>

@@ -32,9 +32,16 @@ const FIXED_SUBJECT = new Set(['reset', 'test']);
 function loadJSON(text) {
   try { const d = JSON.parse(text); return Array.isArray(d) ? {} : (d || {}); } catch { return {}; }
 }
+// Version de référence : l'état avant le push (BASE_REF = github.event.before), pour couvrir un push de plusieurs
+// commits ; à défaut (lancement manuel, historique réécrit), le commit précédent.
 function previousVersion() {
-  try { return loadJSON(execSync(`git show HEAD~1:${DATA_FILE}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
-  catch { return null; } // premier commit ou historique indisponible
+  const base = process.env.BASE_REF;
+  const refs = (base && /^[0-9a-f]{40}$/i.test(base) && !/^0+$/.test(base)) ? [base, 'HEAD~1'] : ['HEAD~1'];
+  for (const ref of refs) {
+    try { return loadJSON(execSync(`git show ${ref}:${DATA_FILE}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
+    catch { /* essai suivant */ }
+  }
+  return null; // premier commit ou historique indisponible
 }
 function stripHtml(s) {
   return String(s || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')

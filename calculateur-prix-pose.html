@@ -883,7 +883,7 @@ function updateUI() {
         if (item.name === 'Déplacement') { depA += currentA; depV += currentV; }
         else { baseSumA += currentA; baseSumV += currentV; }
         body.innerHTML += `<tr class="${trClass}">
-            <td><strong>${item.name}</strong> ${discountBadge} ${btnHtml}</td>
+            <td><strong>${escHtml(item.name)}</strong> ${discountBadge} ${btnHtml}</td>
             <td style="text-align:center">${item.qty}</td>
             <td class="col-achat"><span class="calc-number" data-val="${currentA}">${currentA.toFixed(2)}</span>€</td>
             <td class="col-vente"><span class="calc-number" data-val="${currentV}">${currentV.toFixed(2)}</span>€</td>
@@ -919,7 +919,7 @@ function updateUI() {
             if (hasOpts) {
                 item.options.forEach((opt, i) => {
                     rows += `<tr>
-                        <td style="padding-left:22px;"><span class="detail-step">+</span> Option <em>${opt.name}</em></td>
+                        <td style="padding-left:22px;"><span class="detail-step">+</span> Option <em>${escHtml(opt.name)}</em></td>
                         <td class="col-r detail-col-a">${fS(opt.a)}</td>
                         <td class="col-r detail-col-v">${fS(opt.v)}</td>
                     </tr>`;
@@ -1128,6 +1128,9 @@ function toggleAccordion(btn) {
 }
 function formatKeyName(str) {
     return str.replace(/_/g, ' ').toUpperCase();
+}
+function escHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 function escAttr(str) {
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');

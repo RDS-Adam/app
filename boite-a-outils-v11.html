@@ -29,8 +29,16 @@
     const FEATURED = [
         { file: 'Demande Congés.html', title: 'Congés', sub: 'Demandes, soldes, agenda de l\'équipe' }
     ];
+    // Secours si config-outils.json ne se charge pas : les outils réservés restent hors de l'espace Salarié
+    const FALLBACK_SPACES = {
+        'boite-a-outils-v11.html': 'adam', 'devis-Adam.html': 'adam', 'Devis-Sotexpro.html': 'adam',
+        'messages-type.html': 'adam', 'Tableau des Epaisseurs Maxi TOILES (Fournisseurs).html': 'adam',
+        'Demande Congés — TEST.html': 'adam',
+        'STORE MINI COFFRE DIA TUBE 26.html': 'hidden', 'STORE UNIVERSAL COFFRE DIA TUBE 36.html': 'hidden'
+    };
     let config       = { tools: {} };
     let configSha    = null;
+    let configLoaded = false;   // false : config de secours, l'enregistrement du panneau est bloqué
     let tools        = [];
     let currentSpace = 'salarie';
 
@@ -61,14 +69,24 @@
     function buildUrl(path) { return BASE_URL + String(path).split('/').map(encodeURIComponent).join('/'); }
 
     /* ── GitHub config ── */
-    async function loadConfig() {
+    async function fetchConfig() {
         try {
             const r = await fetch(`${WORKER}/repos/RDS-Adam/app/contents/${CONFIG}`, { headers: { 'Cache-Control': 'no-cache' } });
-            if (!r.ok) return { tools: {} };
+            if (!r.ok) return null;
             const d = await r.json();
+            const parsed = JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
+            if (!parsed || typeof parsed.tools !== 'object') return null;
             configSha = d.sha;
-            return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
-        } catch { return { tools: {} }; }
+            return parsed;
+        } catch { return null; }
+    }
+    async function loadConfig() {
+        const cfg = (await fetchConfig()) || (await fetchConfig());   // un second essai en cas de coupure passagère
+        if (cfg) { configLoaded = true; return cfg; }
+        configLoaded = false;
+        const tools = {};
+        Object.entries(FALLBACK_SPACES).forEach(([file, space]) => { tools[file] = { space, label: '' }; });
+        return { tools };
     }
     async function saveConfigToGitHub(newConfig) {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(newConfig, null, 2))));
@@ -94,7 +112,11 @@
         });
     }
     /* ── Helpers config ── */
-    function getToolSpace(name) { return (config.tools[name] && config.tools[name].space) || 'salarie'; }
+    function getToolSpace(name) {
+        if (config.tools[name] && config.tools[name].space) return config.tools[name].space;
+        if (!configLoaded) { const f = Object.keys(FALLBACK_SPACES).find(k => norm(k) === norm(name)); if (f) return FALLBACK_SPACES[f]; }
+        return 'salarie';
+    }
     function getToolLabel(name) {
         const t = tools.find(x => x.name === name);
         return (config.tools[name] && config.tools[name].label) || (t ? t.label : name);
@@ -255,6 +277,10 @@
     async function savePanel() {
         const btn  = document.getElementById('rds-panel-save');
         const info = document.getElementById('rds-panel-info');
+        if (!configLoaded) {
+            info.textContent = "La configuration actuelle n'a pas pu être chargée : rechargez la page avant d'enregistrer (sinon elle serait écrasée)."; info.className = 'err';
+            return;
+        }
         btn.disabled = true; btn.textContent = 'Enregistrement…';
         try {
             const newTools = {};

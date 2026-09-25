@@ -14,9 +14,8 @@ on:
       - 'data-test.json'
   workflow_dispatch:
 
-concurrency:
-  group: notifications-email
-  cancel-in-progress: false
+# Pas de groupe de concurrence : avec un groupe, GitHub annule les exécutions en attente quand plusieurs
+# sauvegardes arrivent coup sur coup, et leurs emails étaient perdus. Chaque exécution ne traite que son propre push.
 
 permissions:
   contents: read
@@ -28,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -40,6 +39,7 @@ jobs:
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           SENDER_NAME: Congés RH — Rue du Store
           DATA_FILE: data.json
+          BASE_REF: ${{ github.event.before }}
         run: node .github/scripts/send-notifications.mjs
       - name: Envoyer les nouvelles notifications (environnement de test)
         if: always()
@@ -49,4 +49,5 @@ jobs:
           SENDER_NAME: '[TEST] Congés RH'
           DATA_FILE: data-test.json
           SUBJECT_PREFIX: '[TEST] '
+          BASE_REF: ${{ github.event.before }}
         run: node .github/scripts/send-notifications.mjs

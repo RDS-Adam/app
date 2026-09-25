@@ -391,7 +391,8 @@ function saveState() {
 // NOUVEAU : REMISE À ZÉRO
 function resetAllData() {
     if(confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
-        localStorage.clear();
+        // Uniquement les données de cet outil : clear() effaçait aussi celles des autres outils du site
+        ['sbv-stores', 'sbv-counter', 'sbv-ref'].forEach(k => localStorage.removeItem(k));
         allStores = [];
         storeCounter = 0;
         document.getElementById('all-stores').innerHTML = '';

@@ -617,7 +617,7 @@ function renderPreview(){
     els.addressOut.innerHTML = '<span class="address-placeholder">Adresse Client</span>';
   }else{
     els.addressOut.innerHTML = lines
-      .map(l => l.split('\n').filter(Boolean).join('<br>'))
+      .map(l => l.split('\n').filter(Boolean).map(escapeHtml).join('<br>'))
       .join('<br>');
   }
 

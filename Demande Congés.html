@@ -1245,6 +1245,31 @@
     function isSuperAdmin() { return currentRole === 'superadmin' || currentRole === 'dev'; }
     function actorName() { return currentUser ? currentUser : MGR_NAME; }
 
+    // Sécurité : les textes saisis (motifs, notes, noms…) sont affichés tels quels dans la page. On neutralise les
+    // chevrons < > au chargement pour qu'aucun contenu enregistré ne puisse injecter de balise ou de script.
+    // Seules les balises <strong> et <br> des notifications générées par l'app sont conservées.
+    function neutralizeHtml(db) {
+        const clean = v => v.replace(/</g, '‹').replace(/>/g, '›');
+        const cleanNotif = v => v.split(/(<\/?strong>|<br\s*\/?>)/i).map(p => /^(<\/?strong>|<br\s*\/?>)$/i.test(p) ? p : clean(p)).join('');
+        const walk = (o, notifText) => {
+            if (Array.isArray(o)) { for (let i = 0; i < o.length; i++) o[i] = typeof o[i] === 'string' ? clean(o[i]) : walk(o[i]); return o; }
+            if (o && typeof o === 'object') {
+                for (const k of Object.keys(o)) {
+                    const v = o[k];
+                    if (typeof v === 'string') { if (/[<>]/.test(v)) o[k] = (notifText && k === 'text') ? cleanNotif(v) : clean(v); }
+                    else if (v && typeof v === 'object') walk(v, false);
+                }
+                // Une clé contenant < ou > (prénom utilisé comme clé des soldes) est laissée telle quelle : aucune n'en contient
+            }
+            return o;
+        };
+        Object.keys(db).forEach(k => {
+            if (k === 'notifications' && Array.isArray(db[k])) db[k].forEach(n => walk(n, true));
+            else if (db[k] && typeof db[k] === 'object') walk(db[k], false);
+        });
+        return db;
+    }
+
     async function fetchFromGitHub() {
         const res = await fetch(`${WORKER_URL}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, { headers: { 'Cache-Control': 'no-cache' } });
         if (!res.ok) throw new Error(`Lecture échouée (${res.status})`);
@@ -1263,6 +1288,7 @@
             if (!db.logs)     db.logs      = [];
         }
         syncRulesFromDb(db);
+        neutralizeHtml(db);
         cachedDB = { sha: data.sha, db };
         return cachedDB;
     }
