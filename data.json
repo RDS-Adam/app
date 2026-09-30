@@ -339,6 +339,21 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-09-25"
+    },
+    {
+      "id": 1790787191658,
+      "user": "Alexandre",
+      "lastname": "Morel",
+      "email": "alexandre.morel@ruedustore.fr",
+      "start": "2026-10-12",
+      "end": "2026-10-12",
+      "days": 1,
+      "type": "Congés Sans Solde",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-09-30",
+      "startTime": "09:00",
+      "endTime": "18:00"
     }
   ],
   "soldes": {
@@ -443,6 +458,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1790787191658,
+      "date": "2026-09-30",
+      "heure": "18:53",
+      "type": "demande",
+      "actor": "Alexandre Morel",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Sans Solde · Du 12/10/2026 à 09h00 au 12/10/2026 à 18h00 (1 j)"
+    },
     {
       "ts": 1790787179921,
       "date": "2026-09-30",
@@ -1202,6 +1226,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1790787192646,
+      "ts": 1790787191658,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Alexandre Morel</strong> a déposé une demande : Congés Sans Solde · Du 12/10/2026 à 09h00 au 12/10/2026 à 18h00 (1 j)",
+      "reqId": 1790787191658
+    },
     {
       "id": 1790787180850,
       "ts": 1790787179921,
