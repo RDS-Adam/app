@@ -357,15 +357,15 @@
     }
   ],
   "soldes": {
-    "Adam": 30.24,
-    "Alexandre": 11.24,
-    "Axel": 0,
-    "Baptiste": 6.24,
-    "Camille": 31.24,
-    "Cindy": 6.24,
-    "Clarisse": 6.24,
-    "Karine": 6.24,
-    "Nicolas": 19
+    "Adam": 32.32,
+    "Alexandre": 13.32,
+    "Axel": 2.08,
+    "Baptiste": 8.32,
+    "Camille": 33.32,
+    "Cindy": 8.32,
+    "Clarisse": 8.32,
+    "Karine": 8.32,
+    "Nicolas": 21.08
   },
   "employees": [
     {
@@ -452,12 +452,21 @@
   "config": {
     "passHash": "ab5230c114a24e233e66f526a0de0dcd153b85a33780e4113d40e173c0520735",
     "rolesBootstrapped": true,
-    "lastAccrualMonth": "2026-09",
+    "lastAccrualMonth": "2026-10",
     "roleGrants": {
       "axel:dev": true
     }
   },
   "logs": [
+    {
+      "ts": 1790862956541,
+      "date": "2026-10-01",
+      "heure": "15:55",
+      "type": "solde",
+      "actor": "Système",
+      "label": "Accrual mensuel congés (N)",
+      "detail": "+2.08 j pour 9 salarié(s) — 1 mois appliqué(s), à jour au 2026-10"
+    },
     {
       "ts": 1790787191658,
       "date": "2026-09-30",
