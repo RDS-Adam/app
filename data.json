@@ -369,7 +369,7 @@
     "Alexandre": 13.32,
     "Axel": 2.08,
     "Baptiste": 8.32,
-    "Camille": 33.32,
+    "Camille": 14,
     "Cindy": 8.32,
     "Clarisse": 8.32,
     "Karine": 8.32,
@@ -473,6 +473,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791211877998,
+      "date": "2026-10-05",
+      "heure": "16:51",
+      "type": "solde",
+      "actor": "Camille",
+      "label": "Solde N modifié",
+      "detail": "Camille · nouveau solde N : 14 j"
+    },
     {
       "ts": 1791188747477,
       "date": "2026-10-05",
