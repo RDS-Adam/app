@@ -431,7 +431,14 @@
       "email": "cindy.masson@ruedustore.fr",
       "passHash": "424b89d42f50730978c41c018e3ea3f750cafa8a3333b306e019042851453778",
       "recoveryQuestion": "Quelle est la couleur préférée ?",
-      "recoveryHash": "bb9e122e9384e543759f45740a648c876e618be65864e7fb066f844e69ac123e"
+      "recoveryHash": "bb9e122e9384e543759f45740a648c876e618be65864e7fb066f844e69ac123e",
+      "workPattern": {
+        "percent": 100,
+        "offDays": [],
+        "teleworkDays": [
+          4
+        ]
+      }
     },
     {
       "name": "Clarisse",
@@ -466,6 +473,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791188747477,
+      "date": "2026-10-05",
+      "heure": "10:25",
+      "type": "tt",
+      "actor": "Cindy",
+      "label": "Télétravail habituel modifié",
+      "detail": "Cindy · jeudi"
+    },
     {
       "ts": 1790934741084,
       "date": "2026-10-02",
@@ -1279,6 +1295,17 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1791188748432,
+      "ts": 1791188747477,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Cindy</strong> a modifié son télétravail habituel : jeudi",
+      "reqId": null
+    },
     {
       "id": 1790934741430,
       "ts": 1790934741084,
