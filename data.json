@@ -362,6 +362,19 @@
       "reason": "",
       "date_decision": "2026-10-02",
       "decidedBy": "Nicolas"
+    },
+    {
+      "id": 1791211888351,
+      "user": "Camille",
+      "lastname": "Girard",
+      "email": "camille.girard@ruedustore.fr",
+      "start": "2026-12-28",
+      "end": "2026-12-31",
+      "days": 4,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-10-05"
     }
   ],
   "soldes": {
@@ -473,6 +486,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791211888351,
+      "date": "2026-10-05",
+      "heure": "16:51",
+      "type": "demande",
+      "actor": "Camille Girard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 28/12/2026 au 31/12/2026 (4 j)"
+    },
     {
       "ts": 1791211877998,
       "date": "2026-10-05",
@@ -1304,6 +1326,16 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1791211888941,
+      "ts": 1791211888351,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Camille Girard</strong> a déposé une demande : Congés Payés · Du 28/12/2026 au 31/12/2026 (4 j)",
+      "reqId": 1791211888351
+    },
     {
       "id": 1791188748432,
       "ts": 1791188747477,
