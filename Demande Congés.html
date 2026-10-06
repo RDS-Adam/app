@@ -938,6 +938,17 @@
                     <div class="card-body">
                         <div class="changelog-item">
                             <div class="changelog-ver">
+                                <span class="changelog-badge">V4.2</span>
+                                <span class="changelog-title">Notifications : la Direction décide, le RH archive</span>
+                                <span class="changelog-date">Octobre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Les nouvelles demandes, propositions de dates et refus ne sont plus notifiés qu'à la Direction (Nicolas)</li>
+                                <li>L'Administrateur RH (Camille) est prévenu uniquement quand un congé est validé, ou quand un congé déjà validé est annulé, décalé ou refusé après coup</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
                                 <span class="changelog-badge">V4.1</span>
                                 <span class="changelog-title">Calendrier type agenda, décalages & propositions</span>
                                 <span class="changelog-date">Septembre 2026</span>
@@ -1534,17 +1545,20 @@
     /* ── Notifications internes ──────────────────────────────────────────
        Stockées dans data.json (db.notifications). Chaque notification vise une liste de prénoms.
        db.notifSeen[prénom] = timestamp de dernière lecture → tout ce qui est plus récent est "non lu". */
-    // Destinataires des notifications / emails RH : Administrateurs RH et Direction (le rôle Développeur n'en reçoit pas)
-    function adminEmployees(db, excludeName) {
-        return (db.employees || []).filter(e => (e.role === 'admin' || e.role === 'superadmin') && e.name !== excludeName);
+    // Destinataires des notifications / emails RH : Administrateurs RH et Direction (le rôle Développeur n'en reçoit pas).
+    // `decidersOnly` = Direction seule : tout ce qui attend une décision (nouvelle demande, proposition, refus, retrait
+    // d'une demande en attente). L'Administrateur RH n'est prévenu que lorsqu'un congé est validé ou qu'un congé déjà
+    // validé change (annulation, décalage, refus après coup), pour archiver et traiter le dossier.
+    function adminEmployees(db, excludeName, decidersOnly) {
+        return (db.employees || []).filter(e => (e.role === 'superadmin' || (!decidersOnly && e.role === 'admin')) && e.name !== excludeName);
     }
-    function adminEmails(db, excludeName) {
-        const list = adminEmployees(db, excludeName).map(e => e.email).filter(Boolean);
+    function adminEmails(db, excludeName, decidersOnly) {
+        const list = adminEmployees(db, excludeName, decidersOnly).map(e => e.email).filter(Boolean);
         if (!list.length && excludeName !== DIRECTION_ACCOUNT.name) list.push(MGR_EMAIL);
         return [...new Set(list)];
     }
-    function adminFirstNames(db, excludeName) {
-        const names = adminEmployees(db, excludeName).map(e => e.name);
+    function adminFirstNames(db, excludeName, decidersOnly) {
+        const names = adminEmployees(db, excludeName, decidersOnly).map(e => e.name);
         return names.length ? names : (excludeName !== DIRECTION_ACCOUNT.name ? [DIRECTION_ACCOUNT.name] : []);
     }
     function addNotification(db, to, kind, text, reqId) {
@@ -2150,8 +2164,8 @@
             db.requests.push(req);
             const rattTxt = ratt.slots.length ? ' · Rattrapage : ' + fmtRattrapage(ratt.slots) : '';
             addLogEntry(db, 'demande', `${currentUser} ${emp.lastname||''}`.trim(), 'Nouvelle demande soumise', `${typeVal}${noteVal?' — '+noteVal:''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${rattTxt}`);
-            // Notification interne → toute la direction (sauf l'auteur)
-            const adminNames = adminFirstNames(db, currentUser);
+            // Notification interne → la Direction seule (sauf l'auteur) ; le RH sera prévenu à la validation
+            const adminNames = adminFirstNames(db, currentUser, true);
             addNotification(db, adminNames, 'demande',
                 `📥 <strong>${req.user} ${req.lastname}</strong> a déposé une demande : ${typeVal}${noteVal ? ' — ' + noteVal : ''} · ${fmtPeriod(req)} (${fmtDays(days)} j)${ratt.slots.length ? ' · Rattrapage : ' + fmtRattrapage(ratt.slots) : ''}`, req.id);
             await saveToGitHub(db, sha);
@@ -2160,7 +2174,7 @@
             const greet = adminNames.length ? 'Bonjour ' + adminNames.join(', ') : 'Bonjour';
             const body = `${greet},\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}${ratt.slots.length ? '\nRattrapage prévu : ' + fmtRattrapage(ratt.slots, '\n                   ') : ''}\n\nMerci de traiter cette demande.`;
             const gl = document.getElementById('gmail_link');
-            gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
+            gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser, true).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
             gl.textContent = 'Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par Gmail';
             document.getElementById('action-request').style.display = 'block';
             setEmailHint('email-status-request', adminNames);
@@ -2219,7 +2233,7 @@
             addLogEntry(db, r.telework ? 'tt' : 'annulation', who, r.telework ? 'Télétravail retiré par le salarié' : wasValid ? 'Demande validée annulée par le salarié' : 'Demande retirée par le salarié',
                 `${r.type}${r.note ? ' — ' + r.note : ''} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · Solde recrédité' : ''}`);
             if (r.telework) addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${who}</strong> a retiré son télétravail ${fmtPeriod(r).replace(/^Du/, 'du')}`, r.id);
-            else addNotification(db, adminFirstNames(db, currentUser), 'annulation',
+            else addNotification(db, adminFirstNames(db, currentUser, !wasValid), 'annulation',
                 `🚫 <strong>${who}</strong> a annulé sa demande ${wasValid ? '<strong>validée</strong>' : 'en attente'} : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · solde recrédité' : ''}`, r.id);
             await saveToGitHub(db, sha);
             renderEmployeeSoldeUI(db);
@@ -2405,12 +2419,12 @@
         const logLabel = newStatus === 'Validé' ? 'Demande validée' : 'Demande refusée';
         addLogEntry(db, logType, actor, logLabel, `${r.user} ${r.lastname} · ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.treatment && newStatus === 'Validé' ? ' · ' + TREATMENT_LABELS[r.treatment] : ''}${r.reason?' — Motif : '+r.reason:''}`);
         if (quiet) return;
-        // Notifications internes : le salarié + les autres membres de la direction
+        // Notifications internes : le salarié + la Direction ; le RH seulement si le congé est (ou était) validé
         const verb = newStatus === 'Validé' ? 'validé' : 'refusé';
         const icon = newStatus === 'Validé' ? '✅' : '❌';
         addNotification(db, [r.user], 'decision',
             `${icon} Votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} (${r.type}) a été <strong>${verb === 'validé' ? 'validée' : 'refusée'}</strong> par ${actor}${r.treatment && newStatus === 'Validé' ? ' — absence ' + TREATMENT_LABELS[r.treatment] : ''}${r.reason ? ' — Motif : ' + r.reason : ''}${r.type === "Autorisation d'absence" && newStatus === 'Validé' ? ". L'autorisation signée est disponible en PDF dans votre historique." : ''}`, r.id);
-        addNotification(db, adminFirstNames(db, actor).filter(n => n !== r.user), 'decision',
+        addNotification(db, adminFirstNames(db, actor, newStatus !== 'Validé' && prevStatus !== 'Validé').filter(n => n !== r.user), 'decision',
             `${icon} <strong>${actor}</strong> a ${verb} la demande de <strong>${r.user} ${r.lastname}</strong> : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${r.reason ? ' — Motif : ' + r.reason : ''}`, r.id);
     }
 
@@ -2534,13 +2548,14 @@
             const { db, sha } = await fetchFromGitHub();
             const r = db.requests.find(x => x.id === id);
             if (!r) { alert('Demande introuvable.'); return null; }
+            const decidersOnly = newStatus !== 'Validé' && r.status !== 'Validé';
             applyDecision(db, r, newStatus, reason, undefined, false, treatment);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')} a été ${newStatus === 'Validé' ? 'validée' : 'refusée'}.${r.reason ? '\n\nMotif : '+r.reason : ''}${r.rattrapage && r.rattrapage.length ? '\nRattrapage prévu : ' + fmtRattrapage(r.rattrapage) : ''}\n\nCordialement,\n${actorName()}`;
-            const ccList = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const ccList = adminEmails(db, actorName(), decidersOnly).filter(m => m !== r.email);
             const mailUrl = gmailUrl(r.email, ccList, 'Réponse — Demande de congés', body);
             await renderManagerDashboard();
-            return { r, mailUrl, db, notified: [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)] };
+            return { r, mailUrl, db, notified: [r.user, ...adminFirstNames(db, actorName(), decidersOnly).filter(n => n !== r.user)] };
         } catch(e) { alert('Erreur : '+e.message); return null; }
     }
 
@@ -2866,12 +2881,12 @@
             const who = `${r.user} ${r.lastname || ''}`.trim();
             addLogEntry(db, 'decalage', actorName(), 'Demande décalée', `${who} · ${fmtPeriod(before)} → ${fmtPeriod(r)} (${fmtDays(newDays)} j)${r.status === 'Validé' ? ' · solde recalculé' : ''}`);
             addNotification(db, [r.user], 'decalage', `📆 <strong>${actorName()}</strong> a décalé votre demande${r.status === 'Validé' ? ' validée' : ''} : ${fmtPeriod(before).replace(/^Du/, 'du')} → <strong>${fmtPeriod(r).replace(/^Du/, 'du')}</strong> (${fmtDays(newDays)} j)`, r.id);
-            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'decalage', `📆 <strong>${actorName()}</strong> a décalé la demande de <strong>${who}</strong> : ${fmtPeriod(before).replace(/^Du/, 'du')} → ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} j)`, r.id);
+            addNotification(db, adminFirstNames(db, actorName(), r.status !== 'Validé').filter(n => n !== r.user), 'decalage', `📆 <strong>${actorName()}</strong> a décalé la demande de <strong>${who}</strong> : ${fmtPeriod(before).replace(/^Du/, 'du')} → ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} j)`, r.id);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nVotre demande de congés initialement ${fmtPeriod(before).replace(/^Du/, 'du')} a été décalée ${fmtPeriod(r).replace(/^Du/, 'du')} (${fmtDays(newDays)} jour(s) ouvré(s)).${r.status === 'Validé' ? '\nElle reste validée sur ces nouvelles dates.' : '\nElle reste en attente de validation.'}\n\nN'hésitez pas à revenir vers nous en cas de question.\n\nCordialement,\n${actorName()}`;
-            const ccMove = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const ccMove = adminEmails(db, actorName(), r.status !== 'Validé').filter(m => m !== r.email);
             const mailUrl = gmailUrl(r.email, ccMove, 'Décalage — Demande de congés', body);
-            const notified = [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)];
+            const notified = [r.user, ...adminFirstNames(db, actorName(), r.status !== 'Validé').filter(n => n !== r.user)];
             await renderManagerDashboard();
             if (modalRequestId === id && document.getElementById('req-modal').classList.contains('open')) openRequestModal(id, `✓ Demande décalée ${fmtPeriod(r).replace(/^Du/, 'du')}. ${emailHintHtml(notified)}`, mailUrl);
             return true;
@@ -2896,12 +2911,12 @@
             const who = `${r.user} ${r.lastname || ''}`.trim();
             addLogEntry(db, 'proposition', actorName(), 'Nouvelles dates proposées', `${who} · demande ${fmtPeriod(r)} · proposition ${fmtPeriod(p)} (${fmtDays(days)} j)${p.message ? ' — ' + p.message : ''}`);
             addNotification(db, [r.user], 'proposition', `💡 <strong>${actorName()}</strong> vous propose d'autres dates pour votre demande ${fmtPeriod(r).replace(/^Du/, 'du')} : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(days)} j)${p.message ? ' — « ' + p.message + ' »' : ''}. Acceptez ou refusez depuis « Mon historique ».`, r.id);
-            addNotification(db, adminFirstNames(db, actorName()).filter(n => n !== r.user), 'proposition', `💡 <strong>${actorName()}</strong> a proposé à <strong>${who}</strong> de nouvelles dates : ${fmtPeriod(p).replace(/^Du/, 'du')} (à la place ${fmtPeriod(r).replace(/^Du/, 'du')})`, r.id);
+            addNotification(db, adminFirstNames(db, actorName(), true).filter(n => n !== r.user), 'proposition', `💡 <strong>${actorName()}</strong> a proposé à <strong>${who}</strong> de nouvelles dates : ${fmtPeriod(p).replace(/^Du/, 'du')} (à la place ${fmtPeriod(r).replace(/^Du/, 'du')})`, r.id);
             await saveToGitHub(db, sha);
             const body = `Bonjour ${r.user},\n\nConcernant votre demande de congés ${fmtPeriod(r).replace(/^Du/, 'du')}, nous vous proposons les dates suivantes : ${fmtPeriod(p).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s)).${p.message ? '\n\n' + p.message : ''}\n\nVous pouvez accepter ou refuser cette proposition directement depuis votre espace Congés (rubrique « Mon historique »).\n\nCordialement,\n${actorName()}`;
-            const ccProp = adminEmails(db, actorName()).filter(m => m !== r.email);
+            const ccProp = adminEmails(db, actorName(), true).filter(m => m !== r.email);
             const mailUrl = gmailUrl(r.email, ccProp, 'Proposition de dates — Demande de congés', body);
-            const notified = [r.user, ...adminFirstNames(db, actorName()).filter(n => n !== r.user)];
+            const notified = [r.user, ...adminFirstNames(db, actorName(), true).filter(n => n !== r.user)];
             await renderManagerDashboard();
             openRequestModal(id, `✓ Proposition envoyée à ${r.user} : ${fmtPeriod(p).replace(/^Du/, 'du')}. ${emailHintHtml(notified)}`, mailUrl);
             return true;
@@ -2947,7 +2962,7 @@
                 delete r.proposal;
                 r.proposalDeclined = { ts: Date.now(), start: p.start, end: p.end, startTime: p.startTime, endTime: p.endTime, by: p.by, reason: reason.trim() };
                 addLogEntry(db, 'proposition', who, 'Proposition refusée', `${who} · proposition ${fmtPeriod(p)} de ${p.by} refusée${reason.trim() ? ' — ' + reason.trim() : ''} · demande initiale ${fmtPeriod(r)} inchangée`);
-                addNotification(db, adminFirstNames(db, currentUser), 'proposition', `↩ <strong>${who}</strong> a refusé la proposition ${fmtPeriod(p).replace(/^Du/, 'du')}${reason.trim() ? ' — « ' + reason.trim() + ' »' : ''}. Sa demande ${fmtPeriod(r).replace(/^Du/, 'du')} reste ${r.status === 'Validé' ? 'validée' : 'en attente'}.`, r.id);
+                addNotification(db, adminFirstNames(db, currentUser, true), 'proposition', `↩ <strong>${who}</strong> a refusé la proposition ${fmtPeriod(p).replace(/^Du/, 'du')}${reason.trim() ? ' — « ' + reason.trim() + ' »' : ''}. Sa demande ${fmtPeriod(r).replace(/^Du/, 'du')} reste ${r.status === 'Validé' ? 'validée' : 'en attente'}.`, r.id);
             }
             await saveToGitHub(db, sha);
             const fresh = await fetchFromGitHub();
