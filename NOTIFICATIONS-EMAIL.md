@@ -59,14 +59,21 @@ puis **Commit changes**. Dès ce commit, l'onglet **Actions** du dépôt affiche
 
 | Événement | Destinataires |
 |---|---|
-| Nouvelle demande | Direction (Administrateurs RH + Direction) |
-| Validation / refus | Salarié + les autres membres de la direction |
-| Décalage par la direction | Salarié + les autres membres de la direction |
-| Proposition de dates / retrait | Salarié + les autres membres de la direction |
-| Proposition acceptée / refusée par le salarié | Direction |
-| Annulation par le salarié | Direction |
+| Nouvelle demande | Direction |
+| Validation | Salarié + Direction + Administrateur RH |
+| Refus | Salarié + Direction (+ Administrateur RH si le congé était déjà validé) |
+| Décalage par la direction | Salarié + Direction (+ Administrateur RH si le congé est validé) |
+| Proposition de dates / retrait | Salarié + Direction |
+| Proposition acceptée par le salarié (congé validé) | Direction + Administrateur RH |
+| Proposition refusée par le salarié | Direction |
+| Annulation par le salarié | Direction (+ Administrateur RH si le congé était validé) |
+| Télétravail, jours offerts | Direction + Administrateur RH |
 | Mot de passe oublié → « Recevoir un lien par email » | Le salarié (lien valable 30 min, usage unique) |
 | Bouton « Tester l'email » | Vous-même |
+
+Principe : la **Direction** (Nicolas) reçoit tout ce qui attend une décision ; l'**Administrateur RH** (Camille)
+n'est prévenu que lorsqu'un congé est validé, ou qu'un congé déjà validé change, pour archiver et traiter le dossier.
+L'auteur d'une action ne reçoit jamais sa propre notification.
 
 Le rôle **Développeur** ne reçoit pas les emails RH. Les boutons Gmail restent disponibles en secours dans l'app.
 Les destinataires sont trouvés via l'adresse renseignée dans l'onglet Équipe : un salarié sans adresse est ignoré
