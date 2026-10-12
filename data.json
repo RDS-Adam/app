@@ -456,8 +456,13 @@
       "days": 2,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-10-12"
+      "status": "Validé",
+      "date_demande": "2026-10-12",
+      "reason": "",
+      "date_decision": "2026-10-12",
+      "decidedBy": "Nicolas",
+      "fromN1": 2,
+      "fromN": 0
     }
   ],
   "soldes": {
@@ -569,6 +574,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791798725455,
+      "date": "2026-10-12",
+      "heure": "11:52",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Clarisse Guai · Congés Payés · Du 12/11/2026 au 13/11/2026 (2 j)"
+    },
     {
       "ts": 1791789478365,
       "date": "2026-10-12",
@@ -1487,9 +1501,29 @@
     "Karine": 13.5,
     "Adam": 0,
     "Alexandre": 0,
-    "Clarisse": 17
+    "Clarisse": 15
   },
   "notifications": [
+    {
+      "id": 1791798725828,
+      "ts": 1791798725455,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Clarisse Guai</strong> : Congés Payés · Du 12/11/2026 au 13/11/2026 (2 j)",
+      "reqId": 1791789478365
+    },
+    {
+      "id": 1791798726186,
+      "ts": 1791798725455,
+      "to": [
+        "Clarisse"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 12/11/2026 au 13/11/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1791789478365
+    },
     {
       "id": 1791789478855,
       "ts": 1791789478365,
