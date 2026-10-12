@@ -329,8 +329,13 @@
       "days": 5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-09-24"
+      "status": "Validé",
+      "date_demande": "2026-09-24",
+      "reason": "",
+      "date_decision": "2026-10-12",
+      "decidedBy": "Nicolas",
+      "fromN1": 5,
+      "fromN": 0
     },
     {
       "id": 1790319303160,
@@ -579,6 +584,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791806195503,
+      "date": "2026-10-12",
+      "heure": "13:56",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Karine Paillard · Congés Payés · Du 24/12/2026 au 31/12/2026 (5 j)"
+    },
     {
       "ts": 1791806184686,
       "date": "2026-10-12",
@@ -1512,12 +1526,32 @@
     "Nicolas": 0,
     "Cindy": 5,
     "Baptiste": 17.5,
-    "Karine": 13.5,
+    "Karine": 8.5,
     "Adam": 0,
     "Alexandre": 0,
     "Clarisse": 15
   },
   "notifications": [
+    {
+      "id": 1791806195895,
+      "ts": 1791806195503,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Karine Paillard</strong> : Congés Payés · Du 24/12/2026 au 31/12/2026 (5 j)",
+      "reqId": 1790263527716
+    },
+    {
+      "id": 1791806196068,
+      "ts": 1791806195503,
+      "to": [
+        "Karine"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 24/12/2026 au 31/12/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1790263527716
+    },
     {
       "id": 1791806185637,
       "ts": 1791806184687,
