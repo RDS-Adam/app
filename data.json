@@ -409,8 +409,13 @@
       "days": 4,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-10-05"
+      "status": "Validé",
+      "date_demande": "2026-10-05",
+      "reason": "",
+      "date_decision": "2026-10-12",
+      "decidedBy": "Nicolas",
+      "fromN1": 0,
+      "fromN": 4
     },
     {
       "id": 1791292170737,
@@ -487,7 +492,7 @@
   ],
   "soldes": {
     "Adam": 32.32,
-    "Alexandre": 13.32,
+    "Alexandre": 9.32,
     "Axel": 1.08,
     "Baptiste": 8.32,
     "Camille": 14,
@@ -594,6 +599,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791806220797,
+      "date": "2026-10-12",
+      "heure": "13:57",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Alexandre Morel · Congés Payés · Du 28/12/2026 au 31/12/2026 (4 j)"
+    },
     {
       "ts": 1791806212816,
       "date": "2026-10-12",
@@ -1560,6 +1574,26 @@
     "Clarisse": 15
   },
   "notifications": [
+    {
+      "id": 1791806221450,
+      "ts": 1791806220797,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Alexandre Morel</strong> : Congés Payés · Du 28/12/2026 au 31/12/2026 (4 j)",
+      "reqId": 1791225462670
+    },
+    {
+      "id": 1791806220934,
+      "ts": 1791806220797,
+      "to": [
+        "Alexandre"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 28/12/2026 au 31/12/2026 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1791225462670
+    },
     {
       "id": 1791806213617,
       "ts": 1791806212816,
