@@ -445,6 +445,19 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-10-06"
+    },
+    {
+      "id": 1791789478365,
+      "user": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr",
+      "start": "2026-11-12",
+      "end": "2026-11-13",
+      "days": 2,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-10-12"
     }
   ],
   "soldes": {
@@ -556,6 +569,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1791789478365,
+      "date": "2026-10-12",
+      "heure": "09:17",
+      "type": "demande",
+      "actor": "Clarisse Guai",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 12/11/2026 au 13/11/2026 (2 j)"
+    },
     {
       "ts": 1791362417314,
       "date": "2026-10-07",
@@ -1468,6 +1490,16 @@
     "Clarisse": 17
   },
   "notifications": [
+    {
+      "id": 1791789478855,
+      "ts": 1791789478365,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Clarisse Guai</strong> a déposé une demande : Congés Payés · Du 12/11/2026 au 13/11/2026 (2 j)",
+      "reqId": 1791789478365
+    },
     {
       "id": 1791362417341,
       "ts": 1791362417314,
