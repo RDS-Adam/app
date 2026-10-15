@@ -103,3 +103,15 @@ l'espace Adam de la boîte à outils (« Congés · TEST »), ou directement à 
   l'action (étape « environnement de test » du workflow).
 - Pour repartir de zéro : remettre en ligne `data-test.json` d'origine, ou utiliser « Effacer tout » avec Nicolas.
 - `Demande Congés — TEST.html` est générée depuis `Demande Congés.html` : à regénérer après chaque évolution de l'app.
+
+## Renvoyer des emails perdus
+
+Onglet **Actions** → « Notifications email » → **Run workflow** :
+
+- `since` : SHA du commit `data.json` juste **avant** les notifications à renvoyer (historique des commits « Update RH »).
+  Toutes les notifications ajoutées entre ce commit et aujourd'hui sont renvoyées, y compris celles déjà parties.
+- `max_age_hours` : à augmenter si les notifications ont plus de 6 heures (ex. `100` pour 4 jours).
+
+> Historique : jusqu'au 15/10/2026, plusieurs validations enchaînées en quelques secondes faisaient annuler des
+> exécutions par GitHub (bloc `concurrency`), et les emails correspondants n'étaient jamais envoyés. Corrigé : chaque
+> exécution compare `data.json` à l'état d'avant son propre push, et les exécutions ne s'annulent plus entre elles.

@@ -14,7 +14,10 @@ import { readFileSync } from 'node:fs';
 
 const DATA_FILE = process.env.DATA_FILE || 'data.json';   // data-test.json pour l'environnement de test
 const SUBJECT_PREFIX = process.env.SUBJECT_PREFIX || '';
-const MAX_AGE_MS = 6 * 60 * 60 * 1000;   // ignore les notifications de plus de 6 h (anti-rafale au premier lancement)
+// Ignore les notifications plus anciennes (anti-rafale au premier lancement). 6 h par défaut, réglable à la main.
+const MAX_AGE_MS = (Number(process.env.MAX_AGE_HOURS) > 0 ? Number(process.env.MAX_AGE_HOURS) : 6) * 60 * 60 * 1000;
+// Commit de référence : l'état d'avant ce push (github.event.before), ou le SHA saisi à la main pour un renvoi.
+const BASE_SHA = /^[0-9a-f]{7,40}$/i.test(process.env.BASE_SHA || '') && !/^0+$/.test(process.env.BASE_SHA) ? process.env.BASE_SHA : '';
 const KIND_LABELS = {
   demande: 'Nouvelle demande de congés',
   decision: 'Réponse à une demande de congés',
@@ -32,8 +35,21 @@ const FIXED_SUBJECT = new Set(['reset', 'test']);
 function loadJSON(text) {
   try { const d = JSON.parse(text); return Array.isArray(d) ? {} : (d || {}); } catch { return {}; }
 }
+function gitShow(ref) {
+  return execSync(`git show ${ref}:${DATA_FILE}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+}
 function previousVersion() {
-  try { return loadJSON(execSync(`git show HEAD~1:${DATA_FILE}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })); }
+  if (BASE_SHA) {
+    try { return loadJSON(gitShow(BASE_SHA)); } catch { /* commit absent du clone peu profond : on le récupère */ }
+    try {
+      execSync(`git fetch --no-tags --depth=1 origin ${BASE_SHA}`, { stdio: ['ignore', 'ignore', 'ignore'] });
+      return loadJSON(gitShow(BASE_SHA));
+    } catch (e) {
+      // Commit inexistant dans le dépôt ou fichier absent à ce commit : on se rabat sur HEAD~1
+      console.log(`Commit de référence ${BASE_SHA} illisible pour ${DATA_FILE}, repli sur HEAD~1.`);
+    }
+  }
+  try { return loadJSON(gitShow('HEAD~1')); }
   catch { return null; } // premier commit ou historique indisponible
 }
 function stripHtml(s) {
@@ -68,10 +84,18 @@ function emailHtml(subject, bodyHtml) {
 async function main() {
   let raw = ''; try { raw = readFileSync(DATA_FILE, 'utf8'); } catch { console.log(`${DATA_FILE} absent, rien à envoyer.`); return; }
   const current = loadJSON(raw);
-  const previous = previousVersion();
-  const now = Date.now();
-  const seen = new Set(((previous && previous.notifications) || []).map(n => n.id));
-  const fresh = (current.notifications || []).filter(n => !seen.has(n.id) && now - (n.ts || 0) < MAX_AGE_MS);
+  const resendIds = new Set(String(process.env.RESEND_IDS || '').split(/[\s,;]+/).filter(Boolean));
+  let fresh;
+  if (resendIds.size) {
+    // Renvoi manuel ciblé : uniquement les notifications demandées, quel que soit leur âge
+    fresh = (current.notifications || []).filter(n => resendIds.has(String(n.id)));
+    console.log(`Renvoi manuel : ${fresh.length} notification(s) trouvée(s) sur ${resendIds.size} demandée(s).`);
+  } else {
+    const previous = previousVersion();
+    const now = Date.now();
+    const seen = new Set(((previous && previous.notifications) || []).map(n => n.id));
+    fresh = (current.notifications || []).filter(n => !seen.has(n.id) && now - (n.ts || 0) < MAX_AGE_MS);
+  }
   if (!fresh.length) { console.log('Aucune nouvelle notification à envoyer.'); return; }
 
   const dry = process.env.DRY_RUN === '1';
