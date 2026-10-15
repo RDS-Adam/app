@@ -524,6 +524,26 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-10-12"
+    },
+    {
+      "id": 1792053237127,
+      "user": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr",
+      "start": "2026-10-22",
+      "end": "2026-10-22",
+      "days": 1,
+      "type": "Télétravail",
+      "note": "",
+      "status": "Validé",
+      "date_demande": "2026-10-15",
+      "startTime": "09:00",
+      "endTime": "17:30",
+      "telework": true,
+      "date_decision": "2026-10-15",
+      "reason": "",
+      "fromN1": 0,
+      "fromN": 0
     }
   ],
   "soldes": {
@@ -635,6 +655,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792053237127,
+      "date": "2026-10-15",
+      "heure": "10:33",
+      "type": "tt",
+      "actor": "Clarisse Guai",
+      "label": "Télétravail déclaré",
+      "detail": "Du 22/10/2026 à 09h00 au 22/10/2026 à 17h30 (1 j)"
+    },
     {
       "ts": 1791882979445,
       "date": "2026-10-13",
@@ -1665,6 +1694,17 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792053237146,
+      "ts": 1792053237127,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Clarisse Guai</strong> sera en télétravail du 22/10/2026 à 09h00 au 22/10/2026 à 17h30 (1 j)",
+      "reqId": 1792053237127
+    },
     {
       "id": 1791882979804,
       "ts": 1791882979445,
