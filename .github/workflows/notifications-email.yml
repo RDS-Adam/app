@@ -13,10 +13,19 @@ on:
       - 'data.json'
       - 'data-test.json'
   workflow_dispatch:
+    inputs:
+      since:
+        description: "Renvoyer les notifications ajoutées depuis ce commit (SHA). Vide = dernier commit seulement."
+        required: false
+        default: ''
+      max_age_hours:
+        description: "Âge maximum des notifications à envoyer, en heures (6 par défaut)."
+        required: false
+        default: '6'
 
-concurrency:
-  group: notifications-email
-  cancel-in-progress: false
+# Pas de bloc « concurrency » : GitHub n'y garde qu'UNE exécution en attente et annule les autres,
+# si bien que plusieurs validations enchaînées en quelques secondes perdaient leurs emails.
+# Chaque exécution ne traite que les notifications de son propre push : elles peuvent tourner en parallèle.
 
 permissions:
   contents: read
@@ -28,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 2   # le script récupère lui-même le commit de référence s'il manque
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -40,6 +49,8 @@ jobs:
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           SENDER_NAME: Congés RH — Rue du Store
           DATA_FILE: data.json
+          BASE_SHA: ${{ github.event.before || inputs.since }}
+          MAX_AGE_HOURS: ${{ inputs.max_age_hours || '6' }}
         run: node .github/scripts/send-notifications.mjs
       - name: Envoyer les nouvelles notifications (environnement de test)
         if: always()
@@ -49,4 +60,6 @@ jobs:
           SENDER_NAME: '[TEST] Congés RH'
           DATA_FILE: data-test.json
           SUBJECT_PREFIX: '[TEST] '
+          BASE_SHA: ${{ github.event.before || inputs.since }}
+          MAX_AGE_HOURS: ${{ inputs.max_age_hours || '6' }}
         run: node .github/scripts/send-notifications.mjs
