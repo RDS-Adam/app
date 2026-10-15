@@ -562,9 +562,9 @@
                                     <option value="Congés Sans Solde">Congés Sans Solde</option>
                                     <option value="Absence Exceptionnelle">Absence Exceptionnelle (Autre)</option>
                                     <option value="Autorisation d'absence">Autorisation d'absence (sortie ponctuelle, enfant malade, rendez-vous…)</option>
-                                    <option value="Télétravail">Télétravail (déclaration, sans validation)</option>
+                                    <option value="Télétravail">Télétravail (validé par la direction, sans décompte)</option>
                                 </select>
-                                <div class="input-hint" id="tt-hint" style="display:none;">Le télétravail est enregistré immédiatement, sans décompte de solde. La direction est simplement prévenue.</div>
+                                <div class="input-hint" id="tt-hint" style="display:none;">Le télétravail est soumis à la direction pour validation, sans décompte de solde. Indiquez vos horaires si vous ne télétravaillez pas la journée entière.</div>
                                 <div class="input-hint" id="aut-hint" style="display:none;">Indiquez le motif et, si possible, les heures. Une fois validée, l'autorisation signée est disponible en PDF depuis votre historique. La direction précise si l'absence est rémunérée, à récupérer, non rémunérée ou décomptée de vos congés.</div>
                             </div>
                             <div class="form-group full" id="autre-wrap" style="display:none;">
@@ -936,6 +936,18 @@
                         <span style="font-size:0.68rem;color:var(--muted);">Changelog de l'application</span>
                     </div>
                     <div class="card-body">
+                        <div class="changelog-item">
+                            <div class="changelog-ver">
+                                <span class="changelog-badge">V4.3</span>
+                                <span class="changelog-title">Télétravail validé par la Direction</span>
+                                <span class="changelog-date">Octobre 2026</span>
+                            </div>
+                            <ul class="changelog-notes">
+                                <li>Le télétravail ponctuel devient une demande : Nicolas la valide ou la refuse, comme un congé, sans aucun décompte de solde</li>
+                                <li>Le salarié saisit lui-même ses horaires de télétravail (facultatif, journée entière si vide)</li>
+                                <li>Camille n'est prévenue que lorsque le télétravail est accepté (ou qu'un télétravail accepté est retiré)</li>
+                            </ul>
+                        </div>
                         <div class="changelog-item">
                             <div class="changelog-ver">
                                 <span class="changelog-badge">V4.2</span>
@@ -1496,7 +1508,7 @@
         document.getElementById('aut-hint').style.display = t === "Autorisation d'absence" ? 'block' : 'none';
         document.getElementById('autre-lbl').textContent = t === "Autorisation d'absence" ? '(obligatoire)' : '(facultatif)';
         const submit = document.querySelector('button[onclick="processRequest()"]');
-        if (submit && !submit.disabled) submit.textContent = t === 'Télétravail' ? 'Déclarer le télétravail →' : 'Soumettre la demande →';
+        if (submit && !submit.disabled) submit.textContent = t === 'Télétravail' ? 'Demander le télétravail →' : 'Soumettre la demande →';
         document.getElementById('autre-wrap').style.display = isAbs ? 'block' : 'none';
         document.getElementById('rattrapage-wrap').style.display = isAbs ? 'block' : 'none';
         if (!isAbs) { document.getElementById('leave_autre').value = ''; clearRattrapage(); }
@@ -2140,20 +2152,21 @@
             if (endTime)   req.endTime   = endTime;
             if (ratt.slots.length) req.rattrapage = ratt.slots;
             if (isTT) {
-                // Déclaration : validée d'office, aucun solde, direction prévenue
-                Object.assign(req, { status: 'Validé', telework: true, date_decision: req.date_demande, reason: '', fromN1: 0, fromN: 0 });
+                // Demande soumise à la Direction, jamais décomptée ; le RH sera prévenu à la validation
+                Object.assign(req, { telework: true, reason: '', fromN1: 0, fromN: 0 });
                 db.requests.push(req);
                 const who = `${currentUser} ${emp.lastname||''}`.trim();
-                addLogEntry(db, 'tt', who, 'Télétravail déclaré', `${fmtPeriod(req)} (${fmtDays(days)} j)`);
-                addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${who}</strong> sera en télétravail ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} j)`, req.id);
+                const deciders = adminFirstNames(db, currentUser, true);
+                addLogEntry(db, 'tt', who, 'Télétravail demandé', `${fmtPeriod(req)} (${fmtDays(days)} j)`);
+                addNotification(db, deciders, 'tt', `💻 <strong>${who}</strong> demande à être en télétravail ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} j) · à valider`, req.id);
                 await saveToGitHub(db, sha);
                 await renderEmployeeTable();
                 mountCalendar('employee'); calRefresh();
                 document.getElementById('action-request').style.display = 'block';
-                document.querySelector('#action-request .alert').textContent = '✓ Télétravail enregistré. La direction est prévenue.';
+                document.querySelector('#action-request .alert').textContent = '✓ Demande de télétravail envoyée. Vous serez prévenu(e) de la réponse.';
                 document.querySelector('#action-request .post-submit-actions').style.display = 'none';
-                setEmailHint('email-status-request', adminFirstNames(db, currentUser));
-                btn.textContent = '✓ Télétravail déclaré';
+                setEmailHint('email-status-request', deciders);
+                btn.textContent = '✓ Télétravail demandé';
                 ['date_start', 'date_end', 'time_start', 'time_end'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('days-preview').style.display = 'none';
                 setTimeout(() => { btn.disabled = false; toggleAutre(); }, 2000);
@@ -2232,7 +2245,7 @@
             const who = `${currentUser} ${emp.lastname || ''}`.trim();
             addLogEntry(db, r.telework ? 'tt' : 'annulation', who, r.telework ? 'Télétravail retiré par le salarié' : wasValid ? 'Demande validée annulée par le salarié' : 'Demande retirée par le salarié',
                 `${r.type}${r.note ? ' — ' + r.note : ''} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · Solde recrédité' : ''}`);
-            if (r.telework) addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${who}</strong> a retiré son télétravail ${fmtPeriod(r).replace(/^Du/, 'du')}`, r.id);
+            if (r.telework) addNotification(db, adminFirstNames(db, currentUser, prevStatus !== 'Validé'), 'tt', `💻 <strong>${who}</strong> a retiré son télétravail ${fmtPeriod(r).replace(/^Du/, 'du')}`, r.id);
             else addNotification(db, adminFirstNames(db, currentUser, !wasValid), 'annulation',
                 `🚫 <strong>${who}</strong> a annulé sa demande ${wasValid ? '<strong>validée</strong>' : 'en attente'} : ${r.type} · ${fmtPeriod(r)} (${fmtDays(r.days)} j)${wasValid ? ' · solde recrédité' : ''}`, r.id);
             await saveToGitHub(db, sha);
@@ -2252,7 +2265,7 @@
             document.getElementById('kpi-days').textContent    = fmtDays(+validated.reduce((a,r) => a+(r.days||0), 0).toFixed(1))+'j';
             document.getElementById('kpi-refused').textContent = my.filter(r => r.status === 'Refusé').length;
             document.getElementById('my-requests-body').innerHTML = my.length ? my.map(r => {
-                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.type === "Autorisation d'absence" && r.status === 'Validé' ? `<div class="tt-tag">Absence ${TREATMENT_LABELS[r.treatment || 'paid']}</div>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '') + (r.telework ? `<div class="tt-tag">Déclaration · sans décompte</div>` : '');
+                const typeLabel = (r.offered ? 'Congés offerts' : r.type) + (r.note ? ` <em style="color:var(--muted)">(${r.note})</em>` : '') + (r.type === "Autorisation d'absence" && r.status === 'Validé' ? `<div class="tt-tag">Absence ${TREATMENT_LABELS[r.treatment || 'paid']}</div>` : '') + (r.offered ? `<div class="offered-tag">Offert par ${r.offeredBy || 'la direction'} · sans décompte</div>` : '') + (r.telework ? `<div class="tt-tag">Télétravail · sans décompte</div>` : '');
                 const reasonHtml = r.status === 'Refusé' && r.reason ? `<div class="reason-tag">Motif : ${r.reason}</div>` : '';
                 const p = r.proposal;
                 const proposalHtml = p && isCalStatus(r.status) ? `<div class="emp-proposal"><strong>${p.by}</strong> vous propose : <strong>${fmtPeriod(p).replace(/^Du/, 'du')}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="color:var(--muted);">En acceptant, votre demande ${r.status === 'Validé' ? 'sera déplacée' : 'sera validée directement'} sur ces dates.</span><div class="btns"><button class="btn btn-success btn-sm" onclick="respondProposal(${r.id}, true)">Accepter</button><button class="btn btn-ghost-danger btn-sm" onclick="respondProposal(${r.id}, false)">Refuser</button></div></div>` : '';
@@ -3035,7 +3048,7 @@
                 ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
             </div>
             ${r.offered ? `<div class="offered-tag" style="margin-top:10px;">Jours offerts par ${r.offeredBy || 'la direction'} · aucun décompte de solde</div>` : ''}
-            ${r.telework ? `<div class="tt-tag" style="margin-top:10px;">Télétravail déclaré par ${r.user} · aucun décompte, ne compte pas comme absence</div>` : ''}
+            ${r.telework ? `<div class="tt-tag" style="margin-top:10px;">Télétravail demandé par ${r.user} · aucun décompte, ne compte pas comme absence</div>` : ''}
             ${r.type === "Autorisation d'absence" && r.status === 'Validé' ? `<div class="tt-tag" style="margin-top:10px;">Autorisation d'absence ${TREATMENT_LABELS[r.treatment || 'paid']} · PDF signé disponible</div>` : ''}
             ${r.reason ? `<div class="reason-tag" style="margin-top:10px;">Motif : ${r.reason}</div>` : ''}
             ${p ? `<div class="proposal-box">Proposition envoyée par <strong>${p.by}</strong> le ${fmtTs(p.ts)} : <strong>${fmtPeriod(p)}</strong> (${fmtDays(p.days)} j)${p.message ? `<br><em>« ${p.message} »</em>` : ''}<br><span style="font-size:0.7rem;color:var(--muted);">En attente de la réponse de ${r.user}.</span>
@@ -3218,7 +3231,7 @@
             else emp.workPattern = { percent: p.percent || 100, offDays: p.offDays || [], teleworkDays };
             syncRulesFromDb(db);
             addLogEntry(db, 'tt', currentUser, 'Télétravail habituel modifié', `${currentUser} · ${teleworkDays.length ? teleworkDays.map(d => DAY_NAMES[d]).join(', ') : 'aucun jour'}`);
-            addNotification(db, adminFirstNames(db, currentUser), 'tt', `💻 <strong>${currentUser}</strong> a modifié son télétravail habituel : ${teleworkDays.length ? teleworkDays.map(d => DAY_NAMES[d]).join(', ') : 'aucun jour'}`);
+            addNotification(db, adminFirstNames(db, currentUser, true), 'tt', `💻 <strong>${currentUser}</strong> a modifié son télétravail habituel : ${teleworkDays.length ? teleworkDays.map(d => DAY_NAMES[d]).join(', ') : 'aucun jour'}`);
             await saveToGitHub(db, sha);
             st.textContent = 'Enregistré'; setTimeout(() => st.textContent = '', 2500);
             renderEmployeeSoldeUI(db);
