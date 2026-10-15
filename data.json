@@ -406,8 +406,13 @@
       "days": 5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
-      "date_demande": "2026-10-05"
+      "status": "Validé",
+      "date_demande": "2026-10-05",
+      "reason": "",
+      "date_decision": "2026-10-15",
+      "decidedBy": "Nicolas",
+      "fromN1": 0,
+      "fromN": 5
     },
     {
       "id": 1791225462670,
@@ -598,7 +603,7 @@
     "Alexandre": 9.32,
     "Axel": 1.08,
     "Baptiste": 8.32,
-    "Camille": 10,
+    "Camille": 5,
     "Cindy": 8.32,
     "Clarisse": 8.32,
     "Karine": 8.32,
@@ -702,6 +707,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792065204868,
+      "date": "2026-10-15",
+      "heure": "13:53",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Camille Girard · Congés Payés · Du 01/03/2027 au 07/03/2027 (5 j)"
+    },
     {
       "ts": 1792065190270,
       "date": "2026-10-15",
@@ -1786,6 +1800,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792065205608,
+      "ts": 1792065204868,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 01/03/2027 au 07/03/2027 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1791211936452
+    },
     {
       "id": 1792065190899,
       "ts": 1792065190270,
