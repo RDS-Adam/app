@@ -84,10 +84,18 @@ function emailHtml(subject, bodyHtml) {
 async function main() {
   let raw = ''; try { raw = readFileSync(DATA_FILE, 'utf8'); } catch { console.log(`${DATA_FILE} absent, rien à envoyer.`); return; }
   const current = loadJSON(raw);
-  const previous = previousVersion();
-  const now = Date.now();
-  const seen = new Set(((previous && previous.notifications) || []).map(n => n.id));
-  const fresh = (current.notifications || []).filter(n => !seen.has(n.id) && now - (n.ts || 0) < MAX_AGE_MS);
+  const resendIds = new Set(String(process.env.RESEND_IDS || '').split(/[\s,;]+/).filter(Boolean));
+  let fresh;
+  if (resendIds.size) {
+    // Renvoi manuel ciblé : uniquement les notifications demandées, quel que soit leur âge
+    fresh = (current.notifications || []).filter(n => resendIds.has(String(n.id)));
+    console.log(`Renvoi manuel : ${fresh.length} notification(s) trouvée(s) sur ${resendIds.size} demandée(s).`);
+  } else {
+    const previous = previousVersion();
+    const now = Date.now();
+    const seen = new Set(((previous && previous.notifications) || []).map(n => n.id));
+    fresh = (current.notifications || []).filter(n => !seen.has(n.id) && now - (n.ts || 0) < MAX_AGE_MS);
+  }
   if (!fresh.length) { console.log('Aucune nouvelle notification à envoyer.'); return; }
 
   const dry = process.env.DRY_RUN === '1';

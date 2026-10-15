@@ -18,6 +18,10 @@ on:
         description: "Renvoyer les notifications ajoutées depuis ce commit (SHA). Vide = dernier commit seulement."
         required: false
         default: ''
+      ids:
+        description: "Renvoyer uniquement ces notifications (identifiants séparés par des virgules). Ignore « since » et l'âge."
+        required: false
+        default: ''
       max_age_hours:
         description: "Âge maximum des notifications à envoyer, en heures (6 par défaut)."
         required: false
@@ -51,6 +55,7 @@ jobs:
           DATA_FILE: data.json
           BASE_SHA: ${{ github.event.before || inputs.since }}
           MAX_AGE_HOURS: ${{ inputs.max_age_hours || '6' }}
+          RESEND_IDS: ${{ inputs.ids }}
         run: node .github/scripts/send-notifications.mjs
       - name: Envoyer les nouvelles notifications (environnement de test)
         if: always()
@@ -62,4 +67,5 @@ jobs:
           SUBJECT_PREFIX: '[TEST] '
           BASE_SHA: ${{ github.event.before || inputs.since }}
           MAX_AGE_HOURS: ${{ inputs.max_age_hours || '6' }}
+          RESEND_IDS: ${{ inputs.ids }}
         run: node .github/scripts/send-notifications.mjs
