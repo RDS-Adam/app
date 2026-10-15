@@ -555,13 +555,15 @@
       "days": 1,
       "type": "Télétravail",
       "note": "",
-      "status": "Validé",
+      "status": "Annulé",
       "date_demande": "2026-10-15",
       "telework": true,
       "date_decision": "2026-10-15",
       "reason": "",
       "fromN1": 0,
-      "fromN": 0
+      "fromN": 0,
+      "prevStatus": "Validé",
+      "date_annulation": "2026-10-15"
     }
   ],
   "soldes": {
@@ -673,6 +675,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792053333269,
+      "date": "2026-10-15",
+      "heure": "10:35",
+      "type": "tt",
+      "actor": "Axel Seigneury",
+      "label": "Télétravail retiré par le salarié",
+      "detail": "Télétravail · Du 16/10/2026 au 16/10/2026 (1 j)"
+    },
     {
       "ts": 1792053308241,
       "date": "2026-10-15",
@@ -1721,6 +1732,17 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792053333831,
+      "ts": 1792053333269,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Axel Seigneury</strong> a retiré son télétravail du 16/10/2026 au 16/10/2026",
+      "reqId": 1792053308241
+    },
     {
       "id": 1792053309119,
       "ts": 1792053308241,
