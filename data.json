@@ -544,6 +544,24 @@
       "reason": "",
       "fromN1": 0,
       "fromN": 0
+    },
+    {
+      "id": 1792053308241,
+      "user": "Axel",
+      "lastname": "Seigneury",
+      "email": "axel.seigneury@ruedustore.fr",
+      "start": "2026-10-16",
+      "end": "2026-10-16",
+      "days": 1,
+      "type": "Télétravail",
+      "note": "",
+      "status": "Validé",
+      "date_demande": "2026-10-15",
+      "telework": true,
+      "date_decision": "2026-10-15",
+      "reason": "",
+      "fromN1": 0,
+      "fromN": 0
     }
   ],
   "soldes": {
@@ -655,6 +673,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792053308241,
+      "date": "2026-10-15",
+      "heure": "10:35",
+      "type": "tt",
+      "actor": "Axel Seigneury",
+      "label": "Télétravail déclaré",
+      "detail": "Du 16/10/2026 au 16/10/2026 (1 j)"
+    },
     {
       "ts": 1792053237127,
       "date": "2026-10-15",
@@ -1694,6 +1721,17 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792053309119,
+      "ts": 1792053308241,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Axel Seigneury</strong> sera en télétravail du 16/10/2026 au 16/10/2026 (1 j)",
+      "reqId": 1792053308241
+    },
     {
       "id": 1792053237146,
       "ts": 1792053237127,
