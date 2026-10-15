@@ -535,7 +535,7 @@
       "days": 1,
       "type": "Télétravail",
       "note": "",
-      "status": "Validé",
+      "status": "Annulé",
       "date_demande": "2026-10-15",
       "startTime": "09:00",
       "endTime": "17:30",
@@ -543,7 +543,9 @@
       "date_decision": "2026-10-15",
       "reason": "",
       "fromN1": 0,
-      "fromN": 0
+      "fromN": 0,
+      "prevStatus": "Validé",
+      "date_annulation": "2026-10-15"
     },
     {
       "id": 1792053308241,
@@ -675,6 +677,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792053375108,
+      "date": "2026-10-15",
+      "heure": "10:36",
+      "type": "tt",
+      "actor": "Clarisse Guai",
+      "label": "Télétravail retiré par le salarié",
+      "detail": "Télétravail · Du 22/10/2026 à 09h00 au 22/10/2026 à 17h30 (1 j)"
+    },
     {
       "ts": 1792053333269,
       "date": "2026-10-15",
@@ -1732,6 +1743,17 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792053375217,
+      "ts": 1792053375108,
+      "to": [
+        "Camille",
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Clarisse Guai</strong> a retiré son télétravail du 22/10/2026 à 09h00 au 22/10/2026 à 17h30",
+      "reqId": 1792053237127
+    },
     {
       "id": 1792053333831,
       "ts": 1792053333269,
