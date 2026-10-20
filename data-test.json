@@ -171,6 +171,15 @@
       "kind": "demande",
       "text": "📥 <strong>Axel Seigneury</strong> a déposé une demande : Congés Payés · Du 26/09/2026 au 30/09/2026 (3 j)",
       "reqId": 1790245846087
+    },
+    {
+      "id": 1792492287446,
+      "ts": 1792492287446,
+      "to": [
+        "Axel"
+      ],
+      "kind": "test",
+      "text": "🧪 Test envoyé par Claude : si tu lis cet email, l'envoi des notifications Congés RH fonctionne."
     }
   ],
   "notifSeen": {},
