@@ -624,7 +624,7 @@
       "name": "Adam",
       "lastname": "Audam",
       "email": "adam.audam@ruedustore.fr",
-      "passHash": "e32ff5a65c9c41eff7d86c97790bcc80e82265ce3a61d6dcbd388a2c5263212d",
+      "passHash": "f7fd980657d5eceaa40ee80b913b3b5cdcd3e46c532e7aea9c560a6d8d3370f9",
       "recoveryQuestion": "Azerty1234!",
       "recoveryHash": "a4515dadc58e80f36d4ec16a0e3d95f2e948cffcb304b2a5326c71e0f401d043"
     },
@@ -717,6 +717,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792606680240,
+      "date": "2026-10-21",
+      "heure": "20:18",
+      "type": "employe",
+      "actor": "Adam Audam",
+      "label": "Mot de passe réinitialisé",
+      "detail": "Réinitialisation via le lien reçu par email"
+    },
     {
       "ts": 1792606642000,
       "date": "2026-10-21",
@@ -2902,11 +2911,6 @@
       "hash": "1e8e9fb78f7e4c79570afaf5dafaacb0d06fc297b775c6af8702393df7d6de9c",
       "requestedAt": 1790083425728,
       "expires": 1790085225728
-    },
-    "Adam": {
-      "hash": "d361d333e35ab12d2281874949a0881f80cc4fbb1fa73b0b38ae7b9acfc6af17",
-      "requestedAt": 1792606642000,
-      "expires": 1792608442000
     }
   },
   "notifRead": {
