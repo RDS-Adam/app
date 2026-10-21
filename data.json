@@ -606,6 +606,19 @@
       "reason": "",
       "fromN1": 0,
       "fromN": 0
+    },
+    {
+      "id": 1792606734367,
+      "user": "Adam",
+      "lastname": "Audam",
+      "email": "adam.audam@ruedustore.fr",
+      "start": "2026-10-30",
+      "end": "2026-10-30",
+      "days": 1,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-10-21"
     }
   ],
   "soldes": {
@@ -717,6 +730,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792606734367,
+      "date": "2026-10-21",
+      "heure": "20:18",
+      "type": "demande",
+      "actor": "Adam Audam",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 30/10/2026 au 30/10/2026 (1 j)"
+    },
     {
       "ts": 1792606680240,
       "date": "2026-10-21",
@@ -1846,6 +1868,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792606734601,
+      "ts": 1792606734367,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Adam Audam</strong> a déposé une demande : Congés Payés · Du 30/10/2026 au 30/10/2026 (1 j)",
+      "reqId": 1792606734367
+    },
     {
       "id": 1792606642524,
       "ts": 1792606642000,
