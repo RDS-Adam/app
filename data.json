@@ -619,6 +619,28 @@
       "note": "",
       "status": "En attente",
       "date_demande": "2026-10-21"
+    },
+    {
+      "id": 1792655440834,
+      "user": "Camille",
+      "lastname": "Girard",
+      "email": "camille.girard@ruedustore.fr",
+      "start": "2026-10-29",
+      "end": "2026-10-29",
+      "days": 0.5,
+      "type": "Autorisation d'absence",
+      "note": "MEDECIN ENFANT",
+      "status": "En attente",
+      "date_demande": "2026-10-22",
+      "startTime": "17:00",
+      "endTime": "17:30",
+      "rattrapage": [
+        {
+          "date": "2026-10-29",
+          "from": "13:00",
+          "to": "13:30"
+        }
+      ]
     }
   ],
   "soldes": {
@@ -730,6 +752,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792655440834,
+      "date": "2026-10-22",
+      "heure": "09:50",
+      "type": "demande",
+      "actor": "Camille Girard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Autorisation d'absence — MEDECIN ENFANT · Du 29/10/2026 à 17h00 au 29/10/2026 à 17h30 (0,5 j) · Rattrapage : 29/10/2026 de 13h00 à 13h30"
+    },
     {
       "ts": 1792606734367,
       "date": "2026-10-21",
@@ -1868,6 +1899,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792655441726,
+      "ts": 1792655440834,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Camille Girard</strong> a déposé une demande : Autorisation d'absence — MEDECIN ENFANT · Du 29/10/2026 à 17h00 au 29/10/2026 à 17h30 (0,5 j) · Rattrapage : 29/10/2026 de 13h00 à 13h30",
+      "reqId": 1792655440834
+    },
     {
       "id": 1792606734601,
       "ts": 1792606734367,
