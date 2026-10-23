@@ -635,7 +635,7 @@
       "days": 0.5,
       "type": "Autorisation d'absence",
       "note": "MEDECIN ENFANT",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-10-22",
       "startTime": "17:00",
       "endTime": "17:30",
@@ -645,7 +645,11 @@
           "from": "13:00",
           "to": "13:30"
         }
-      ]
+      ],
+      "reason": "",
+      "date_decision": "2026-10-23",
+      "decidedBy": "Nicolas",
+      "treatment": "recover"
     }
   ],
   "soldes": {
@@ -757,6 +761,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1792741152540,
+      "date": "2026-10-23",
+      "heure": "09:39",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Camille Girard · Autorisation d'absence · Du 29/10/2026 à 17h00 au 29/10/2026 à 17h30 (0,5 j) · à récupérer"
+    },
     {
       "ts": 1792741145998,
       "date": "2026-10-23",
@@ -1913,6 +1926,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1792741153054,
+      "ts": 1792741152540,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 29/10/2026 à 17h00 au 29/10/2026 à 17h30 (Autorisation d'absence) a été <strong>validée</strong> par Nicolas — absence à récupérer. L'autorisation signée est disponible en PDF dans votre historique.",
+      "reqId": 1792655440834
+    },
     {
       "id": 1792741146800,
       "ts": 1792741145998,
