@@ -586,7 +586,6 @@
                             <div class="alert alert-success">✓ Demande enregistrée avec succès !</div>
                             <div class="post-submit-actions">
                                 <button class="btn btn-ghost" onclick="printLastRequest()">Imprimer / PDF</button>
-                                <a href="#" id="gmail_link" class="gmail-btn" target="_blank">Notifier par Gmail</a>
                             </div>
                             <div id="email-status-request" class="input-hint" style="display:none;margin-top:8px;"></div>
                         </div>
@@ -2121,7 +2120,15 @@
         } catch(e) { showMsg('Erreur : '+e.message, false); }
     }
 
+    let requestInFlight = false;
+    // Un seul envoi à la fois : un double clic ne peut plus déposer la même demande deux fois
     async function processRequest() {
+        if (requestInFlight) return;
+        requestInFlight = true;
+        try { await processRequestInner(); }
+        finally { requestInFlight = false; }
+    }
+    async function processRequestInner() {
         const start = document.getElementById('date_start').value;
         const end   = document.getElementById('date_end').value;
         const startTime = document.getElementById('time_start').value;
@@ -2184,11 +2191,6 @@
             await saveToGitHub(db, sha);
             await renderEmployeeTable();
             lastRequestId = req.id;
-            const greet = adminNames.length ? 'Bonjour ' + adminNames.join(', ') : 'Bonjour';
-            const body = `${greet},\n\nUne nouvelle demande de congés a été déposée.\n\nSalarié : ${req.user} ${req.lastname}\nPériode : ${fmtPeriod(req).replace(/^Du/, 'du')} (${fmtDays(days)} jour(s) ouvré(s))\nType : ${typeVal}${noteVal ? ' — '+noteVal : ''}${ratt.slots.length ? '\nRattrapage prévu : ' + fmtRattrapage(ratt.slots, '\n                   ') : ''}\n\nMerci de traiter cette demande.`;
-            const gl = document.getElementById('gmail_link');
-            gl.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmails(db, currentUser, true).join(','))}&su=${encodeURIComponent('Demande de congés — '+req.user+' '+req.lastname)}&body=${encodeURIComponent(body)}`;
-            gl.textContent = 'Notifier ' + (adminNames.length ? adminNames.join(' & ') : 'la direction') + ' par Gmail';
             document.getElementById('action-request').style.display = 'block';
             setEmailHint('email-status-request', adminNames);
             btn.textContent = '✓ Demande envoyée';
