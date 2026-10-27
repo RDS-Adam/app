@@ -1278,6 +1278,8 @@
         } else {
             db = parsed;
             if (!db.requests) db.requests = [];
+            // Sorties ponctuelles déjà saisies (ex. 17h00-17h30) : aucun jour décompté
+            db.requests.forEach(r => { if (isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) && !r.fromN1 && !r.fromN) r.days = 0; });
             if (!db.soldes)   db.soldes   = {};
             if (!db.soldesN1) db.soldesN1 = {};
             if (!db.employees) db.employees = [];
@@ -1414,9 +1416,12 @@
         return `${p.percent} %` + (p.offDays.length ? ' · ' + p.offDays.map(d => DAY_NAMES[d]).join(', ') + ' non travaillé' + (p.offDays.length > 1 ? 's' : '') : '') + tt;
     }
 
+    function isHourlyAbsence(type, start, end, st, et) { return type === "Autorisation d'absence" && !!start && start === end && !!st && !!et; }
+    // Durée affichée : "17h00 – 17h30" pour une sortie ponctuelle, sinon "0,5 j"
+    function durTxt(r) { return isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) ? `${fmtTime(r.startTime)} – ${fmtTime(r.endTime)}` : `${fmtDays(r.days)} j`; }
     // Décompte détaillé : { days, counted:[iso], holidays:[{date,name}], offCounted:[iso], shiftedStart, shiftedEnd }
-    function workDaysDetail(start, end, startTime, endTime, user) {
-        const out = { days: 0, counted: [], holidays: [], offCounted: [], shiftedStart: null, shiftedEnd: null };
+    function workDaysDetail(start, end, startTime, endTime, user, type) {
+        const out = { hourly: false, days: 0, counted: [], holidays: [], offCounted: [], shiftedStart: null, shiftedEnd: null };
         if (!start || !end || start > end) return out;
         let s = start, e = end;
         if (partTimeMethod === 'legal' && patternOf(user).offDays.length) {
@@ -1438,6 +1443,8 @@
         }
         let c = out.counted.length;
         if (!c) return out;
+        // Autorisation d'absence ponctuelle (même jour, heures de début ET de fin) : une sortie, pas un jour de congé → 0 j
+        if (isHourlyAbsence(type, start, end, startTime, endTime)) { out.hourly = true; out.days = 0; return out; }
         let half = 0;
         if (startTime && startTime >= '12:00' && out.counted.includes(start)) half += 0.5;
         if (endTime && endTime <= '13:00' && out.counted.includes(end)) half += 0.5;
@@ -1446,7 +1453,7 @@
     }
     // Jours ouvrés entre deux dates pour un salarié (fériés exclus, temps partiel selon la méthode).
     // Heures facultatives : départ à 12h00 ou plus tard = ½ j sur le 1er jour, retour à 13h00 ou plus tôt = ½ j sur le dernier.
-    function calculateWorkDays(start, end, startTime, endTime, user) { return workDaysDetail(start, end, startTime, endTime, user).days; }
+    function calculateWorkDays(start, end, startTime, endTime, user, type) { return workDaysDetail(start, end, startTime, endTime, user, type).days; }
     function workDaysHint(detail, user) {
         const bits = [];
         if (detail.holidays.length) bits.push(`${detail.holidays.length} férié${detail.holidays.length > 1 ? 's' : ''} exclu${detail.holidays.length > 1 ? 's' : ''} : ${detail.holidays.map(h => formatDate(h.date) + ' ' + h.name).join(', ')}`);
@@ -1486,9 +1493,9 @@
         pastWarn.style.display = isPast ? 'flex' : 'none';
         if (isPast) pastWarn.textContent = `La date de début (${formatDate(s)}) est déjà passée. Vérifiez l'année : nous sommes en ${new Date().getFullYear()}.`;
         if (s && e && s <= e && !(s === e && ts && te && ts >= te)) {
-            const det = workDaysDetail(s, e, ts, te, currentUser);
+            const det = workDaysDetail(s, e, ts, te, currentUser, document.getElementById('leave_type').value);
             document.getElementById('days-count').textContent = fmtDays(det.days);
-            const hint = workDaysHint(det, currentUser);
+            const hint = det.hourly ? 'Sortie ponctuelle : aucun jour de congé décompté.' : workDaysHint(det, currentUser);
             document.getElementById('days-hint').textContent = hint;
             document.getElementById('days-hint').style.display = hint ? 'block' : 'none';
             el.style.display = 'block';
@@ -2152,7 +2159,7 @@
         try {
             const typeVal = document.getElementById('leave_type').value;
             const noteVal = ['Absence Exceptionnelle', "Autorisation d'absence"].includes(typeVal) ? document.getElementById('leave_autre').value.trim() : '';
-            const days    = calculateWorkDays(start, end, startTime, endTime, currentUser);
+            const days    = calculateWorkDays(start, end, startTime, endTime, currentUser, typeVal);
             const emp     = db.employees.find(e => e.name === currentUser) || {};
             const req = { id: Date.now(), user: currentUser, lastname: emp.lastname || '', email, start, end, days, type: typeVal, note: noteVal, status: 'En attente', date_demande: new Date().toISOString().split('T')[0] };
             if (startTime) req.startTime = startTime;
@@ -2274,7 +2281,7 @@
                 const movedHtml = movedTag(r);
                 return `<tr>
                     <td><strong style="font-size:0.8rem">Du ${formatDate(r.start)}</strong>${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted);font-size:0.72rem">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}${movedHtml}</td>
-                    <td><strong>${fmtDays(r.days)}</strong> j</td>
+                    <td>${isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) ? `<strong>${durTxt(r)}</strong>` : `<strong>${fmtDays(r.days)}</strong> j`}</td>
                     <td style="font-size:0.75rem">${typeLabel}${rattrapageTag(r)}</td>
                     <td>${statusBadge(r.status)}${reasonHtml}${proposalHtml}</td>
                     <td><button class="btn btn-ghost btn-sm" onclick="downloadPDF(${r.id})">PDF</button>${agendaButtons(r)}${canCancel(r) ? `<br><button class="btn-cancel-req" onclick="cancelRequest(${r.id})" title="${r.status === 'Validé' ? 'Annuler cette demande validée (le solde sera recrédité)' : 'Retirer cette demande'}">Annuler</button>` : ''}</td>
@@ -2313,7 +2320,7 @@
                     </div>
                     <div class="req-chips">
                         <span class="chip">${fmtPeriod(r)}</span>
-                        <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
+                        <span class="chip">${isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) ? durTxt(r) + ' · aucun jour décompté' : fmtDays(r.days) + ' jour(s) ouvré(s)'}</span>
                         <span class="chip">${r.type}${r.note ? ' — '+r.note : ''}</span>
                         ${r.rattrapage && r.rattrapage.length ? `<span class="chip" style="background:#e8f1fb;color:#1b5fa8;">Rattrapage : ${fmtRattrapage(r.rattrapage)}</span>` : ''}
                         <span class="chip">Déposé le ${formatDate(r.date_demande)}</span>
@@ -2344,7 +2351,7 @@
             ? data.map(r => `<tr>
                 <td><strong>${r.user} ${r.lastname}</strong></td>
                 <td style="font-size:0.78rem">Du ${formatDate(r.start)}${timeTag(r.startTime, 'à ')}<br><span style="color:var(--muted)">au ${formatDate(r.end)}</span>${timeTag(r.endTime, 'à ')}</td>
-                <td>${fmtDays(r.days)} j</td>
+                <td>${durTxt(r)}</td>
                 <td style="font-size:0.76rem">${r.type}${r.note ? `<br><em style="color:var(--muted)">${r.note}</em>` : ''}${rattrapageTag(r)}</td>
                 <td>${statusBadge(r.status)}</td>
                 <td style="font-size:0.76rem;color:var(--muted)">${r.reason||'—'}</td>
@@ -2760,7 +2767,7 @@
                 return `<div class="gcal-bar${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.telework ? ' telework' : ''}${r.start < s.from ? ' cont-left' : ''}${r.end > s.to ? ' cont-right' : ''}${ro ? ' readonly' : ''}${ro && r.user === currentUser ? ' mine' : ''}"
                     style="left:calc(${left / 7 * 100}% + 3px);width:calc(${span / 7 * 100}% - 6px);top:${s.lane * 24}px;${r.telework ? `color:${colorMap[r.user] || '#999'};border-color:${colorMap[r.user] || '#999'}` : `background-color:${colorMap[r.user] || '#999'}`}"
                     ${ro ? '' : `draggable="true" ondragstart="onBarDragStart(event, ${r.id})" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`}
-                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.telework ? ' · TT' : (r.startTime || r.endTime ? ' ·' : '') + ' ' + fmtDays(r.days) + ' j'}${!ro && r.proposal ? ' · prop.' : ''}</div>`;
+                    title="${r.user} ${r.lastname || ''} · ${fmtPeriod(r)} · ${durTxt(r)}${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}">${r.user}${r.telework ? ' · TT' : (r.startTime || r.endTime ? ' ·' : '') + ' ' + durTxt(r)}${!ro && r.proposal ? ' · prop.' : ''}</div>`;
             }).join('');
             html += `<div class="gcal-week" data-start="${wStart}" style="min-height:${Math.max(96, 38 + laneEnd.length * 24 + 8)}px"${calMode === 'admin' ? ' ondragover="onWeekDragOver(event)" ondrop="onWeekDrop(event)"' : ''}>${days}<div class="gcal-events">${bars}</div></div>`;
         }
@@ -2791,7 +2798,7 @@
                 const r = mine.find(x => iso >= x.start && iso <= x.end);
                 const ro = calMode === 'employee';
                 html += `<td class="${wk ? 'weekend' : ''}${off ? ' offday' : ''}${ttRec && !r ? ' tt-recurring' : ''}" data-date="${iso}"${ttRec && !r ? ` title="${name} · télétravail habituel"` : ''}${ro ? '' : ' ondragover="onPlanDragOver(event)" ondragleave="onPlanDragLeave(event)" ondrop="onPlanDrop(event)"'}>${r
-                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.telework ? ' telework' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="${r.telework ? `border-color:${colorMap[name] || '#999'};color:${colorMap[name] || '#999'}` : `background-color:${colorMap[name] || '#999'}`}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${fmtDays(r.days)} j${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
+                    ? `<div class="plan-abs${r.status === 'En attente' ? ' pending' : ''}${r.offered ? ' offered' : ''}${r.telework ? ' telework' : ''}${iso === r.start ? ' first' : ''}${iso === r.end ? ' last' : ''}${ro ? ' readonly' : ''}${ro && name === currentUser ? ' mine' : ''}" style="${r.telework ? `border-color:${colorMap[name] || '#999'};color:${colorMap[name] || '#999'}` : `background-color:${colorMap[name] || '#999'}`}" ${ro ? '' : `draggable="true" ondragstart="onPlanDragStart(event, ${r.id}, '${iso}')" ondragend="onDragEnd(event)" onclick="openRequestModal(${r.id})"`} title="${name} · ${fmtPeriod(r)} · ${durTxt(r)}${ro ? '' : ' · ' + r.status + (r.proposal ? ' · proposition envoyée' : '')}"></div>`
                     : ''}</td>`;
             });
             html += '</tr>';
@@ -2859,7 +2866,7 @@
     }
     // Remplace les dates d'une demande (solde recalculé si elle est validée) et trace le décalage
     function applyDates(db, r, start, end, st, et, by) {
-        const newDays = calculateWorkDays(start, end, st, et, r.user);
+        const newDays = calculateWorkDays(start, end, st, et, r.user, r.type);
         const before = { start: r.start, end: r.end, startTime: r.startTime, endTime: r.endTime, days: r.days };
         if (r.status === 'Validé' && !r.offered && !r.telework && db.soldes[r.user] !== undefined) {
             restoreLeave(db, r.user, r.fromN1 || 0, r.fromN !== undefined ? r.fromN : (r.days || 0));
@@ -2883,7 +2890,7 @@
             if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) return false;
             const range = { start, end };
             if (db.requests.some(x => x.id !== id && x.user === r.user && isActiveStatus(x.status) && !x.telework && overlaps(x, range))) { alert(`${r.user} a déjà une autre demande sur cette période.`); return false; }
-            const newDays = calculateWorkDays(start, end, st, et, r.user);
+            const newDays = calculateWorkDays(start, end, st, et, r.user, r.type);
             const others = otherOverlapping(db, r, range).map(x => `${x.user} (${fmtPeriod(x).replace(/^Du/, 'du')}, ${x.status.toLowerCase()})`);
             const preview = { start, end, startTime: st, endTime: et };
             let msg = `Décaler la demande de ${r.user} ${r.lastname || ''} ?\n\nAvant : ${fmtPeriod(r)} (${fmtDays(r.days)} j)\nAprès : ${fmtPeriod(preview)} (${fmtDays(newDays)} j)`;
@@ -2918,7 +2925,7 @@
             if (!isCalStatus(r.status)) { alert('Une proposition ne peut être faite que sur une demande en attente ou validée.'); return false; }
             const err = validateDates(start, end, st, et); if (err) { alert(err); return false; }
             if (start === r.start && end === r.end && (st || '') === (r.startTime || '') && (et || '') === (r.endTime || '')) { alert('Ces dates sont identiques à la demande actuelle.'); return false; }
-            const days = calculateWorkDays(start, end, st, et, r.user);
+            const days = calculateWorkDays(start, end, st, et, r.user, r.type);
             const p = { start, end, days, by: actorName(), ts: Date.now(), message: (message || '').trim() };
             if (st) p.startTime = st; if (et) p.endTime = et;
             r.proposal = p;
@@ -3042,7 +3049,7 @@
         <div class="modal-body">
             <div class="req-chips" style="margin-top:0;">
                 <span class="chip">${fmtPeriod(r)}</span>
-                <span class="chip">${fmtDays(r.days)} jour(s) ouvré(s)</span>
+                <span class="chip">${isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) ? durTxt(r) + ' · aucun jour décompté' : fmtDays(r.days) + ' jour(s) ouvré(s)'}</span>
                 <span class="chip">${r.type}${r.note ? ' — ' + r.note : ''}</span>
                 <span class="chip">Solde actuel : ${solde}</span>
                 <span class="chip">Déposée le ${formatDate(r.date_demande)}</span>
@@ -3110,7 +3117,7 @@
         if (!d.start || !d.end || d.start > d.end) { el.innerHTML = d.start && d.end ? '<span style="color:var(--danger);">✕ La date de fin doit être après la date de début.</span>' : ''; return; }
         const { db } = cachedDB || await fetchFromGitHub();
         const r = db.requests.find(x => x.id === modalRequestId); if (!r) return;
-        const det = workDaysDetail(d.start, d.end, d.startTime, d.endTime, r.user);
+        const det = workDaysDetail(d.start, d.end, d.startTime, d.endTime, r.user, r.type);
         const days = det.days, hint = workDaysHint(det, r.user);
         const self = db.requests.some(x => x.id !== r.id && x.user === r.user && isActiveStatus(x.status) && !x.telework && overlaps(x, d));
         const others = otherOverlapping(db, r, d);
@@ -3594,7 +3601,7 @@
         return (withName ? `${r.user} ${r.lastname || ''}`.trim() + ' — ' : '') + base + (r.status === 'En attente' ? ' (en attente)' : '');
     }
     function eventDescription(r) {
-        return [`${r.type}${r.note ? ' — ' + r.note : ''}`, `${fmtPeriod(r)} · ${fmtDays(r.days)} jour(s) ouvré(s)`, `Statut : ${r.status}`,
+        return [`${r.type}${r.note ? ' — ' + r.note : ''}`, `${fmtPeriod(r)} · ${isHourlyAbsence(r.type, r.start, r.end, r.startTime, r.endTime) ? 'sortie ponctuelle, aucun jour décompté' : fmtDays(r.days) + ' jour(s) ouvré(s)'}`, `Statut : ${r.status}`,
             r.rattrapage && r.rattrapage.length ? 'Rattrapage : ' + fmtRattrapage(r.rattrapage) : '', 'Source : Congés RH — Rue du Store'].filter(Boolean).join('\n');
     }
     // Un congé avec heures = événement horaire (heures manquantes remplacées par 08h00 / 18h00), sinon journée(s) entière(s)
