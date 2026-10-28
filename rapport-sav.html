@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17212b">
 <title>Rapport SAV Terrain</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -152,7 +158,13 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
 .pill.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
 .pill.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
 .rep .status { margin-top: 4px; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header class="top">
@@ -251,7 +263,7 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
     <div id="msg" aria-live="polite"></div>
     <div id="resetZone"><button class="btn ghost small" type="button" id="btnReset">Nouveau rapport (tout effacer)</button></div>
   </section>
-  <p class="saved-note" id="savedNote">Brouillon enregistré sur cet appareil. Chaque PDF créé est ajouté à l'onglet Rapports.</p>
+  <p class="saved-note" id="savedNote">Brouillon et rapports enregistrés sur cet appareil. Chaque PDF créé est ajouté à l'onglet Rapports.</p>
   </div>
 </div>
 
@@ -698,59 +710,114 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
     return doc.output("blob");
   }
 
-  // ---------- liste des rapports (db + assets) ----------
-  let downloads = null, store = null, assets = null, reports = [];
+  // ---------- liste des rapports (enregistrée sur cet appareil, IndexedDB) ----------
   const pdfName = (no, client) => {
     const safe = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w-]+/g, "_").replace(/^_|_$/g, "");
     return `${no}_${safe(client) || "client"}.pdf`;
   };
-
+  let reports = [];
+  let repDbP = null;
+  function repDb() {
+    if (repDbP) return repDbP;
+    repDbP = new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open("rapport-sav-liste", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("reports", { keyPath: "id" });
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    });
+    return repDbP;
+  }
+  async function repOp(mode, fn) {
+    const db = await repDb();
+    return new Promise((res, rej) => {
+      const tx = db.transaction("reports", mode);
+      const r = fn(tx.objectStore("reports"));
+      tx.oncomplete = () => res(r && r.result);
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error);
+    });
+  }
+  async function loadReports() {
+    try {
+      const all = await repOp("readonly", st => st.getAll());
+      // la liste n'a pas besoin des PDF en mémoire
+      reports = (all || []).map(({ pdf, ...r }) => ({ ...r, hasPdf: !!pdf }))
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+      $("listMsg").replaceChildren();
+    } catch (e) {
+      reports = [];
+      $("listMsg").replaceChildren(el("div", "status bad", "La liste des rapports n'a pas pu être lue sur cet appareil (navigation privée ?)."));
+    }
+    renderList();
+  }
   async function archive(blob, file) {
-    if (!store) return "La liste des rapports n'est pas disponible ici : le PDF n'y a pas été ajouté.";
     if (!state.id) { state.id = state.no + "-" + Math.random().toString(36).slice(2, 7); save(); }
-    const ref = store.collection("reports").doc(state.id);
-    let oldPdf = null;
-    try { const prev = await ref.get(); if (prev.exists) oldPdf = prev.data().pdf || null; } catch (e) {}
-    let pdf = null, size = 0, note = "";
-    if (assets) {
-      try { const up = await assets.upload(blob, { type: "application/pdf" }); pdf = up.id; size = up.sizeBytes; }
-      catch (e) { note = e && e.code === "too_large" ? "Le PDF dépasse 20 Mo : la fiche est dans la liste, mais sans le PDF." : "La fiche est dans la liste, mais le PDF n'a pas pu y être joint."; }
-    } else note = "La fiche est dans la liste, mais le PDF n'a pas pu y être joint.";
     const f = state.fields;
-    await ref.set({
-      no: state.no, date: state.date, createdAt: new Date().toISOString(), file,
+    const rec = {
+      id: state.id, no: state.no, date: state.date, createdAt: new Date().toISOString(), file,
       client: f.client || "", order: f.order || "", product: f.product || "", tech: f.tech || "",
       address: f.address || "", cats: state.cats, urg: state.urg, stat: state.stat || "",
       problem: (f.problem || "").slice(0, 400),
       photos: state.media.filter(m => m.kind === "photo").length,
       videos: state.media.filter(m => m.kind === "video").length,
-      pdf: pdf || oldPdf, size
-    });
-    if (pdf && oldPdf && oldPdf !== pdf) assets.delete(oldPdf).catch(() => {});
-    return note;
+      pdf: await blob.arrayBuffer()
+    };
+    await repOp("readwrite", st => st.put(rec));
+    await loadReports();
+  }
+
+  // Partage (iPhone : menu de partage → Mail) ou téléchargement (ordinateur)
+  async function deliver(blob, name) {
+    const file = new File([blob], name, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); return "shared"; }
+      catch (e) {
+        if (e && e.name === "AbortError") return "cancel";
+        if (e && e.name === "NotAllowedError") return "retry";
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = name;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return "downloaded";
+  }
+  // Message + bouton « Partager le PDF » quand le navigateur demande un nouveau geste
+  function retryBox(target, blob, name, after) {
+    const box = el("div", "status info");
+    box.append(el("span", "", "Le PDF est prêt. "));
+    const b = el("button", "btn small primary", "Partager le PDF"); b.type = "button";
+    b.onclick = async () => { const r = await deliver(blob, name); after(r); };
+    box.append(b); target.replaceChildren(box);
+  }
+  function deliveredText(r, name) {
+    if (r === "shared") return `PDF envoyé au partage : ${name}.`;
+    if (r === "downloaded") return `PDF téléchargé : ${name}. Joins-le à ton e-mail.`;
+    return "Partage annulé.";
   }
 
   $("btnPdf").onclick = async () => {
     if (!validate()) return;
     if (!window.jspdf) { status("bad", "Le module PDF n'est pas chargé. Vérifie ta connexion puis recharge la page."); return; }
     const btn = $("btnPdf"); btn.disabled = true;
-    let note = "";
     try {
       status("info", "Création du PDF…");
       const blob = buildPdf();
       const name = pdfName(state.no, state.fields.client);
-      status("info", "Ajout à la liste des rapports…");
-      try { note = await archive(blob, name); }
-      catch (e) { note = "Le rapport n'a pas pu être ajouté à la liste (" + ((e && e.code) || "erreur") + ")."; }
-      if (!downloads) { status("bad", (note ? note + " " : "") + "L'enregistrement du PDF n'est pas disponible ici. Ouvre la page depuis l'app Claude ou claude.ai."); return; }
-      const r = await downloads.save({ filename: name, data: blob });
-      status(note ? "info" : "ok", (r.status === "saved" ? `PDF prêt : ${name}. Choisis Mail dans le partage, ou joins-le à l'e-mail.` : "PDF transmis.") + (note ? " " + note : " Ajouté à l'onglet Rapports."));
+      // le partage d'abord : l'iPhone exige qu'il suive directement le toucher
+      const r = await deliver(blob, name);
+      let note = " Ajouté à l'onglet Rapports.";
+      try { await archive(blob, name); }
+      catch (e) { note = " Attention : le rapport n'a pas pu être ajouté à la liste sur cet appareil."; }
+      if (r === "retry") {
+        retryBox($("msg"), blob, name, r2 => status(r2 === "cancel" ? "info" : "ok", deliveredText(r2, name) + note));
+        return;
+      }
+      status(r === "cancel" ? "info" : "ok", deliveredText(r, name) + note);
     } catch (e) {
-      const code = e && e.code;
-      const tail = note ? " " + note : (store ? " Le rapport est quand même dans l'onglet Rapports." : "");
-      if (code === "declined") status("info", "Enregistrement du PDF annulé." + tail);
-      else if (code === "rate_limited") status("info", "Une fenêtre d'enregistrement est déjà ouverte.");
-      else status("bad", "Le PDF n'a pas pu être créé. " + (e && e.message ? e.message : ""));
+      status("bad", "Le PDF n'a pas pu être créé. " + (e && e.message ? e.message : ""));
     } finally { btn.disabled = false; }
   };
 
@@ -772,9 +839,6 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
   function renderList() {
     $("count").textContent = reports.length ? `(${reports.length})` : "";
     const box = $("list"); box.innerHTML = "";
-    const msg = $("listMsg");
-    if (!store) return;
-    msg.innerHTML = "";
     const q = $("q").value.trim().toLowerCase();
     const rows = reports.filter(r => !q || [r.client, r.order, r.no, r.product, r.address, r.tech].join(" ").toLowerCase().includes(q));
     if (!reports.length) { box.append(el("div", "empty", "Aucun rapport pour l'instant. Remplis un rapport puis touche « Créer le PDF » : il apparaîtra ici.")); return; }
@@ -797,35 +861,32 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
       const acts = el("div", "rep-actions");
       const out = el("div", "");
       const send = el("button", "btn small primary", "Envoyer le PDF"); send.type = "button";
-      if (!r.pdf) { send.disabled = true; send.textContent = "PDF non archivé"; }
+      if (!r.hasPdf) { send.disabled = true; send.textContent = "PDF absent"; }
       send.onclick = async () => {
-        if (!downloads) { out.replaceChildren(el("div", "status bad", "L'enregistrement du PDF n'est pas disponible ici.")); return; }
         send.disabled = true;
         try {
-          const res = await fetch("/_blob/" + r.pdf);
-          if (!res.ok) throw { code: "missing" };
-          const b = await res.blob();
-          await downloads.save({ filename: r.file || pdfName(r.no, r.client), data: b });
-          out.replaceChildren(el("div", "status ok", "PDF prêt : choisis Mail dans le partage."));
+          const rec = await repOp("readonly", st => st.get(r.id));
+          if (!rec || !rec.pdf) { out.replaceChildren(el("div", "status bad", "Ce PDF n'est plus disponible.")); return; }
+          const blob = new Blob([rec.pdf], { type: "application/pdf" });
+          const name = rec.file || pdfName(r.no, r.client);
+          const res = await deliver(blob, name);
+          const done = x => out.replaceChildren(el("div", "status " + (x === "cancel" ? "info" : "ok"), deliveredText(x, name)));
+          if (res === "retry") retryBox(out, blob, name, done); else done(res);
         } catch (e) {
-          const c = e && e.code;
-          out.replaceChildren(el("div", "status " + (c === "declined" ? "info" : "bad"),
-            c === "declined" ? "Enregistrement annulé." : c === "missing" ? "Ce PDF n'est plus disponible." : "Le PDF n'a pas pu être récupéré. Réessaie dans un instant."));
-        } finally { send.disabled = !r.pdf; }
+          out.replaceChildren(el("div", "status bad", "Le PDF n'a pas pu être récupéré."));
+        } finally { send.disabled = !r.hasPdf; }
       };
       const del = el("button", "btn small ghost", "Supprimer"); del.type = "button";
       del.onclick = () => {
         const c = el("div", "confirm");
-        c.append(el("span", "", "Supprimer ce rapport et son PDF ?"));
+        c.append(el("span", "", "Supprimer ce rapport et son PDF de cet appareil ?"));
         const yes = el("button", "btn small", "Oui, supprimer"); yes.type = "button";
         const no = el("button", "btn small ghost", "Annuler"); no.type = "button";
         no.onclick = () => out.replaceChildren();
         yes.onclick = async () => {
           yes.disabled = true;
-          try {
-            await store.collection("reports").doc(r.id).delete();
-            if (r.pdf && assets) assets.delete(r.pdf).catch(() => {});
-          } catch (e) { out.replaceChildren(el("div", "status bad", "La suppression a échoué. Réessaie.")); }
+          try { await repOp("readwrite", st => st.delete(r.id)); await loadReports(); }
+          catch (e) { out.replaceChildren(el("div", "status bad", "La suppression a échoué. Réessaie.")); }
         };
         c.append(yes, no); out.replaceChildren(c);
       };
@@ -843,16 +904,10 @@ input[type=search] { font: inherit; font-size: 16px; color: var(--ink); backgrou
     const d = await kv("get", "draft");
     if (d && d.no) { state = d; render(); }
   })();
-  (async () => {
-    $("listMsg").replaceChildren(el("div", "empty", "Chargement des rapports…"));
-    for (let i = 0; i < 50 && !window.claude; i++) await new Promise(r => setTimeout(r, 100));
-    const use = n => window.claude ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
-    [downloads, store, assets] = await Promise.all([use("downloads"), use("db"), use("assets")]);
-    if (!store) { $("listMsg").replaceChildren(el("div", "status info", "La liste des rapports n'est pas disponible : ouvre la page dans l'app Claude ou sur claude.ai, connecté à ton compte.")); return; }
-    store.collection("reports").orderBy("createdAt", "desc").onSnapshot(
-      s => { reports = s.docs.map(d => ({ id: d.id, ...d.data() })); renderList(); },
-      () => $("listMsg").replaceChildren(el("div", "status bad", "La liste des rapports n'a pas pu être chargée. Recharge la page."))
-    );
-  })();
+  loadReports();
+  // demande au navigateur de ne pas effacer les rapports enregistrés
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
 })();
 </script>
+</body>
+</html>
