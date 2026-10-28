@@ -632,7 +632,7 @@
       "email": "camille.girard@ruedustore.fr",
       "start": "2026-10-29",
       "end": "2026-10-29",
-      "days": 0.5,
+      "days": 0,
       "type": "Autorisation d'absence",
       "note": "MEDECIN ENFANT",
       "status": "Validé",
@@ -761,6 +761,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1793181337893,
+      "date": "2026-10-28",
+      "heure": "10:55",
+      "type": "tt",
+      "actor": "Cindy",
+      "label": "Télétravail habituel modifié",
+      "detail": "Cindy · jeudi"
+    },
     {
       "ts": 1792741152540,
       "date": "2026-10-23",
@@ -1926,6 +1935,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1793181338042,
+      "ts": 1793181337893,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Cindy</strong> a modifié son télétravail habituel : jeudi",
+      "reqId": null
+    },
     {
       "id": 1792741153054,
       "ts": 1792741152540,
