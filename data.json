@@ -781,6 +781,15 @@
   },
   "logs": [
     {
+      "ts": 1793182452046,
+      "date": "2026-10-28",
+      "heure": "11:14",
+      "type": "tt",
+      "actor": "Cindy",
+      "label": "Télétravail habituel modifié",
+      "detail": "Cindy · jeudi"
+    },
+    {
       "ts": 1793181383519,
       "date": "2026-10-28",
       "heure": "10:56",
@@ -1963,6 +1972,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1793182452890,
+      "ts": 1793182452046,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Cindy</strong> a modifié son télétravail habituel : jeudi",
+      "reqId": null
+    },
     {
       "id": 1793181383748,
       "ts": 1793181383519,
