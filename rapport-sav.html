@@ -403,7 +403,7 @@ img { max-width: 100%; }
   // ---------- envoi automatique des vidéos vers Google Drive ----------
   // Renseigner UPLOAD_URL (adresse du script Google Apps Script « Application Web ») et UPLOAD_CODE
   // (même code que dans le script). Tant que UPLOAD_URL est vide, l'outil garde le collage manuel du lien.
-  const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbx95yqVVIGc9ywqBUKsJWU0Afm5s4A23-16Bj5Kt_Q_N7WTqsYGmD-xoziyYSqt_hn8/exec";
+  const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbyI7s-2AuYpOrGWiGwQFuT-OiX7rhNNQF2zoq54Msa4my7Z5KH5muuYxayJBB5BfNnf/exec";
   const UPLOAD_CODE = "AdamAudam45!";
   const upl = new WeakMap(); // média -> { state: "up"|"ok"|"bad", text }
   function setUpl(m, st, text) {
@@ -415,19 +415,24 @@ img { max-width: 100%; }
   async function uploadVideo(m, file) {
     if (!UPLOAD_URL) return;
     const stamp = state.no + "_" + Date.now() + "_" + (file.name || "video.mp4").replace(/[^\w.\-]+/g, "_");
+    let step = "1-script";
     try {
       setUpl(m, "up", "Préparation de l'envoi…");
       const init = await post({ action: "init", name: stamp, mime: file.type || "video/mp4", origin: location.origin });
       if (!init.ok) throw new Error(init.error || "init");
+      step = "2-envoi";
+      let sent = false;
       await new Promise((res, rej) => {
         const x = new XMLHttpRequest();
         x.open("PUT", init.session);
         x.setRequestHeader("Content-Type", file.type || "video/mp4");
-        x.upload.onprogress = ev => { if (ev.lengthComputable) setUpl(m, "up", `Envoi en cours… ${Math.round(ev.loaded / ev.total * 100)} %`); };
+        x.upload.onprogress = ev => { if (ev.lengthComputable) { if (ev.loaded >= ev.total) sent = true; setUpl(m, "up", `Envoi en cours… ${Math.round(ev.loaded / ev.total * 100)} %`); } };
         x.onload = res;
-        x.onerror = res; // la réponse peut être illisible (CORS) alors que l'envoi a réussi : on vérifie côté script
+        // la réponse peut être illisible (CORS) alors que l'envoi a réussi : on ne bloque que si rien n'est parti
+        x.onerror = () => sent ? res() : rej(new Error("envoi-bloque"));
         x.send(file);
       });
+      step = "3-lien";
       setUpl(m, "up", "Création du lien…");
       let fin;
       for (let t = 0; t < 6; t++) { // le fichier peut mettre quelques secondes à apparaître
@@ -442,7 +447,7 @@ img { max-width: 100%; }
       setUpl(m, "ok", "Envoyée ✓ — lien ajouté");
       save();
     } catch (err) {
-      setUpl(m, "bad", "Envoi impossible. Colle le lien Google Drive à la main ci-dessous.");
+      setUpl(m, "bad", `Envoi impossible (étape ${step} : ${err && err.message || err}). Colle le lien Google Drive à la main ci-dessous.`);
     }
   }
 
