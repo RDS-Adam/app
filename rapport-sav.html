@@ -111,6 +111,9 @@ input.file { display: none; }
 .thumb input.lnk { color: var(--accent); }
 .thumb input.lnk.err { color: var(--bad); background: var(--bad-soft); }
 .thumb input.lnk.missing { background: var(--warn-soft); }
+.thumb .upl { font-size: 13px; padding: 6px 8px; border-top: 1px solid var(--line); background: var(--card); color: var(--muted, #5d6873); }
+.thumb .upl.ok { color: var(--ok, #1a7f45); }
+.thumb .upl.bad { color: var(--bad); }
 details.howto { font-size: 14px; color: var(--muted); }
 details.howto summary { cursor: pointer; color: var(--ink); font-weight: 600; }
 details.howto ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
@@ -217,9 +220,9 @@ img { max-width: 100%; }
 
   <section class="card" aria-labelledby="h-media">
     <h2 id="h-media"><span class="n">03</span>Photos et vidéos</h2>
-    <p class="hint">Prends la photo directement ou choisis-la dans la galerie. Pour chaque vidéo, colle son lien Google Drive : dans le PDF, l'image de la vidéo devient cliquable et ouvre la vidéo.</p>
+    <p class="hint">Prends la photo directement ou choisis-la dans la galerie. Les vidéos sont envoyées automatiquement sur le Drive et leur lien se remplit tout seul : dans le PDF, l'image de la vidéo devient cliquable et ouvre la vidéo. Attends que « Envoyée ✓ » s'affiche avant de créer le PDF.</p>
     <details class="howto">
-      <summary>Obtenir le lien Google Drive d'une vidéo</summary>
+      <summary>L'envoi automatique ne marche pas ? Mettre le lien à la main</summary>
       <ol>
         <li>Dans l'app Google Drive, touche <b>+</b> puis <b>Importer</b> et choisis la vidéo.</li>
         <li>Sur la vidéo importée, touche <b>⋮</b> puis <b>Partager</b> → <b>Accès général</b> : choisis <b>Tous les utilisateurs qui ont le lien</b>.</li>
@@ -381,17 +384,67 @@ img { max-width: 100%; }
     const files = [...e.target.files]; e.target.value = "";
     for (const f of files) {
       status("info", "Lecture de la vidéo…");
+      let m;
       try {
         const v = await videoFrame(f);
-        state.media.push({ kind: "video", img: v.data, w: v.w, h: v.h, dur: v.dur, name: f.name, caption: "" });
+        m = { kind: "video", img: v.data, w: v.w, h: v.h, dur: v.dur, name: f.name, caption: "" };
+        state.media.push(m);
         renderMedia(); save(); status("", "");
       } catch (err) {
-        state.media.push({ kind: "video", img: null, w: 4, h: 3, dur: 0, name: f.name, caption: "" });
+        m = { kind: "video", img: null, w: 4, h: 3, dur: 0, name: f.name, caption: "" };
+        state.media.push(m);
         renderMedia(); save();
         status("info", `Vidéo « ${f.name} » ajoutée sans aperçu.`);
       }
+      uploadVideo(m, f); // envoi automatique vers le Drive (sans attendre : plusieurs vidéos en parallèle)
     }
   };
+
+  // ---------- envoi automatique des vidéos vers Google Drive ----------
+  // Renseigner UPLOAD_URL (adresse du script Google Apps Script « Application Web ») et UPLOAD_CODE
+  // (même code que dans le script). Tant que UPLOAD_URL est vide, l'outil garde le collage manuel du lien.
+  const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbx95yqVVIGc9ywqBUKsJWU0Afm5s4A23-16Bj5Kt_Q_N7WTqsYGmD-xoziyYSqt_hn8/exec";
+  const UPLOAD_CODE = "AdamAudam45!";
+  const upl = new WeakMap(); // média -> { state: "up"|"ok"|"bad", text }
+  function setUpl(m, st, text) {
+    upl.set(m, { st, text });
+    const i = state.media.indexOf(m), el = i >= 0 && $("upl-" + i);
+    if (el) { el.hidden = false; el.textContent = text; el.className = "upl " + st; }
+  }
+  const post = body => fetch(UPLOAD_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ code: UPLOAD_CODE, ...body }) }).then(r => r.json());
+  async function uploadVideo(m, file) {
+    if (!UPLOAD_URL) return;
+    const stamp = state.no + "_" + Date.now() + "_" + (file.name || "video.mp4").replace(/[^\w.\-]+/g, "_");
+    try {
+      setUpl(m, "up", "Préparation de l'envoi…");
+      const init = await post({ action: "init", name: stamp, mime: file.type || "video/mp4", origin: location.origin });
+      if (!init.ok) throw new Error(init.error || "init");
+      await new Promise((res, rej) => {
+        const x = new XMLHttpRequest();
+        x.open("PUT", init.session);
+        x.setRequestHeader("Content-Type", file.type || "video/mp4");
+        x.upload.onprogress = ev => { if (ev.lengthComputable) setUpl(m, "up", `Envoi en cours… ${Math.round(ev.loaded / ev.total * 100)} %`); };
+        x.onload = res;
+        x.onerror = res; // la réponse peut être illisible (CORS) alors que l'envoi a réussi : on vérifie côté script
+        x.send(file);
+      });
+      setUpl(m, "up", "Création du lien…");
+      let fin;
+      for (let t = 0; t < 6; t++) { // le fichier peut mettre quelques secondes à apparaître
+        fin = await post({ action: "finish", name: stamp });
+        if (fin.ok) break;
+        await new Promise(r => setTimeout(r, 2500));
+      }
+      if (!fin || !fin.ok) throw new Error((fin && fin.error) || "finish");
+      m.link = fin.link;
+      const ln = $("lnk-" + state.media.indexOf(m));
+      if (ln) { ln.value = m.link; ln.classList.remove("err", "missing"); }
+      setUpl(m, "ok", "Envoyée ✓ — lien ajouté");
+      save();
+    } catch (err) {
+      setUpl(m, "bad", "Envoi impossible. Colle le lien Google Drive à la main ci-dessous.");
+    }
+  }
 
   function shrinkImage(file) {
     return new Promise((res, rej) => {
@@ -456,7 +509,12 @@ img { max-width: 100%; }
           ln.classList.toggle("missing", !m.link);
         };
         ln.oninput = () => { m.link = ln.value.trim(); check(); save(); };
-        check(); t.append(ln);
+        check();
+        const u = document.createElement("div"); u.id = "upl-" + idx;
+        const cur = upl.get(m);
+        u.className = "upl " + (cur ? cur.st : ""); u.textContent = cur ? cur.text : "";
+        if (!cur) u.hidden = true;
+        t.append(u, ln);
       }
       g.append(t);
     });
@@ -550,6 +608,7 @@ img { max-width: 100%; }
     const miss = need.filter(([id]) => !(state.fields[id] || "").trim());
     miss.forEach(([id]) => $(id).classList.add("err"));
     if (miss.length) { $(miss[0][0]).focus(); status("bad", "Il manque " + miss.map(m => m[1]).join(", ") + "."); return false; }
+    if (state.media.some(m => (upl.get(m) || {}).st === "up")) { status("bad", "Une vidéo est encore en cours d'envoi. Attends « Envoyée ✓ » puis réessaie."); return false; }
     const badLink = state.media.findIndex(m => m.kind === "video" && m.link && !validLink(m.link));
     if (badLink >= 0) { $("lnk-" + badLink)?.focus(); status("bad", "Un lien vidéo n'est pas valide : il doit commencer par https://"); return false; }
     return true;
