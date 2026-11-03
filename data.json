@@ -721,10 +721,12 @@
       "days": 0.5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
+      "status": "Annulé",
       "date_demande": "2026-11-03",
       "startTime": "12:00",
-      "endTime": "12:30"
+      "endTime": "12:30",
+      "prevStatus": "En attente",
+      "date_annulation": "2026-11-03"
     }
   ],
   "soldes": {
@@ -836,6 +838,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1793718771140,
+      "date": "2026-11-03",
+      "heure": "16:12",
+      "type": "annulation",
+      "actor": "Clarisse Guai",
+      "label": "Demande retirée par le salarié",
+      "detail": "Congés Payés · Du 17/11/2026 à 12h00 au 17/11/2026 à 12h30 (0,5 j)"
+    },
     {
       "ts": 1793718602420,
       "date": "2026-11-03",
@@ -2091,6 +2102,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1793718771902,
+      "ts": 1793718771140,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "annulation",
+      "text": "🚫 <strong>Clarisse Guai</strong> a annulé sa demande en attente : Congés Payés · Du 17/11/2026 à 12h00 au 17/11/2026 à 12h30 (0,5 j)",
+      "reqId": 1793718602420
+    },
     {
       "id": 1793718602886,
       "ts": 1793718602420,
