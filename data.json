@@ -727,6 +727,28 @@
       "endTime": "12:30",
       "prevStatus": "En attente",
       "date_annulation": "2026-11-03"
+    },
+    {
+      "id": 1793719193352,
+      "user": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr",
+      "start": "2026-11-17",
+      "end": "2026-11-17",
+      "days": 0,
+      "type": "Autorisation d'absence",
+      "note": "RDS",
+      "status": "En attente",
+      "date_demande": "2026-11-03",
+      "startTime": "12:00",
+      "endTime": "12:30",
+      "rattrapage": [
+        {
+          "date": "2026-11-17",
+          "from": "13:30",
+          "to": "14:00"
+        }
+      ]
     }
   ],
   "soldes": {
@@ -838,6 +860,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1793719193352,
+      "date": "2026-11-03",
+      "heure": "16:19",
+      "type": "demande",
+      "actor": "Clarisse Guai",
+      "label": "Nouvelle demande soumise",
+      "detail": "Autorisation d'absence — RDS · Du 17/11/2026 à 12h00 au 17/11/2026 à 12h30 (0 j) · Rattrapage : 17/11/2026 de 13h30 à 14h00"
+    },
     {
       "ts": 1793718771140,
       "date": "2026-11-03",
@@ -2102,6 +2133,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1793719193410,
+      "ts": 1793719193352,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Clarisse Guai</strong> a déposé une demande : Autorisation d'absence — RDS · Du 17/11/2026 à 12h00 au 17/11/2026 à 12h30 (0 j) · Rattrapage : 17/11/2026 de 13h30 à 14h00",
+      "reqId": 1793719193352
+    },
     {
       "id": 1793718771902,
       "ts": 1793718771140,
