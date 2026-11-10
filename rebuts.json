@@ -137,8 +137,8 @@
       "createdAt": 1794308296297,
       "createdBy": "",
       "nom": "Store enrouleur coffre B-Box 65 à chaînette (Bandalux)",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/store-enrouleur-occultant-coulisses-coffre.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/cache/b14533089c89bfd4215f881206c5a114/e/n/enrouleur-interieur-coffre-gris-blanc.jpg",
       "photo": "",
       "largeur": 112,
       "hauteur": 135,
@@ -153,7 +153,7 @@
       "ref": "Conf. Bandalux 8051862 — B0018741 Tobia",
       "lieu": "",
       "notes": "Bandalux. Store enrouleur coffre B-Box 65 manœuvré par chaînette premium blanche. Guides latéraux R2 télescopiques en pose de face, barre de charge base de face CP-68A. Prix = store + options, hors port.",
-      "updatedAt": 1794308304297,
+      "updatedAt": 1794316095187,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794316095664,
+      "by": "AS",
+      "msg": "Modification : Store enrouleur coffre B-Box 65 à chaînette (Bandalux)"
+    },
     {
       "ts": 1794316061410,
       "by": "AS",
