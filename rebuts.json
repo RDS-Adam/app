@@ -111,8 +111,8 @@
       "createdAt": 1794308297297,
       "createdBy": "",
       "nom": "Toile de store banne + lambrequin, Dickson Orchestra U104 Flanelle — AVARIE",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/toiles-de-store-banne.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/cache/bcea8a45726d32e575dfa13c89316df2/e/n/entoilage-store-banne_1.jpg",
       "photo": "",
       "largeur": 404,
       "hauteur": 330,
@@ -127,7 +127,7 @@
       "ref": "AR CC49185 — B0017115 Poignard",
       "lieu": "",
       "notes": "⚠ AVARIE TRANSPORT : toile coupée sur 40 cm de longueur, sur 2-3 tours. Toile seule, sans armature. Toile : jonc de 5 mm en haut et en bas, ourlets latéraux de 35 mm. Lambrequin séparé, droit, 404 × 22 cm, jonc de 5 mm, galon 5137 Flanelle.",
-      "updatedAt": 1794308304297,
+      "updatedAt": 1794316061038,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794316061410,
+      "by": "AS",
+      "msg": "Modification : Toile de store banne + lambrequin, Dickson Orchestra U104 Flanelle — AVARIE"
+    },
     {
       "ts": 1794316036727,
       "by": "AS",
