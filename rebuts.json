@@ -159,7 +159,13 @@
     {
       "id": "imq01d3163",
       "statut": "disponible",
-      "interesses": [],
+      "interesses": [
+        {
+          "ini": "AS",
+          "note": "",
+          "ts": 1794309401658
+        }
+      ],
       "createdAt": 1794308386171,
       "createdBy": "",
       "nom": "Store banne Allure motorisé radio (Franciaflex)",
@@ -226,7 +232,7 @@
       "prixAchat": 180.55,
       "prixAchatTTC": 216.66,
       "prixVente": 54.17,
-      "prixVenteTTC": 65.0,
+      "prixVenteTTC": 65,
       "don": false,
       "ref": "ARC Franciaflex 100040846 — B0018728 Claeys / Théophile (ligne 10)",
       "lieu": "",
@@ -288,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794309401658,
+      "by": "AS",
+      "msg": "AS intéressé(e)"
+    },
     {
       "ts": 1794308970466,
       "by": "",
