@@ -33,8 +33,8 @@
       "createdAt": 1794308301297,
       "createdBy": "",
       "nom": "Moustiquaire plissée latérale 1 vantail",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/moustiquaire-laterale-plisse.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/mpiowebpcache/7800bb778a954cb4c97ef3c76a1a4610/m/o/moustiquaire-pliss_e-grande-baie_vitr_e-ouverture-centrale.webp",
       "photo": "",
       "largeur": 180,
       "hauteur": 226,
@@ -49,7 +49,7 @@
       "ref": "AR AMB C260501240 — Callard Thierry",
       "lieu": "",
       "notes": "AMB France. Moustiquaire plissée 022 latérale, 1 vantail, mesures finies. Sens d'ouverture réversible (au choix à la pose).",
-      "updatedAt": 1794308304297,
+      "updatedAt": 1794315980689,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794315982122,
+      "by": "AS",
+      "msg": "Modification : Moustiquaire plissée latérale 1 vantail"
+    },
     {
       "ts": 1794315949581,
       "by": "AS",
