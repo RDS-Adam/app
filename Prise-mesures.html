@@ -506,11 +506,6 @@ async function newFiche(){
 /* ---------- Liste des fiches ---------- */
 function updList(list){
   fiches = list; fichesReady = true; renderList();
-  if (!autoOpened && untouched && list.length){
-    autoOpened = true;
-    const last = LS.get('pm2:last'); const pick = list.find(x => x.id === last) || list[0];
-    if (pick && (!cur || cur.id !== pick.id)) openFiche(pick.id);
-  }
 }
 let confirmDel = null;
 function renderList(){
