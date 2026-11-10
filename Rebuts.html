@@ -259,30 +259,16 @@
                     <small>Le prix équipe passe à 0 €. Le prix d'achat reste renseigné pour le suivi.</small></span>
             </label>
             <div class="price-box" id="price-box">
-                <div class="price-sub">Prix d'achat fournisseur * <i style="text-transform:none;letter-spacing:0;font-style:normal">(saisissez l'un, l'autre se calcule — TVA <span class="tva-lbl">20 %</span>)</i></div>
                 <div class="grid2">
                     <div class="fg">
-                        <label for="f-achat-ht">Achat HT (€)</label>
-                        <input id="f-achat-ht" type="number" min="0" step="0.01" inputmode="decimal" oninput="onAchat('ht')">
+                        <label for="f-achat-ttc">Prix d'achat fournisseur TTC (€) *</label>
+                        <input id="f-achat-ttc" type="number" min="0" step="0.01" inputmode="decimal" oninput="onAchat()">
                     </div>
-                    <div class="fg">
-                        <label for="f-achat-ttc">Achat TTC (€)</label>
-                        <input id="f-achat-ttc" type="number" min="0" step="0.01" inputmode="decimal" oninput="onAchat('ttc')">
-                    </div>
-                </div>
-                <div class="vente-fields">
-                    <div class="price-sub" style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
-                        <span>Prix équipe <i id="vente-auto" style="text-transform:none;letter-spacing:0;font-style:normal">— calculé à 30 % du prix d'achat</i></span>
-                        <button class="btn btn-ghost btn-sm" onclick="recalcVente()" title="Remettre le prix calculé" style="padding:3px 9px">↺ Recalculer</button>
-                    </div>
-                    <div class="grid2">
-                        <div class="fg">
-                            <label for="f-vente-ht">Équipe HT (€)</label>
-                            <input id="f-vente-ht" type="number" min="0" step="0.01" inputmode="decimal" oninput="onVente('ht')">
-                        </div>
-                        <div class="fg">
-                            <label for="f-vente-ttc">Équipe TTC (€)</label>
-                            <input id="f-vente-ttc" type="number" min="0" step="0.01" inputmode="decimal" oninput="onVente('ttc')">
+                    <div class="fg vente-fields">
+                        <label for="f-vente-ttc">Prix équipe TTC (€) <i id="vente-auto">— 30 % du prix d'achat</i></label>
+                        <div class="inline">
+                            <input id="f-vente-ttc" type="number" min="0" step="0.01" inputmode="decimal" oninput="onVente()">
+                            <button class="btn btn-ghost btn-sm" onclick="recalcVente()" title="Remettre le prix calculé (30 %)">↺</button>
                         </div>
                     </div>
                 </div>
@@ -425,7 +411,6 @@
     // Anciennes fiches sans TTC : on le déduit du HT
     const achatTTC = it => it.prixAchatTTC ?? (it.prixAchat != null ? toTTC(it.prixAchat) : null);
     const venteTTC = it => it.don ? 0 : (it.prixVenteTTC ?? (it.prixVente != null ? toTTC(it.prixVente) : null));
-    const venteHT  = it => it.don ? 0 : it.prixVente;
     const statusLabel = it => it.statut === 'vendu' && it.don ? 'Donné' : (STATUS_LABEL[it.statut] || '');
     const soldWord = it => it.don ? 'Donné à' : 'Vendu à';
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -519,7 +504,7 @@
             await mutate(data => {
                 const todo = data.items.filter(needsBareme);
                 if (!todo.length) return false;
-                todo.forEach(i => { i.prixVente = teamPrice(i.prixAchat); i.prixVenteTTC = toTTC(i.prixVente); i.bareme = BAREME; });
+                todo.forEach(i => { i.prixAchatTTC = achatTTC(i); i.prixVenteTTC = teamPrice(i.prixAchatTTC); i.prixVente = toHT(i.prixVenteTTC); i.bareme = BAREME; });
             }, `Prix équipe recalculés à ${Math.round(TAUX * 100)} % du prix d'achat`);
             toast(`Prix équipe mis à jour : ${Math.round(TAUX * 100)} % du prix d'achat`);
         } catch (e) { /* on réessaiera au prochain chargement */ }
@@ -589,9 +574,9 @@
                     <div class="prices">
                         ${it.don
                             ? `<span class="price-don">Gratuit — à donner</span>`
-                            : `<span class="price-team">${euro(venteTTC(it))} TTC</span><span class="price-buy">${euro(venteHT(it))} HT</span>`}
+                            : `<span class="price-team">${euro(venteTTC(it))} TTC</span>`}
                     </div>
-                    <div class="price-buy">achat fournisseur <s>${euro(it.prixAchat)} HT</s> · <s>${euro(achatTTC(it))} TTC</s></div>
+                    <div class="price-buy">achat fournisseur <s>${euro(achatTTC(it))} TTC</s></div>
                     ${it.statut === 'reserve' && it.reservePour ? `<div class="resa">Réservé pour ${esc(it.reservePour)}</div>` : ''}
                     ${it.statut === 'vendu' && it.venduA ? `<div class="resa" style="color:#546e7a">${soldWord(it)} ${esc(it.venduA)}${it.venduLe ? ' le ' + fmtDate(it.venduLe) : ''}</div>` : ''}
                 </div>
@@ -621,8 +606,8 @@
             ${src ? `<img class="detail-img" src="${esc(src)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
             <dl class="dl">
                 ${row('Statut', esc(statusLabel(it)) + (it.statut === 'reserve' && it.reservePour ? ' pour ' + esc(it.reservePour) : '') + (it.statut === 'vendu' && it.venduA ? ' à ' + esc(it.venduA) + (it.venduLe ? ' le ' + fmtDate(it.venduLe) : '') : ''))}
-                ${row('Prix équipe', it.don ? '<b style="color:var(--success)">Gratuit — à donner (état piteux)</b>' : `<b style="color:var(--orange)">${euro(venteTTC(it))} TTC</b> &nbsp;·&nbsp; ${euro(venteHT(it))} HT`)}
-                ${row('Prix d\'achat fournisseur', `${euro(it.prixAchat)} HT &nbsp;·&nbsp; ${euro(achatTTC(it))} TTC`)}
+                ${row('Prix équipe', it.don ? '<b style="color:var(--success)">Gratuit — à donner (état piteux)</b>' : `<b style="color:var(--orange)">${euro(venteTTC(it))} TTC</b>`)}
+                ${row('Prix d\'achat fournisseur', `${euro(achatTTC(it))} TTC`)}
                 ${row('Dimensions', esc(dimsText(it)))}
                 ${row('Couleur toile / tissu', esc(it.couleur))}
                 ${row('Couleur armature', esc(it.armature))}
@@ -770,9 +755,7 @@
         $('f-dimsplus').value = it?.dimsPlus || '';
         $('f-couleur').value  = it?.couleur || '';
         $('f-armature').value = it?.armature || '';
-        $('f-achat-ht').value  = it?.prixAchat ?? '';
         $('f-achat-ttc').value = it ? (achatTTC(it) ?? '') : '';
-        $('f-vente-ht').value  = it && !it.don ? (it.prixVente ?? '') : '';
         $('f-vente-ttc').value = it && !it.don ? (venteTTC(it) ?? '') : '';
         $('f-don').checked     = !!it?.don;
         $('f-ref').value      = it?.ref || '';
@@ -781,7 +764,7 @@
         $('f-photo').value    = '';
         $('fetch-hint').textContent = ''; $('fetch-hint').className = 'hint';
         pendingPhoto = null; removePhoto = false;
-        venteTouched = !!it && !it.don && it.prixAchat != null && teamPrice(it.prixAchat) !== it.prixVente;
+        venteTouched = !!it && !it.don && achatTTC(it) != null && Math.abs(teamPrice(achatTTC(it)) - venteTTC(it)) > 0.02;
         if (it && it.don) recalcVente();
         onDonToggle();
         refreshPreview();
@@ -789,23 +772,11 @@
         setTimeout(() => $('f-nom').focus(), 50);
     }
 
-    function onAchat(src) {
-        if (src === 'ht') { const v = num($('f-achat-ht').value); $('f-achat-ttc').value = v != null ? toTTC(v) : ''; }
-        else { const v = num($('f-achat-ttc').value); $('f-achat-ht').value = v != null ? toHT(v) : ''; }
-        if (!venteTouched) fillVenteFromAchat();
-        updateVenteHint();
-    }
-    function onVente(src) {
-        venteTouched = true;
-        if (src === 'ht') { const v = num($('f-vente-ht').value); $('f-vente-ttc').value = v != null ? toTTC(v) : ''; }
-        else { const v = num($('f-vente-ttc').value); $('f-vente-ht').value = v != null ? toHT(v) : ''; }
-        updateVenteHint();
-    }
+    function onAchat() { if (!venteTouched) fillVenteFromAchat(); updateVenteHint(); }
+    function onVente() { venteTouched = true; updateVenteHint(); }
     function fillVenteFromAchat() {
-        const a = num($('f-achat-ht').value);
-        const ht = a != null ? teamPrice(a) : null;
-        $('f-vente-ht').value = ht != null ? ht : '';
-        $('f-vente-ttc').value = ht != null ? toTTC(ht) : '';
+        const a = num($('f-achat-ttc').value);
+        $('f-vente-ttc').value = a != null ? teamPrice(a) : '';
     }
     function recalcVente() { venteTouched = false; fillVenteFromAchat(); updateVenteHint(); }
     function onDonToggle() {
@@ -815,10 +786,10 @@
     function updateVenteHint() {
         const lbl = $('vente-auto');
         if ($('f-don').checked) { lbl.textContent = '— 0 € (produit donné)'; return; }
-        const a = num($('f-achat-ht').value), v = num($('f-vente-ht').value);
-        const std = `— calculé à ${Math.round(TAUX * 100)} % du prix d'achat`;
+        const a = num($('f-achat-ttc').value), v = num($('f-vente-ttc').value);
+        const std = `— ${Math.round(TAUX * 100)} % du prix d'achat`;
         if (a == null || v == null || !venteTouched || v === teamPrice(a)) { lbl.textContent = std; return; }
-        lbl.textContent = `— prix ajusté (${a > 0 ? Math.round(v / a * 100) : 0} % du prix d'achat)`;
+        lbl.textContent = `— prix ajusté (${a > 0 ? Math.round(v / a * 100) : 0} %)`;
     }
 
     function currentPreviewSrc() {
@@ -913,15 +884,14 @@
     async function saveForm() {
         const nom = $('f-nom').value.trim();
         const don = $('f-don').checked;
-        let achat = num($('f-achat-ht').value), achatT = num($('f-achat-ttc').value);
-        if (achat == null && achatT != null) achat = toHT(achatT);
-        if (achatT == null && achat != null) achatT = toTTC(achat);
-        let vente = num($('f-vente-ht').value), venteT = num($('f-vente-ttc').value);
+        const achatT = num($('f-achat-ttc').value);
         if (!nom) { toast('Indiquez le produit.', true); $('f-nom').focus(); return; }
-        if (achat == null) { toast('Indiquez le prix d\'achat fournisseur (HT ou TTC).', true); $('f-achat-ht').focus(); return; }
-        if (vente == null && venteT != null) vente = toHT(venteT);
-        if (vente == null) vente = teamPrice(achat);
-        if (venteT == null) venteT = toTTC(vente);
+        if (achatT == null) { toast('Indiquez le prix d\'achat fournisseur TTC.', true); $('f-achat-ttc').focus(); return; }
+        let venteT = num($('f-vente-ttc').value);
+        if (venteT == null) venteT = teamPrice(achatT);
+        // Le HT est gardé en interne (non affiché)
+        const achat = toHT(achatT);
+        let vente = toHT(venteT);
         if (don) { vente = 0; venteT = 0; }
         if (!getIni()) { askInitials(true, saveForm); return; }
 
@@ -946,9 +916,9 @@
                 dimsPlus: $('f-dimsplus').value.trim(),
                 couleur: $('f-couleur').value.trim(),
                 armature: $('f-armature').value.trim(),
-                prixAchat: round2(achat),        // HT
+                prixAchat: round2(achat),        // HT, calculé depuis le TTC (non affiché)
                 prixAchatTTC: round2(achatT),
-                prixVente: round2(vente),        // HT (0 si don)
+                prixVente: round2(vente),        // HT, non affiché (0 si don)
                 prixVenteTTC: round2(venteT),
                 bareme: BAREME,
                 don,
@@ -978,7 +948,6 @@
     $('ini-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveInitials(); });
 
     $('remise-lbl').textContent = `${Math.round(TAUX * 100)} %`;
-    document.querySelectorAll('.tva-lbl').forEach(e => e.textContent = `${Math.round(TVA * 100)} %`);
     load();
     // Rafraîchit la liste toutes les 2 minutes (nouveaux produits, intérêts des collègues)
     setInterval(() => { if (!document.querySelector('.modal-overlay.open') && !document.hidden) fetchDb().then(r => { db = r.data; render(); }).catch(() => {}); }, 120000);

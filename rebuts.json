@@ -17,8 +17,8 @@
       "armature": "Coffre et coulisses blanc RAL 9010",
       "prixAchat": 442.24,
       "prixAchatTTC": 530.69,
-      "prixVente": 132.67,
-      "prixVenteTTC": 159.2,
+      "prixVente": 132.68,
+      "prixVenteTTC": 159.21,
       "don": false,
       "ref": "ARC Franciaflex 100031832 — B0017187 Callard (repère cuisine)",
       "lieu": "",
@@ -70,7 +70,7 @@
       "prixAchat": 470.76,
       "prixAchatTTC": 564.91,
       "prixVente": 141.23,
-      "prixVenteTTC": 169.48,
+      "prixVenteTTC": 169.47,
       "don": false,
       "ref": "Conf. Franciaflex HK6348 — B0018205 Lengaigne (repère 01)",
       "lieu": "",
@@ -95,8 +95,8 @@
       "armature": "Coulisses et sous-face RAL 9010 brillant",
       "prixAchat": 479.65,
       "prixAchatTTC": 575.58,
-      "prixVente": 143.9,
-      "prixVenteTTC": 172.68,
+      "prixVente": 143.89,
+      "prixVenteTTC": 172.67,
       "don": false,
       "ref": "Conf. Franciaflex HK6348 — B0018205 Lengaigne (repère 02)",
       "lieu": "",
@@ -147,8 +147,8 @@
       "armature": "Coffre / profils blancs",
       "prixAchat": 145.24,
       "prixAchatTTC": 174.29,
-      "prixVente": 43.57,
-      "prixVenteTTC": 52.28,
+      "prixVente": 43.58,
+      "prixVenteTTC": 52.29,
       "don": false,
       "ref": "Conf. Bandalux 8051862 — B0018741 Tobia",
       "lieu": "",
@@ -159,13 +159,7 @@
     {
       "id": "imq01d3163",
       "statut": "disponible",
-      "interesses": [
-        {
-          "ini": "AS",
-          "note": "",
-          "ts": 1794309218352
-        }
-      ],
+      "interesses": [],
       "createdAt": 1794308386171,
       "createdBy": "",
       "nom": "Store banne Allure motorisé radio (Franciaflex)",
@@ -180,7 +174,7 @@
       "prixAchat": 1057.26,
       "prixAchatTTC": 1268.71,
       "prixVente": 317.18,
-      "prixVenteTTC": 380.62,
+      "prixVenteTTC": 380.61,
       "don": false,
       "ref": "Conf. Franciaflex DJ5403 (2017) — EXPO RDS / BANNE ALLURE",
       "lieu": "",
@@ -232,7 +226,7 @@
       "prixAchat": 180.55,
       "prixAchatTTC": 216.66,
       "prixVente": 54.17,
-      "prixVenteTTC": 65,
+      "prixVenteTTC": 65.0,
       "don": false,
       "ref": "ARC Franciaflex 100040846 — B0018728 Claeys / Théophile (ligne 10)",
       "lieu": "",
@@ -283,8 +277,8 @@
       "armature": "Profils RAL 7016 (gris anthracite) fine texture",
       "prixAchat": 96.62,
       "prixAchatTTC": 115.94,
-      "prixVente": 28.99,
-      "prixVenteTTC": 34.79,
+      "prixVente": 28.98,
+      "prixVenteTTC": 34.78,
       "don": false,
       "ref": "AR AMB C260602159 — Cottin François (ligne 01)",
       "lieu": "",
@@ -294,11 +288,6 @@
     }
   ],
   "logs": [
-    {
-      "ts": 1794309218352,
-      "by": "AS",
-      "msg": "AS intéressé(e)"
-    },
     {
       "ts": 1794308970466,
       "by": "",
