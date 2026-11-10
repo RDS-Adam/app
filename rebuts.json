@@ -170,7 +170,7 @@
       "createdBy": "",
       "nom": "Store banne Allure motorisé radio (Franciaflex)",
       "lien": "https://www.ruedustore.fr/store-banne-coffre-alure.html",
-      "image": "",
+      "image": "https://www.ruedustore.fr/media/catalog/product/mpiowebpcache/7800bb778a954cb4c97ef3c76a1a4610/s/t/store-banne-coffre-pure-avec-lambrequin-enroulable-electrique_1.webp",
       "photo": "",
       "largeur": 250.8,
       "hauteur": 200,
@@ -185,7 +185,7 @@
       "ref": "Conf. Franciaflex DJ5403 (2017) — EXPO RDS / BANNE ALLURE",
       "lieu": "",
       "notes": "Produit d'exposition. Store banne Allure sans lambrequin, moteur radio WellCom avec émetteur, manœuvre à gauche, moteur avec câble de 5 m (réf. 108351).",
-      "updatedAt": 1794315665225,
+      "updatedAt": 1794315682124,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794315682463,
+      "by": "AS",
+      "msg": "Modification : Store banne Allure motorisé radio (Franciaflex)"
+    },
     {
       "ts": 1794315665599,
       "by": "AS",
