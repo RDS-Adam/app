@@ -114,6 +114,11 @@
       "space": "salarie",
       "label": "Rebuts — revente équipe",
       "order": 22
+    },
+    "Prise-mesures.html": {
+      "space": "adam",
+      "label": "Prise de mesures",
+      "order": 23
     }
   }
 }
