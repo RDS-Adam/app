@@ -196,7 +196,7 @@
       "createdBy": "",
       "nom": "Pergola bioclimatique Biodesign 2 poteaux + LED",
       "lien": "",
-      "image": "",
+      "image": "https://www.ruedustore.fr/media/catalog/product/p/e/pergola-bioclimatique.jpg",
       "photo": "",
       "largeur": 376.5,
       "hauteur": 250,
@@ -211,7 +211,7 @@
       "ref": "Commande 04/2023 — EXPO 60 AMORT (réf. BI/2/P/7/3765X2500/2PA)",
       "lieu": "",
       "notes": "Produit d'exposition. Pergola bioclimatique Biodesign, 19 lames plates orientables, 2 poteaux avec surlongueur 2600 mm. Option LED blanc sur 2 côtés (longueur 3765 mm). Prix d'achat = total HT de la commande (LED, escompte 2 % et éco-participation compris).",
-      "updatedAt": 1794308387171,
+      "updatedAt": 1794316244836,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794316246593,
+      "by": "AS",
+      "msg": "Modification : Pergola bioclimatique Biodesign 2 poteaux + LED"
+    },
     {
       "ts": 1794316095664,
       "by": "AS",
