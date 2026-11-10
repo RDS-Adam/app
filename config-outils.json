@@ -109,6 +109,11 @@
       "space": "adam",
       "label": "",
       "order": 21
+    },
+    "Rebuts.html": {
+      "space": "salarie",
+      "label": "Rebuts — revente équipe",
+      "order": 22
     }
   }
 }
