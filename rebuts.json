@@ -85,8 +85,8 @@
       "createdAt": 1794308298297,
       "createdBy": "",
       "nom": "Brise-soleil orientable (BSO) AL 80B monobloc",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/brise-soleil-horizontal-exterieur.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/cache/b14533089c89bfd4215f881206c5a114/b/r/brise-soleil-orientable-maison-bois_1.jpg",
       "photo": "",
       "largeur": 204,
       "hauteur": 143.5,
@@ -101,7 +101,7 @@
       "ref": "Conf. Franciaflex HK6348 — B0018205 Lengaigne (repère 02)",
       "lieu": "",
       "notes": "Franciaflex. BSO AL 80B monobloc, lames verticales. Guidage par coulisses monobloc. Treuil avec limiteur de course, manivelle fixe à gauche sortie à 45°/90°, déport intérieur 30, manivelle longueur spéciale. Manivelle à 150 mm depuis la gauche.",
-      "updatedAt": 1794308304297,
+      "updatedAt": 1794316036137,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794316036727,
+      "by": "AS",
+      "msg": "Modification : Brise-soleil orientable (BSO) AL 80B monobloc"
+    },
     {
       "ts": 1794316024575,
       "by": "AS",
