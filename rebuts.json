@@ -273,8 +273,8 @@
       "createdAt": 1794308382171,
       "createdBy": "",
       "nom": "Moustiquaire enroulable verticale KISS 50",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/moustiquaire-enroulable-visio.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/mpiowebpcache/7800bb778a954cb4c97ef3c76a1a4610/m/o/moustiquaire-enroulable-premium_1.webp",
       "photo": "",
       "largeur": 79,
       "hauteur": 107.5,
@@ -289,11 +289,16 @@
       "ref": "AR AMB C260602159 — Cottin François (ligne 01)",
       "lieu": "",
       "notes": "AMB France. Moustiquaire enroulable verticale KISS 50, mesures finies, enroulement extérieur.",
-      "updatedAt": 1794308387171,
+      "updatedAt": 1794315847723,
       "bareme": 30
     }
   ],
   "logs": [
+    {
+      "ts": 1794315848124,
+      "by": "AS",
+      "msg": "Modification : Moustiquaire enroulable verticale KISS 50"
+    },
     {
       "ts": 1794315770693,
       "by": "AS",
