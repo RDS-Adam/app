@@ -764,14 +764,16 @@
       "days": 1,
       "type": "Télétravail",
       "note": "",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-11-09",
       "startTime": "09:00",
       "endTime": "18:00",
       "telework": true,
       "reason": "",
       "fromN1": 0,
-      "fromN": 0
+      "fromN": 0,
+      "date_decision": "2026-11-10",
+      "decidedBy": "Nicolas"
     }
   ],
   "soldes": {
@@ -883,6 +885,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1794302505847,
+      "date": "2026-11-10",
+      "heure": "10:21",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Cindy Masson · Télétravail · Du 12/11/2026 à 09h00 au 12/11/2026 à 18h00 (1 j)"
+    },
     {
       "ts": 1794239233688,
       "date": "2026-11-09",
@@ -2174,6 +2185,26 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1794302506266,
+      "ts": 1794302505847,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Cindy Masson</strong> : Télétravail · Du 12/11/2026 à 09h00 au 12/11/2026 à 18h00 (1 j)",
+      "reqId": 1794239233688
+    },
+    {
+      "id": 1794302506669,
+      "ts": 1794302505847,
+      "to": [
+        "Cindy"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 12/11/2026 à 09h00 au 12/11/2026 à 18h00 (Télétravail) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1794239233688
+    },
     {
       "id": 1794239234509,
       "ts": 1794239233688,
