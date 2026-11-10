@@ -221,8 +221,8 @@
       "createdAt": 1794308384171,
       "createdBy": "",
       "nom": "Tablier + lame finale volet roulant traditionnel ADP 55",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/tablier-seul-alu.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/mpiowebpcache/7800bb778a954cb4c97ef3c76a1a4610/t/a/tablier-volet-roulant-aluminium.webp",
       "photo": "",
       "largeur": 140.5,
       "hauteur": 216,
@@ -237,7 +237,7 @@
       "ref": "ARC Franciaflex 100040846 — B0018728 Claeys / Théophile (ligne 10)",
       "lieu": "",
       "notes": "Franciaflex. Tablier seul (sans coffre ni moteur) pour volet traditionnel, coffre menuisé, enroulement intérieur. Lames ADP 55 ajourées, lame finale 55x13 avec butées. Verrou automatique / bloqueur.",
-      "updatedAt": 1794308387171,
+      "updatedAt": 1794315760624,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794315761980,
+      "by": "AS",
+      "msg": "Modification : Tablier + lame finale volet roulant traditionnel ADP 55"
+    },
     {
       "ts": 1794315682463,
       "by": "AS",
