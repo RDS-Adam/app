@@ -154,6 +154,11 @@ body[data-tool="text"] canvas.cv{cursor:text}
 .selbar button.del{background:#b42318}
 .selbar svg{width:15px;height:15px}
 .txt-edit{position:absolute;min-width:160px;border:1.5px dashed #1f6feb;background:rgba(255,255,255,.92);padding:0 4px;resize:none;overflow:hidden;font-family:var(--f-hand);line-height:1.1;color:#1d3fa8;outline:none;border-radius:4px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);pointer-events:none}
+.photobar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.photobar label.btn{cursor:pointer;min-height:46px;padding:10px 14px}
+.photobar .hint{color:var(--muted);font-size:13px;flex:1 1 220px;min-width:0}
+label.tb{cursor:pointer}
 .addpage{width:100%;margin-top:14px;justify-content:center;border-style:dashed;min-height:52px;color:var(--muted)}
 .drop{outline:3px dashed var(--pen);outline-offset:-6px}
 
@@ -213,11 +218,12 @@ body[data-tool="text"] canvas.cv{cursor:text}
   </section>
 
   <div class="sk-title"><h2>Croquis &amp; notes</h2><p class="hide-sm">Écrivez au stylet ou au doigt, insérez des photos, ajoutez flèches et cotes.</p></div>
+  <div class="photobar"><label class="btn primary" for="inCam" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Prendre une photo</label><label class="btn" for="inGal" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-9 8"/></svg>Ajouter des photos</label><span class="hint">Vous pouvez en choisir plusieurs à la fois. Glisser-déposer et coller marchent aussi.</span></div>
   <div class="tools" id="tools"><div class="tools-in" id="toolsIn"></div></div>
   <div class="pages" id="pages"></div>
   <button class="btn addpage" id="bAddPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un feuillet</button>
-  <input type="file" id="inCam" accept="image/*" capture="environment" hidden>
-  <input type="file" id="inGal" accept="image/*" multiple hidden>
+  <input type="file" id="inCam" class="vh" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
+  <input type="file" id="inGal" class="vh" accept="image/*" multiple tabindex="-1" aria-hidden="true">
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -548,10 +554,10 @@ const WIDTHS = [2.5, 4.5, 8];
 const st = { tool: 'pen', color: LS.get('pm2:color') || '#1d3fa8', width: LS.get('pm2:width') || 4.5, stylusOnly: !!LS.get('pm2:stylus') };
 const TOOLS = [['hand','Défiler'],['select','Choisir'],'|',['pen','Stylo'],['hl','Surligner'],['eraser','Gomme'],'|',['arrow','Flèche'],['cote','Cote'],['line','Ligne'],['rect','Cadre'],['ellipse','Cercle'],['text','Texte']];
 function buildTools(){
-  const t = $('#toolsIn'); let h = '';
+  const t = $('#toolsIn');
+  let h = `<label class="tb" for="inCam" title="Prendre une photo">${svg('camera')}<span>Photo</span></label><label class="tb" for="inGal" title="Ajouter des photos (plusieurs possibles)">${svg('image')}<span>Galerie</span></label><span class="sep"></span>`;
   for (const x of TOOLS) h += x === '|' ? '<span class="sep"></span>' : `<button class="tb" data-tool="${x[0]}" aria-pressed="false" title="${x[1]}">${svg(x[0])}<span>${x[1]}</span></button>`;
   h += '<span class="sep"></span>';
-  h += `<button class="tb" id="tCam" title="Prendre une photo">${svg('camera')}<span>Photo</span></button><button class="tb" id="tGal" title="Importer des images">${svg('image')}<span>Galerie</span></button><span class="sep"></span>`;
   h += COLORS.map(c => `<button class="sw" data-color="${c[0]}" style="background:${c[0]}" title="${c[1]}" aria-label="Couleur ${c[1]}"></button>`).join('');
   h += '<span class="sep"></span>' + WIDTHS.map((w, i) => `<button class="wd" data-w="${w}" title="${['Fin','Moyen','Épais'][i]}" aria-label="Épaisseur ${['fine','moyenne','épaisse'][i]}"><i style="height:${[2,4,7][i]}px"></i></button>`).join('');
   h += `<span class="sep"></span><button class="tb" id="tUndo" title="Annuler (Ctrl+Z)">${svg('undo')}<span>Annuler</span></button><button class="tb" id="tRedo" title="Rétablir (Ctrl+Y)">${svg('redo')}<span>Rétablir</span></button>`;
@@ -562,8 +568,6 @@ function buildTools(){
     if (b.dataset.tool) setTool(b.dataset.tool);
     else if (b.dataset.color){ st.color = b.dataset.color; LS.set('pm2:color', st.color); if (sel && sel.o.t !== 'i'){ snap(sel.pg); sel.o.c = st.color; changed(sel.pg); } if (['hand','select','eraser'].includes(st.tool)) setTool('pen'); syncTools(); }
     else if (b.dataset.w){ st.width = +b.dataset.w; LS.set('pm2:width', st.width); if (sel && 'w' in sel.o){ snap(sel.pg); sel.o.w = st.width; changed(sel.pg); } syncTools(); }
-    else if (b.id === 'tCam') $('#inCam').click();
-    else if (b.id === 'tGal') $('#inGal').click();
     else if (b.id === 'tUndo') undo();
     else if (b.id === 'tRedo') redo();
     else if (b.id === 'tStylus'){ st.stylusOnly = !st.stylusOnly; LS.set('pm2:stylus', st.stylusOnly); syncTools(); toast(st.stylusOnly ? 'Stylet seul : le doigt fait défiler, le stylet écrit.' : 'Le doigt et le stylet écrivent.'); }
@@ -914,9 +918,12 @@ function eraseAt(pg, x, y, tol){
 function loadImage(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 async function fileToData(file, max){
   const url = URL.createObjectURL(file);
-  try { const img = await loadImage(url); const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  try { let img;
+    try { img = await loadImage(url); }
+    catch { if (!window.createImageBitmap) throw 0; const bm = await createImageBitmap(file); img = { naturalWidth: bm.width, naturalHeight: bm.height, bm }; }
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
     const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
-    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img.bm || img, 0, 0, c.width, c.height);
     return { data: c.toDataURL('image/jpeg', S.assets ? .82 : .7), w: c.width, h: c.height };
   } finally { URL.revokeObjectURL(url); }
 }
@@ -926,23 +933,42 @@ function visiblePage(){
   return best;
 }
 async function insertPhotos(files){
+  files = files.filter(f => !f.type || f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name));
   if (!files.length) return;
-  const pg = (activePage && pages.includes(activePage)) ? activePage : visiblePage();
-  let n = 0;
-  for (const file of files){
-    try { const r = await fileToData(file, S.assets ? 1600 : 1100);
-      const k = Math.min(560 / r.w, 520 / r.h, 1.5), w = r.w * k, h = r.h * k;
-      const o = { t: 'i', x: (W - w) / 2 + n * 30, y: Math.max(10, (H - h) / 2 + n * 30), w2: w, h, _data: r.data };
-      snap(pg); pg.objs.push(o); n++; setTool('select'); setSel({ pg, o }); changed(pg);
-    } catch { toast('Cette image n\'a pas pu être lue.'); }
+  commitEditor();
+  let pg = (activePage && pages.includes(activePage)) ? activePage : visiblePage();
+  toast(files.length > 1 ? `Ajout de ${files.length} photos…` : 'Ajout de la photo…');
+  const ds = []; let fail = 0;
+  for (const file of files){ try { ds.push(await fileToData(file, S.assets ? 1600 : 1100)); } catch { fail++; } }
+  if (!ds.length){ toast('Cette image n\'a pas pu être lue. Les photos HEIC de l\'iPhone passent mieux en JPEG (Réglages › Appareil photo › Formats › Le plus compatible).'); return; }
+  const PER = 6; let last = null, firstPg = pg;
+  for (let start = 0; start < ds.length; start += PER){
+    const grp = ds.slice(start, start + PER);
+    if (start > 0){ pg = { id: uid('p'), objs: [] }; pages.push(pg); cur.pageIds = pages.map(p => p.id); buildPages(); markPage(pg); }
+    snap(pg);
+    const n = grp.length, cols = n === 1 ? 1 : n <= 4 ? 2 : 3, rows = Math.ceil(n / cols), gap = 20;
+    const cw = n === 1 ? 560 : (W - 40 - (cols - 1) * gap) / cols, ch = n === 1 ? 520 : (H - 40 - (rows - 1) * gap) / rows;
+    grp.forEach((r, i) => {
+      const k = Math.min(cw / r.w, ch / r.h, 1.5), w = r.w * k, h = r.h * k;
+      let x, y;
+      if (n === 1){ const off = pg.objs.filter(o => o.t === 'i').length % 5 * 30; x = (W - w) / 2 + off; y = Math.max(10, (H - h) / 2 + off); }
+      else { const c = i % cols, rr = Math.floor(i / cols); x = 20 + c * (cw + gap) + (cw - w) / 2; y = 20 + rr * (ch + gap) + (ch - h) / 2; }
+      const o = { t: 'i', x, y, w2: w, h, _data: r.data }; pg.objs.push(o); last = { pg, o };
+    });
+    changed(pg);
   }
-  pg._cv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  if (n) toast(n > 1 ? `${n} photos ajoutées. Déplacez-les ou redimensionnez-les avec la poignée.` : 'Photo ajoutée. Déplacez-la ou redimensionnez-la avec la poignée.');
+  setTool('select');
+  if (ds.length === 1 && last) setSel(last);
+  firstPg._cv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const extra = ds.length > PER ? ` Réparties sur ${Math.ceil(ds.length / PER)} feuillets.` : '';
+  toast((ds.length > 1 ? `${ds.length} photos ajoutées.` + extra : 'Photo ajoutée.') + (fail ? ` ${fail} image(s) illisible(s).` : '') + ' Touchez une photo pour la déplacer ou la redimensionner.');
 }
 $('#inCam').onchange = e => { insertPhotos([...e.target.files]); e.target.value = ''; };
 $('#inGal').onchange = e => { insertPhotos([...e.target.files]); e.target.value = ''; };
 document.addEventListener('paste', e => { if (e.target.closest('input,textarea')) return; const f = [...(e.clipboardData?.files || [])].filter(x => x.type.startsWith('image/')); if (f.length){ e.preventDefault(); insertPhotos(f); } });
 document.addEventListener('keydown', e => {
+  const lab = e.target.closest && e.target.closest('label[for]');
+  if (lab && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); document.getElementById(lab.htmlFor).click(); return; }
   if (e.target.closest('input,textarea')) return;
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); }
