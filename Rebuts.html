@@ -160,7 +160,7 @@
     <div class="app-header">
         <div>
             <div class="logo-text">Rebuts <span>|</span> RDS</div>
-            <div class="header-sub">Produits sur mesure retournés par les clients — revendus à l'équipe à <b id="remise-lbl">−30 %</b> du prix d'achat fournisseur, ou donnés s'ils sont en mauvais état</div>
+            <div class="header-sub">Produits sur mesure retournés par les clients — revendus à l'équipe à <b id="remise-lbl">30 %</b> du prix d'achat fournisseur, ou donnés s'ils sont en mauvais état</div>
         </div>
         <button class="btn btn-orange" onclick="openForm()">+ Ajouter un produit</button>
     </div>
@@ -272,7 +272,7 @@
                 </div>
                 <div class="vente-fields">
                     <div class="price-sub" style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
-                        <span>Prix équipe <i id="vente-auto" style="text-transform:none;letter-spacing:0;font-style:normal">— calculé à −30 %</i></span>
+                        <span>Prix équipe <i id="vente-auto" style="text-transform:none;letter-spacing:0;font-style:normal">— calculé à 30 % du prix d'achat</i></span>
                         <button class="btn btn-ghost btn-sm" onclick="recalcVente()" title="Remettre le prix calculé" style="padding:3px 9px">↺ Recalculer</button>
                     </div>
                     <div class="grid2">
@@ -395,7 +395,8 @@
     const FILE_PATH  = "rebuts.json";
     const PHOTO_DIR  = "rebuts-photos";
     const PAGES_URL  = "https://rds-adam.github.io/app/";
-    const REMISE     = 0.30;                 // prix équipe = prix d'achat fournisseur − 30 %
+    const TAUX       = 0.30;                 // prix équipe = 30 % du prix d'achat fournisseur
+    const BAREME     = 30;                   // repère des fiches calculées avec ce taux
     const TVA        = 0.20;                 // HT ↔ TTC
     const KEY_INI    = "rds_rebuts_initiales";
 
@@ -418,7 +419,7 @@
     function euro(n) { return (Number.isFinite(n) ? n : 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
     function num(v) { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; }
     function round2(n) { return Math.round(n * 100) / 100; }
-    function teamPrice(achat) { return round2(achat * (1 - REMISE)); }
+    function teamPrice(achat) { return round2(achat * TAUX); }
     const toTTC = ht => round2(ht * (1 + TVA));
     const toHT  = ttc => round2(ttc / (1 + TVA));
     // Anciennes fiches sans TTC : on le déduit du HT
@@ -506,11 +507,30 @@
         } catch (e) { /* la photo orpheline n'empêche rien */ }
     }
 
+    // Les premières fiches ont été calculées à 70 % du prix d'achat (erreur) : on les remet à 30 %.
+    // Seules les fiches au prix calculé automatiquement sont corrigées ; un prix ajusté à la main n'est pas touché.
+    function needsBareme(i) {
+        return i.bareme !== BAREME && !i.don && i.prixAchat != null
+            && Math.abs((i.prixVente ?? -1) - round2(i.prixAchat * 0.7)) < 0.011;
+    }
+    async function migrateBareme() {
+        if (!db.items.some(needsBareme)) return;
+        try {
+            await mutate(data => {
+                const todo = data.items.filter(needsBareme);
+                if (!todo.length) return false;
+                todo.forEach(i => { i.prixVente = teamPrice(i.prixAchat); i.prixVenteTTC = toTTC(i.prixVente); i.bareme = BAREME; });
+            }, `Prix équipe recalculés à ${Math.round(TAUX * 100)} % du prix d'achat`);
+            toast(`Prix équipe mis à jour : ${Math.round(TAUX * 100)} % du prix d'achat`);
+        } catch (e) { /* on réessaiera au prochain chargement */ }
+    }
+
     async function load() {
         $('grid').innerHTML = Array.from({ length: 6 }, () => `<div class="card"><div class="card-img skel" style="border-radius:0"></div><div class="card-body"><div class="skel" style="height:14px;width:75%"></div><div class="skel" style="height:11px;width:50%"></div><div class="skel" style="height:18px;width:35%;margin-top:6px"></div></div></div>`).join('');
         try {
             db = (await fetchDb()).data;
             render();
+            migrateBareme();
         } catch (e) {
             $('grid').innerHTML = `<div class="empty-state"><strong>Impossible de charger les rebuts</strong>${esc(e.message)}<br><br><button class="btn btn-primary btn-sm" onclick="load()">Réessayer</button></div>`;
             $('stats').textContent = '';
@@ -796,9 +816,9 @@
         const lbl = $('vente-auto');
         if ($('f-don').checked) { lbl.textContent = '— 0 € (produit donné)'; return; }
         const a = num($('f-achat-ht').value), v = num($('f-vente-ht').value);
-        const std = `— calculé à −${Math.round(REMISE * 100)} % du prix d'achat`;
+        const std = `— calculé à ${Math.round(TAUX * 100)} % du prix d'achat`;
         if (a == null || v == null || !venteTouched || v === teamPrice(a)) { lbl.textContent = std; return; }
-        lbl.textContent = `— prix ajusté (−${a > 0 ? Math.round((1 - v / a) * 100) : 0} %)`;
+        lbl.textContent = `— prix ajusté (${a > 0 ? Math.round(v / a * 100) : 0} % du prix d'achat)`;
     }
 
     function currentPreviewSrc() {
@@ -930,6 +950,7 @@
                 prixAchatTTC: round2(achatT),
                 prixVente: round2(vente),        // HT (0 si don)
                 prixVenteTTC: round2(venteT),
+                bareme: BAREME,
                 don,
                 ref: $('f-ref').value.trim(),
                 lieu: $('f-lieu').value.trim(),
@@ -956,7 +977,7 @@
     $('i-note').addEventListener('keydown', e => { if (e.key === 'Enter') saveInterest(); });
     $('ini-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveInitials(); });
 
-    $('remise-lbl').textContent = `−${Math.round(REMISE * 100)} %`;
+    $('remise-lbl').textContent = `${Math.round(TAUX * 100)} %`;
     document.querySelectorAll('.tva-lbl').forEach(e => e.textContent = `${Math.round(TVA * 100)} %`);
     load();
     // Rafraîchit la liste toutes les 2 minutes (nouveaux produits, intérêts des collègues)
