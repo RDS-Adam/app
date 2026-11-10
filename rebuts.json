@@ -7,8 +7,8 @@
       "createdAt": 1794308303297,
       "createdBy": "",
       "nom": "Volet roulant rénovation Rénobloc solaire",
-      "lien": "",
-      "image": "",
+      "lien": "https://www.ruedustore.fr/volet-roulant-solaire-premium.html",
+      "image": "https://www.ruedustore.fr/media/catalog/product/mpiowebpcache/7800bb778a954cb4c97ef3c76a1a4610/v/o/volet-roulant-tablier-panneau-photovoltaique-coulisse_1.webp",
       "photo": "",
       "largeur": 179.5,
       "hauteur": 146.5,
@@ -23,7 +23,7 @@
       "ref": "ARC Franciaflex 100031832 — B0017187 Callard (repère cuisine)",
       "lieu": "",
       "notes": "Franciaflex. Coffre pan coupé 165, tablier ADP 42 ajouré, lame finale 45x8. Coulisses alu 53x21, posées entre tableaux, perçage en fond. Moteur radio solaire Well'solaire, panneau solaire à droite, émetteur individuel. Verrou automatique / bloqueur. Classe de vent 2.",
-      "updatedAt": 1794308304297,
+      "updatedAt": 1794315947721,
       "bareme": 30
     },
     {
@@ -294,6 +294,11 @@
     }
   ],
   "logs": [
+    {
+      "ts": 1794315949581,
+      "by": "AS",
+      "msg": "Modification : Volet roulant rénovation Rénobloc solaire"
+    },
     {
       "ts": 1794315848124,
       "by": "AS",
