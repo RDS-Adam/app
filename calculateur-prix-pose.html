@@ -291,7 +291,7 @@
                     </div>
                     <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur</div>
                     <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50</div>
-                    <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Loc)</div>
+                    <div class="check-item"><input type="checkbox" id="o_echa_inst" onchange="checkEchaInst(this)"> Échafaudage (Installation + Loc) <em style="font-size:0.75rem; color:#888;">- 1 fois par devis</em></div>
                     <div class="check-item"><input type="checkbox" id="o_echa_pose"> Échafaudage Pose</div>
                     <div class="check-item"><input type="checkbox" id="o_depose"> Dépose & Mise en déchetterie</div>
                 </div>
@@ -863,6 +863,20 @@ function buildDomoLine() {
     }
     return null;
 }
+// Échafaudage installation + loc : une seule ligne par devis (jamais multipliée par la quantité)
+function hasEchaInst() { return panier.some(it => it.isEchaInst || (it.options || []).some(o => o.key === 'o_echa_inst' || o.name === TARIFS_OPTIONS.o_echa_inst.name)); }
+function checkEchaInst(cb) {
+    if (cb.checked && hasEchaInst()) {
+        cb.checked = false;
+        alert("L'échafaudage (installation + loc) est déjà dans le devis : il ne peut être compté qu'une seule fois.");
+    }
+}
+function buildEchaInstLine() {
+    const cb = document.getElementById('o_echa_inst');
+    if (!cb || !cb.checked || hasEchaInst()) return null;
+    const o = TARIFS_OPTIONS.o_echa_inst;
+    return { isFrais: true, isEchaInst: true, name: 'Échafaudage (Installation + Loc) - 1 fois par devis', qty: 1, a: o.a, v: o.v, options: [] };
+}
 function resetEscalFloor() {
     const floorInput = document.getElementById('o_escal_floor');
     const floorWrap = document.getElementById('o_escal_floor_wrap');
@@ -927,9 +941,13 @@ function addItem() {
     if (!mSelect.value || !sub) {
         // Domotique seule (sans produit) : on ajoute juste la ligne domotique
         const domoOnly = buildDomoLine();
-        if (domoOnly) {
-            panier.push(domoOnly); updateUI();
-            document.getElementById('o_domo').checked = false; document.getElementById('o_domo_exist').checked = false; resetDomo();
+        const echaOnly = buildEchaInstLine();
+        if (domoOnly) panier.push(domoOnly);
+        if (echaOnly) panier.push(echaOnly);
+        if (domoOnly || echaOnly) {
+            updateUI();
+            ['o_domo', 'o_domo_exist', 'o_echa_inst'].forEach(id => document.getElementById(id).checked = false);
+            resetDomo();
         }
         return;
     }
@@ -985,7 +1003,6 @@ function addItem() {
     }
     addOpt('o_syam', 'o_syam');
     addOpt('o_echelle', 'o_echelle');
-    addOpt('o_echa_inst', 'o_echa_inst');
     addOpt('o_echa_pose', 'o_echa_pose');
     addOpt('o_guid', 'o_guid');
     addOpt('o_equer', 'o_equer');
@@ -1011,6 +1028,8 @@ function addItem() {
     panier.push(newItem);
     const domoLine = buildDomoLine();
     if (domoLine) panier.push(domoLine);
+    const echaLine = buildEchaInstLine();
+    if (echaLine) panier.push(echaLine);
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
     resetEscalFloor();
