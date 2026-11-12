@@ -201,7 +201,7 @@
         </div>
         <div>
             <label>📍 Lieu d'intervention</label>
-            <select id="zone" onchange="updateUI()">
+            <select id="zone" onchange="syncTrajetOptions(); updateUI()">
                 <option value="province">Province</option>
                 <option value="dep75_92">Dép. 75/92</option>
                 <option value="idf_metro">IDF - Métropole</option>
@@ -731,6 +731,7 @@ function loadDevis() {
         document.getElementById('devisNum').value = devisNum;
         document.getElementById('zone').value = data.zone || 'province';
         document.getElementById('trajet').value = data.trajet || 'standard';
+        syncTrajetOptions();
         document.getElementById('mesures').value = data.mesures || '0';
         document.getElementById('mesuresQty').value = data.mesuresQty || '1';
         document.getElementById('globalAchatProd').value = data.achatProd || '';
@@ -903,6 +904,7 @@ function resetDevis() {
         document.getElementById('devisNum').value = ""; document.getElementById('pQty').value = 1;
         document.getElementById('mesuresQty').value = 1; document.getElementById('mesures').value = "0";
         document.getElementById('trajet').value = "standard"; document.getElementById('zone').value = "province";
+        syncTrajetOptions();
         document.getElementById('globalAchatProd').value = ""; document.getElementById('globalVenteProd').value = "";
         resetVitrages();
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
@@ -910,7 +912,17 @@ function resetDevis() {
         populateSub(); updateUI();
     }
 }
+// « Déplacement > 1h » et « Aucun frais » : uniquement en Province (masqués pour 75/92 et IDF Métropole)
+function syncTrajetOptions() {
+    const province = document.getElementById('zone').value === 'province';
+    const tra = document.getElementById('trajet');
+    Array.from(tra.options).forEach(o => {
+        if (o.value === 'moins_1h' || o.value === '0') { o.hidden = !province; o.disabled = !province; }
+    });
+    if (!province) tra.value = 'standard';
+}
 function addFrais() {
+    syncTrajetOptions();
     const zone = document.getElementById('zone').value;
     const tra = document.getElementById('trajet').value;
     const mVal = parseInt(document.getElementById('mesures').value);
