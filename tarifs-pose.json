@@ -147,17 +147,17 @@
     },
     "depose_base": {
       "name": "Dépose Standard",
-      "a": 10,
+      "a": 15,
       "v": 15
     },
     "depose_ext": {
       "name": "Dépose VR/Proj/Moust",
-      "a": 30,
+      "a": 40,
       "v": 40
     },
     "depose_banne": {
       "name": "Dépose Banne",
-      "a": 60,
+      "a": 90,
       "v": 90
     },
     "o_escal_etage_supp": {
@@ -676,6 +676,12 @@
         0,
         0
       ]
+    },
+    "film_solaire": {
+      "Prix au m²": [
+        25,
+        35
+      ]
     }
   },
   "categories": {
@@ -826,6 +832,10 @@
     "cat_mucf3c5ef0": {
       "name": "Tabliers Volets roulants",
       "group": "Tabliers"
+    },
+    "film_solaire": {
+      "name": "Film solaire",
+      "group": "FILM SOLAIRE"
     }
   }
 }
