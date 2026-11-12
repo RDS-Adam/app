@@ -774,6 +774,19 @@
       "fromN": 0,
       "date_decision": "2026-11-10",
       "decidedBy": "Nicolas"
+    },
+    {
+      "id": 1794471781820,
+      "user": "Baptiste",
+      "lastname": "Chevance",
+      "email": "baptiste.chevance@ruedustore.fr",
+      "start": "2026-12-21",
+      "end": "2026-12-22",
+      "days": 2,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-11-12"
     }
   ],
   "soldes": {
@@ -885,6 +898,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1794471781820,
+      "date": "2026-11-12",
+      "heure": "09:23",
+      "type": "demande",
+      "actor": "Baptiste Chevance",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 21/12/2026 au 22/12/2026 (2 j)"
+    },
     {
       "ts": 1794302505847,
       "date": "2026-11-10",
@@ -2185,6 +2207,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1794471781998,
+      "ts": 1794471781820,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Baptiste Chevance</strong> a déposé une demande : Congés Payés · Du 21/12/2026 au 22/12/2026 (2 j)",
+      "reqId": 1794471781820
+    },
     {
       "id": 1794302506266,
       "ts": 1794302505847,
