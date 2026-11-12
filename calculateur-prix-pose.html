@@ -871,6 +871,19 @@ function checkEchaInst(cb) {
         alert("L'échafaudage (installation + loc) est déjà dans le devis : il ne peut être compté qu'une seule fois.");
     }
 }
+// Case grisée tant que l'échafaudage est déjà dans le devis
+function refreshEchaInstState() {
+    const cb = document.getElementById('o_echa_inst');
+    if (!cb) return;
+    const deja = hasEchaInst();
+    cb.disabled = deja;
+    if (deja) cb.checked = false;
+    const item = cb.closest('.check-item');
+    if (item) {
+        item.style.opacity = deja ? '0.45' : '';
+        item.title = deja ? "Déjà dans le devis (supprimer la ligne pour le remettre)" : '';
+    }
+}
 function buildEchaInstLine() {
     const cb = document.getElementById('o_echa_inst');
     if (!cb || !cb.checked || hasEchaInst()) return null;
@@ -1041,6 +1054,7 @@ function toggleDetails(index) {
 }
 function updateUI() {
     const body = document.getElementById('cart-body');
+    refreshEchaInstState();
     const numInput = document.getElementById('devisNum').value;
     const displayNum = document.getElementById('displayDevisNum');
     body.innerHTML = "";
