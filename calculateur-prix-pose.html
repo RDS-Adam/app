@@ -262,11 +262,15 @@
                     <div class="check-item"><input type="checkbox" id="o_vr_perc"> Perçage mur VR (boîte dérivation)</div>
                     <div class="check-item"><input type="checkbox" id="o_corde"> Montée à la corde</div>
                     <div class="check-item">
-                        <input type="checkbox" id="o_escal" onchange="document.getElementById('o_escal_floor_wrap').style.display=this.checked?'inline-flex':'none'">
-                        Montée étage escalier
+                        <input type="checkbox" id="o_escal" onchange="toggleEscalOptions(this.checked)">
+                        Montage escalier (supplément à partir du 3e étage)
                         <span id="o_escal_floor_wrap" style="display:none; align-items:center; margin-left:8px; gap:4px;">
                             <label style="font-weight:normal; margin:0; font-size:0.8rem; white-space:nowrap;">Étage :</label>
                             <input type="number" id="o_escal_floor" min="1" max="20" value="1" style="width:55px; margin:0; padding:4px 6px; font-size:0.85rem;">
+                            <select id="o_escal_type" title="Tarif du supplément par étage (à partir du 3e)" style="width:auto; margin:0 0 0 6px; padding:4px 6px; font-size:0.85rem;">
+                                <option value="gros">Banne / Bannette</option>
+                                <option value="petit">Autre store</option>
+                            </select>
                         </span>
                     </div>
                     <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur</div>
@@ -579,8 +583,9 @@ const DEFAULT_TARIFS_OPTIONS = {
     o_perc: { name: "Perçage Mur/Tube", a: 100, v: 130 },
     o_vr_perc: { name: "Perçage VR", a: 20, v: 30 },
     o_corde: { name: "Montée à la corde", a: 60, v: 100 },
-    o_escal: { name: "Montée Escalier", a: 20, v: 60 },
-    o_escal_etage_supp: { name: "Supplément par étage (à partir du 3e)", a: 10, v: 30 },
+    o_escal: { name: "Montage escalier", a: 0, v: 0 },
+    o_escal_etage_supp: { name: "Escalier Bannes/Bannettes - par étage (à partir du 3e)", a: 15, v: 25 },
+    o_escal_etage_supp_petit: { name: "Escalier autres stores - par étage (à partir du 3e)", a: 10, v: 15 },
     o_syam: { name: "SYAM / Étage Int.", a: 50, v: 70 },
     o_echelle: { name: "Pose Échelle > 3m50", a: 10, v: 30 },
     o_echa_inst: { name: "Inst. Échafaudage", a: 150, v: 250 },
@@ -636,6 +641,15 @@ function buildMainSelect() {
     }
     if (prev) sel.value = prev;
 }
+function ensureEscalOptions() {
+    ['o_escal', 'o_escal_etage_supp', 'o_escal_etage_supp_petit'].forEach(k => {
+        if (!TARIFS_OPTIONS[k]) TARIFS_OPTIONS[k] = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS[k]));
+    });
+}
+// Bannes / bannettes (groupe STORES BANNES) → gros supplément escalier, sinon petit
+function isGrosStoreEscalier(catKey) {
+    return (catKey && catKey.startsWith('banne')) || getCatGroup(catKey) === 'STORES BANNES';
+}
 window.onload = async function() {
     const tarifs = await fetchTarifsFromGitHub();
     if (tarifs) {
@@ -643,10 +657,8 @@ window.onload = async function() {
         if (tarifs.produits) TARIFS_PRODUITS = tarifs.produits;
         if (tarifs.categories) TARIFS_CATEGORIES = tarifs.categories;
         ensureFilmSolaire();
-        // S'assure que le supplément étage existe même dans une base importée ancienne
-        if (!TARIFS_OPTIONS.o_escal_etage_supp) {
-            TARIFS_OPTIONS.o_escal_etage_supp = DEFAULT_TARIFS_OPTIONS.o_escal_etage_supp;
-        }
+        // S'assure que les suppléments étage existent même dans une base importée ancienne
+        ensureEscalOptions();
     }
     refreshDevisList();
     buildMainSelect();
@@ -785,6 +797,13 @@ function populateSub() {
     if (m2 && sub.options.length <= 1) sub.style.display = 'none';
     updateSurfaceInfo();
 }
+// Affiche étage + type (Banne/Bannette ou Autre store) ; type pré-choisi selon le produit, modifiable
+function toggleEscalOptions(checked) {
+    const wrap = document.getElementById('o_escal_floor_wrap');
+    if (wrap) wrap.style.display = checked ? 'inline-flex' : 'none';
+    const typeSel = document.getElementById('o_escal_type');
+    if (checked && typeSel) typeSel.value = isGrosStoreEscalier(document.getElementById('pMain').value) ? 'gros' : 'petit';
+}
 function resetEscalFloor() {
     const floorInput = document.getElementById('o_escal_floor');
     const floorWrap = document.getElementById('o_escal_floor_wrap');
@@ -878,18 +897,22 @@ function addItem() {
     addOpt('o_perc', 'o_perc');
     addOpt('o_vr_perc', 'o_vr_perc');
     addOpt('o_corde', 'o_corde');
-    // Montée escalier avec supplément étage à partir du 3e
+    // Montage escalier : pas de plus-value jusqu'au 2e étage, supplément par étage à partir du 3e
+    // (tarif bannes/bannettes ou tarif autres stores)
     let escalEl = document.getElementById('o_escal');
     if (escalEl && escalEl.checked) {
+        ensureEscalOptions();
         let a = TARIFS_OPTIONS.o_escal.a;
         let v = TARIFS_OPTIONS.o_escal.v;
         const floor = parseInt(document.getElementById('o_escal_floor').value) || 1;
+        const escalGros = document.getElementById('o_escal_type').value === 'gros';
         const extraFloors = Math.max(0, floor - 2);
         if (extraFloors > 0) {
-            a += extraFloors * (TARIFS_OPTIONS.o_escal_etage_supp ? TARIFS_OPTIONS.o_escal_etage_supp.a : 10);
-            v += extraFloors * (TARIFS_OPTIONS.o_escal_etage_supp ? TARIFS_OPTIONS.o_escal_etage_supp.v : 30);
+            const supp = escalGros ? TARIFS_OPTIONS.o_escal_etage_supp : TARIFS_OPTIONS.o_escal_etage_supp_petit;
+            a += extraFloors * supp.a;
+            v += extraFloors * supp.v;
         }
-        const floorLabel = floor > 1 ? ` (${floor}e étage)` : '';
+        const floorLabel = ` (${escalGros ? 'Banne/Bannette' : 'Autre store'}${floor > 1 ? ' · ' + floor + 'e étage' : ''})`;
         optList.push({ name: TARIFS_OPTIONS.o_escal.name + floorLabel, a, v });
         totA += a; totV += v;
     }
@@ -1473,9 +1496,7 @@ function importDatabase(event) {
                 if (importedData.categories) TARIFS_CATEGORIES = importedData.categories;
                 ensureFilmSolaire();
                 // Compatibilité ascendante : assure que le supplément étage existe
-                if (!TARIFS_OPTIONS.o_escal_etage_supp) {
-                    TARIFS_OPTIONS.o_escal_etage_supp = DEFAULT_TARIFS_OPTIONS.o_escal_etage_supp;
-                }
+                ensureEscalOptions();
                 const ok = await saveTarifsToGitHub({ options: TARIFS_OPTIONS, produits: TARIFS_PRODUITS, categories: TARIFS_CATEGORIES });
                 buildMainSelect();
                 populateSub();

@@ -71,7 +71,7 @@
       "v": 100
     },
     "o_escal": {
-      "name": "Montée Escalier",
+      "name": "Montage escalier",
       "a": 0,
       "v": 0
     },
@@ -161,9 +161,14 @@
       "v": 90
     },
     "o_escal_etage_supp": {
-      "name": "Supplément par étage (à partir du 3e)",
-      "a": 20,
-      "v": 30
+      "name": "Escalier Bannes/Bannettes - par étage (à partir du 3e)",
+      "a": 15,
+      "v": 25
+    },
+    "o_escal_etage_supp_petit": {
+      "name": "Escalier autres stores - par étage (à partir du 3e)",
+      "a": 10,
+      "v": 15
     }
   },
   "produits": {
