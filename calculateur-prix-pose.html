@@ -468,8 +468,10 @@ const DEFAULT_CATEGORIES = {
     proj_cord:       { name: "Store Proj / Vertical Cordon",     group: "STORES EXTÉRIEURS" },
     proj_man:        { name: "Store Proj / Vertical Manivelle",  group: "STORES EXTÉRIEURS" },
     proj_elec:       { name: "Store Proj / Vertical Électrique", group: "STORES EXTÉRIEURS" },
-    zip_bso_man:     { name: "Store ZIP / BSO Manivelle",        group: "STORES EXTÉRIEURS" },
-    zip_bso_elec:    { name: "Store ZIP / BSO Électrique",       group: "STORES EXTÉRIEURS" },
+    zip_bso_man:     { name: "Store ZIP / BSO Bandeau-Joues-Tradi Manivelle",  group: "STORES EXTÉRIEURS" },
+    zip_bso_elec:    { name: "Store ZIP / BSO Bandeau-Joues-Tradi Électrique", group: "STORES EXTÉRIEURS" },
+    bso_man:         { name: "BSO classique Manivelle",          group: "STORES EXTÉRIEURS" },
+    bso_elec:        { name: "BSO classique Électrique",         group: "STORES EXTÉRIEURS" },
     ven_alu:         { name: "Vénitien Aluminium",                       group: "STORES INTÉRIEURS" },
     ven_bois:        { name: "Vénitien Bois",                            group: "STORES INTÉRIEURS" },
     enr_easy:        { name: "Enrouleur Easy",                           group: "STORES INTÉRIEURS" },
@@ -509,6 +511,9 @@ const DEFAULT_TARIFS_PRODUITS = {
     proj_elec: { "Largeur < 1m40": [70, 100], "Largeur < 2m50": [100, 150], "Largeur < 3m50": [140, 210], "Largeur > 3m50": [170, 250] },
     zip_bso_man: { "Largeur < 1m40": [120, 170], "Largeur < 2m50": [150, 220], "Largeur < 3m50": [190, 280], "Largeur > 3m50": [220, 320] },
     zip_bso_elec: { "Largeur < 1m40": [140, 200], "Largeur < 2m50": [170, 250], "Largeur < 3m50": [210, 310], "Largeur > 3m50": [240, 350] },
+    // BSO classiques : même prix que les stores verticaux / projection
+    bso_man: { "Largeur < 1m40": [50, 70], "Largeur < 2m50": [80, 120], "Largeur < 3m50": [120, 180], "Largeur > 3m50": [150, 220] },
+    bso_elec: { "Largeur < 1m40": [70, 100], "Largeur < 2m50": [100, 150], "Largeur < 3m50": [140, 210], "Largeur > 3m50": [170, 250] },
     cal_chain: { "Lg < 1m50": [30, 40], "Lg > 1m50": [50, 70], "Lg > 2m50": [80, 120], "Lg > 3m50": [100, 150] },
     cal_sans: { "Lg < 1m50": [30, 40], "Lg > 1m50": [40, 60], "Lg > 2m50": [50, 80], "Lg > 3m50": [70, 120] },
     novis: { "Forfait Lg < 1m50": [30, 40] },
@@ -802,7 +807,7 @@ function populateSub() {
     if(bInt) bInt.style.display = 'none';
     document.querySelectorAll('#block-opt-ext input, #block-opt-banne input, #block-opt-vr input, #block-opt-int input').forEach(cb => cb.checked = false);
     if (!main) return;
-    if (main.startsWith('proj_') || main.startsWith('zip_bso_')) if(bExt) bExt.style.display = 'block';
+    if (main.startsWith('proj_') || main.startsWith('zip_bso_') || main.startsWith('bso_')) if(bExt) bExt.style.display = 'block';
     if (main.startsWith('banne_') || main === 'veraclim') if(bBanne) bBanne.style.display = 'block';
     if (main.startsWith('vr_')) if(bVr) bVr.style.display = 'block';
     const intProducts = ['ven_alu', 'ven_bois', 'enr_easy', 'enr_sans', 'plis', 'novis', 'cal_chain', 'cal_sans', 'japonais', 'velum'];
@@ -995,7 +1000,7 @@ function addItem() {
     if(document.getElementById('o_depose').checked) {
         let depKey = 'depose_base';
         if (mSelect.value.startsWith('banne')) depKey = 'depose_banne';
-        else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso')) depKey = 'depose_ext';
+        else if (mSelect.value.startsWith('vr') || mSelect.value.startsWith('proj') || mSelect.value.startsWith('moust') || mSelect.value.startsWith('zip_bso') || mSelect.value.startsWith('bso_')) depKey = 'depose_ext';
         let a = TARIFS_OPTIONS[depKey].a;
         let v = TARIFS_OPTIONS[depKey].v;
         optList.push({ name: TARIFS_OPTIONS[depKey].name, a: a, v: v });

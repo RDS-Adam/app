@@ -459,6 +459,42 @@
         350
       ]
     },
+    "bso_man": {
+      "Largeur < 1m40": [
+        50,
+        70
+      ],
+      "Largeur < 2m50": [
+        80,
+        120
+      ],
+      "Largeur < 3m50": [
+        120,
+        180
+      ],
+      "Largeur > 3m50": [
+        150,
+        220
+      ]
+    },
+    "bso_elec": {
+      "Largeur < 1m40": [
+        70,
+        100
+      ],
+      "Largeur < 2m50": [
+        100,
+        150
+      ],
+      "Largeur < 3m50": [
+        140,
+        210
+      ],
+      "Largeur > 3m50": [
+        170,
+        250
+      ]
+    },
     "cal_chain": {
       "Lg < 1m50": [
         30,
@@ -770,11 +806,19 @@
       "group": "STORES EXTÉRIEURS"
     },
     "zip_bso_man": {
-      "name": "Store ZIP / BSO Manivelle",
+      "name": "Store ZIP / BSO Bandeau-Joues-Tradi Manivelle",
       "group": "STORES EXTÉRIEURS"
     },
     "zip_bso_elec": {
-      "name": "Store ZIP / BSO Électrique",
+      "name": "Store ZIP / BSO Bandeau-Joues-Tradi Électrique",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "bso_man": {
+      "name": "BSO classique Manivelle",
+      "group": "STORES EXTÉRIEURS"
+    },
+    "bso_elec": {
+      "name": "BSO classique Électrique",
       "group": "STORES EXTÉRIEURS"
     },
     "cal_chain": {
