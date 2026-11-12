@@ -30,6 +30,11 @@
       "a": 75,
       "v": 80
     },
+    "frais_mesure_paris": {
+      "name": "Prise de mesures Paris - 75/92 et IDF Métropole (base jusqu'à 5)",
+      "a": 90,
+      "v": 120
+    },
     "frais_mesure_supp": {
       "name": "Prise de mesures (supp. par store)",
       "a": 5,

@@ -595,6 +595,7 @@ const DEFAULT_TARIFS_OPTIONS = {
     frais_dep_std: { name: "Déplacement (Standard)", a: 30, v: 40 },
     frais_dep_1h: { name: "Déplacement (< 1h)", a: 75, v: 80 },
     frais_mesure: { name: "Prise de mesures (base jusqu'à 5)", a: 75, v: 80 },
+    frais_mesure_paris: { name: "Prise de mesures Paris - 75/92 et IDF Métropole (base jusqu'à 5)", a: 90, v: 120 },
     frais_mesure_supp: { name: "Prise de mesures (supp. par store)", a: 5, v: 5 },
     maj_zone_7592: { name: "Majoration Zone 75/92 (par produit)", a: 30, v: 50 },
     maj_zone_idf: { name: "Majoration Zone IDF (par produit)", a: 20, v: 30 },
@@ -934,7 +935,10 @@ function addFrais() {
     panier.push({ isFrais: true, name: `Mise en place (${zoneLabel})`, qty: 1, a: setupA, v: setupV, options: [] });
     if (tra !== '0') panier.push({ isFrais: true, name: `Déplacement`, qty: 1, a: depA, v: depV, options: [] });
     if (mVal > 0) {
-        let mesA = TARIFS_OPTIONS.frais_mesure.a, mesV = TARIFS_OPTIONS.frais_mesure.v;
+        // Paris (75/92 et IDF Métropole) : forfait mesures spécifique, même supplément au-delà de 5
+        const mesKey = (zone === 'dep75_92' || zone === 'idf_metro') ? 'frais_mesure_paris' : 'frais_mesure';
+        if (!TARIFS_OPTIONS[mesKey]) TARIFS_OPTIONS[mesKey] = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS[mesKey]));
+        let mesA = TARIFS_OPTIONS[mesKey].a, mesV = TARIFS_OPTIONS[mesKey].v;
         let extraCostA = 0, extraCostV = 0;
         let extraDetails = null;
         if (mQty > 5) {
@@ -942,7 +946,7 @@ function addFrais() {
             extraCostV = (mQty - 5) * TARIFS_OPTIONS.frais_mesure_supp.v;
             extraDetails = { baseA: mesA, baseV: mesV, extraQty: (mQty - 5), extraCost: extraCostV };
         }
-        let nameLabel = mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures (jusqu\'à 5 stores)';
+        let nameLabel = (mQty > 5 ? `Prise de mesures (${mQty} stores)` : 'Prise de mesures (jusqu\'à 5 stores)') + (mesKey === 'frais_mesure_paris' ? ' - ' + zoneLabel : '');
         panier.push({ isFrais: true, isMesure: true, name: nameLabel, qty: 1, a: mesA + extraCostA, v: mesV + extraCostV, extraDetails: extraDetails, options: [] });
     }
     updateUI();
