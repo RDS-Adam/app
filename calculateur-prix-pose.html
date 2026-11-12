@@ -273,6 +273,22 @@
                             </select>
                         </span>
                     </div>
+                    <div class="check-item">
+                        <input type="checkbox" id="o_domo" onchange="toggleDomo('o_domo', this.checked)">
+                        Forfait Tahoma - Tydom - Chronis - Domosoft (8 canaux FX)
+                        <span id="o_domo_wrap" style="display:none; align-items:center; margin-left:8px; gap:4px;">
+                            <label style="font-weight:normal; margin:0; font-size:0.8rem; white-space:nowrap;">Nb stores :</label>
+                            <input type="number" id="o_domo_nb" min="1" max="50" value="1" style="width:55px; margin:0; padding:4px 6px; font-size:0.85rem;">
+                        </span>
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" id="o_domo_exist" onchange="toggleDomo('o_domo_exist', this.checked)">
+                        Client déjà équipé (box domotique / télécommande) - programmation
+                        <span id="o_domo_exist_wrap" style="display:none; align-items:center; margin-left:8px; gap:4px;">
+                            <label style="font-weight:normal; margin:0; font-size:0.8rem; white-space:nowrap;">Nb stores :</label>
+                            <input type="number" id="o_domo_exist_nb" min="1" max="50" value="1" style="width:55px; margin:0; padding:4px 6px; font-size:0.85rem;">
+                        </span>
+                    </div>
                     <div class="check-item"><input type="checkbox" id="o_syam"> SYAM / Pose étage intérieur</div>
                     <div class="check-item"><input type="checkbox" id="o_echelle"> Pose à l'échelle > 3m50</div>
                     <div class="check-item"><input type="checkbox" id="o_echa_inst"> Échafaudage (Installation + Loc)</div>
@@ -586,6 +602,9 @@ const DEFAULT_TARIFS_OPTIONS = {
     o_escal: { name: "Montage escalier", a: 0, v: 0 },
     o_escal_etage_supp: { name: "Escalier Bannes/Bannettes - par étage (à partir du 3e)", a: 15, v: 25 },
     o_escal_etage_supp_petit: { name: "Escalier autres stores - par étage (à partir du 3e)", a: 10, v: 15 },
+    o_domo: { name: "Forfait Tahoma - Tydom - Chronis - Domosoft (8 canaux FX) - jusqu'à 5 stores", a: 50, v: 70 },
+    o_domo_supp: { name: "Domotique - par store au-delà de 5", a: 5, v: 8 },
+    o_domo_exist: { name: "Domotique déjà en place (box/télécommande) - par store", a: 5, v: 8 },
     o_syam: { name: "SYAM / Étage Int.", a: 50, v: 70 },
     o_echelle: { name: "Pose Échelle > 3m50", a: 10, v: 30 },
     o_echa_inst: { name: "Inst. Échafaudage", a: 150, v: 250 },
@@ -642,7 +661,7 @@ function buildMainSelect() {
     if (prev) sel.value = prev;
 }
 function ensureEscalOptions() {
-    ['o_escal', 'o_escal_etage_supp', 'o_escal_etage_supp_petit'].forEach(k => {
+    ['o_escal', 'o_escal_etage_supp', 'o_escal_etage_supp_petit', 'o_domo', 'o_domo_supp', 'o_domo_exist'].forEach(k => {
         if (!TARIFS_OPTIONS[k]) TARIFS_OPTIONS[k] = JSON.parse(JSON.stringify(DEFAULT_TARIFS_OPTIONS[k]));
     });
 }
@@ -804,6 +823,41 @@ function toggleEscalOptions(checked) {
     const typeSel = document.getElementById('o_escal_type');
     if (checked && typeSel) typeSel.value = isGrosStoreEscalier(document.getElementById('pMain').value) ? 'gros' : 'petit';
 }
+// Domotique : forfait (jusqu'à 5 stores + supplément par store au-delà) OU client déjà équipé (par store).
+// Les deux cases s'excluent. Nb stores pré-rempli avec la quantité saisie.
+function toggleDomo(id, checked) {
+    const other = id === 'o_domo' ? 'o_domo_exist' : 'o_domo';
+    if (checked) {
+        const o = document.getElementById(other);
+        if (o) o.checked = false;
+        document.getElementById(other + '_wrap').style.display = 'none';
+        document.getElementById(id + '_nb').value = parseInt(document.getElementById('pQty').value) || 1;
+    }
+    document.getElementById(id + '_wrap').style.display = checked ? 'inline-flex' : 'none';
+}
+function resetDomo() {
+    ['o_domo', 'o_domo_exist'].forEach(id => {
+        const nb = document.getElementById(id + '_nb'); if (nb) nb.value = 1;
+        const w = document.getElementById(id + '_wrap'); if (w) w.style.display = 'none';
+    });
+}
+// Ligne domotique : comptée une fois pour le chantier (pas multipliée par la quantité du produit)
+function buildDomoLine() {
+    ensureEscalOptions();
+    if (document.getElementById('o_domo').checked) {
+        const nb = Math.max(1, parseInt(document.getElementById('o_domo_nb').value) || 1);
+        const extra = Math.max(0, nb - 5);
+        const f = TARIFS_OPTIONS.o_domo, s = TARIFS_OPTIONS.o_domo_supp;
+        const label = 'Forfait Tahoma - Tydom - Chronis - Domosoft (8 canaux FX) - ' + nb + ' store' + (nb > 1 ? 's' : '') + (extra > 0 ? ` (forfait 5 + ${extra} × ${s.v} €)` : '');
+        return { isFrais: true, name: label, qty: 1, a: f.a + extra * s.a, v: f.v + extra * s.v, options: [] };
+    }
+    if (document.getElementById('o_domo_exist').checked) {
+        const nb = Math.max(1, parseInt(document.getElementById('o_domo_exist_nb').value) || 1);
+        const e = TARIFS_OPTIONS.o_domo_exist;
+        return { isFrais: true, name: `Domotique déjà en place (box/télécommande) - ${nb} store${nb > 1 ? 's' : ''} × ${e.v} €`, qty: 1, a: nb * e.a, v: nb * e.v, options: [] };
+    }
+    return null;
+}
 function resetEscalFloor() {
     const floorInput = document.getElementById('o_escal_floor');
     const floorWrap = document.getElementById('o_escal_floor_wrap');
@@ -819,7 +873,7 @@ function resetDevis() {
         document.getElementById('globalAchatProd').value = ""; document.getElementById('globalVenteProd').value = "";
         resetVitrages();
         document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
-        resetEscalFloor();
+        resetEscalFloor(); resetDomo();
         populateSub(); updateUI();
     }
 }
@@ -865,7 +919,15 @@ function addItem() {
     const mSelect = document.getElementById('pMain');
     const sub = document.getElementById('pSub').value;
     let qty = parseInt(document.getElementById('pQty').value);
-    if (!mSelect.value || !sub) return;
+    if (!mSelect.value || !sub) {
+        // Domotique seule (sans produit) : on ajoute juste la ligne domotique
+        const domoOnly = buildDomoLine();
+        if (domoOnly) {
+            panier.push(domoOnly); updateUI();
+            document.getElementById('o_domo').checked = false; document.getElementById('o_domo_exist').checked = false; resetDomo();
+        }
+        return;
+    }
     let baseA = TARIFS_PRODUITS[mSelect.value][sub][0];
     let baseV = TARIFS_PRODUITS[mSelect.value][sub][1];
     let baseName = getCatName(mSelect.value) + " (" + sub + ")";
@@ -942,9 +1004,12 @@ function addItem() {
     const newItem = { isFrais: false, mainCat: mSelect.value, name: baseName, baseA: baseA, baseV: baseV, options: optList, qty: qty, unitA: totA, unitV: totV };
     if (surface > 0) { newItem.surface = surface; newItem.vitrages = vitrages; resetVitrages(); }
     panier.push(newItem);
+    const domoLine = buildDomoLine();
+    if (domoLine) panier.push(domoLine);
     updateUI();
     document.querySelectorAll('.selection-box input[type="checkbox"]').forEach(cb => cb.checked = false);
     resetEscalFloor();
+    resetDomo();
 }
 function toggleDetails(index) {
     const row = document.getElementById(`details-${index}`);

@@ -75,6 +75,21 @@
       "a": 0,
       "v": 0
     },
+    "o_domo": {
+      "name": "Forfait Tahoma - Tydom - Chronis - Domosoft (8 canaux FX) - jusqu'à 5 stores",
+      "a": 50,
+      "v": 70
+    },
+    "o_domo_supp": {
+      "name": "Domotique - par store au-delà de 5",
+      "a": 5,
+      "v": 8
+    },
+    "o_domo_exist": {
+      "name": "Domotique déjà en place (box/télécommande) - par store",
+      "a": 5,
+      "v": 8
+    },
     "o_syam": {
       "name": "SYAM / Étage Int.",
       "a": 50,
