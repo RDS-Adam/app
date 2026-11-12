@@ -792,6 +792,21 @@
       "decidedBy": "Nicolas",
       "fromN1": 2,
       "fromN": 0
+    },
+    {
+      "id": 1794488494624,
+      "user": "Karine",
+      "lastname": "Paillard",
+      "email": "karine.paillard@ruedustore.fr",
+      "start": "2026-11-17",
+      "end": "2026-11-17",
+      "days": 0.5,
+      "type": "Congés Payés",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-11-12",
+      "startTime": "14:00",
+      "endTime": "18:00"
     }
   ],
   "soldes": {
@@ -903,6 +918,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1794488494625,
+      "date": "2026-11-12",
+      "heure": "14:01",
+      "type": "demande",
+      "actor": "Karine Paillard",
+      "label": "Nouvelle demande soumise",
+      "detail": "Congés Payés · Du 17/11/2026 à 14h00 au 17/11/2026 à 18h00 (0,5 j)"
+    },
     {
       "ts": 1794479929397,
       "date": "2026-11-12",
@@ -2230,6 +2254,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1794488495062,
+      "ts": 1794488494625,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Karine Paillard</strong> a déposé une demande : Congés Payés · Du 17/11/2026 à 14h00 au 17/11/2026 à 18h00 (0,5 j)",
+      "reqId": 1794488494624
+    },
     {
       "id": 1794479930163,
       "ts": 1794479929397,
