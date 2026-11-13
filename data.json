@@ -803,10 +803,15 @@
       "days": 0.5,
       "type": "Congés Payés",
       "note": "",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-11-12",
       "startTime": "14:00",
-      "endTime": "18:00"
+      "endTime": "18:00",
+      "reason": "",
+      "date_decision": "2026-11-13",
+      "decidedBy": "Nicolas",
+      "fromN1": 0.5,
+      "fromN": 0
     }
   ],
   "soldes": {
@@ -918,6 +923,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1794584733327,
+      "date": "2026-11-13",
+      "heure": "16:45",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Karine Paillard · Congés Payés · Du 17/11/2026 à 14h00 au 17/11/2026 à 18h00 (0,5 j)"
+    },
     {
       "ts": 1794488494625,
       "date": "2026-11-12",
@@ -2247,13 +2261,33 @@
     "Nicolas": 0,
     "Cindy": 0,
     "Baptiste": 13.5,
-    "Karine": 8.5,
+    "Karine": 8,
     "Adam": 0,
     "Alexandre": 0,
     "Clarisse": 6,
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1794584733438,
+      "ts": 1794584733327,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Karine Paillard</strong> : Congés Payés · Du 17/11/2026 à 14h00 au 17/11/2026 à 18h00 (0,5 j)",
+      "reqId": 1794488494624
+    },
+    {
+      "id": 1794584734310,
+      "ts": 1794584733327,
+      "to": [
+        "Karine"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 17/11/2026 à 14h00 au 17/11/2026 à 18h00 (Congés Payés) a été <strong>validée</strong> par Nicolas",
+      "reqId": 1794488494624
+    },
     {
       "id": 1794488495062,
       "ts": 1794488494625,
