@@ -72,6 +72,9 @@ main{padding-block:18px 60px}
 .fld.sm label{font-family:var(--f-body);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;color:var(--muted)}
 .fld input{flex:1;min-width:0;border:0;border-bottom:1.5px dotted var(--line-strong);background:transparent;color:var(--pen);font:600 17px/1.3 var(--f-body);padding:4px 2px}
 .fld.sm input{font-size:15px;padding:2px}
+.fld select{flex:1;min-width:0;border:0;border-bottom:1.5px dotted var(--line-strong);background:transparent;color:var(--pen);font:600 15px/1.3 var(--f-body);padding:4px 2px;cursor:pointer}
+.fld select:focus{outline:none;border-bottom:1.5px solid var(--pen)}
+.fld select option{color:var(--ink);background:var(--sheet)}
 .fld input:focus{outline:none;border-bottom:1.5px solid var(--pen)}
 .fld input::placeholder{color:var(--line-strong);font-weight:400}
 .idgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px 22px;padding:16px 18px 18px}
@@ -263,7 +266,7 @@ label.tb{cursor:pointer}
       <h1>PRISE MESURES</h1>
       <div class="who">
         <div class="fld sm"><label for="f-metreur">Nom métreur</label><input id="f-metreur" data-f="metreur" autocomplete="off" placeholder="Votre nom"></div>
-        <div class="fld sm"><label for="f-temps">Temps estimé</label><input id="f-temps" data-f="temps" autocomplete="off" placeholder="ex. 1h30"></div>
+        <div class="fld sm"><label for="f-temps">Temps estimé</label><select id="f-temps" data-f="temps"><option value="">Choisir…</option><option>30 min</option><option>1h</option><option>1h30</option><option>2h</option><option>2h30</option><option>3h</option><option>3h30</option><option>4h</option><option>1/2 journée</option><option>1 journée</option><option>1 journée 1/2</option><option>2 jours</option><option>2 jours 1/2</option><option>3 jours</option><option>4 jours</option><option>5 jours</option><option>1 semaine</option></select></div>
       </div>
     </div>
     <div class="idgrid">
@@ -419,7 +422,9 @@ $('#blocks').innerHTML = `
 $('#c-tva10').querySelector('.box').innerHTML = XMARK;
 
 function fillForm(){
-  document.querySelectorAll('[data-f]').forEach(el => { el.value = getP(cur, el.dataset.f) ?? ''; });
+  document.querySelectorAll('[data-f]').forEach(el => { const v = getP(cur, el.dataset.f) ?? '';
+    if (el.tagName === 'SELECT' && v && ![...el.options].some(o => o.value === v)){ const o = document.createElement('option'); o.textContent = v; el.append(o); }
+    el.value = v; });
   document.querySelectorAll('[data-c]').forEach(el => el.setAttribute('aria-pressed', !!getP(cur, el.dataset.c)));
   document.querySelectorAll('[data-r]').forEach(el => el.setAttribute('aria-pressed', getP(cur, el.dataset.r) === el.dataset.v));
   updTitle();
