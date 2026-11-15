@@ -890,12 +890,12 @@ function openEditor(pg, o, isNew){
   const k = pg._cv.clientWidth / W, ta = document.createElement('textarea'); ta.className = 'txt-edit';
   let x, y, fs;
   if (o.t === 'd'){ const L = coteLabel(o); fs = L.fs; x = L.cx - 90; y = L.cy - fs * .6; ta.placeholder = 'cote, ex. 437'; ta.rows = 1; ta.style.textAlign = 'center'; ta.style.width = 180 * k + 'px'; ta.style.fontWeight = '700'; }
-  else { fs = textFs(o); x = o.x; y = o.y; ta.placeholder = 'Écrire…'; ta.style.minWidth = Math.min(320, 260 * k + 60) + 'px'; }
+  else { fs = textFs(o); x = o.x; y = o.y; ta.placeholder = 'Écrire… (touchez à côté pour terminer)'; ta.style.minWidth = Math.min(320, 260 * k + 60) + 'px'; }
   ta.style.left = Math.max(0, x * k) + 'px'; ta.style.top = Math.max(0, y * k) + 'px'; ta.style.fontSize = fs * k + 'px'; ta.style.color = o.c;
   ta.value = o.txt || ''; ta.setAttribute('aria-label', o.t === 'd' ? 'Valeur de la cote' : 'Texte');
   const grow = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; if (o.t === 't'){ ta.style.width = 'auto'; ta.style.width = Math.min(pg._cv.clientWidth - x * k, Math.max(ta.scrollWidth + 8, 160)) + 'px'; } };
   ta.oninput = grow;
-  ta.onkeydown = e => { if (e.key === 'Enter' && (!e.shiftKey || o.t === 'd')){ e.preventDefault(); commitEditor(); } if (e.key === 'Escape'){ ta.value = o.txt || ''; commitEditor(); } };
+  ta.onkeydown = e => { if (e.key === 'Enter' && o.t === 'd'){ e.preventDefault(); commitEditor(); } if (e.key === 'Escape'){ ta.value = o.txt || ''; commitEditor(); } };
   ta.onblur = () => setTimeout(commitEditor, 0);
   pg._ov.append(ta); editor = { pg, o, ta, isNew, before: JSON.stringify(pg.objs) };
   o._editing = true; render(pg);
