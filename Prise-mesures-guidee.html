@@ -708,6 +708,7 @@ function cardInner(it, i){
       <input data-ik="emp" value="${esc(it.emp)}" placeholder="Emplacement (terrasse, cuisine…)" aria-label="Emplacement">
       <label class="qte">Qté <input data-ik="qte" inputmode="numeric" value="${esc(it.qte || 1)}" aria-label="Quantité"></label></div>
     <div class="pc-acts"><span class="pill ${st.miss.length ? 'warn' : 'ok'}">${st.miss.length ? st.miss.length + ' à compléter' : 'Complet'}</span>
+      <button class="btn primary pc-write">${svg('pen')}<span>${onSketch(it) ? 'Mettre à jour le croquis' : 'Ajouter au croquis'}</span></button>
       <button class="btn pc-dict">${svg('mic')}<span>Dicter</span></button><button class="btn icon pc-del" aria-label="Supprimer ce produit">${svg('trash')}</button></div></div>
     <div class="pc-dictbox" hidden>
       <div class="dict-row"><button class="mic pc-mic" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span>Parler</span></button>
@@ -775,6 +776,7 @@ $('#gitems').addEventListener('click', e => {
   if (e.target.closest('.pc-mic')){ dictTA = box.querySelector('.pc-ta'); dictPT = box.querySelector('.pc-pt'); dictMB = box.querySelector('.pc-mic');
     if (S.dict && S.dict.active()){ S.dict.stop().catch(() => {}); return; } startDict(); return; }
   if (e.target.closest('.pc-dclose')){ if (S.dict && S.dict.active()) S.dict.stop().catch(() => {}); box.hidden = true; return; }
+  if (e.target.closest('.pc-write')){ writeItemOnSketch(it); return; }
   const fill = e.target.closest('.pc-fill'); if (fill) fillFromDictation(card, it, box, fill);
 });
 $('#gitems').addEventListener('input', e => {
@@ -782,6 +784,43 @@ $('#gitems').addEventListener('input', e => {
   if (e.target.dataset.gk){ it.v[e.target.dataset.gk] = e.target.value; softStatus(card, it); touch(); }
   else if (e.target.dataset.ik){ it[e.target.dataset.ik] = e.target.value; touch(); }
 });
+/* Écrire un produit sur le croquis, en manuscrit, point par point */
+const shortLabel = l => l.replace(/\s*\(vu de l'extérieur\)/, ' (vu ext.)').replace(/\s*\(vu de l'intérieur\)/, ' (vu int.)').replace(/\s*\(référence\)/, '');
+const onSketch = it => pages.some(pg => pg.objs.some(o => o.ref === it.id));
+function itemText(it){
+  const T = TPL[it.tpl], st = itemStatus(it), missK = new Set(st.miss.map(f => f.k));
+  const lines = [T.label + (it.emp ? ' — ' + it.emp : '') + ((+it.qte > 1) ? ' (x' + it.qte + ')' : '')];
+  const d = dimsTxt(it); if (d) lines.push(d);
+  for (const f of T.fields.filter(f => visible(f, it.v))){
+    if (T.dims.includes(f.k) && !missK.has(f.k)) continue;
+    const v = it.v[f.k];
+    if (missK.has(f.k)) lines.push(`- ${shortLabel(f.l)} : ?`);
+    else if (!isEmpty(v)) lines.push(f.k === 'notes' ? `- ${v}` : `- ${shortLabel(f.l)} : ${f.t === 'num' ? v + ' ' + f.u : v}`);
+  }
+  return lines.join('\n');
+}
+function writeItemOnSketch(it){
+  const txt = itemText(it), miss = itemStatus(it).miss.length;
+  for (const pg of pages){
+    const o = pg.objs.find(x => x.t === 't' && x.ref === it.id);
+    if (o){ snap(pg); o.txt = txt; changed(pg); renderItems(); openSheet(pg); setTool('select'); setSel({ pg, o });
+      toast('Texte du croquis mis à jour.' + (miss ? ` Les « ? » marquent ${miss} information${miss > 1 ? 's' : ''} à compléter.` : '')); return; }
+  }
+  const fs = 34, h = txt.split('\n').length * fs * 1.1;
+  let target = null, y = 30;
+  for (const pg of pages){
+    let bottom = 30;
+    for (const o of pg.objs){ const b = bbox(o); if (b.x < 560) bottom = Math.max(bottom, b.y + b.h + 28); }
+    if (bottom + h <= H - 10){ target = pg; y = bottom; break; }
+  }
+  if (!target){ target = { id: uid('p'), objs: [] }; pages.push(target); cur.pageIds = pages.map(p => p.id); buildPages(); markPage(target); y = 30; }
+  snap(target);
+  const o = { t: 't', c: '#1d3fa8', fs, x: 30, y, txt, ref: it.id };
+  target.objs.push(o); changed(target); renderItems();
+  openSheet(target); setTool('select'); setSel({ pg: target, o });
+  toast('Produit écrit sur le croquis. Déplacez-le ou redimensionnez-le avec son cadre.' + (miss ? ` Les « ? » marquent ce qui reste à compléter.` : ''));
+}
+
 function fieldPrompt(T){
   return T.fields.map(f => `- ${f.k} : ${f.l}` + (f.t === 'choice' ? ` — une valeur parmi : ${f.o.join(' | ')}` : f.t === 'num' ? ` — nombre en ${f.u}` : ' — texte court')).join('\n');
 }
@@ -1213,7 +1252,7 @@ function closeSheet(){
   const pg = edPg; edPg = null; pg._cv = pg._pv; pg._ov = pg._pov;
   $('#sheetModal').hidden = true; document.body.classList.remove('locked');
   try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
-  buildPages(); flush();
+  buildPages(); renderItems(); flush();
   requestAnimationFrame(() => pg._pv && pg._pv.scrollIntoView({ block: 'center' }));
 }
 $('#mDone').onclick = closeSheet;
