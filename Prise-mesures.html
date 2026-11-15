@@ -83,6 +83,35 @@ main{padding-block:18px 60px}
 .block{padding:14px 18px 18px;border-bottom:1px solid var(--line);min-width:0}
 .block:nth-child(odd){border-right:1px solid var(--line)}
 @media (max-width:760px){.blocks{grid-template-columns:1fr}.block:nth-child(odd){border-right:0}}
+.prod{padding:14px 18px 18px;border-top:1px solid var(--line);display:grid;gap:10px}
+.prod-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.prod-head h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
+.prod-acts{display:flex;gap:6px}
+.dict{border:1.5px solid var(--pen);border-radius:10px;padding:12px;display:grid;gap:8px;background:var(--pen-soft)}
+.dict-row{display:flex;align-items:center;gap:12px}
+.mic{flex:none;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--pen);color:var(--pen-ink);padding:12px 18px;font-weight:700;font-size:15px;min-height:48px}
+.mic svg{width:22px;height:22px}
+.mic[aria-pressed="true"]{background:var(--danger);color:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
+.dict-hint{margin:0;font-size:13px;color:var(--muted);min-width:0}
+.dict textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--sheet);color:var(--ink);font:500 16px/1.4 var(--f-body);resize:vertical}
+.dict-partial{margin:0;color:var(--muted);font-style:italic;font-size:14px;min-height:1em}
+.dict-prev{display:grid;gap:6px}
+.dict-prev div{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px}
+.dict-prev b{color:var(--pen)}
+.dict-btns{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.ptable{display:grid;gap:8px}
+.prow{display:grid;grid-template-columns:minmax(0,2fr) 92px 14px 92px 70px minmax(0,1.6fr) 40px;gap:6px;align-items:center}
+.prow input,.prow select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 8px;background:var(--sheet);color:var(--pen);font:600 15px var(--f-body)}
+.prow .pnum{position:relative}
+.prow .pnum span{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);font-weight:700;pointer-events:none}
+.prow .pnum input{padding-left:22px;text-align:right}
+.prow .px{text-align:center;color:var(--muted)}
+.prow .pdel{border:0;background:transparent;color:var(--muted);height:40px;border-radius:8px}
+.prow .pdel svg{width:18px;height:18px}
+.prow.new input{border-color:var(--pen)}
+.pempty{margin:0;color:var(--muted);font-size:14px}
+@media (max-width:760px){.prow{grid-template-columns:1fr 14px 1fr 70px 40px;padding:8px;border:1px solid var(--line);border-radius:10px}.prow .p-type,.prow .p-rem{grid-column:1/-1}.prow .pdel{grid-column:5;grid-row:2}}
 .block h2{margin:0 0 10px;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
 .block h3{margin:12px 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .block h3:first-of-type{margin-top:0}
@@ -243,6 +272,19 @@ label.tb{cursor:pointer}
       <div class="fld c8"><label for="f-chantier">Chantier</label><input id="f-chantier" data-f="chantier" autocomplete="off" placeholder="Ville / lieu du chantier"></div>
       <div class="c4 tva"><button class="chk" style="flex:1" data-c="tva10" aria-pressed="false" id="c-tva10"><span><b>TVA 10 %</b></span><i class="box"></i></button></div>
     </div>
+    <div class="prod" id="prod">
+      <div class="prod-head"><h2>Stores &amp; dimensions</h2>
+        <div class="prod-acts"><button class="btn primary" id="bDict"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>Dicter</button><button class="btn" id="bAddProd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ligne</button></div></div>
+      <div class="dict" id="dict" hidden>
+        <div class="dict-row"><button class="mic" id="bMic" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span id="micTxt">Parler</span></button>
+          <p class="dict-hint" id="dictHint">Dites par exemple : « Store banne coffre, largeur 437, avancée 330 centimètres, toile rayée rouge ». Vous pouvez enchaîner plusieurs stores.</p></div>
+        <textarea id="dictText" rows="3" placeholder="Votre dictée s'affiche ici. Vous pouvez aussi la taper, ou utiliser le micro du clavier."></textarea>
+        <p class="dict-partial" id="dictPartial"></p>
+        <div class="dict-prev" id="dictPrev" hidden></div>
+        <div class="dict-btns"><button class="btn" id="dictCancel">Fermer</button><button class="btn" id="dictParse">Analyser</button><button class="btn primary" id="dictOk" hidden>Valider et remplir la fiche</button></div>
+      </div>
+      <div class="ptable" id="ptable"></div>
+    </div>
     <div class="blocks" id="blocks"></div>
   </section>
 
@@ -337,7 +379,7 @@ function blankFiche(){
     ei: {prevue:false, goulotte:false, goulotteMl:'', combles:false}, ee: {prevue:false, iro:false, iroMl:''},
     acces: {hauteur:'', terrasse:'', etages:'', profondeur:'', corde:''},
     mt: {leve:false, echaf:false, nacelle:false, monte:false, syam:false},
-    cales:false, nbPers:'', livraison:false, tva10:false,
+    cales:false, nbPers:'', livraison:false, tva10:false, produits: [],
     pageIds: [], createdAt: Date.now(), updatedAt: Date.now()
   };
 }
@@ -345,6 +387,7 @@ function normFiche(f){
   const b = blankFiche();
   const out = Object.assign({}, b, f);
   for (const k of ['mat','ei','ee','acces','mt']) out[k] = Object.assign({}, b[k], f[k] || {});
+  out.produits = Array.isArray(f.produits) ? f.produits.map(x => Object.assign({ type: '', l: '', h: '', u: 'cm', rem: '' }, x)) : [];
   return out;
 }
 
@@ -378,6 +421,7 @@ $('#blocks').innerHTML = `
 $('#c-tva10').querySelector('.box').innerHTML = XMARK;
 
 function fillForm(){
+  renderProd();
   document.querySelectorAll('[data-f]').forEach(el => { el.value = getP(cur, el.dataset.f) ?? ''; });
   document.querySelectorAll('[data-c]').forEach(el => el.setAttribute('aria-pressed', !!getP(cur, el.dataset.c)));
   document.querySelectorAll('[data-r]').forEach(el => el.setAttribute('aria-pressed', getP(cur, el.dataset.r) === el.dataset.v));
@@ -401,14 +445,122 @@ document.addEventListener('click', e => {
     document.querySelectorAll(`[data-r="${r.dataset.r}"]`).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v)); touch(); }
 });
 
+/* ---------- Stores & dimensions (dictée) ---------- */
+const UNITS = ['cm', 'm', 'mm'];
+function renderProd(fresh){
+  const el = $('#ptable'), list = (cur && cur.produits) || [];
+  if (!list.length){ el.innerHTML = '<p class="pempty">Aucun store saisi. Touchez « Dicter » et dites le type de store et ses dimensions, ou ajoutez une ligne.</p>'; return; }
+  el.innerHTML = '';
+  list.forEach((x, i) => {
+    const r = document.createElement('div'); r.className = 'prow' + (fresh && fresh.has(i) ? ' new' : '');
+    r.innerHTML = `<input class="p-type" data-pk="type" placeholder="Type de store" aria-label="Type de store, ligne ${i + 1}">
+      <label class="pnum"><span>L</span><input data-pk="l" inputmode="decimal" aria-label="Largeur, ligne ${i + 1}"></label><span class="px">×</span>
+      <label class="pnum"><span>H</span><input data-pk="h" inputmode="decimal" aria-label="Hauteur ou avancée, ligne ${i + 1}"></label>
+      <select data-pk="u" aria-label="Unité, ligne ${i + 1}">${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
+      <input class="p-rem" data-pk="rem" placeholder="Remarques (toile, manœuvre, couleur…)" aria-label="Remarques, ligne ${i + 1}">
+      <button class="pdel" aria-label="Supprimer la ligne ${i + 1}">${svg('trash')}</button>`;
+    r.querySelectorAll('[data-pk]').forEach(inp => { inp.value = x[inp.dataset.pk] ?? ''; inp.dataset.pi = i; });
+    r.querySelector('.pdel').onclick = () => { cur.produits.splice(i, 1); renderProd(); touch(); };
+    el.append(r);
+  });
+}
+const onProdInput = e => { const t = e.target; if (!t.dataset || t.dataset.pi == null || !cur) return; const x = cur.produits[+t.dataset.pi]; if (!x) return; x[t.dataset.pk] = t.value; touch(); };
+$('#ptable').addEventListener('input', onProdInput); $('#ptable').addEventListener('change', onProdInput);
+$('#bAddProd').onclick = () => { cur.produits.push({ type: '', l: '', h: '', u: 'cm', rem: '' }); renderProd(); touch(); const ins = $('#ptable').querySelectorAll('.p-type'); ins[ins.length - 1].focus(); };
+
+const DICT_PROMPT = `Tu reçois la dictée d'un métreur prise chez un client (stores bannes, stores intérieurs, volets roulants, moustiquaires, pergolas, toiles).
+Extrais chaque produit mentionné, dans l'ordre. Réponds uniquement par un tableau JSON de la forme :
+[{"type":"Store banne coffre","largeur":437,"hauteur":330,"unite":"cm","remarques":"toile rayée rouge"}]
+Règles :
+- type : désignation courte du produit, telle qu'elle est dite.
+- largeur : la première dimension (largeur, L). hauteur : la seconde (hauteur, avancée, projection, H). Nombre ou null.
+- Écris les nombres en chiffres (« quatre cent trente-sept » → 437 ; « deux mètres cinquante » → 2.5 avec unite "m").
+- unite : "cm", "m" ou "mm", celle qui est dite ; "cm" si rien n'est dit.
+- remarques : le reste utile, court (toile, couleur, manœuvre, motorisation, pose, options). Chaîne vide sinon.
+- N'invente rien. Si aucun produit n'est reconnu, réponds [].
+
+Dictée :
+`;
+const fmtNum = v => v == null || v === '' ? '' : String(v).replace('.', ',');
+function normItems(arr){
+  return (Array.isArray(arr) ? arr : []).map(x => ({
+    type: (t => t.charAt(0).toUpperCase() + t.slice(1))(String(x.type || '').trim()), l: fmtNum(x.largeur ?? x.l), h: fmtNum(x.hauteur ?? x.h),
+    u: UNITS.includes(x.unite || x.u) ? (x.unite || x.u) : 'cm', rem: String(x.remarques || x.rem || '').trim()
+  })).filter(x => x.type || x.l || x.h);
+}
+function localParse(t){
+  const out = [];
+  const unitOf = w => /^(mm|millim)/i.test(w) ? 'mm' : /^(cm|centim)/i.test(w) ? 'cm' : /^(m\b|m$|mètre|metre)/i.test(w) ? 'm' : null;
+  for (let seg of t.split(/\n|;|\.(?=\s|$)|\s(?:puis|ensuite)\s/i)){
+    seg = seg.trim(); if (!seg) continue;
+    const nums = [...seg.matchAll(/\d+(?:[.,]\d+)?/g)];
+    if (!nums.length){ if (out.length) out[out.length - 1].rem = [out[out.length - 1].rem, seg].filter(Boolean).join(', '); else out.push({ type: seg, l: '', h: '', u: 'cm', rem: '' }); continue; }
+    const type = seg.slice(0, nums[0].index).replace(/\b(largeur|hauteur|avancée|avancee|projection|dimensions?|de|en|par|sur|fois|l|h|x)\b/gi, ' ').replace(/[,:\s]+$/,'').replace(/\s+/g, ' ').trim();
+    const a = nums[0], b = nums[1];
+    const endIdx = (b || a).index + (b || a)[0].length;
+    const after = seg.slice(endIdx); const um = after.match(/^\s*(mm|cm|m\b|mètres?|metres?|centimètres?|centimetres?|millimètres?|millimetres?)/i);
+    const rem = (um ? after.slice(um[0].length) : after).replace(/^[\s,.;:-]+/, '').trim();
+    out.push({ type, l: a[0], h: b ? b[0] : '', u: (um && unitOf(um[1])) || 'cm', rem });
+  }
+  return normItems(out.map(x => ({ type: x.type, largeur: x.l, hauteur: x.h, unite: x.u, remarques: x.rem })));
+}
+let dictItems = null;
+const detailOf = x => [(x.l || x.h) ? `L ${x.l || '?'} × H ${x.h || '?'} ${x.u}` : '', x.rem].filter(Boolean).join(' — ');
+const lineOf = x => [x.type || 'Store', detailOf(x)].filter(Boolean).join(' — ');
+function showPreview(items){
+  const el = $('#dictPrev'); el.hidden = false; el.innerHTML = '';
+  if (!items.length){ el.innerHTML = '<div>Aucun store ni dimension reconnus. Reformulez, par exemple « store banne, largeur 437, avancée 330 ».</div>'; $('#dictOk').hidden = true; return; }
+  for (const x of items){ const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.type || 'Store'; const dt = detailOf(x); d.append(b, document.createTextNode(dt ? ' — ' + dt : '')); el.append(d); }
+  $('#dictOk').hidden = false; $('#dictOk').textContent = items.length > 1 ? `Valider et remplir la fiche (${items.length} lignes)` : 'Valider et remplir la fiche';
+}
+$('#dictParse').onclick = async () => {
+  const t = $('#dictText').value.trim(); if (!t){ toast('Dictez ou tapez d\'abord le type de store et ses dimensions.'); return; }
+  if (S.dict && S.dict.active()) await S.dict.stop().catch(() => {});
+  const b = $('#dictParse'); b.disabled = true; b.textContent = 'Analyse…';
+  let items = null;
+  if (S.sample){ try { items = normItems(await S.sample.json(DICT_PROMPT + $('#dictText').value.trim(), { modelTier: 'quick' })); } catch (e) { if (e && e.code === 'cancelled') { b.disabled = false; b.textContent = 'Analyser'; return; } items = null; } }
+  if (!items || !items.length){ const loc = localParse(t); if (loc.length || !items) items = loc; }
+  dictItems = items; showPreview(items); b.disabled = false; b.textContent = 'Analyser';
+};
+$('#dictText').addEventListener('input', () => { if (dictItems){ dictItems = null; $('#dictOk').hidden = true; $('#dictPrev').hidden = true; } });
+$('#dictOk').onclick = () => {
+  if (!dictItems || !dictItems.length) return;
+  const start = cur.produits.length; cur.produits.push(...dictItems);
+  const fresh = new Set(dictItems.map((_, i) => start + i)); const n = dictItems.length;
+  renderProd(fresh); touch(); closeDict();
+  toast(n > 1 ? `${n} lignes ajoutées à la fiche.` : 'Ligne ajoutée à la fiche.');
+};
+function closeDict(){ if (S.dict && S.dict.active()) S.dict.stop().catch(() => {}); $('#dict').hidden = true; $('#dictText').value = ''; $('#dictPartial').textContent = ''; $('#dictPrev').hidden = true; $('#dictOk').hidden = true; dictItems = null; }
+$('#dictCancel').onclick = closeDict;
+function micUi(on){ $('#bMic').setAttribute('aria-pressed', on); $('#micTxt').textContent = on ? 'Arrêter' : 'Parler'; }
+function startDict(){
+  if (!S.dict){ $('#dictText').focus(); toast('Touchez le micro de votre clavier pour dicter.'); return; }
+  S.dict.start().catch(e => { const c = e && e.code;
+    if (c === 'not_granted'){ S.dict = null; $('#bMic').hidden = true; $('#dictHint').textContent = 'Micro refusé : utilisez le micro de votre clavier, ou tapez le texte.'; }
+    else if (c === 'unavailable'){ S.dict = null; $('#bMic').hidden = true; $('#dictHint').textContent = 'Dictée indisponible ici : utilisez le micro de votre clavier, ou tapez le texte.'; }
+    else if (c === 'rate_limited') toast('Trop de dictées en cours. Réessayez dans un instant.');
+    else if (c !== 'stopped' && c !== 'dismissed') toast('Le micro n\'a pas pu démarrer. Réessayez.'); });
+}
+$('#bMic').onclick = () => { if (S.dict && S.dict.active()){ S.dict.stop().catch(() => {}); return; } startDict(); };
+$('#bDict').onclick = () => { const d = $('#dict'); const wasHidden = d.hidden; d.hidden = false;
+  if (!S.dict){ $('#bMic').hidden = true; $('#dictHint').textContent = 'Touchez le micro de votre clavier pour dicter, par exemple : « Store banne coffre, largeur 437, avancée 330 ». Vous pouvez enchaîner plusieurs stores.'; }
+  if (wasHidden) startDict(); };
+function initDictation(){
+  const d = S.dict; if (!d){ return; }
+  $('#bMic').hidden = false;
+  d.onPartial(({ text }) => { $('#dictPartial').textContent = text; });
+  d.onFinal(({ text }) => { const ta = $('#dictText'); ta.value = ta.value ? ta.value + text : text.replace(/^\s+/, ''); $('#dictPartial').textContent = ''; ta.dispatchEvent(new Event('input')); });
+  d.onState(({ state }) => micUi(state === 'listening' || state === 'starting'));
+}
+
 /* ---------- Stockage ---------- */
 const S = { mode: 'local', db: null, assets: null, dl: null, inViewer: !!(window.claude && window.claude.use) };
 async function initCaps(){
   if (!S.inViewer) return;
   const tm = () => new Promise(r => setTimeout(() => r(null), 10000));
   const get = n => Promise.race([Promise.resolve().then(() => window.claude.use(n)).catch(() => null), tm()]);
-  const [db, as, dl, sm] = await Promise.all([get('db'), get('assets'), get('downloads'), get('sample')]);
-  S.db = db; S.assets = as; S.dl = dl; S.mode = db ? 'db' : 'local'; S.sample = sm;
+  const [db, as, dl, sm, dc] = await Promise.all([get('db'), get('assets'), get('downloads'), get('sample'), get('dictation')]);
+  S.db = db; S.assets = as; S.dl = dl; S.mode = db ? 'db' : 'local'; S.sample = sm; S.dict = dc; initDictation();
   if (sm){ try { const l = await sm.limits(); S.hw = !!(l && l.images); } catch { S.hw = false; } syncTools(); }
 }
 const ser = objs => JSON.stringify(objs.map(o => { const c = {}; for (const k in o) if (k[0] !== '_') c[k] = o[k]; if (o.t === 'i' && !o.assetId && o._data) c.d = o._data; return c; }));
@@ -1284,6 +1436,18 @@ async function exportPDF(){
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text([cur.client, cur.chantier, frDate(cur.date)].filter(Boolean).join(' · ') + `  —  feuillet ${i + 1}/${n}`, 52, 14);
         doc.addImage(img, 'JPEG', 10, 20, 190, 171); doc.setDrawColor(200, 206, 216); doc.setLineWidth(.2); doc.rect(10, 20, 190, 171); }
       doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text(`${i + 1}/${n}`, 200, 290, { align: 'right' });
+    }
+    const prods = (cur.produits || []).filter(x => x.type || x.l || x.h || x.rem);
+    if (prods.length){
+      const lines = prods.map((x, i) => `${i + 1}. ${lineOf(x)}`);
+      const fit = lines.length > 3 ? 2 : 3;
+      doc.setPage(1); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('STORES :', 10, 278.5);
+      doc.setFont('helvetica', 'normal'); doc.setTextColor(29, 63, 168);
+      lines.slice(0, fit).forEach((l, i) => doc.text(l, 28, 278.5 + i * 4.6, { maxWidth: 160 }));
+      if (lines.length > fit){ doc.setTextColor(0, 0, 0); doc.text(`… suite des stores en dernière page (${lines.length} au total)`, 28, 278.5 + fit * 4.6);
+        doc.setPage(doc.getNumberOfPages()); doc.addPage(); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('PRISE MESURES — STORES & DIMENSIONS', 10, 14);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(29, 63, 168); let y = 24;
+        for (const l of lines){ const wr = doc.splitTextToSize(l, 190); if (y + wr.length * 5 > 285){ doc.addPage(); y = 16; } doc.text(wr, 10, y); y += wr.length * 5 + 1.5; } }
     }
     const slug = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const name = ['Prise-mesures', slug(cur.client) || 'client', slug(cur.chantier), cur.date].filter(Boolean).join('_') + '.pdf';
