@@ -174,6 +174,7 @@ body[data-tool="text"] canvas.cv{cursor:text}
 .selbar{position:absolute;display:flex;gap:4px;transform:translateY(-100%)}
 .selbar button{display:inline-flex;align-items:center;gap:5px;border:0;border-radius:7px;padding:6px 9px;font-size:12.5px;font-weight:700;background:#17202c;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .selbar button.del{background:#b42318}
+.selbar button.sz{background:#1f3fa6;min-width:46px;justify-content:center;font-size:15px;padding:8px 10px}
 .selbar svg{width:15px;height:15px}
 .txt-edit{position:absolute;min-width:160px;border:1.5px dashed #1f6feb;background:rgba(255,255,255,.92);padding:0 4px;resize:none;overflow:hidden;font-family:var(--f-hand);line-height:1.1;color:#1d3fa8;outline:none;border-radius:4px}
 .vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0);pointer-events:none}
@@ -948,8 +949,11 @@ function placeSelBar(pg){
   if (!bar){ bar = document.createElement('div'); bar.className = 'selbar'; pg._ov.append(bar); }
   const o = sel.o, k = pg._cv.clientWidth / W, b = bbox(o);
   const canEdit = o.t === 't' || o.t === 'd';
-  bar.innerHTML = (canEdit ? `<button class="ed">${svg('edit', 2.2)}Modifier</button>` : '') + `<button class="up">Devant</button><button class="del">${svg('trash', 2.2)}Supprimer</button>`;
-  const left = Math.max(0, Math.min((b.x - 6) * k, pg._cv.clientWidth - 260)), top = Math.max(40, (b.y - 10) * k);
+  const isTxt = o.t === 't';
+  bar.innerHTML = (isTxt ? `<button class="sz dn" aria-label="Réduire le texte">A−</button><button class="sz upz" aria-label="Agrandir le texte">A+</button>` : '') + (canEdit ? `<button class="ed">${svg('edit', 2.2)}Modifier</button>` : '') + `<button class="up">Devant</button><button class="del">${svg('trash', 2.2)}Supprimer</button>`;
+  const left = Math.max(0, Math.min((b.x - 6) * k, pg._cv.clientWidth - (isTxt ? 380 : 260))), top = Math.max(48, (b.y - 10) * k);
+  if (isTxt){ const resize = f => { const nf = Math.round(Math.max(14, Math.min(220, textFs(o) * f))); if (nf === textFs(o)) return; snap(pg); o.fs = nf; changed(pg); };
+    bar.querySelector('.dn').onclick = () => resize(1 / 1.2); bar.querySelector('.upz').onclick = () => resize(1.2); }
   bar.style.left = left + 'px'; bar.style.top = top + 'px';
   bar.querySelector('.del').onclick = () => { snap(pg); pg.objs = pg.objs.filter(x => x !== o); setSel(null); changed(pg); };
   bar.querySelector('.up').onclick = () => { snap(pg); pg.objs = pg.objs.filter(x => x !== o); pg.objs.push(o); changed(pg); };
