@@ -87,7 +87,8 @@ main{padding-block:18px 60px}
 .prod-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .prod-head h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
 .prod-acts{display:flex;gap:6px}
-.dict{border:1.5px solid var(--pen);border-radius:10px;padding:12px;display:grid;gap:8px;background:var(--pen-soft)}
+.dict{border:1.5px solid var(--pen)}
+.dict textarea{max-height:30vh}
 .dict-row{display:flex;align-items:center;gap:12px}
 .mic{flex:none;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--pen);color:var(--pen-ink);padding:12px 18px;font-weight:700;font-size:15px;min-height:48px}
 .mic svg{width:22px;height:22px}
@@ -272,19 +273,6 @@ label.tb{cursor:pointer}
       <div class="fld c8"><label for="f-chantier">Chantier</label><input id="f-chantier" data-f="chantier" autocomplete="off" placeholder="Ville / lieu du chantier"></div>
       <div class="c4 tva"><button class="chk" style="flex:1" data-c="tva10" aria-pressed="false" id="c-tva10"><span><b>TVA 10 %</b></span><i class="box"></i></button></div>
     </div>
-    <div class="prod" id="prod">
-      <div class="prod-head"><h2>Stores &amp; dimensions</h2>
-        <div class="prod-acts"><button class="btn primary" id="bDict"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>Dicter</button><button class="btn" id="bAddProd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ligne</button></div></div>
-      <div class="dict" id="dict" hidden>
-        <div class="dict-row"><button class="mic" id="bMic" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span id="micTxt">Parler</span></button>
-          <p class="dict-hint" id="dictHint">Dites par exemple : « Store banne coffre, largeur 437, avancée 330 centimètres, toile rayée rouge ». Vous pouvez enchaîner plusieurs stores.</p></div>
-        <textarea id="dictText" rows="3" placeholder="Votre dictée s'affiche ici. Vous pouvez aussi la taper, ou utiliser le micro du clavier."></textarea>
-        <p class="dict-partial" id="dictPartial"></p>
-        <div class="dict-prev" id="dictPrev" hidden></div>
-        <div class="dict-btns"><button class="btn" id="dictCancel">Fermer</button><button class="btn" id="dictParse">Analyser</button><button class="btn primary" id="dictOk" hidden>Valider et remplir la fiche</button></div>
-      </div>
-      <div class="ptable" id="ptable"></div>
-    </div>
     <div class="blocks" id="blocks"></div>
   </section>
 
@@ -312,6 +300,14 @@ label.tb{cursor:pointer}
     <button class="btn primary" id="mDone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Terminer</button>
   </div>
   <div class="tools" id="tools"><div class="tools-in" id="toolsIn"></div></div>
+  <div class="hwpanel dict" id="dict" hidden role="dialog" aria-label="Dictée">
+        <div class="dict-row"><button class="mic" id="bMic" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span id="micTxt">Parler</span></button>
+          <p class="dict-hint" id="dictHint">Dites par exemple : « Store banne coffre, largeur 437, avancée 330 centimètres, toile rayée rouge ». Le texte s'écrira à l'endroit marqué en bleu : touchez le croquis pour le déplacer.</p></div>
+        <textarea id="dictText" rows="3" placeholder="Votre dictée s'affiche ici. Vous pouvez aussi la taper, ou utiliser le micro du clavier."></textarea>
+        <p class="dict-partial" id="dictPartial"></p>
+        <div class="dict-prev" id="dictPrev" hidden></div>
+        <div class="dict-btns"><button class="btn" id="dictCancel">Fermer</button><button class="btn" id="dictRaw">Écrire tel quel</button><button class="btn primary" id="dictParse">Analyser</button><button class="btn primary" id="dictOk" hidden>Écrire sur le croquis</button></div>
+      </div>
   <div class="hwpanel" id="hwPanel" hidden role="dialog" aria-label="Écriture convertie">
     <div class="hwhead"><b id="hwTitle">Lecture de l'écriture…</b><span class="spin" id="hwSpin"></span></div>
     <textarea id="hwText" rows="3" aria-label="Texte reconnu, modifiable" hidden></textarea>
@@ -421,7 +417,6 @@ $('#blocks').innerHTML = `
 $('#c-tva10').querySelector('.box').innerHTML = XMARK;
 
 function fillForm(){
-  renderProd();
   document.querySelectorAll('[data-f]').forEach(el => { el.value = getP(cur, el.dataset.f) ?? ''; });
   document.querySelectorAll('[data-c]').forEach(el => el.setAttribute('aria-pressed', !!getP(cur, el.dataset.c)));
   document.querySelectorAll('[data-r]').forEach(el => el.setAttribute('aria-pressed', getP(cur, el.dataset.r) === el.dataset.v));
@@ -447,27 +442,6 @@ document.addEventListener('click', e => {
 
 /* ---------- Stores & dimensions (dictée) ---------- */
 const UNITS = ['cm', 'm', 'mm'];
-function renderProd(fresh){
-  const el = $('#ptable'), list = (cur && cur.produits) || [];
-  if (!list.length){ el.innerHTML = '<p class="pempty">Aucun store saisi. Touchez « Dicter » et dites le type de store et ses dimensions, ou ajoutez une ligne.</p>'; return; }
-  el.innerHTML = '';
-  list.forEach((x, i) => {
-    const r = document.createElement('div'); r.className = 'prow' + (fresh && fresh.has(i) ? ' new' : '');
-    r.innerHTML = `<input class="p-type" data-pk="type" placeholder="Type de store" aria-label="Type de store, ligne ${i + 1}">
-      <label class="pnum"><span>L</span><input data-pk="l" inputmode="decimal" aria-label="Largeur, ligne ${i + 1}"></label><span class="px">×</span>
-      <label class="pnum"><span>H</span><input data-pk="h" inputmode="decimal" aria-label="Hauteur ou avancée, ligne ${i + 1}"></label>
-      <select data-pk="u" aria-label="Unité, ligne ${i + 1}">${UNITS.map(u => `<option>${u}</option>`).join('')}</select>
-      <input class="p-rem" data-pk="rem" placeholder="Remarques (toile, manœuvre, couleur…)" aria-label="Remarques, ligne ${i + 1}">
-      <button class="pdel" aria-label="Supprimer la ligne ${i + 1}">${svg('trash')}</button>`;
-    r.querySelectorAll('[data-pk]').forEach(inp => { inp.value = x[inp.dataset.pk] ?? ''; inp.dataset.pi = i; });
-    r.querySelector('.pdel').onclick = () => { cur.produits.splice(i, 1); renderProd(); touch(); };
-    el.append(r);
-  });
-}
-const onProdInput = e => { const t = e.target; if (!t.dataset || t.dataset.pi == null || !cur) return; const x = cur.produits[+t.dataset.pi]; if (!x) return; x[t.dataset.pk] = t.value; touch(); };
-$('#ptable').addEventListener('input', onProdInput); $('#ptable').addEventListener('change', onProdInput);
-$('#bAddProd').onclick = () => { cur.produits.push({ type: '', l: '', h: '', u: 'cm', rem: '' }); renderProd(); touch(); const ins = $('#ptable').querySelectorAll('.p-type'); ins[ins.length - 1].focus(); };
-
 const DICT_PROMPT = `Tu reçois la dictée d'un métreur prise chez un client (stores bannes, stores intérieurs, volets roulants, moustiquaires, pergolas, toiles).
 Extrais chaque produit mentionné, dans l'ordre. Réponds uniquement par un tableau JSON de la forme :
 [{"type":"Store banne coffre","largeur":437,"hauteur":330,"unite":"cm","remarques":"toile rayée rouge"}]
@@ -511,7 +485,7 @@ function showPreview(items){
   const el = $('#dictPrev'); el.hidden = false; el.innerHTML = '';
   if (!items.length){ el.innerHTML = '<div>Aucun store ni dimension reconnus. Reformulez, par exemple « store banne, largeur 437, avancée 330 ».</div>'; $('#dictOk').hidden = true; return; }
   for (const x of items){ const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.type || 'Store'; const dt = detailOf(x); d.append(b, document.createTextNode(dt ? ' — ' + dt : '')); el.append(d); }
-  $('#dictOk').hidden = false; $('#dictOk').textContent = items.length > 1 ? `Valider et remplir la fiche (${items.length} lignes)` : 'Valider et remplir la fiche';
+  $('#dictOk').hidden = false; $('#dictOk').textContent = items.length > 1 ? `Écrire sur le croquis (${items.length} stores)` : 'Écrire sur le croquis';
 }
 $('#dictParse').onclick = async () => {
   const t = $('#dictText').value.trim(); if (!t){ toast('Dictez ou tapez d\'abord le type de store et ses dimensions.'); return; }
@@ -523,14 +497,28 @@ $('#dictParse').onclick = async () => {
   dictItems = items; showPreview(items); b.disabled = false; b.textContent = 'Analyser';
 };
 $('#dictText').addEventListener('input', () => { if (dictItems){ dictItems = null; $('#dictOk').hidden = true; $('#dictPrev').hidden = true; } });
-$('#dictOk').onclick = () => {
-  if (!dictItems || !dictItems.length) return;
-  const start = cur.produits.length; cur.produits.push(...dictItems);
-  const fresh = new Set(dictItems.map((_, i) => start + i)); const n = dictItems.length;
-  renderProd(fresh); touch(); closeDict();
-  toast(n > 1 ? `${n} lignes ajoutées à la fiche.` : 'Ligne ajoutée à la fiche.');
-};
-function closeDict(){ if (S.dict && S.dict.active()) S.dict.stop().catch(() => {}); $('#dict').hidden = true; $('#dictText').value = ''; $('#dictPartial').textContent = ''; $('#dictPrev').hidden = true; $('#dictOk').hidden = true; dictItems = null; }
+function dictLines(items){
+  const cap = t => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+  return items.map(x => [cap(x.type), (x.l || x.h) ? `${x.l || '?'} x ${x.h || '?'} ${x.u}` : '', cap(x.rem)].filter(Boolean).join('\n'));
+}
+function writeOnSketch(blocks){
+  const pg = edPg; if (!pg || !blocks.length) return;
+  const fs = { 2.5: 32, 4.5: 42, 8: 56 }[st.width] || 42;
+  let x, y;
+  if (pg._ins){ [x, y] = pg._ins; }
+  else { x = 30; y = 30; for (const o of pg.objs){ const b = bbox(o); if (b.x < 500) y = Math.max(y, b.y + b.h + 24); } if (y > H - 120) y = 30; }
+  snap(pg); const made = [];
+  for (const txt of blocks){
+    const o = { t: 't', c: st.color, fs, x, y, txt }; pg.objs.push(o); made.push(o);
+    y += textBox(o).h + fs * .5;
+  }
+  pg._ins = null; changed(pg); closeDict();
+  setTool('select'); setSel({ pg, list: made });
+  toast('Écrit sur le croquis. Déplacez ou redimensionnez le texte avec son cadre.');
+}
+$('#dictOk').onclick = () => { if (dictItems && dictItems.length) writeOnSketch(dictLines(dictItems)); };
+$('#dictRaw').onclick = async () => { const t = $('#dictText').value.trim(); if (!t){ toast('Dictez ou tapez d\'abord votre texte.'); return; } if (S.dict && S.dict.active()) await S.dict.stop().catch(() => {}); writeOnSketch([$('#dictText').value.trim()]); };
+function closeDict(){ if (S.dict && S.dict.active()) S.dict.stop().catch(() => {}); if (edPg && edPg._ins){ edPg._ins = null; render(edPg); } $('#dict').hidden = true; $('#dictText').value = ''; $('#dictPartial').textContent = ''; $('#dictPrev').hidden = true; $('#dictOk').hidden = true; dictItems = null; }
 $('#dictCancel').onclick = closeDict;
 function micUi(on){ $('#bMic').setAttribute('aria-pressed', on); $('#micTxt').textContent = on ? 'Arrêter' : 'Parler'; }
 function startDict(){
@@ -542,9 +530,10 @@ function startDict(){
     else if (c !== 'stopped' && c !== 'dismissed') toast('Le micro n\'a pas pu démarrer. Réessayez.'); });
 }
 $('#bMic').onclick = () => { if (S.dict && S.dict.active()){ S.dict.stop().catch(() => {}); return; } startDict(); };
-$('#bDict').onclick = () => { const d = $('#dict'); const wasHidden = d.hidden; d.hidden = false;
-  if (!S.dict){ $('#bMic').hidden = true; $('#dictHint').textContent = 'Touchez le micro de votre clavier pour dicter, par exemple : « Store banne coffre, largeur 437, avancée 330 ». Vous pouvez enchaîner plusieurs stores.'; }
-  if (wasHidden) startDict(); };
+function openDict(){ const d = $('#dict'); const wasHidden = d.hidden; endHw(); d.hidden = false;
+  if (!S.dict){ $('#bMic').hidden = true; $('#dictHint').textContent = 'Touchez le micro de votre clavier pour dicter, par exemple : « Store banne coffre, largeur 437, avancée 330 ». Le texte s\'écrira à l\'endroit marqué en bleu : touchez le croquis pour le déplacer.'; }
+  if (edPg && !edPg._ins){ let y = 30; for (const o of edPg.objs){ const b = bbox(o); if (b.x < 500) y = Math.max(y, b.y + b.h + 24); } edPg._ins = [30, y > H - 120 ? 30 : y]; render(edPg); }
+  if (wasHidden) startDict(); }
 function initDictation(){
   const d = S.dict; if (!d){ return; }
   $('#bMic').hidden = false;
@@ -768,6 +757,7 @@ function buildTools(){
   h += '<span class="sep"></span>';
   h += COLORS.map(c => `<button class="sw" data-color="${c[0]}" style="background:${c[0]}" title="${c[1]}" aria-label="Couleur ${c[1]}"></button>`).join('');
   h += '<span class="sep"></span>' + WIDTHS.map((w, i) => `<button class="wd" data-w="${w}" title="${['Fin','Moyen','Épais'][i]}" aria-label="Épaisseur ${['fine','moyenne','épaisse'][i]}"><i style="height:${[2,4,7][i]}px"></i></button>`).join('');
+  h += `<button class="tb" id="tDict" title="Dicter du texte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><span>Dicter</span></button>`;
   h += `<span class="sep"></span><button class="tb" id="tUndo" title="Annuler (Ctrl+Z)">${svg('undo')}<span>Annuler</span></button><button class="tb" id="tRedo" title="Rétablir (Ctrl+Y)">${svg('redo')}<span>Rétablir</span></button>`;
   h += '<span class="sep"></span><button class="toggle" id="tStylus" title="Seul le stylet écrit : la paume et les doigts sont ignorés"><i></i>Stylet seul</button>';
   t.innerHTML = h;
@@ -776,6 +766,7 @@ function buildTools(){
     if (b.dataset.tool) setTool(b.dataset.tool);
     else if (b.dataset.color){ st.color = b.dataset.color; LS.set('pm2:color', st.color); if (sel && sel.list.some(o => o.t !== 'i')){ snap(sel.pg); sel.list.forEach(o => { if (o.t !== 'i') o.c = st.color; }); changed(sel.pg); } if (['hand','select','eraser'].includes(st.tool)) setTool('pen'); syncTools(); }
     else if (b.dataset.w){ st.width = +b.dataset.w; LS.set('pm2:width', st.width); if (sel && sel.list.some(o => 'w' in o)){ snap(sel.pg); sel.list.forEach(o => { if ('w' in o && !o.hl) o.w = st.width; }); changed(sel.pg); } syncTools(); }
+    else if (b.id === 'tDict') openDict();
     else if (b.id === 'tUndo') undo();
     else if (b.id === 'tRedo') redo();
     else if (b.id === 'tStylus'){ st.stylusOnly = !st.stylusOnly; LS.set('pm2:stylus', st.stylusOnly); syncTools(); toast(st.stylusOnly ? 'Stylet seul : le doigt et la paume n\'écrivent plus.' : 'Le doigt et le stylet écrivent.'); }
@@ -926,7 +917,7 @@ function updSheetBar(){
   $('#mPrev').disabled = i <= 0; $('#mNext').disabled = i >= pages.length - 1;
 }
 function openSheet(pg){
-  endHw(); commitEditor(); setSel(null);
+  closeDict(); endHw(); commitEditor(); setSel(null);
   if (edPg && edPg !== pg){ edPg._cv = edPg._pv; edPg._ov = edPg._pov; render(edPg); }
   const wasOpen = !!edPg;
   edPg = pg; activePage = pg; pg._cv = edCv; pg._ov = edOv; edOv.innerHTML = '';
@@ -936,7 +927,7 @@ function openSheet(pg){
 }
 function closeSheet(){
   if (!edPg) return;
-  endHw(); commitEditor(); setSel(null);
+  closeDict(); endHw(); commitEditor(); setSel(null);
   const pg = edPg; edPg = null; pg._cv = pg._pv; pg._ov = pg._pov;
   $('#sheetModal').hidden = true; document.body.classList.remove('locked');
   try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
@@ -1077,6 +1068,7 @@ function paint(pg){
   for (const o of pg.objs) drawObj(ctx, o, () => render(pg));
   if (pg._temp) drawObj(ctx, pg._temp);
   if (sel && sel.pg === pg) drawSel(ctx);
+  if (pg._ins && !$('#dict').hidden){ const [ix, iy] = pg._ins; ctx.save(); ctx.strokeStyle = '#1f6feb'; ctx.fillStyle = 'rgba(31,111,235,.12)'; ctx.lineWidth = 3; ctx.fillRect(ix - 4, iy - 4, 260, 54); ctx.setLineDash([8, 6]); ctx.strokeRect(ix - 4, iy - 4, 260, 54); ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(ix, iy + 46); ctx.stroke(); ctx.fillStyle = '#1f6feb'; ctx.font = '600 22px system-ui, sans-serif'; ctx.fillText('Le texte ira ici', ix + 12, iy + 32); ctx.restore(); }
   if (pg._hwBox){ const b = pg._hwBox; ctx.save(); ctx.fillStyle = 'rgba(31,111,235,.10)'; ctx.strokeStyle = '#1f6feb'; ctx.lineWidth = 2; ctx.setLineDash([9, 6]); ctx.fillRect(b.x - 10, b.y - 10, b.w + 20, b.h + 20); ctx.strokeRect(b.x - 10, b.y - 10, b.w + 20, b.h + 20); ctx.restore(); }
   if (pg._eraser){ ctx.strokeStyle = '#8a94a3'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(pg._eraser[0], pg._eraser[1], 16, 0, 7); ctx.stroke(); }
   placeSelBar(pg);
@@ -1198,6 +1190,7 @@ function down(pg, e){
   const [x, y] = pos(pg, e), t = st.tool, pen = e.pointerType === 'pen';
   const tol = e.pointerType === 'touch' ? 16 : 9;
   if (sel && sel.pg !== pg) setSel(null);
+  if (!$('#dict').hidden){ pg._ins = [Math.max(0, Math.min(W - 260, x)), Math.max(0, Math.min(H - 60, y))]; render(pg); return; }
   if (t === 'select'){
     if (sel && sel.pg === pg){
       for (const [hx, hy, k] of handles()) if (Math.hypot(x - hx, y - hy) < tol + 12){ snap(pg);
@@ -1436,18 +1429,6 @@ async function exportPDF(){
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text([cur.client, cur.chantier, frDate(cur.date)].filter(Boolean).join(' · ') + `  —  feuillet ${i + 1}/${n}`, 52, 14);
         doc.addImage(img, 'JPEG', 10, 20, 190, 171); doc.setDrawColor(200, 206, 216); doc.setLineWidth(.2); doc.rect(10, 20, 190, 171); }
       doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text(`${i + 1}/${n}`, 200, 290, { align: 'right' });
-    }
-    const prods = (cur.produits || []).filter(x => x.type || x.l || x.h || x.rem);
-    if (prods.length){
-      const lines = prods.map((x, i) => `${i + 1}. ${lineOf(x)}`);
-      const fit = lines.length > 3 ? 2 : 3;
-      doc.setPage(1); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('STORES :', 10, 278.5);
-      doc.setFont('helvetica', 'normal'); doc.setTextColor(29, 63, 168);
-      lines.slice(0, fit).forEach((l, i) => doc.text(l, 28, 278.5 + i * 4.6, { maxWidth: 160 }));
-      if (lines.length > fit){ doc.setTextColor(0, 0, 0); doc.text(`… suite des stores en dernière page (${lines.length} au total)`, 28, 278.5 + fit * 4.6);
-        doc.setPage(doc.getNumberOfPages()); doc.addPage(); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('PRISE MESURES — STORES & DIMENSIONS', 10, 14);
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(29, 63, 168); let y = 24;
-        for (const l of lines){ const wr = doc.splitTextToSize(l, 190); if (y + wr.length * 5 > 285){ doc.addPage(); y = 16; } doc.text(wr, 10, y); y += wr.length * 5 + 1.5; } }
     }
     const slug = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const name = ['Prise-mesures', slug(cur.client) || 'client', slug(cur.chantier), cur.date].filter(Boolean).join('_') + '.pdf';
