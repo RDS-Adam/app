@@ -100,6 +100,8 @@ main{padding-block:18px 60px}
 .dict-prev{display:grid;gap:6px}
 .dict-prev div{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px}
 .dict-prev b{color:var(--pen)}
+.dict-prev .pp{white-space:pre-line;font:600 22px/1.2 var(--f-hand);color:#1d3fa8;background:#fff}
+.dict-prev .pp b{font-weight:700}
 .dict-btns{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
 .ptable{display:grid;gap:8px}
 .prow{display:grid;grid-template-columns:minmax(0,2fr) 92px 14px 92px 70px minmax(0,1.6fr) 40px;gap:6px;align-items:center}
@@ -444,13 +446,16 @@ document.addEventListener('click', e => {
 const UNITS = ['cm', 'm', 'mm'];
 const DICT_PROMPT = `Tu reçois la dictée d'un métreur prise chez un client (stores bannes, stores intérieurs, volets roulants, moustiquaires, pergolas, toiles).
 Extrais chaque produit mentionné, dans l'ordre. Réponds uniquement par un tableau JSON de la forme :
-[{"type":"Store banne coffre","largeur":437,"hauteur":330,"unite":"cm","remarques":"toile rayée rouge"}]
+[{"type":"Store banne coffre","largeur":437,"hauteur":330,"unite":"cm","details":["Manœuvre chaînette à gauche","Hauteur de chaînette : 150 cm","Toile rayée rouge"]}]
 Règles :
-- type : désignation courte du produit, telle qu'elle est dite.
+- type : désignation courte du produit, telle qu'elle est dite (c'est le titre).
 - largeur : la première dimension (largeur, L). hauteur : la seconde (hauteur, avancée, projection, H). Nombre ou null.
-- Écris les nombres en chiffres (« quatre cent trente-sept » → 437 ; « deux mètres cinquante » → 2.5 avec unite "m").
-- unite : "cm", "m" ou "mm", celle qui est dite ; "cm" si rien n'est dit.
-- remarques : le reste utile, court (toile, couleur, manœuvre, motorisation, pose, options). Chaîne vide sinon.
+- Écris les nombres en chiffres (« quatre cent trente-sept » → 437 ; « un mètre cinquante » → 1,50 m).
+- unite : "cm", "m" ou "mm", celle des dimensions principales ; "cm" si rien n'est dit.
+- details : tout le reste, point par point, UNE information par ligne, dans l'ordre où c'est dit, formulée proprement et brièvement, sans tiret au début.
+  Sépare ce qui est dit d'un bloc : « chaînette à gauche hauteur un mètre cinquante » → "Manœuvre chaînette à gauche" puis "Hauteur de chaînette : 1,50 m".
+  Informations fréquentes : manœuvre (chaînette, cordon, manivelle, tirage, moteur, télécommande, interrupteur), côté de manœuvre (gauche / droite, vu de l'intérieur ou de l'extérieur si c'est dit), hauteur de manœuvre ou de chaînette, toile (référence, couleur), coffre ou armature (couleur, RAL), type de pose (façade, plafond, tableau, entre murs, sous linteau), lambrequin, jonc, lames, coulisses, options, remarques.
+  Garde les mesures avec leur unité dans la ligne. Ne répète pas les dimensions principales.
 - N'invente rien. Si aucun produit n'est reconnu, réponds [].
 
 Dictée :
@@ -459,8 +464,10 @@ const fmtNum = v => v == null || v === '' ? '' : String(v).replace('.', ',');
 function normItems(arr){
   return (Array.isArray(arr) ? arr : []).map(x => ({
     type: (t => t.charAt(0).toUpperCase() + t.slice(1))(String(x.type || '').trim()), l: fmtNum(x.largeur ?? x.l), h: fmtNum(x.hauteur ?? x.h),
-    u: UNITS.includes(x.unite || x.u) ? (x.unite || x.u) : 'cm', rem: String(x.remarques || x.rem || '').trim()
-  })).filter(x => x.type || x.l || x.h);
+    u: UNITS.includes(x.unite || x.u) ? (x.unite || x.u) : 'cm',
+    details: (Array.isArray(x.details) ? x.details : String(x.remarques || x.rem || '').split(/\s*[,;]\s*|\s+et\s+(?=(?:hauteur|manœuvre|manoeuvre|chaînette|chainette|toile|coffre|pose|moteur|lambrequin)\b)/i))
+      .map(d => String(d || '').replace(/^[\s•\-–—*]+/, '').trim()).filter(Boolean).map(d => d.charAt(0).toUpperCase() + d.slice(1))
+  })).filter(x => x.type || x.l || x.h || x.details.length);
 }
 function localParse(t){
   const out = [];
@@ -479,12 +486,11 @@ function localParse(t){
   return normItems(out.map(x => ({ type: x.type, largeur: x.l, hauteur: x.h, unite: x.u, remarques: x.rem })));
 }
 let dictItems = null;
-const detailOf = x => [(x.l || x.h) ? `L ${x.l || '?'} × H ${x.h || '?'} ${x.u}` : '', x.rem].filter(Boolean).join(' — ');
-const lineOf = x => [x.type || 'Store', detailOf(x)].filter(Boolean).join(' — ');
+const dimsOf = x => (x.l || x.h) ? `${x.l || '?'} x ${x.h || '?'} ${x.u}` : '';
 function showPreview(items){
   const el = $('#dictPrev'); el.hidden = false; el.innerHTML = '';
   if (!items.length){ el.innerHTML = '<div>Aucun store ni dimension reconnus. Reformulez, par exemple « store banne, largeur 437, avancée 330 ».</div>'; $('#dictOk').hidden = true; return; }
-  for (const x of items){ const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.type || 'Store'; const dt = detailOf(x); d.append(b, document.createTextNode(dt ? ' — ' + dt : '')); el.append(d); }
+  for (const t of dictLines(items)){ const d = document.createElement('div'); d.className = 'pp'; const [first, ...rest] = t.split('\n'); const b = document.createElement('b'); b.textContent = first; d.append(b); if (rest.length) d.append(document.createTextNode('\n' + rest.join('\n'))); el.append(d); }
   $('#dictOk').hidden = false; $('#dictOk').textContent = items.length > 1 ? `Écrire sur le croquis (${items.length} stores)` : 'Écrire sur le croquis';
 }
 $('#dictParse').onclick = async () => {
@@ -498,8 +504,7 @@ $('#dictParse').onclick = async () => {
 };
 $('#dictText').addEventListener('input', () => { if (dictItems){ dictItems = null; $('#dictOk').hidden = true; $('#dictPrev').hidden = true; } });
 function dictLines(items){
-  const cap = t => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
-  return items.map(x => [cap(x.type), (x.l || x.h) ? `${x.l || '?'} x ${x.h || '?'} ${x.u}` : '', cap(x.rem)].filter(Boolean).join('\n'));
+  return items.map(x => [x.type || 'Store', dimsOf(x), ...x.details.map(d => '- ' + d)].filter(Boolean).join('\n'));
 }
 function writeOnSketch(blocks){
   const pg = edPg; if (!pg || !blocks.length) return;
@@ -1115,7 +1120,9 @@ function placeSelBar(pg){
   const hasTxt = list.some(x => x.t === 't');
   const n = list.length;
   bar.innerHTML = `<button class="sz dn" aria-label="Réduire la sélection">${hasTxt ? 'A−' : '−'}</button><button class="sz upz" aria-label="Agrandir la sélection">${hasTxt ? 'A+' : '+'}</button>` + (canEdit ? `<button class="ed">${svg('edit', 2.2)}Modifier</button>` : '') + `<button class="up">Devant</button><button class="del">${svg('trash', 2.2)}Supprimer${n > 1 ? ' (' + n + ')' : ''}</button>`;
-  const left = Math.max(0, Math.min((b.x - 8) * k, pg._cv.clientWidth - 400)), top = Math.max(48, (b.y - 14) * k);
+  const left = Math.max(0, Math.min((b.x - 8) * k, pg._cv.clientWidth - 400));
+  let top = (b.y - 14) * k;
+  if (top < 48){ const below = (b.y + b.h + 16) * k + 44; top = below <= pg._cv.clientHeight ? below : 48; }
   bar.style.left = left + 'px'; bar.style.top = top + 'px';
   bar.querySelector('.dn').onclick = () => scaleSel(pg, 1 / 1.2);
   bar.querySelector('.upz').onclick = () => scaleSel(pg, 1.2);
