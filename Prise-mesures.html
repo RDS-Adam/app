@@ -1392,7 +1392,7 @@ function drawFormPDF(doc, f){
   font('bold', 17); doc.text('PRISE MESURES', 105, P(43), { align: 'center' });
   font('normal', 7); doc.text('Nom métreur:', P(912), P(19)); doc.text('Temps estimé:', P(910), P(58));
   doc.setLineDashPattern([.3, .6], 0); doc.setLineWidth(.2); doc.line(P(985), P(21), P(1088), P(21)); doc.line(P(985), P(60), P(1088), P(60)); doc.setLineDashPattern([], 0);
-  val(f.metreur, 985, 21, 10); val(f.temps, 985, 60, 10);
+  val(f.metreur, 1000, 21, 9); val(f.temps, 1000, 60, 9);
   black(); font('bold', 10.5);
   doc.text('NOM CLIENT:', P(96), P(105)); doc.text('TEL:', P(497), P(105)); doc.text('DATE :', P(827), P(105));
   doc.text('ADRESSE :', P(96), P(158)); doc.text('CHANTIER', P(96), P(185)); doc.text('CODE PORTE:', P(786), P(158));
