@@ -142,8 +142,21 @@ main{padding-block:18px 60px}
 .pg-head .btn.danger{color:var(--danger)}
 .pg-head .btn.confirm{background:var(--danger);border-color:var(--danger);color:#fff}
 .cvw{position:relative;line-height:0;border-radius:0 0 6px 6px;overflow:hidden}
-canvas.cv{display:block;width:100%;aspect-ratio:1000/900;max-width:100%;touch-action:none;background:#fff;cursor:crosshair}
-body.scroll-ok canvas.cv{touch-action:pan-x pan-y pinch-zoom}
+canvas.cv{display:block;touch-action:none;background:#fff;cursor:crosshair;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+canvas.pv{display:block;width:100%;aspect-ratio:1000/900;max-width:100%;background:#fff;cursor:pointer;touch-action:auto}
+.pvhint{position:absolute;right:10px;bottom:10px;display:inline-flex;gap:6px;align-items:center;background:rgba(23,32,44,.85);color:#fff;border-radius:999px;padding:8px 13px;font:600 13px/1 var(--f-body);pointer-events:none}
+.pvhint svg{width:16px;height:16px}
+.pvempty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.pvempty span{display:inline-flex;gap:8px;align-items:center;background:#1f3fa6;color:#fff;border-radius:999px;padding:12px 18px;font:600 15px/1 var(--f-body);box-shadow:0 4px 14px rgba(31,63,166,.3)}
+.pvempty svg{width:18px;height:18px}
+.modal{position:fixed;inset:0;z-index:70;background:var(--paper);display:flex;flex-direction:column;overscroll-behavior:contain;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.mbar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--sheet);border-bottom:1px solid var(--line)}
+.mbar b{font-family:var(--f-display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.mbar .grow{flex:1}
+.modal .tools{position:static;border-radius:0;border-width:0 0 1px;box-shadow:none}
+.stage{flex:1;min-height:0;display:grid;place-items:center;padding:10px;overflow:hidden;touch-action:none}
+.edwrap{position:relative;line-height:0}
+body.locked{overflow:hidden}
 body[data-tool="hand"] canvas.cv{cursor:grab}
 body[data-tool="select"] canvas.cv{cursor:default}
 body[data-tool="text"] canvas.cv{cursor:text}
@@ -187,7 +200,7 @@ label.tb{cursor:pointer}
 .item .x.confirm{background:var(--danger);color:#fff}
 .empty{padding:24px 14px;color:var(--muted);font-size:14px}
 .mode{margin:0 14px 12px;font-size:12px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:#17202c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.toast{position:fixed;z-index:80;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#17202c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -223,7 +236,7 @@ label.tb{cursor:pointer}
     <div class="blocks" id="blocks"></div>
   </section>
 
-  <div class="sk-title"><h2>Croquis &amp; notes</h2><p class="hide-sm">Écrivez au stylet ou au doigt, insérez des photos, ajoutez flèches et cotes.</p></div>
+  <div class="sk-title"><h2>Croquis &amp; notes</h2><p class="hide-sm">Touchez un feuillet pour l'ouvrir en plein écran et dessiner.</p></div>
   <div class="photobar"><label class="btn primary" for="inCam" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Prendre une photo</label><label class="btn" for="inGal" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-9 8"/></svg>Ajouter des photos</label><span class="hint">Vous pouvez en choisir plusieurs à la fois. Glisser-déposer et coller marchent aussi.</span></div>
   <div class="pickhelp" id="pickHelp" hidden role="alert">
     <b>L'appareil photo ou la galerie ne s'est pas ouvert.</b>
@@ -231,13 +244,24 @@ label.tb{cursor:pointer}
     <div class="linkrow"><input id="pickUrl" readonly value="https://claude.ai/artifact/A4MHVwa4oFjbWDsyHkUrMh" aria-label="Lien de la page"><button class="btn primary" id="pickCopy">Copier le lien</button><a class="btn" href="https://claude.ai/artifact/A4MHVwa4oFjbWDsyHkUrMh" target="_blank" rel="noopener">Ouvrir</a><button class="btn" id="pickClose">Fermer</button></div>
     <p class="small">Astuce : dans Chrome, menu ⋮ › « Ajouter à l'écran d'accueil » pour l'ouvrir comme une appli.</p>
   </div>
-  <div class="tools" id="tools"><div class="tools-in" id="toolsIn"></div></div>
   <div class="pages" id="pages"></div>
   <button class="btn addpage" id="bAddPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un feuillet</button>
   <input type="file" id="inCam" class="vh" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
   <input type="file" id="inGal" class="vh" accept="image/*" multiple tabindex="-1" aria-hidden="true">
 </main>
 
+<div class="modal" id="sheetModal" hidden role="dialog" aria-modal="true" aria-label="Zone de dessin">
+  <div class="mbar">
+    <button class="btn icon" id="mPrev" aria-label="Feuillet précédent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <b id="mTitle">Feuillet 1 / 1</b>
+    <button class="btn icon" id="mNext" aria-label="Feuillet suivant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <span class="grow"></span>
+    <button class="btn" id="mAdd" title="Ajouter un feuillet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="hide-sm">Feuillet</span></button>
+    <button class="btn primary" id="mDone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Terminer</button>
+  </div>
+  <div class="tools" id="tools"><div class="tools-in" id="toolsIn"></div></div>
+  <div class="stage" id="stage"><div class="edwrap"><canvas class="cv" id="edCv" aria-label="Zone de dessin"></canvas><div class="ov" id="edOv"></div></div></div>
+</div>
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Mes fiches">
   <header><b>Mes fiches</b><button class="btn" id="bNew2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nouvelle</button><button class="btn icon" id="bClose" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
@@ -496,7 +520,9 @@ async function restoreBackups(){
   }
 }
 
+let edPg = null;
 function setCurrent(f, pgs, fromBackup){
+  if (edPg){ edPg = null; $('#sheetModal').hidden = true; document.body.classList.remove('locked'); }
   cur = normFiche(f);
   pages = pgs.length ? pgs : [{ id: uid('p'), objs: [] }];
   cur.pageIds = pages.map(p => p.id);
@@ -564,7 +590,7 @@ $('#search').oninput = renderList; $('#bNew').onclick = newFiche; $('#bNew2').on
 const COLORS = [['#1d3fa8','Bleu'],['#c62828','Rouge'],['#1b1b1b','Noir'],['#2e7d32','Vert'],['#e07000','Orange']];
 const WIDTHS = [2.5, 4.5, 8];
 const st = { tool: 'pen', color: LS.get('pm2:color') || '#1d3fa8', width: LS.get('pm2:width') || 4.5, stylusOnly: !!LS.get('pm2:stylus') };
-const TOOLS = [['hand','Défiler'],['select','Choisir'],'|',['pen','Stylo'],['hl','Surligner'],['eraser','Gomme'],'|',['arrow','Flèche'],['cote','Cote'],['line','Ligne'],['rect','Cadre'],['ellipse','Cercle'],['text','Texte']];
+const TOOLS = [['select','Choisir'],'|',['pen','Stylo'],['hl','Surligner'],['eraser','Gomme'],'|',['arrow','Flèche'],['cote','Cote'],['line','Ligne'],['rect','Cadre'],['ellipse','Cercle'],['text','Texte']];
 function buildTools(){
   const t = $('#toolsIn');
   let h = `<label class="tb" for="inCam" title="Prendre une photo">${svg('camera')}<span>Photo</span></label><label class="tb" for="inGal" title="Ajouter des photos (plusieurs possibles)">${svg('image')}<span>Galerie</span></label><span class="sep"></span>`;
@@ -573,7 +599,7 @@ function buildTools(){
   h += COLORS.map(c => `<button class="sw" data-color="${c[0]}" style="background:${c[0]}" title="${c[1]}" aria-label="Couleur ${c[1]}"></button>`).join('');
   h += '<span class="sep"></span>' + WIDTHS.map((w, i) => `<button class="wd" data-w="${w}" title="${['Fin','Moyen','Épais'][i]}" aria-label="Épaisseur ${['fine','moyenne','épaisse'][i]}"><i style="height:${[2,4,7][i]}px"></i></button>`).join('');
   h += `<span class="sep"></span><button class="tb" id="tUndo" title="Annuler (Ctrl+Z)">${svg('undo')}<span>Annuler</span></button><button class="tb" id="tRedo" title="Rétablir (Ctrl+Y)">${svg('redo')}<span>Rétablir</span></button>`;
-  h += '<span class="sep"></span><button class="toggle" id="tStylus" title="Le doigt fait défiler la page, seul le stylet écrit"><i></i>Stylet seul</button>';
+  h += '<span class="sep"></span><button class="toggle" id="tStylus" title="Seul le stylet écrit : la paume et les doigts sont ignorés"><i></i>Stylet seul</button>';
   t.innerHTML = h;
   t.onclick = e => {
     const b = e.target.closest('button'); if (!b) return;
@@ -582,7 +608,7 @@ function buildTools(){
     else if (b.dataset.w){ st.width = +b.dataset.w; LS.set('pm2:width', st.width); if (sel && 'w' in sel.o){ snap(sel.pg); sel.o.w = st.width; changed(sel.pg); } syncTools(); }
     else if (b.id === 'tUndo') undo();
     else if (b.id === 'tRedo') redo();
-    else if (b.id === 'tStylus'){ st.stylusOnly = !st.stylusOnly; LS.set('pm2:stylus', st.stylusOnly); syncTools(); toast(st.stylusOnly ? 'Stylet seul : le doigt fait défiler, le stylet écrit.' : 'Le doigt et le stylet écrivent.'); }
+    else if (b.id === 'tStylus'){ st.stylusOnly = !st.stylusOnly; LS.set('pm2:stylus', st.stylusOnly); syncTools(); toast(st.stylusOnly ? 'Stylet seul : le doigt et la paume n\'écrivent plus.' : 'Le doigt et le stylet écrivent.'); }
   };
   syncTools();
 }
@@ -603,7 +629,7 @@ function buildPages(){
   pages.forEach((pg, i) => {
     const sec = document.createElement('section'); sec.className = 'sheet';
     const head = document.createElement('div'); head.className = 'pg-head';
-    head.innerHTML = `<b>Feuillet ${i + 1} / ${pages.length}</b>`;
+    head.innerHTML = `<b style="flex:1">Feuillet ${i + 1} / ${pages.length}</b>`;
     if (pages.length > 1){
       const d = document.createElement('button'); d.className = 'btn danger'; d.innerHTML = svg('trash') + 'Supprimer';
       let armed = false;
@@ -615,10 +641,19 @@ function buildPages(){
       head.append(d);
     }
     const w = document.createElement('div'); w.className = 'cvw';
-    const cv = document.createElement('canvas'); cv.className = 'cv'; cv.setAttribute('aria-label', `Zone de croquis, feuillet ${i + 1}`);
+    const cv = document.createElement('canvas'); cv.className = 'pv'; cv.setAttribute('role', 'button'); cv.tabIndex = 0;
+    cv.setAttribute('aria-label', `Ouvrir le feuillet ${i + 1} en plein écran pour dessiner`);
     const ov = document.createElement('div'); ov.className = 'ov';
-    w.append(cv, ov); sec.append(head, w); host.append(sec);
-    pg._cv = cv; pg._ov = ov; attach(pg);
+    const hint = document.createElement('div');
+    if (pg.objs.length){ hint.className = 'pvhint'; hint.innerHTML = svg('pen', 2) + 'Toucher pour dessiner'; }
+    else { hint.className = 'pvempty'; hint.innerHTML = `<span>${svg('pen', 2)}Toucher pour dessiner</span>`; }
+    w.append(cv, ov, hint); sec.append(head, w); host.append(sec);
+    pg._pv = cv; pg._pov = ov;
+    if (edPg === pg){ pg._cv = edCv; pg._ov = edOv; } else { pg._cv = cv; pg._ov = ov; }
+    cv.addEventListener('click', () => openSheet(pg));
+    cv.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openSheet(pg); } });
+    const ob = document.createElement('button'); ob.className = 'btn'; ob.innerHTML = svg('pen') + 'Dessiner'; ob.onclick = () => openSheet(pg);
+    head.insertBefore(ob, head.children[1] || null);
     w.addEventListener('dragover', e => { e.preventDefault(); w.classList.add('drop'); });
     w.addEventListener('dragleave', () => w.classList.remove('drop'));
     w.addEventListener('drop', e => { e.preventDefault(); w.classList.remove('drop'); activePage = pg; insertPhotos([...e.dataTransfer.files].filter(f => f.type.startsWith('image/'))); });
@@ -636,8 +671,46 @@ function sizeAll(){
 new ResizeObserver(() => sizeAll()).observe($('#pages'));
 $('#bAddPage').onclick = () => {
   const pg = { id: uid('p'), objs: [] }; pages.push(pg); cur.pageIds = pages.map(p => p.id);
-  buildPages(); markPage(pg); activePage = pg; pg._cv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  buildPages(); markPage(pg); openSheet(pg);
 };
+
+/* ---------- Fenêtre de dessin plein écran ---------- */
+const edCv = $('#edCv'), edOv = $('#edOv');
+function sizeStage(){
+  if (!edPg) return;
+  const stg = $('#stage'), aw = stg.clientWidth - 20, ah = stg.clientHeight - 20;
+  const w = Math.max(200, Math.floor(Math.min(aw, ah * W / H)));
+  edCv.style.width = w + 'px'; edCv.style.height = Math.round(w * H / W) + 'px';
+  sizeAll();
+}
+new ResizeObserver(() => sizeStage()).observe($('#stage'));
+function updSheetBar(){
+  const i = pages.indexOf(edPg);
+  $('#mTitle').textContent = `Feuillet ${i + 1} / ${pages.length}`;
+  $('#mPrev').disabled = i <= 0; $('#mNext').disabled = i >= pages.length - 1;
+}
+function openSheet(pg){
+  commitEditor(); setSel(null);
+  if (edPg && edPg !== pg){ edPg._cv = edPg._pv; edPg._ov = edPg._pov; render(edPg); }
+  const wasOpen = !!edPg;
+  edPg = pg; activePage = pg; pg._cv = edCv; pg._ov = edOv; edOv.innerHTML = '';
+  $('#sheetModal').hidden = false; document.body.classList.add('locked');
+  updSheetBar(); updUndo(); syncTools(); sizeStage(); render(pg);
+  if (!wasOpen) try { const de = document.documentElement; if (!document.fullscreenElement && de.requestFullscreen) de.requestFullscreen().catch(() => {}); } catch {}
+}
+function closeSheet(){
+  if (!edPg) return;
+  commitEditor(); setSel(null);
+  const pg = edPg; edPg = null; pg._cv = pg._pv; pg._ov = pg._pov;
+  $('#sheetModal').hidden = true; document.body.classList.remove('locked');
+  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
+  buildPages(); flush();
+  requestAnimationFrame(() => pg._pv && pg._pv.scrollIntoView({ block: 'center' }));
+}
+$('#mDone').onclick = closeSheet;
+$('#mPrev').onclick = () => { const i = pages.indexOf(edPg); if (i > 0) openSheet(pages[i - 1]); };
+$('#mNext').onclick = () => { const i = pages.indexOf(edPg); if (i < pages.length - 1) openSheet(pages[i + 1]); };
+$('#mAdd').onclick = () => { const pg = { id: uid('p'), objs: [] }; pages.push(pg); cur.pageIds = pages.map(p => p.id); buildPages(); markPage(pg); openSheet(pg); };
 
 /* ---------- Dessin ---------- */
 const meas = document.createElement('canvas').getContext('2d');
@@ -843,15 +916,16 @@ function commitEditor(){
 let g = null; const touches = new Set(); let lastTap = { t: 0, o: null };
 function pos(pg, e){ const r = pg._cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
 function topHit(pg, x, y, tol, filter){ for (let i = pg.objs.length - 1; i >= 0; i--){ const o = pg.objs[i]; if ((!filter || filter(o)) && hit(o, x, y, tol)) return o; } return null; }
-function attach(pg){
-  const cv = pg._cv;
-  cv.addEventListener('touchstart', e => { if (st.stylusOnly && st.tool !== 'hand'){ const t = e.touches[0]; if (t && t.touchType === 'stylus') e.preventDefault(); } }, { passive: false });
-  cv.addEventListener('pointerdown', e => down(pg, e));
-  cv.addEventListener('pointermove', e => mv(pg, e));
-  cv.addEventListener('pointerup', e => up(pg, e));
-  cv.addEventListener('pointercancel', e => { touches.delete(e.pointerId); if (g && g.id === e.pointerId){ pg._temp = null; g = null; render(pg); } });
-  cv.addEventListener('pointerleave', () => { if (pg._eraser && !g){ pg._eraser = null; render(pg); } });
+function attachEditor(){
+  const cv = edCv;
+  cv.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+  cv.addEventListener('pointerdown', e => { if (edPg) down(edPg, e); });
+  cv.addEventListener('pointermove', e => { if (edPg) mv(edPg, e); });
+  cv.addEventListener('pointerup', e => { if (edPg) up(edPg, e); });
+  cv.addEventListener('pointercancel', e => { touches.delete(e.pointerId); const pg = edPg; if (pg && g && g.id === e.pointerId){ pg._temp = null; g = null; render(pg); } });
+  cv.addEventListener('pointerleave', () => { const pg = edPg; if (pg && pg._eraser && !g){ pg._eraser = null; render(pg); } });
 }
+attachEditor();
 function down(pg, e){
   if (e.pointerType === 'touch') touches.add(e.pointerId);
   if (st.tool === 'hand' || (e.button && e.button > 0)) return;
@@ -948,7 +1022,7 @@ async function insertPhotos(files){
   files = files.filter(f => !f.type || f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name));
   if (!files.length) return;
   commitEditor();
-  let pg = (activePage && pages.includes(activePage)) ? activePage : visiblePage();
+  let pg = edPg || ((activePage && pages.includes(activePage)) ? activePage : visiblePage());
   toast(files.length > 1 ? `Ajout de ${files.length} photos…` : 'Ajout de la photo…');
   const ds = []; let fail = 0;
   for (const file of files){ try { ds.push(await fileToData(file, S.assets ? 1600 : 1100)); } catch { fail++; } }
@@ -969,9 +1043,9 @@ async function insertPhotos(files){
     });
     changed(pg);
   }
+  if (edPg !== firstPg) openSheet(firstPg);
   setTool('select');
   if (ds.length === 1 && last) setSel(last);
-  firstPg._cv.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const extra = ds.length > PER ? ` Réparties sur ${Math.ceil(ds.length / PER)} feuillets.` : '';
   toast((ds.length > 1 ? `${ds.length} photos ajoutées.` + extra : 'Photo ajoutée.') + (fail ? ` ${fail} image(s) illisible(s).` : '') + ' Touchez une photo pour la déplacer ou la redimensionner.');
 }
@@ -984,7 +1058,7 @@ document.addEventListener('click', e => {
   pickOpened = false; addEventListener('blur', pickMark); document.addEventListener('visibilitychange', pickMark);
   clearTimeout(pickT);
   pickT = setTimeout(() => { removeEventListener('blur', pickMark); document.removeEventListener('visibilitychange', pickMark);
-    if (!pickOpened){ $('#pickHelp').hidden = false; $('#pickHelp').scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 2000);
+    if (!pickOpened){ closeSheet(); $('#pickHelp').hidden = false; $('#pickHelp').scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 2000);
 }, true);
 ['inCam','inGal'].forEach(id => $('#' + id).addEventListener('change', () => { pickOpened = true; }));
 $('#pickClose').onclick = () => { $('#pickHelp').hidden = true; };
@@ -1003,6 +1077,7 @@ document.addEventListener('keydown', e => {
   else if (mod && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); }
   else if ((e.key === 'Delete' || e.key === 'Backspace') && sel){ e.preventDefault(); const { pg, o } = sel; snap(pg); pg.objs = pg.objs.filter(x => x !== o); setSel(null); changed(pg); }
   else if (e.key === 'Escape' && sel) setSel(null);
+  else if (e.key === 'Escape' && edPg) closeSheet();
 });
 
 /* ---------- Export PDF ---------- */
