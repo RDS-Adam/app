@@ -157,6 +157,15 @@ canvas.pv{display:block;width:100%;aspect-ratio:1000/900;max-width:100%;backgrou
 .stage{flex:1;min-height:0;display:grid;place-items:center;padding:10px;overflow:hidden;touch-action:none}
 .edwrap{position:relative;line-height:0}
 body.locked{overflow:hidden}
+body.locked .toast{bottom:auto;top:calc(128px + env(safe-area-inset-top,0px))}
+.hwpanel{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(560px,calc(100% - 32px));z-index:5;background:var(--sheet);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.28);padding:12px 14px;display:grid;gap:8px}
+.hwhead{display:flex;align-items:center;gap:10px}
+.hwhead b{flex:1;font-family:var(--f-display);font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--pen-soft);border-top-color:var(--pen);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hwpanel textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:#1d3fa8;font:600 26px/1.15 var(--f-hand);resize:vertical}
+.hwnote{margin:0;font-size:13px;color:var(--muted)}
+.hwbtns{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 body[data-tool="hand"] canvas.cv{cursor:grab}
 body[data-tool="select"] canvas.cv{cursor:default}
 body[data-tool="text"] canvas.cv{cursor:text}
@@ -201,7 +210,7 @@ label.tb{cursor:pointer}
 .empty{padding:24px 14px;color:var(--muted);font-size:14px}
 .mode{margin:0 14px 12px;font-size:12px;color:var(--muted)}
 .toast{position:fixed;z-index:80;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#17202c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.spin{animation-duration:2.4s}}
 </style>
 
 <header class="top" id="top">
@@ -260,6 +269,12 @@ label.tb{cursor:pointer}
     <button class="btn primary" id="mDone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Terminer</button>
   </div>
   <div class="tools" id="tools"><div class="tools-in" id="toolsIn"></div></div>
+  <div class="hwpanel" id="hwPanel" hidden role="dialog" aria-label="Écriture convertie">
+    <div class="hwhead"><b id="hwTitle">Lecture de l'écriture…</b><span class="spin" id="hwSpin"></span></div>
+    <textarea id="hwText" rows="3" aria-label="Texte reconnu, modifiable" hidden></textarea>
+    <p class="hwnote" id="hwNote">Claude lit ce que vous avez écrit. Cela prend quelques secondes.</p>
+    <div class="hwbtns"><button class="btn" id="hwCancel">Arrêter</button><button class="btn primary" id="hwOk" hidden>Remplacer par ce texte</button></div>
+  </div>
   <div class="stage" id="stage"><div class="edwrap"><canvas class="cv" id="edCv" aria-label="Zone de dessin"></canvas><div class="ov" id="edOv"></div></div></div>
 </div>
 <div class="scrim" id="scrim" hidden></div>
@@ -301,6 +316,7 @@ const I = {
   rect:'<rect x="4" y="6" width="16" height="12" rx="1"/>',
   ellipse:'<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',
   text:'<path d="M5 7V5h14v2M12 5v14M9 19h6"/>',
+  convert:'<path d="M2.5 15c1.5-4 2.5-8 3.5-8s.8 5 1.8 5 1.5-5 2.7-5"/><path d="M13 17h8M18 14l3 3-3 3"/><path d="M15 4h6M18 4v7"/>',
   camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   image:'<rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-9 8"/>',
   undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/>',
@@ -390,8 +406,9 @@ async function initCaps(){
   if (!S.inViewer) return;
   const tm = () => new Promise(r => setTimeout(() => r(null), 10000));
   const get = n => Promise.race([Promise.resolve().then(() => window.claude.use(n)).catch(() => null), tm()]);
-  const [db, as, dl] = await Promise.all([get('db'), get('assets'), get('downloads')]);
-  S.db = db; S.assets = as; S.dl = dl; S.mode = db ? 'db' : 'local';
+  const [db, as, dl, sm] = await Promise.all([get('db'), get('assets'), get('downloads'), get('sample')]);
+  S.db = db; S.assets = as; S.dl = dl; S.mode = db ? 'db' : 'local'; S.sample = sm;
+  if (sm){ try { const l = await sm.limits(); S.hw = !!(l && l.images); } catch { S.hw = false; } syncTools(); }
 }
 const ser = objs => JSON.stringify(objs.map(o => { const c = {}; for (const k in o) if (k[0] !== '_') c[k] = o[k]; if (o.t === 'i' && !o.assetId && o._data) c.d = o._data; return c; }));
 const deser = js => { let a = []; try { a = typeof js === 'string' ? JSON.parse(js) : (js || []); } catch {} return a.map(o => { if (o.d){ o._data = o.d; delete o.d; } return o; }); };
@@ -590,7 +607,7 @@ $('#search').oninput = renderList; $('#bNew').onclick = newFiche; $('#bNew2').on
 const COLORS = [['#1d3fa8','Bleu'],['#c62828','Rouge'],['#1b1b1b','Noir'],['#2e7d32','Vert'],['#e07000','Orange']];
 const WIDTHS = [2.5, 4.5, 8];
 const st = { tool: 'pen', color: LS.get('pm2:color') || '#1d3fa8', width: LS.get('pm2:width') || 4.5, stylusOnly: !!LS.get('pm2:stylus') };
-const TOOLS = [['select','Choisir'],'|',['pen','Stylo'],['hl','Surligner'],['eraser','Gomme'],'|',['arrow','Flèche'],['cote','Cote'],['line','Ligne'],['rect','Cadre'],['ellipse','Cercle'],['text','Texte']];
+const TOOLS = [['select','Choisir'],'|',['pen','Stylo'],['hl','Surligner'],['eraser','Gomme'],'|',['arrow','Flèche'],['cote','Cote'],['line','Ligne'],['rect','Cadre'],['ellipse','Cercle'],['text','Texte'],['convert','Convertir']];
 function buildTools(){
   const t = $('#toolsIn');
   let h = `<label class="tb" for="inCam" title="Prendre une photo">${svg('camera')}<span>Photo</span></label><label class="tb" for="inGal" title="Ajouter des photos (plusieurs possibles)">${svg('image')}<span>Galerie</span></label><span class="sep"></span>`;
@@ -612,12 +629,13 @@ function buildTools(){
   };
   syncTools();
 }
-function setTool(t){ st.tool = t; if (t !== 'select') setSel(null); commitEditor(); syncTools(); }
+function setTool(t){ if (t === 'convert' && st.tool !== 'convert') toast('Entourez votre écriture d\'un cadre : elle sera convertie en texte.'); st.tool = t; if (t !== 'select') setSel(null); commitEditor(); syncTools(); }
 function syncTools(){
   document.querySelectorAll('[data-tool]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === st.tool));
   document.querySelectorAll('[data-color]').forEach(b => b.setAttribute('aria-pressed', b.dataset.color === st.color));
   document.querySelectorAll('[data-w]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.w === st.width));
   $('#tStylus').setAttribute('aria-pressed', st.stylusOnly);
+  const cb = document.querySelector('[data-tool="convert"]'); if (cb) cb.hidden = !S.hw;
   document.body.dataset.tool = st.tool;
   document.body.classList.toggle('scroll-ok', st.tool === 'hand' || st.stylusOnly);
 }
@@ -674,6 +692,71 @@ $('#bAddPage').onclick = () => {
   buildPages(); markPage(pg); openSheet(pg);
 };
 
+/* ---------- Reconnaissance d'écriture ---------- */
+const HW_PROMPT = `Tu lis l'écriture manuscrite d'un métreur sur une fiche de prise de mesures (stores, bannes, volets, menuiserie), en français.
+Transcris exactement ce qui est écrit sur l'image : garde les retours à la ligne, les chiffres, les unités (mm, cm, m, ml) et le « x » des dimensions (ex. 437 x 330).
+Ne reformule pas, ne corrige pas le sens, n'ajoute rien. Vocabulaire fréquent : toile, store, banne, jonc, lambrequin, vague, coffre, bras, tube, moteur, manœuvre, treuil, sangle, lame, coulisse, devis, courrier, pose, cote, face, haut, bas, gauche, droite.
+Si un mot est difficile à lire, donne ta meilleure lecture. Réponds uniquement par le texte transcrit, sans guillemets ni commentaire.`;
+let hw = null;
+function unionBox(objs){ let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity; for (const o of objs){ const b = bbox(o); x1 = Math.min(x1, b.x); y1 = Math.min(y1, b.y); x2 = Math.max(x2, b.x + b.w); y2 = Math.max(y2, b.y + b.h); } return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 }; }
+function inRect(o, r){ const p = o.p; let n = 0; for (let i = 0; i < p.length; i += 2) if (p[i] >= r.x && p[i] <= r.x + r.w && p[i + 1] >= r.y && p[i + 1] <= r.y + r.h) n++; return n >= p.length / 2 * .6; }
+function inkImage(objs, b){
+  const pad = 24, s = Math.min(4, 1400 / Math.max(b.w + 2 * pad, b.h + 2 * pad));
+  const c = document.createElement('canvas'); c.width = Math.ceil((b.w + 2 * pad) * s); c.height = Math.ceil((b.h + 2 * pad) * s);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+  x.setTransform(s, 0, 0, s, (pad - b.x) * s, (pad - b.y) * s);
+  for (const o of objs) drawObj(x, Object.assign({}, o, { c: '#111' }));
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+function showHw(state, text){
+  const P = $('#hwPanel'); P.hidden = false;
+  const pend = state === 'pending';
+  $('#hwTitle').textContent = pend ? 'Lecture de l\'écriture…' : 'Texte reconnu';
+  $('#hwSpin').hidden = !pend; $('#hwText').hidden = pend; $('#hwOk').hidden = pend;
+  $('#hwNote').textContent = pend ? 'Claude lit ce que vous avez écrit. Cela prend quelques secondes.' : 'Corrigez le texte si besoin, puis remplacez votre écriture.';
+  $('#hwCancel').textContent = pend ? 'Arrêter' : 'Annuler';
+  if (!pend){ const t = $('#hwText'); t.value = text; t.rows = Math.min(6, Math.max(2, text.split('\n').length)); }
+}
+function endHw(){ if (!hw) return; const h = hw; hw = null; try { h.ctl.abort(); } catch {} h.pg._hwBox = null; render(h.pg); $('#hwPanel').hidden = true; }
+async function startConvert(pg, r){
+  if (!S.sample){ toast('La conversion d\'écriture n\'est pas disponible ici.'); return; }
+  const objs = pg.objs.filter(o => o.t === 's' && !o.hl && inRect(o, r));
+  if (!objs.length){ toast('Aucune écriture dans ce cadre. Entourez les mots écrits au stylo.'); return; }
+  endHw();
+  const ctl = new AbortController(), box = unionBox(objs), me = { pg, objs, ctl, box };
+  hw = me; pg._hwBox = box; render(pg); showHw('pending');
+  try {
+    const blob = await inkImage(objs, box);
+    const { text } = await S.sample(HW_PROMPT, { images: [blob], signal: ctl.signal });
+    if (hw !== me) return;
+    const t = (text || '').trim().replace(/^["«»“”]+|["«»“”]+$/g, '').trim();
+    if (!t){ endHw(); toast('Aucun texte reconnu. Écrivez un peu plus gros puis réessayez.'); return; }
+    showHw('result', t); setTimeout(() => $('#hwText').focus({ preventScroll: true }), 0);
+  } catch (e) {
+    if (hw !== me) return;
+    endHw();
+    const c = e && e.code;
+    if (c === 'cancelled') return;
+    if (c === 'not_granted'){ S.hw = false; syncTools(); setTool('pen'); toast('Accès à Claude refusé : la conversion est désactivée jusqu\'au prochain chargement de la page.'); }
+    else if (c === 'rate_limited') toast('Trop de demandes en même temps. Réessayez dans un instant.');
+    else toast('La reconnaissance n\'a pas abouti. Vérifiez la connexion et réessayez.');
+  }
+}
+function applyHw(){
+  if (!hw) return; const { pg, objs, box } = hw; const txt = $('#hwText').value.replace(/\s+$/, '');
+  if (!txt){ endHw(); return; }
+  const lines = txt.split('\n');
+  let fs = Math.max(24, Math.min(110, box.h / lines.length * .95));
+  meas.font = `600 ${fs}px ${HAND}`; const tw = Math.max(...lines.map(l => meas.measureText(l).width));
+  if (tw > box.w * 1.3 && box.w > 40) fs = Math.max(20, fs * box.w * 1.3 / tw);
+  const cnt = {}; objs.forEach(o => { cnt[o.c] = (cnt[o.c] || 0) + 1; }); const color = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || st.color;
+  snap(pg); const set = new Set(objs); pg.objs = pg.objs.filter(o => !set.has(o));
+  pg.objs.push({ t: 't', c: color, fs: Math.round(fs), x: box.x, y: box.y, txt });
+  endHw(); changed(pg); toast('Écriture convertie. « Annuler » remet votre écriture.');
+}
+$('#hwOk').onclick = applyHw;
+$('#hwCancel').onclick = endHw;
+
 /* ---------- Fenêtre de dessin plein écran ---------- */
 const edCv = $('#edCv'), edOv = $('#edOv');
 function sizeStage(){
@@ -690,7 +773,7 @@ function updSheetBar(){
   $('#mPrev').disabled = i <= 0; $('#mNext').disabled = i >= pages.length - 1;
 }
 function openSheet(pg){
-  commitEditor(); setSel(null);
+  endHw(); commitEditor(); setSel(null);
   if (edPg && edPg !== pg){ edPg._cv = edPg._pv; edPg._ov = edPg._pov; render(edPg); }
   const wasOpen = !!edPg;
   edPg = pg; activePage = pg; pg._cv = edCv; pg._ov = edOv; edOv.innerHTML = '';
@@ -700,7 +783,7 @@ function openSheet(pg){
 }
 function closeSheet(){
   if (!edPg) return;
-  commitEditor(); setSel(null);
+  endHw(); commitEditor(); setSel(null);
   const pg = edPg; edPg = null; pg._cv = pg._pv; pg._ov = pg._pov;
   $('#sheetModal').hidden = true; document.body.classList.remove('locked');
   try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch {}
@@ -775,7 +858,7 @@ function drawObj(ctx, o, onImg){
           ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillRect(-L.tw / 2 - 6, -L.fs * .55, L.tw + 12, L.fs * 1.05);
           ctx.fillStyle = o.c; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(o.txt, 0, 0); } }
       break; }
-    case 'r': ctx.strokeRect(o.x, o.y, o.w2, o.h); break;
+    case 'r': if (o._sel){ ctx.setLineDash([9, 6]); ctx.fillStyle = 'rgba(31,111,235,.08)'; ctx.fillRect(o.x, o.y, o.w2, o.h); } ctx.strokeRect(o.x, o.y, o.w2, o.h); break;
     case 'e': ctx.beginPath(); ctx.ellipse(o.x + o.w2 / 2, o.y + o.h / 2, Math.abs(o.w2 / 2), Math.abs(o.h / 2), 0, 0, Math.PI * 2); ctx.stroke(); break;
     case 't': { ctx.font = `600 ${textFs(o)}px ${HAND}`; ctx.textBaseline = 'top';
       (o.txt || '').split('\n').forEach((l, i) => ctx.fillText(l, o.x, o.y + i * textFs(o) * 1.1)); break; }
@@ -841,6 +924,7 @@ function paint(pg){
   for (const o of pg.objs) drawObj(ctx, o, () => render(pg));
   if (pg._temp) drawObj(ctx, pg._temp);
   if (sel && sel.pg === pg) drawSel(ctx, sel.o);
+  if (pg._hwBox){ const b = pg._hwBox; ctx.save(); ctx.fillStyle = 'rgba(31,111,235,.10)'; ctx.strokeStyle = '#1f6feb'; ctx.lineWidth = 2; ctx.setLineDash([9, 6]); ctx.fillRect(b.x - 10, b.y - 10, b.w + 20, b.h + 20); ctx.strokeRect(b.x - 10, b.y - 10, b.w + 20, b.h + 20); ctx.restore(); }
   if (pg._eraser){ ctx.strokeStyle = '#8a94a3'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(pg._eraser[0], pg._eraser[1], 16, 0, 7); ctx.stroke(); }
   placeSelBar(pg);
 }
@@ -950,6 +1034,7 @@ function down(pg, e){
   if (t === 'eraser'){ g = { pg, id: e.pointerId, mode: 'erase', before: JSON.stringify(pg.objs), did: false, pen }; eraseAt(pg, x, y, tol + 8); return; }
   if (t === 'text'){ g = { pg, id: e.pointerId, mode: 'tap', x, y, pen }; return; }
   if (t === 'pen' || t === 'hl'){ pg._temp = { t: 's', c: st.color, w: t === 'hl' ? 20 : st.width, p: [x, y] }; if (t === 'hl') pg._temp.hl = 1; g = { pg, id: e.pointerId, mode: 'draw', pen }; render(pg); return; }
+  if (t === 'convert'){ pg._temp = { t: 'r', _sel: 1, c: '#1f6feb', w: 2, x, y, w2: 0, h: 0 }; g = { pg, id: e.pointerId, mode: 'lasso', pen }; render(pg); return; }
   const map = { line: 'l', arrow: 'a', cote: 'd' };
   if (map[t]) pg._temp = { t: map[t], c: st.color, w: st.width, a: [x, y, x, y] };
   else pg._temp = { t: t === 'rect' ? 'r' : 'e', c: st.color, w: st.width, x, y, w2: 0, h: 0 };
@@ -963,7 +1048,7 @@ function mv(pg, e){
   for (const ev of evs.length ? evs : [e]){
     const [x, y] = pos(pg, ev);
     if (g.mode === 'draw'){ const p = pg._temp.p; if (Math.hypot(x - p[p.length - 2], y - p[p.length - 1]) > .6) p.push(x, y); }
-    else if (g.mode === 'shape'){ const o = pg._temp; let px = x, py = y;
+    else if (g.mode === 'shape' || g.mode === 'lasso'){ const o = pg._temp; let px = x, py = y;
       if (o.a){ if (e.shiftKey){ const dx = x - o.a[0], dy = y - o.a[1], a = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4, r = Math.hypot(dx, dy); px = o.a[0] + r * Math.cos(a); py = o.a[1] + r * Math.sin(a); } o.a[2] = px; o.a[3] = py; }
       else { o.w2 = x - o.x; o.h = y - o.y; } }
     else if (g.mode === 'drag'){ const dx = x - g.lx, dy = y - g.ly; if (!g.moved && Math.hypot(dx, dy) < 2) continue; g.moved = true; move(sel.o, dx, dy); g.lx = x; g.ly = y; }
@@ -980,6 +1065,9 @@ function up(pg, e){
   touches.delete(e.pointerId);
   if (!g || g.id !== e.pointerId || g.pg !== pg) return;
   const m = g.mode, gg = g; g = null;
+  if (m === 'lasso'){ const o = pg._temp; pg._temp = null; render(pg);
+    const r = { x: Math.min(o.x, o.x + o.w2), y: Math.min(o.y, o.y + o.h), w: Math.abs(o.w2), h: Math.abs(o.h) };
+    if (r.w > 10 && r.h > 10) startConvert(pg, r); return; }
   if (m === 'draw'){ const o = pg._temp; pg._temp = null; o.p = simplify(o.p, .7); snap(pg); pg.objs.push(o); changed(pg); }
   else if (m === 'shape'){ const o = pg._temp; pg._temp = null; const b = bbox(o);
     if (Math.max(b.w, b.h) < 8){ render(pg); return; }
