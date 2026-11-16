@@ -284,6 +284,10 @@ label.tb{cursor:pointer}
 .linkrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .linkrow input{flex:1 1 220px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--paper);color:var(--ink);font:13px var(--f-body)}
 .linkrow a.btn{text-decoration:none}
+.addrow{display:flex;gap:10px;margin-top:14px}
+.addrow .addpage{flex:1;margin-top:0}
+.addprod{color:var(--pen);border-color:var(--pen)}
+@media (max-width:520px){.addrow{flex-direction:column}}
 .addpage{width:100%;margin-top:14px;justify-content:center;border-style:dashed;min-height:52px;color:var(--muted)}
 .drop{outline:3px dashed var(--pen);outline-offset:-6px}
 
@@ -359,7 +363,7 @@ label.tb{cursor:pointer}
     <p class="small">Astuce : dans Chrome, menu ⋮ › « Ajouter à l'écran d'accueil » pour l'ouvrir comme une appli.</p>
   </div>
   <div class="pages" id="pages"></div>
-  <button class="btn addpage" id="bAddPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un feuillet</button>
+  <div class="addrow"><button class="btn addpage addprod" id="bAddItem2" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un produit</button><button class="btn addpage" id="bAddPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Ajouter un feuillet</button></div>
   <input type="file" id="inCam" class="vh" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
   <input type="file" id="inGal" class="vh" accept="image/*" multiple tabindex="-1" aria-hidden="true">
 </main>
@@ -870,6 +874,7 @@ function renderItems(){
   host.innerHTML = '';
   cur.items.forEach((it, i) => { if (!TPL[it.tpl]) return; const c = document.createElement('div'); c.className = 'pcard' + (it.done ? ' done' : ''); c.dataset.id = it.id; c.innerHTML = cardInner(it, i); c.classList.toggle('incomplete', itemStatus(it).miss.length > 0); host.append(c); });
   $('#gpick').hidden = !!cur.items.length && $('#gpick').dataset.open !== '1';
+  $('#bAddItem2').hidden = !cur.items.length;
   updSummary();
 }
 function rerenderCard(card, it, justKeys){
@@ -896,6 +901,7 @@ function buildPicker(){
 }
 buildPicker();
 $('#bAddItem').onclick = () => { const p = $('#gpick'); const open = p.hidden; p.hidden = !open; p.dataset.open = open ? '1' : ''; if (open) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
+$('#bAddItem2').onclick = () => { const p = $('#gpick'); p.hidden = false; p.dataset.open = '1'; p.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
 $('#gpick').addEventListener('click', e => {
   const b = e.target.closest('[data-tpl]'); if (!b) return;
   const it = { id: uid('i'), tpl: b.dataset.tpl, emp: '', qte: 1, v: {} }; cur.items.push(it);
