@@ -117,11 +117,19 @@ main{padding-block:18px 60px}
 .gsec-head h2{margin:0 0 2px;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase}
 .gsum{margin:0;font-size:13.5px;color:var(--muted)}
 .gsum b.warn{color:var(--warn)} .gsum b.ok{color:var(--ok)}
-.gpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;padding:12px;border:1.5px dashed var(--pen);border-radius:10px;background:var(--pen-soft)}
-.gpick p{grid-column:1/-1;margin:0 0 2px;font-weight:600;font-size:14px}
-.gpick button{border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:12px;text-align:left;font-weight:700;font-size:14.5px;min-height:56px}
-.gpick button small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
-.gpick button:hover{border-color:var(--pen)}
+.gpick{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--sheet);box-shadow:var(--shadow)}
+.gp-head{font-weight:700;font-size:15px;margin:0 0 12px}
+.gp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.gp-grid+.gp-grid{margin-top:8px}
+.gp-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:11px;padding:0 12px 0 14px;min-height:50px;text-align:left;font:inherit;font-weight:600;font-size:14.5px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
+.gp-item svg{width:18px;height:18px;flex:none;color:var(--pen);opacity:.55;transition:opacity .15s}
+.gp-item:hover,.gp-item:focus-visible{border-color:var(--pen);background:var(--pen-soft)}
+.gp-item:hover svg{opacity:1}
+.gp-item:active{transform:scale(.98)}
+.gp-more{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;border:0;background:transparent;color:var(--pen);font:inherit;font-weight:600;font-size:14px;padding:10px;border-radius:9px;cursor:pointer}
+.gp-more:hover{background:var(--pen-soft)}
+.gp-more svg{width:16px;height:16px;transition:transform .2s}
+.gp-more[aria-expanded="true"] svg{transform:rotate(180deg)}
 .gitems{display:grid;gap:12px}
 .pcard{border:1px solid var(--line);border-radius:12px;background:var(--sheet);overflow:hidden}
 .pcard.incomplete{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}
@@ -906,13 +914,22 @@ function softStatus(card, it){
 }
 /* Empreinte des champs et alertes : si elle change pendant la saisie d'une cote, la carte est redessinée */
 const cardSig = it => fieldsOf(it).map(f => f.k + '=' + (f.o ? f.o.join('|') : '')).join(';') + '#' + itemStatus(it).warn.join('|');
+/* Choix du produit : les plus courants d'abord, les autres derrière « Voir les autres produits ».
+   Pergola n'est plus proposée (les fiches qui en contiennent déjà restent lisibles). */
+const PICK_MAIN = ['banne', 'vertical', 'volet', 'enrouleur', 'moustiquaire', 'toile'], PICK_HIDE = ['pergola'];
 function buildPicker(){
-  const p = $('#gpick'); p.innerHTML = '<p>Quel produit mesurez-vous ?</p>' + Object.entries(TPL).map(([k, T]) => `<button data-tpl="${k}">${esc(T.label)}<small>${esc(T.hint || '')}${RDS[k] && RDS[k].length ? ` · ${RDS[k].length} modèle${RDS[k].length > 1 ? 's' : ''} RDS` : ''}</small></button>`).join('');
+  const p = $('#gpick'), all = p.dataset.all === '1';
+  const main = PICK_MAIN.filter(k => TPL[k]), rest = Object.keys(TPL).filter(k => !main.includes(k) && !PICK_HIDE.includes(k));
+  const btn = k => `<button class="gp-item" data-tpl="${k}"><span>${esc(TPL[k].label)}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`;
+  p.innerHTML = `<p class="gp-head">Quel produit mesurez-vous ?</p><div class="gp-grid">${main.map(btn).join('')}</div>`
+    + (all ? `<div class="gp-grid">${rest.map(btn).join('')}</div>` : '')
+    + (rest.length ? `<button class="gp-more" aria-expanded="${all}">${all ? 'Moins de produits' : `Voir les ${rest.length} autres produits`}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>` : '');
 }
 buildPicker();
 $('#bAddItem').onclick = () => { const p = $('#gpick'); const open = p.hidden; p.hidden = !open; p.dataset.open = open ? '1' : ''; if (open) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); };
 $('#bAddItem2').onclick = () => { const p = $('#gpick'); p.hidden = false; p.dataset.open = '1'; p.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
 $('#gpick').addEventListener('click', e => {
+  if (e.target.closest('.gp-more')){ const p = $('#gpick'); p.dataset.all = p.dataset.all === '1' ? '' : '1'; buildPicker(); return; }
   const b = e.target.closest('[data-tpl]'); if (!b) return;
   const it = { id: uid('i'), tpl: b.dataset.tpl, emp: '', qte: 1, v: {} }; cur.items.push(it);
   $('#gpick').dataset.open = ''; renderItems(); touch();
