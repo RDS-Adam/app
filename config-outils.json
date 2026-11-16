@@ -114,6 +114,11 @@
       "space": "salarie",
       "label": "Rebuts — revente équipe",
       "order": 22
+    },
+    "prise-mesures-guidee.html": {
+      "space": "adam",
+      "label": "Prise de mesures guidée",
+      "order": 23
     }
   }
 }
