@@ -308,6 +308,13 @@ label.tb{cursor:pointer}
 .item .x{flex:none;border:0;background:transparent;color:var(--muted);border-radius:8px;padding:0 10px;font-size:12px;font-weight:700}
 .item .x svg{width:17px;height:17px}
 .item .x.confirm{background:var(--danger);color:#fff}
+.expwrap{position:relative}
+.expmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:270px;display:flex;flex-direction:column;background:var(--sheet);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px}
+.expmenu button{border:0;background:transparent;color:var(--ink);text-align:left;padding:10px 12px;border-radius:8px;font:inherit;font-weight:600;display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.expmenu button:hover,.expmenu button:focus-visible{background:var(--paper)}
+.expmenu small{font-weight:400;color:var(--muted);font-size:12.5px}
+.drawer .imp{margin:0 14px 10px;justify-content:center}
+.sharebar{position:fixed;z-index:81;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--sheet);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 14px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-weight:600;font-size:14px;max-width:calc(100vw - 32px)}
 .empty{padding:24px 14px;color:var(--muted);font-size:14px}
 .mode{margin:0 14px 12px;font-size:12px;color:var(--muted)}
 .toast{position:fixed;z-index:80;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#17202c;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
@@ -320,7 +327,7 @@ label.tb{cursor:pointer}
     <div class="brand"><b>Prise mesures · guidée</b><span id="subTitle">Nouvelle fiche</span></div>
     <span class="status" id="status" data-s="idle"><i></i><b id="statusTxt">Prêt</b></span>
     <button class="btn" id="bNew" title="Nouvelle fiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="hide-sm">Nouvelle</span></button>
-    <button class="btn primary" id="bPdf" title="Exporter en PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>PDF</button>
+    <div class="expwrap"><button class="btn primary" id="bPdf" title="Exporter la fiche" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exporter</button><div class="expmenu" id="expMenu" role="menu" hidden><button role="menuitem" data-exp="pdf">PDF<small>Fiche complète, à imprimer ou envoyer</small></button><button role="menuitem" data-exp="png">Images PNG<small>Un croquis par feuillet</small></button><button role="menuitem" data-exp="json">Fichier fiche (.json)<small>Pour rouvrir la fiche sur un autre appareil</small></button></div></div>
   </div>
 </header>
 
@@ -398,10 +405,12 @@ label.tb{cursor:pointer}
 <aside class="drawer" id="drawer" hidden aria-label="Mes fiches">
   <header><b>Mes fiches</b><button class="btn" id="bNew2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nouvelle</button><button class="btn icon" id="bClose" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
   <input class="search" id="search" type="search" placeholder="Rechercher un client, une ville…" aria-label="Rechercher">
+  <button class="btn imp" id="bImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>Ouvrir un fichier fiche (.json)</button><input type="file" id="fImport" accept=".json,application/json" hidden>
   <p class="mode" id="modeTxt"></p>
   <div class="list" id="list"></div>
 </aside>
 <div class="toast" id="toast" hidden></div>
+<div class="sharebar" id="shareBar" hidden><span id="shareTxt"></span><button class="btn primary" id="shareGo">Envoyer</button><button class="btn icon" id="shareX" aria-label="Fermer">✕</button></div>
 
 <script>
 (() => {
@@ -1855,14 +1864,14 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- Export PDF ---------- */
-async function sketchImage(pg){
+async function sketchImage(pg, type = 'image/jpeg'){
   await loadImgs(pg.objs);
   const s = 1.9, c = document.createElement('canvas'); c.width = W * s; c.height = H * s;
   const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.setTransform(s, 0, 0, s, 0, 0);
   drawGrid(x, true); for (const o of pg.objs) drawObj(x, o);
-  try { return c.toDataURL('image/jpeg', .86); }
+  try { return c.toDataURL(type, .86); }
   catch { x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.setTransform(s, 0, 0, s, 0, 0); drawGrid(x, true);
-    for (const o of pg.objs) if (o.t !== 'i') drawObj(x, o); toast('Une photo n\'a pas pu être incluse dans le PDF.'); return c.toDataURL('image/jpeg', .86); }
+    for (const o of pg.objs) if (o.t !== 'i') drawObj(x, o); toast('Une photo n\'a pas pu être incluse.'); return c.toDataURL(type, .86); }
 }
 function drawFormPDF(doc, f){
   const P = v => v * 210 / 1159, BLUE = [29, 63, 168];
@@ -1963,23 +1972,104 @@ async function exportPDF(){
         y += 7;
       });
     }
-    const slug = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const name = ['Prise-mesures', slug(cur.client) || 'client', slug(cur.chantier), cur.date].filter(Boolean).join('_') + '.pdf';
-    await saveFile(name, doc.output('blob'));
+    await deliver([new File([doc.output('blob')], fileBase() + '.pdf', { type: 'application/pdf' })], 'PDF prêt');
     if (missTotal) setTimeout(() => toast(`PDF créé. ${missTotal} information${missTotal > 1 ? 's' : ''} marquée${missTotal > 1 ? 's' : ''} « À compléter ».`), 1200);
   } catch (e) { toast('Le PDF n\'a pas pu être créé.'); }
   finally { b.disabled = false; b.innerHTML = old; }
 }
 async function saveFile(name, blob){
   if (S.dl){
-    try { await S.dl.save({ filename: name, data: blob }); toast('PDF enregistré : ' + name); }
-    catch (e) { toast(e && e.code === 'declined' ? 'Téléchargement annulé.' : 'Le PDF n\'a pas pu être enregistré (' + ((e && e.code) || 'erreur') + ').'); }
+    try { await S.dl.save({ filename: name, data: blob }); toast('Fichier enregistré : ' + name); }
+    catch (e) { toast(e && e.code === 'declined' ? 'Téléchargement annulé.' : 'Le fichier n\'a pas pu être enregistré (' + ((e && e.code) || 'erreur') + ').'); }
     return;
   }
   if (!S.inViewer){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); return; }
   toast('Le téléchargement n\'est pas disponible dans cette vue.');
 }
-$('#bPdf').onclick = exportPDF;
+
+/* ---------- Exporter (PDF, PNG, fichier fiche) et rouvrir un fichier ---------- */
+function fileBase(){
+  const slug = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return ['Prise-mesures', slug(cur.client) || 'client', slug(cur.chantier), cur.date].filter(Boolean).join('_');
+}
+const touchDev = matchMedia('(pointer:coarse)').matches;
+/* Sur téléphone : menu Partager (AirDrop, Mail, Fichiers…). Sur ordinateur : téléchargement. */
+async function deliver(files, label){
+  if (touchDev && navigator.canShare && navigator.share){
+    let ok = false; try { ok = navigator.canShare({ files }); } catch {}
+    if (ok){
+      try { await navigator.share({ files }); return; }
+      catch (e) {
+        if (e && e.name === 'AbortError') return;
+        /* le navigateur exige un nouveau toucher quand la création a pris du temps */
+        $('#shareTxt').textContent = label; $('#shareBar').hidden = false;
+        $('#shareGo').onclick = () => { $('#shareBar').hidden = true; navigator.share({ files }).catch(() => {}); };
+        return;
+      }
+    }
+  }
+  for (let i = 0; i < files.length; i++){ if (i) await new Promise(r => setTimeout(r, 500)); await saveFile(files[i].name, files[i]); }
+}
+$('#shareX').onclick = () => { $('#shareBar').hidden = true; };
+async function busy(fn){
+  const b = $('#bPdf'); if (b.disabled) return; commitEditor(); b.disabled = true; const old = b.innerHTML; b.innerHTML = 'Création…';
+  try { await flush(); await fn(); } catch (e) { toast('L\'export n\'a pas pu être créé.'); }
+  finally { b.disabled = false; b.innerHTML = old; }
+}
+const exportPNG = () => busy(async () => {
+  try { await document.fonts.load(`600 40px ${HAND}`); await document.fonts.load(`700 40px ${HAND}`); } catch {}
+  const keep = pages.filter(p => p.objs.length).length ? pages.filter(p => p.objs.length) : pages, files = [];
+  for (let i = 0; i < keep.length; i++){
+    const url = await sketchImage(keep[i], 'image/png');
+    files.push(new File([dataToBlob(url)], fileBase() + (keep.length > 1 ? '_feuillet-' + (i + 1) : '') + '.png', { type: 'image/png' }));
+  }
+  await deliver(files, files.length > 1 ? files.length + ' images prêtes' : 'Image prête');
+});
+const blobToData = b => new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = ko; r.readAsDataURL(b); });
+const exportJSON = () => busy(async () => {
+  const pgs = [];
+  for (const pg of pages){
+    const objs = [];
+    for (const o of pg.objs){
+      const c = {}; for (const k in o) if (k[0] !== '_') c[k] = o[k];
+      if (o.t === 'i'){
+        let d = o._data;
+        if (!d && o.assetId){ try { const r = await fetch('/_blob/' + o.assetId); if (r.ok) d = await blobToData(await r.blob()); } catch {} }
+        if (d){ c.d = d; delete c.assetId; }
+      }
+      objs.push(c);
+    }
+    pgs.push({ id: pg.id, objs });
+  }
+  const data = { format: 'prise-mesures-guidee', version: 1, exportedAt: Date.now(), fiche: cleanF(cur), pages: pgs };
+  await deliver([new File([JSON.stringify(data)], fileBase() + '.json', { type: 'application/json' })], 'Fichier fiche prêt');
+});
+const expMenu = $('#expMenu');
+const menuOpen = o => { expMenu.hidden = !o; $('#bPdf').setAttribute('aria-expanded', String(o)); };
+$('#bPdf').onclick = e => { e.stopPropagation(); menuOpen(expMenu.hidden); };
+document.addEventListener('click', e => { if (!expMenu.hidden && !e.target.closest('#expMenu')) menuOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !expMenu.hidden) menuOpen(false); });
+expMenu.onclick = e => { const b = e.target.closest('[data-exp]'); if (!b) return; menuOpen(false);
+  ({ pdf: exportPDF, png: exportPNG, json: exportJSON })[b.dataset.exp](); };
+
+$('#bImport').onclick = () => $('#fImport').click();
+$('#fImport').onchange = async e => {
+  const file = e.target.files && e.target.files[0]; e.target.value = ''; if (!file) return;
+  let d = null; try { d = JSON.parse(await file.text()); } catch {}
+  if (!d || d.format !== 'prise-mesures-guidee' || !d.fiche || !Array.isArray(d.pages)){ toast('Ce fichier n\'est pas une fiche de prise de mesures.'); return; }
+  await flush();
+  const f = d.fiche; if (!f.id) f.id = uid('f');
+  const known = fiches.find(x => x.id === f.id);
+  if (known && (known.updatedAt || 0) > (f.updatedAt || 0)
+      && !confirm('Cette fiche existe déjà ici et a été modifiée après ce fichier. Remplacer quand même par le fichier ?')) return;
+  const pgs = d.pages.filter(p => p && p.id).map(p => ({ id: String(p.id), objs: deser(p.objs || []) }));
+  if (known){ /* feuillets supprimés depuis : on les retire */
+    const old = await store().load(f.id).catch(() => null);
+    if (old) for (const pg of old.pages) if (!pgs.some(p => p.id === pg.id)) await store().delPage(f.id, pg).catch(() => {});
+  }
+  untouched = false; setCurrent(f, pgs, true); closeDrawer(); window.scrollTo({ top: 0 });
+  toast(known ? 'Fiche mise à jour depuis le fichier' : 'Fiche ouverte depuis le fichier');
+};
 
 /* ---------- Divers ---------- */
 let toastT = null;
