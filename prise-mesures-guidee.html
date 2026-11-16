@@ -164,6 +164,10 @@ main{padding-block:18px 60px}
 .adr-hint:empty{display:none}
 .adr-hint.ok{color:var(--ok)}
 .adr-hint.warn{color:var(--warn)}
+.pc-mini{border-bottom:0}
+.pcard.done{background:var(--paper)}
+button.pc-title{border:0;background:transparent;padding:0;text-align:left;color:inherit;cursor:pointer;align-items:baseline}
+.pc-sum{color:var(--muted);font-size:13.5px;font-weight:600}
 .pc-foot{display:flex;justify-content:flex-end;padding:0 12px 14px}
 .pc-foot .btn{min-height:48px;padding:10px 20px;font-size:15px}
 @media (max-width:640px){.pc-foot .btn{width:100%;justify-content:center}}
@@ -822,6 +826,11 @@ function fieldHtml(it, f){
 }
 function cardInner(it, i){
   const T = TPL[it.tpl], st = itemStatus(it), P = modelOf(it);
+  const pill = `<span class="pill ${st.miss.length ? 'warn' : 'ok'}">${st.miss.length ? st.miss.length + ' à compléter' : 'Complet'}</span>`;
+  /* Produit validé : une seule ligne, « Modifier » le rouvre */
+  if (it.done) return `<div class="pc-head pc-mini"><button class="pc-title pc-open" title="Modifier ce produit"><b>${i + 1}. ${esc(T.label)}${P ? ' · ' + esc(P.n) : ''}</b>
+      <span class="pc-sum">${esc([it.emp, (+it.qte > 1) ? 'x' + it.qte : '', dimsTxt(it)].filter(Boolean).join(' · '))}</span></button>
+    <div class="pc-acts">${pill}<button class="btn pc-open">${svg('edit')}<span>Modifier</span></button><button class="btn icon pc-del" aria-label="Supprimer ce produit">${svg('trash')}</button></div></div>`;
   return `<div class="pc-head"><div class="pc-title"><b>${i + 1}. ${esc(T.label)}${P ? ' · ' + esc(P.n) : ''}</b>
       <input data-ik="emp" value="${esc(it.emp)}" placeholder="Emplacement (terrasse, cuisine…)" aria-label="Emplacement">
       <label class="qte">Qté <input data-ik="qte" inputmode="numeric" value="${esc(it.qte || 1)}" aria-label="Quantité"></label></div>
@@ -859,7 +868,7 @@ const exampleFor = k => EX[k] || '';
 function renderItems(){
   const host = $('#gitems'); if (!host || !cur) return;
   host.innerHTML = '';
-  cur.items.forEach((it, i) => { if (!TPL[it.tpl]) return; const c = document.createElement('div'); c.className = 'pcard'; c.dataset.id = it.id; c.innerHTML = cardInner(it, i); c.classList.toggle('incomplete', itemStatus(it).miss.length > 0); host.append(c); });
+  cur.items.forEach((it, i) => { if (!TPL[it.tpl]) return; const c = document.createElement('div'); c.className = 'pcard' + (it.done ? ' done' : ''); c.dataset.id = it.id; c.innerHTML = cardInner(it, i); c.classList.toggle('incomplete', itemStatus(it).miss.length > 0); host.append(c); });
   $('#gpick').hidden = !!cur.items.length && $('#gpick').dataset.open !== '1';
   updSummary();
 }
@@ -920,7 +929,8 @@ $('#gitems').addEventListener('click', e => {
   if (e.target.closest('.pc-mic')){ dictTA = box.querySelector('.pc-ta'); dictPT = box.querySelector('.pc-pt'); dictMB = box.querySelector('.pc-mic');
     if (S.dict && S.dict.active()){ S.dict.stop().catch(() => {}); return; } startDict(); return; }
   if (e.target.closest('.pc-dclose')){ if (S.dict && S.dict.active()) S.dict.stop().catch(() => {}); box.hidden = true; return; }
-  if (e.target.closest('.pc-write')){ writeItemOnSketch(it); return; }
+  if (e.target.closest('.pc-open')){ it.done = false; rerenderCard(card, it); card.classList.remove('done'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); touch(); return; }
+  if (e.target.closest('.pc-write')){ it.done = true; writeItemOnSketch(it); return; }
   const fill = e.target.closest('.pc-fill'); if (fill) fillFromDictation(card, it, box, fill);
 });
 $('#gitems').addEventListener('input', e => {
