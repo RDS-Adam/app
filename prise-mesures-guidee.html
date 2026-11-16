@@ -326,6 +326,7 @@ label.tb{cursor:pointer}
     <button class="btn icon" id="bList" aria-label="Mes fiches" title="Mes fiches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="brand"><b>Prise mesures · guidée</b><span id="subTitle">Nouvelle fiche</span></div>
     <span class="status" id="status" data-s="idle"><i></i><b id="statusTxt">Prêt</b></span>
+    <button class="btn icon" id="bTheme" title="Thème" aria-label="Thème"></button>
     <button class="btn" id="bNew" title="Nouvelle fiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="hide-sm">Nouvelle</span></button>
     <div class="expwrap"><button class="btn primary" id="bPdf" title="Exporter la fiche" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exporter</button><div class="expmenu" id="expMenu" role="menu" hidden><button role="menuitem" data-exp="pdf">PDF<small>Fiche complète, à imprimer ou envoyer</small></button><button role="menuitem" data-exp="png">Images PNG<small>Un croquis par feuillet</small></button><button role="menuitem" data-exp="json">Fichier fiche (.json)<small>Pour rouvrir la fiche sur un autre appareil</small></button></div></div>
   </div>
@@ -1976,6 +1977,21 @@ async function deliver(files, label){
   }
   for (let i = 0; i < files.length; i++){ if (i) await new Promise(r => setTimeout(r, 500)); await saveFile(files[i].name, files[i]); }
 }
+/* Thème : Clair → Sombre → Auto (suit le Mac / l'iPhone), mémorisé sur l'appareil */
+const THEMES = { light: ['Thème clair', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
+  dark: ['Thème sombre', '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'],
+  auto: ['Thème automatique (comme l\'appareil)', '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>'] };
+function applyTheme(t){
+  if (!THEMES[t]) t = 'light';
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+  const b = $('#bTheme'); b.title = THEMES[t][0]; b.setAttribute('aria-label', THEMES[t][0] + ' — toucher pour changer');
+  b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${THEMES[t][1]}</svg>`;
+  try { localStorage.setItem('pm2:theme', t); } catch {}
+}
+let theme0 = 'light'; try { theme0 = localStorage.getItem('pm2:theme') || 'light'; } catch {}
+applyTheme(theme0);
+$('#bTheme').onclick = () => { const cur = document.documentElement.getAttribute('data-theme') || 'auto';
+  const next = { light: 'dark', dark: 'auto', auto: 'light' }[cur]; applyTheme(next); toast(THEMES[next][0]); };
 $('#shareX').onclick = () => { $('#shareBar').hidden = true; };
 async function busy(fn){
   const b = $('#bPdf'); if (b.disabled) return; commitEditor(); b.disabled = true; const old = b.innerHTML; b.innerHTML = 'Création…';
