@@ -119,6 +119,11 @@
       "space": "adam",
       "label": "Prise de mesures guidée",
       "order": 23
+    },
+    "RDSign.html": {
+      "space": "salarie",
+      "label": "RDSign",
+      "order": 24
     }
   }
 }
