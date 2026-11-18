@@ -245,7 +245,7 @@
             <p><strong>Absorption (<span id="lexAs"></span>%) :</strong> Énergie stockée par le tissu. <span id="expliqueAs"></span></p>
         </div>
         <div class="clause-technique">
-            Facteur solaire total (g<sub>tot</sub>) calculé selon la méthode ISO 52022-3, vitrage de référence D (double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,20 / Ug=1,1 W/m²K), coefficients calibrés sur données fournisseur réelles. Résultats théoriques, non contractuels.
+            Facteur solaire total (g<sub>tot</sub>) calculé selon la méthode ISO 52022-3, vitrage de référence D (double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,32 / Ug=1,1 W/m²K), coefficients calibrés sur données fournisseur réelles. Résultats théoriques, non contractuels.
         </div>
     </div>
 </div>
@@ -263,8 +263,8 @@
     // façon dès qu'on dispose de leur tableau officiel.
     const VITRAGES = {
         "D": {
-            label: "Vitrage D (ISO 52022-3) — double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,20 / Ug=1,1 W/m²K",
-            g: 0.20,
+            label: "Vitrage D (ISO 52022-3) — double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,32 / Ug=1,1 W/m²K",
+            g: 0.32,
             ext: { ts: 0.201037, rs: 0.032093, as: 0.020672 },
             int: { ts: 0.635136, rs: -0.032373, as: 0.321353 }
         }
@@ -351,6 +351,9 @@
         const coef = (positionVal === "exterior") ? vitrage.ext : vitrage.int;
         let gtot = (coef.ts * ts) + (coef.rs * rs) + (coef.as * as);
         if (gtot < 0) gtot = 0; // garde-fou, ne devrait pas arriver en usage normal
+        // Un store ne peut pas laisser passer plus de chaleur que le vitrage seul :
+        // on plafonne gtot au g du vitrage pour ne jamais afficher un gain négatif.
+        if (gtot > g_verre) gtot = g_verre;
 
         const tempSans = tExt + (g_verre * 12);
         const tempAvec = tExt + (gtot * 12);
@@ -359,7 +362,7 @@
         document.getElementById('btnPrint').style.display = "block";
         document.getElementById('resSans').innerText = tempSans.toFixed(1) + "°C";
         document.getElementById('resAvec').innerText = tempAvec.toFixed(1) + "°C";
-        document.getElementById('gainDegres').innerText = "Gain : -" + gain.toFixed(1) + " °C";
+        document.getElementById('gainDegres').innerText = (gain >= 0.05) ? "Gain : -" + gain.toFixed(1) + " °C" : "Gain : 0.0 °C";
         document.getElementById('rejetPC').innerText = ((1 - gtot) * 100).toFixed(0);
         document.getElementById('cExt1').innerText = tExt;
         document.getElementById('cVit').innerText = g_verre.toFixed(2);
