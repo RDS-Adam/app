@@ -131,13 +131,10 @@
         .compo .val { display: flex; align-items: baseline; }
         .compo input { border: none; background: transparent; height: 40px; padding: 0; font-size: 1.5rem; font-weight: 600; box-shadow: none !important; width: 100%; }
         .compo .val span { color: var(--texte-3); font-weight: 500; }
-        .compo:has(input[readonly]) { background: #fff; }
-        input[readonly] { color: var(--texte); cursor: default; }
         .barre { display: flex; height: 10px; border-radius: 999px; overflow: hidden; margin-top: 14px; background: #edf1f2; }
         .barre div { transition: width .3s ease; }
         .barre-legende { display: flex; justify-content: space-between; font-size: .74rem; color: var(--texte-3); margin-top: 6px; }
-        .verrou { font-size: .76rem; color: var(--bleu); margin-top: 10px; display: none; align-items: center; gap: 6px; }
-
+        
         /* Boutons */
         .btn-calc {
             width: 100%; height: 56px; border: none; border-radius: 14px; cursor: pointer;
@@ -234,17 +231,44 @@
 
     <section class="carte no-print">
         <h3 class="carte-titre"><span class="etape">1</span>Toile</h3>
-        <div class="recherche">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input type="search" id="rechToile" placeholder="Rechercher : gamme, coloris ou référence…" oninput="remplirListeToiles()" autocomplete="off">
+        <div class="seg" id="segMode" style="margin-bottom:16px;">
+            <button type="button" data-mode="liste" class="actif" onclick="choisirMode('liste')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                <span><span class="t">Toile répertoriée</span><span class="s">Choisir dans la liste</span></span>
+            </button>
+            <button type="button" data-mode="manuel" onclick="choisirMode('manuel')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                <span><span class="t">Toile non répertoriée</span><span class="s">Saisir les données techniques</span></span>
+            </button>
         </div>
-        <select id="choixToile" onchange="choisirToile()" aria-label="Toile">
-            <option value="">Saisie manuelle (toile non répertoriée)</option>
-        </select>
-        <div id="infoToile"></div>
-        <div class="champ" id="groupeRef" style="margin-top:14px;">
-            <label for="refToile">Référence de la toile</label>
-            <input type="text" id="refToile" placeholder="Ex : Thermo-métal Snow 87501">
+
+        <div id="panneauListe">
+            <label for="choixToile">Toile répertoriée</label>
+            <div class="recherche">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input type="search" id="rechToile" placeholder="Filtrer : gamme, coloris ou référence…" oninput="remplirListeToiles()" autocomplete="off">
+            </div>
+            <select id="choixToile" onchange="choisirToile()">
+                <option value="">Choisir une toile…</option>
+            </select>
+            <p id="toileErreur" class="erreur">Choisissez une toile dans la liste.</p>
+            <div id="infoToile"></div>
+        </div>
+
+        <div id="panneauManuel" style="display:none;">
+            <div class="champ">
+                <label for="refToile">Référence de la toile</label>
+                <input type="text" id="refToile" placeholder="Ex : Thermo-métal Snow 87501">
+            </div>
+            <span class="label">Données techniques (fiche fournisseur)</span>
+            <div class="grid-3" style="margin-top:2px;">
+                <div class="compo"><label for="ts"><i style="background:var(--c-ts)"></i>Transmise (Ts)</label><div class="val"><input type="number" id="ts" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('ts')" onfocus="this.select()"><span>%</span></div></div>
+                <div class="compo"><label for="rs"><i style="background:var(--c-rs)"></i>Réfléchie (Rs)</label><div class="val"><input type="number" id="rs" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('rs')" onfocus="this.select()"><span>%</span></div></div>
+                <div class="compo"><label for="as"><i style="background:var(--c-as)"></i>Absorbée (As)</label><div class="val"><input type="number" id="as" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('as')" onfocus="this.select()"><span>%</span></div></div>
+            </div>
+            <div class="barre" aria-hidden="true"><div id="barTs" style="background:var(--c-ts)"></div><div id="barRs" style="background:var(--c-rs)"></div><div id="barAs" style="background:var(--c-as)"></div></div>
+            <div class="barre-legende"><span>0 %</span><span id="barTotal">Total 0 %</span><span>100 %</span></div>
+            <p id="sommeErreur" class="erreur"></p>
         </div>
     </section>
 
@@ -288,19 +312,6 @@
             <label for="tempExt">Température extérieure</label>
             <div class="suffixe"><input type="number" id="tempExt" value="30" inputmode="decimal"><span>°C</span></div>
         </div>
-    </section>
-
-    <section class="carte no-print">
-        <h3 class="carte-titre"><span class="etape">3</span>Comportement de la toile face au soleil</h3>
-        <div class="grid-3">
-            <div class="compo"><label for="ts"><i style="background:var(--c-ts)"></i>Transmise (Ts)</label><div class="val"><input type="number" id="ts" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('ts')" onfocus="this.select()"><span>%</span></div></div>
-            <div class="compo"><label for="rs"><i style="background:var(--c-rs)"></i>Réfléchie (Rs)</label><div class="val"><input type="number" id="rs" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('rs')" onfocus="this.select()"><span>%</span></div></div>
-            <div class="compo"><label for="as"><i style="background:var(--c-as)"></i>Absorbée (As)</label><div class="val"><input type="number" id="as" value="0" min="0" max="100" inputmode="decimal" oninput="checkSum('as')" onfocus="this.select()"><span>%</span></div></div>
-        </div>
-        <div class="barre" aria-hidden="true"><div id="barTs" style="background:var(--c-ts)"></div><div id="barRs" style="background:var(--c-rs)"></div><div id="barAs" style="background:var(--c-as)"></div></div>
-        <div class="barre-legende"><span>0 %</span><span id="barTotal">Total 0 %</span><span>100 %</span></div>
-        <p id="sommeErreur" class="erreur"></p>
-        <div class="verrou" id="verrou"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Valeurs de la fiche fournisseur. Choisissez « Saisie manuelle » pour les modifier.</div>
     </section>
 
     <button id="btnCalc" class="btn-calc" onclick="calculerPerformance()">
@@ -401,8 +412,10 @@
         }
         TOILES = (data && Array.isArray(data.toiles)) ? data.toiles : [];
         if (!TOILES.length) {
-            document.getElementById('rechToile').placeholder = "Liste des toiles indisponible : saisie manuelle";
+            document.getElementById('rechToile').placeholder = "Liste des toiles indisponible";
             document.getElementById('rechToile').disabled = true;
+            document.querySelector('#segMode [data-mode="liste"]').disabled = true;
+            choisirMode('manuel');
         }
         remplirListeToiles();
     }
@@ -411,7 +424,7 @@
         const sel = document.getElementById('choixToile');
         const q = sansAccent(document.getElementById('rechToile').value.trim()).split(/\s+/).filter(Boolean);
         const garde = toileChoisie ? TOILES.indexOf(toileChoisie) : -1;
-        sel.innerHTML = '<option value="">Saisie manuelle (toile non répertoriée)</option>';
+        sel.innerHTML = '<option value="">Choisir une toile…</option>';
         const groupes = {};
         const trouves = [];
         TOILES.forEach((t, i) => {
@@ -430,18 +443,33 @@
         if (q.length && trouves.length === 1 && trouves[0] !== garde) { sel.value = trouves[0]; choisirToile(); }
     }
 
+    let modeToile = "liste";
+
+    // Bascule "Toile répertoriée" / "Toile non répertoriée"
+    function choisirMode(mode) {
+        modeToile = mode;
+        document.querySelectorAll('#segMode button').forEach(b => b.classList.toggle('actif', b.dataset.mode === mode));
+        document.getElementById('panneauListe').style.display = mode === "liste" ? "" : "none";
+        document.getElementById('panneauManuel').style.display = mode === "manuel" ? "" : "none";
+        toileChoisie = null;
+        document.getElementById('rechToile').value = "";
+        remplirListeToiles();
+        document.getElementById('choixToile').value = "";
+        choisirToile();
+    }
+
     function choisirToile() {
         const v = document.getElementById('choixToile').value;
         toileChoisie = (v === "") ? null : TOILES[+v];
         const champs = ['ts', 'rs', 'as'].map(id => document.getElementById(id));
         if (toileChoisie) {
-            champs.forEach(c => { c.value = toileChoisie[c.id]; c.readOnly = true; });
+            champs.forEach(c => { c.value = toileChoisie[c.id]; });
             document.getElementById('refToile').value = nomToile(toileChoisie);
-            document.getElementById('groupeRef').style.display = "none";
+            document.getElementById('toileErreur').style.display = "none";
+            document.getElementById('choixToile').classList.remove('input-error');
         } else {
-            champs.forEach(c => { c.readOnly = false; });
+            champs.forEach(c => { c.value = 0; });
             document.getElementById('refToile').value = "";
-            document.getElementById('groupeRef').style.display = "";
         }
         checkSum(null);
         majInfoToile();
@@ -458,7 +486,8 @@
         let h = '<div class="toile-nom">' + t.gamme + ' · ' + t.coloris + '</div>'
               + '<div class="toile-sous">' + t.fournisseur + ' · réf. ' + t.ref + '</div>'
               + '<div class="puces"><span class="puce">Ouverture <b>' + t.ouverture + ' %</b></span>'
-              + '<span class="puce">Tv <b>' + t.tv + ' %</b></span>';
+              + '<span class="puce">Tv <b>' + t.tv + ' %</b></span>'
+              + '<span class="puce">Ts <b>' + t.ts + '</b> · Rs <b>' + t.rs + '</b> · As <b>' + t.as + ' %</b></span>';
         if (pos) {
             const k = pos === "exterior" ? "ext" : "int";
             const g = t.gtot && t.gtot[v] ? t.gtot[v][k] : null;
@@ -489,7 +518,6 @@
         document.getElementById('barRs').style.width = (rs / base * 100) + '%';
         document.getElementById('barAs').style.width = (as / base * 100) + '%';
         document.getElementById('barTotal').textContent = 'Total ' + (Math.round(tot * 100) / 100) + ' %';
-        document.getElementById('verrou').style.display = toileChoisie ? 'flex' : 'none';
     }
 
     function checkSum(source) {
@@ -522,12 +550,13 @@
             errMsg.textContent = (total > 100)
                 ? "La somme dépasse 100% (actuellement " + total + "%). Ajustez les valeurs."
                 : "La somme doit être égale à 100% (actuellement " + total + "%).";
-            errMsg.style.display = "block";
+            errMsg.style.display = (total === 0) ? "none" : "block"; // rien saisi : pas de message rouge
             btn.disabled = true;
         } else {
             errMsg.style.display = "none";
             btn.disabled = false;
         }
+        if (modeToile === "liste") { errMsg.style.display = "none"; btn.disabled = false; }
         majBarre();
     }
 
@@ -538,6 +567,13 @@
     }
 
     function calculerPerformance() {
+        if (modeToile === "liste" && !toileChoisie) {
+            const sel = document.getElementById('choixToile');
+            sel.classList.add('input-error');
+            document.getElementById('toileErreur').style.display = "block";
+            sel.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+        }
         const glassTypeVal = document.getElementById('glassType').value;
         const positionSelect = document.getElementById('position');
         const positionVal = positionSelect.value;
