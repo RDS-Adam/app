@@ -167,6 +167,10 @@
             .gain-badge { font-size: 1.8rem; border: none; }
         }
         .print-header, .print-info { display: none; }
+        .hint { font-size: 0.72rem; color: #999; margin: 8px 0 0; line-height: 1.5; }
+        .hint:empty { display: none; }
+        .hint .est { color: var(--rds-orange); }
+        input[readonly] { color: #888; }
     </style>
 </head>
 <body>
@@ -177,6 +181,14 @@
     </div>
     <h2>Confort Thermique</h2>
     <div class="input-group">
+        <label>Toile</label>
+        <input type="search" id="rechToile" placeholder="Rechercher : gamme, coloris ou référence…" oninput="remplirListeToiles()" autocomplete="off">
+        <select id="choixToile" onchange="choisirToile()" style="margin-top:6px;">
+            <option value="">Saisie manuelle (toile non répertoriée)</option>
+        </select>
+        <p id="infoToile" class="hint"></p>
+    </div>
+    <div class="input-group" id="groupeRef">
         <label>Référence de la toile</label>
         <input type="text" id="refToile" placeholder="Ex: Thermo-métal Snow 87501 ">
     </div>
@@ -187,14 +199,15 @@
         </div>
         <div class="input-group" style="flex: 1;">
             <label>Type de Vitrage</label>
-            <select id="glassType">
-                <option value="D" selected>Vitrage D (ISO 52022-3)</option>
+            <select id="glassType" onchange="majInfoToile()">
+                <option value="C" selected>Vitrage C · standard (g 0,59)</option>
+                <option value="D">Vitrage D · contrôle solaire (g 0,32)</option>
             </select>
         </div>
     </div>
     <div class="input-group">
         <label>Position du Store</label>
-        <select id="position" onchange="clearFieldError('position')">
+        <select id="position" onchange="clearFieldError('position'); majInfoToile()">
             <option value="">Sélection</option>
             <option value="exterior">Pose EXTÉRIEURE</option>
             <option value="interior">Pose INTÉRIEURE</option>
@@ -230,11 +243,13 @@
         <p style="text-align: center; font-size: 0.9rem; color: #888;">
             Chaleur rejetée : <span id="rejetPC" style="color:var(--rds-bleu); font-weight: 500; font-size: 1.2rem;">0</span>%
         </p>
+        <p id="ligneVisuel" style="text-align: center; font-size: 0.8rem; color: #888; display:none;"></p>
+        <p id="ligneEstime" style="text-align: center; font-size: 0.75rem; color: var(--rds-orange); display:none;"></p>
         <details id="detailsCalcul">
             <summary>Détails du calcul thermique</summary>
             <div class="calc-box">
                 Vitrage retenu : <span id="cVitLabel"></span> — g du vitrage seul (fixe, ne dépend pas de la pose) = <span id="cVit"></span>.<br>
-                <strong style="color:var(--rds-orange);">g<sub>tot</sub> avec store (dépend de la pose) = <span id="cGtot" style="font-size:1.05em;"></span></strong> — régression calibrée sur les fiches techniques fournisseur réelles (Ts × <span id="cCoefTs"></span> + Rs × <span id="cCoefRs"></span> + As × <span id="cCoefAs"></span>).<br>
+                <strong style="color:var(--rds-orange);">g<sub>tot</sub> avec store (dépend de la pose) = <span id="cGtot" style="font-size:1.05em;"></span></strong> — <span id="cGtotSource"></span><br>
                 Sans store : Temp. Ext. (<span id="cExt1"></span>°C) + (g <span id="cVit2"></span> x Apport 12°C) = <span id="cSans"></span>°C.<br>
                 Avec store : Temp. Ext. + (g<sub>tot</sub> x Apport 12°C) = <span id="cAvec"></span>°C.
             </div>
@@ -245,30 +260,120 @@
             <p><strong>Absorption (<span id="lexAs"></span>%) :</strong> Énergie stockée par le tissu. <span id="expliqueAs"></span></p>
         </div>
         <div class="clause-technique">
-            Facteur solaire total (g<sub>tot</sub>) calculé selon la méthode ISO 52022-3, vitrage de référence D (double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,32 / Ug=1,1 W/m²K), coefficients calibrés sur données fournisseur réelles. Résultats théoriques, non contractuels.
+            <span id="clauseTexte"></span> Résultats théoriques, non contractuels.
         </div>
     </div>
 </div>
 <script>
-    // --- Vitrages de référence ISO 52022-3 ---
+    // --- Vitrages de référence EN 14501 / ISO 52022 ---
     // g       : facteur solaire du vitrage seul
     // ext/int : coefficients de la régression linéaire gtot = a·Ts + b·Rs + c·As
-    //           (Ts/Rs/As en fractions 0-1), calibrés par régression sur le
-    //           tableau officiel fournisseur (21 toiles réelles, gtot ext. et
-    //           int. publiés pour ce vitrage). Erreur max observée vs. le
-    //           tableau fournisseur : ±0.01 (ext.) / ±0.02 (int.).
-    // Seul le vitrage D est renseigné pour l'instant : c'est celui utilisé
-    // par la quasi-totalité des fournisseurs de toiles pour publier leurs
-    // gtot. D'autres vitrages (A/B/C/E) peuvent être ajoutés ici de la même
-    // façon dès qu'on dispose de leur tableau officiel.
+    //           (Ts/Rs/As en fractions 0-1). Utilisés UNIQUEMENT en saisie
+    //           manuelle, ou quand la fiche ne publie pas le gtot pour la pose
+    //           choisie. Pour une toile de la liste, on prend le gtot publié.
+    //   D : calibrés sur 21 toiles (tableau fournisseur officiel).
+    //   C : calibrés sur les 59 toiles Bandalux de toiles.json (11/2026).
     const VITRAGES = {
+        "C": {
+            court: "Vitrage C",
+            label: "Vitrage C (EN 14501) — double vitrage faiblement émissif, 4-16-4 argon, g=0,59 / Ug=1,2 W/m²K",
+            g: 0.59,
+            ext: { ts: 0.641316, rs: 0.006360, as: 0.088614 },
+            int: { ts: 0.526800, rs: 0.268939, as: 0.550734 }
+        },
         "D": {
-            label: "Vitrage D (ISO 52022-3) — double vitrage isolant faiblement émissif, 4-16-4 argon, g=0,32 / Ug=1,1 W/m²K",
+            court: "Vitrage D",
+            label: "Vitrage D (EN 14501) — double vitrage à contrôle solaire faiblement émissif, 4-16-4 argon, g=0,32 / Ug=1,1 W/m²K",
             g: 0.32,
             ext: { ts: 0.201037, rs: 0.032093, as: 0.020672 },
             int: { ts: 0.635136, rs: -0.032373, as: 0.321353 }
         }
     };
+
+    // --- Toiles enregistrées (toiles.json dans le repo GitHub) ---
+    const WORKER_URL = "https://rds-github.cwmpw5qpc5.workers.dev";
+    let TOILES = [];
+    let toileChoisie = null;
+
+    function nomToile(t) { return t.fournisseur + " " + t.gamme + " — " + t.coloris + " (réf. " + t.ref + ")"; }
+    function sansAccent(x) { return String(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+    async function chargerToiles() {
+        let data = null;
+        try {
+            const r = await fetch(WORKER_URL + "/repos/RDS-Adam/app/contents/toiles.json", { headers: { 'Cache-Control': 'no-cache' } });
+            if (r.ok) { const j = await r.json(); data = JSON.parse(decodeURIComponent(escape(atob(j.content)))); }
+        } catch (e) {}
+        if (!data) {
+            try { const r = await fetch("toiles.json?t=" + Date.now()); if (r.ok) data = await r.json(); } catch (e) {}
+        }
+        TOILES = (data && Array.isArray(data.toiles)) ? data.toiles : [];
+        if (!TOILES.length) {
+            document.getElementById('rechToile').placeholder = "Liste des toiles indisponible : saisie manuelle";
+            document.getElementById('rechToile').disabled = true;
+        }
+        remplirListeToiles();
+    }
+
+    function remplirListeToiles() {
+        const sel = document.getElementById('choixToile');
+        const q = sansAccent(document.getElementById('rechToile').value.trim()).split(/\s+/).filter(Boolean);
+        const garde = toileChoisie ? TOILES.indexOf(toileChoisie) : -1;
+        sel.innerHTML = '<option value="">Saisie manuelle (toile non répertoriée)</option>';
+        const groupes = {};
+        const trouves = [];
+        TOILES.forEach((t, i) => {
+            const texte = sansAccent([t.fournisseur, t.gamme, t.coloris, t.ref].join(" "));
+            const ok = q.every(m => texte.includes(m));
+            if (ok) trouves.push(i);
+            if (i !== garde && !ok) return;
+            const cle = t.fournisseur + " " + t.gamme + " (" + t.ouverture + " %)";
+            if (!groupes[cle]) { groupes[cle] = document.createElement('optgroup'); groupes[cle].label = cle; sel.appendChild(groupes[cle]); }
+            const o = document.createElement('option');
+            o.value = i; o.textContent = t.coloris + " — " + t.ref;
+            groupes[cle].appendChild(o);
+        });
+        if (garde >= 0) sel.value = garde;
+        // Recherche qui ne laisse qu'une toile : on la sélectionne directement
+        if (q.length && trouves.length === 1 && trouves[0] !== garde) { sel.value = trouves[0]; choisirToile(); }
+    }
+
+    function choisirToile() {
+        const v = document.getElementById('choixToile').value;
+        toileChoisie = (v === "") ? null : TOILES[+v];
+        const champs = ['ts', 'rs', 'as'].map(id => document.getElementById(id));
+        if (toileChoisie) {
+            champs.forEach(c => { c.value = toileChoisie[c.id]; c.readOnly = true; });
+            document.getElementById('refToile').value = nomToile(toileChoisie);
+            document.getElementById('groupeRef').style.display = "none";
+        } else {
+            champs.forEach(c => { c.readOnly = false; });
+            document.getElementById('refToile').value = "";
+            document.getElementById('groupeRef').style.display = "";
+        }
+        checkSum(null);
+        majInfoToile();
+        document.getElementById('resultat').style.display = "none";
+        document.getElementById('btnPrint').style.display = "none";
+    }
+
+    function majInfoToile() {
+        const info = document.getElementById('infoToile');
+        const t = toileChoisie;
+        if (!t) { info.innerHTML = ""; return; }
+        const v = document.getElementById('glassType').value;
+        const pos = document.getElementById('position').value;
+        let txt = "Valeurs de la fiche fournisseur · ouverture " + t.ouverture + " % · Tv " + t.tv + " %";
+        if (pos) {
+            const k = pos === "exterior" ? "ext" : "int";
+            const g = t.gtot && t.gtot[v] ? t.gtot[v][k] : null;
+            txt += (g != null)
+                ? " · g<sub>tot</sub> publié (" + VITRAGES[v].court + ", pose " + (k === "ext" ? "ext." : "int.") + ") : " + g.toFixed(2)
+                : ' · <span class="est">la fiche ne donne pas le g<sub>tot</sub> en pose ' + (k === "ext" ? "extérieure" : "intérieure") + " pour ce vitrage : il sera estimé</span>";
+        }
+        if (t.note) txt += "<br>" + t.note;
+        info.innerHTML = txt;
+    }
 
     function checkSum(source) {
         const inputs = {
@@ -345,11 +450,16 @@
         }
 
         // --- Calcul du facteur solaire total (gtot) ---
-        // Régression linéaire gtot = a·Ts + b·Rs + c·As, coefficients propres
-        // au vitrage choisi et à la position (cf. VITRAGES ci-dessus),
-        // calibrés directement sur les tableaux fournisseur officiels.
-        const coef = (positionVal === "exterior") ? vitrage.ext : vitrage.int;
-        let gtot = (coef.ts * ts) + (coef.rs * rs) + (coef.as * as);
+        // 1) Toile de la liste avec gtot publié pour ce vitrage et cette pose
+        //    → valeur de la fiche fournisseur.
+        // 2) Sinon → régression linéaire gtot = a·Ts + b·Rs + c·As propre au
+        //    vitrage et à la pose (cf. VITRAGES ci-dessus).
+        const posCle = (positionVal === "exterior") ? "ext" : "int";
+        const coef = vitrage[posCle];
+        const gPublie = (toileChoisie && toileChoisie.gtot && toileChoisie.gtot[glassTypeVal])
+            ? toileChoisie.gtot[glassTypeVal][posCle] : null;
+        const estime = (gPublie == null);
+        let gtot = estime ? (coef.ts * ts) + (coef.rs * rs) + (coef.as * as) : gPublie;
         if (gtot < 0) gtot = 0; // garde-fou, ne devrait pas arriver en usage normal
         // Un store ne peut pas laisser passer plus de chaleur que le vitrage seul :
         // on plafonne gtot au g du vitrage pour ne jamais afficher un gain négatif.
@@ -368,9 +478,20 @@
         document.getElementById('cVit').innerText = g_verre.toFixed(2);
         document.getElementById('cVit2').innerText = g_verre.toFixed(2);
         document.getElementById('cVitLabel').innerText = vitrage.label;
-        document.getElementById('cCoefTs').innerText = coef.ts.toFixed(3);
-        document.getElementById('cCoefRs').innerText = coef.rs.toFixed(3);
-        document.getElementById('cCoefAs').innerText = coef.as.toFixed(3);
+        document.getElementById('cGtotSource').innerText = estime
+            ? "estimé par régression calibrée sur fiches fournisseur (Ts × " + coef.ts.toFixed(3) + " + Rs × " + coef.rs.toFixed(3) + " + As × " + coef.as.toFixed(3) + ")."
+            : "valeur publiée sur la fiche technique fournisseur (" + toileChoisie.source + ").";
+        const lv = document.getElementById('ligneVisuel');
+        if (toileChoisie) {
+            lv.innerHTML = "Lumière transmise (Tv) : " + toileChoisie.tv + " % · Ouverture : " + toileChoisie.ouverture + " %";
+            lv.style.display = "block";
+        } else { lv.style.display = "none"; }
+        const le = document.getElementById('ligneEstime');
+        if (toileChoisie && estime) {
+            le.innerText = "Valeur estimée : la fiche ne publie pas le gtot de cette toile en pose " + (posCle === "ext" ? "extérieure" : "intérieure") + " pour ce vitrage.";
+            le.style.display = "block";
+        } else { le.style.display = "none"; }
+        document.getElementById('clauseTexte').innerText = "Facteur solaire total (gtot) selon EN 14501 / ISO 52022, " + vitrage.label.replace(/^Vitrage (.) \(EN 14501\) — /, "vitrage de référence $1 (") + ")" + (estime ? ", estimé à partir de Ts / Rs / As par régression calibrée sur données fournisseur réelles." : ", valeur publiée par le fabricant de la toile.");
         document.getElementById('cGtot').innerText = gtot.toFixed(3);
         document.getElementById('cSans').innerText = tempSans.toFixed(1);
         document.getElementById('cAvec').innerText = tempAvec.toFixed(1);
@@ -388,6 +509,7 @@
             document.getElementById('detailsCalcul').open = true;
         };
     }
+    chargerToiles();
     // Protection Clic Droit & Touches F12
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = e => {

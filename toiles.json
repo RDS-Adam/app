@@ -1,0 +1,951 @@
+{
+  "_info": "Toiles de l'outil Confort thermique. gtot = facteur solaire total publié par le fournisseur (EN 14501 / ISO 52022), par vitrage (C ou D) et par pose (int / ext). null = non publié : l'outil estime alors la valeur. Ts/Rs/As/Tv en %, ouverture en %.",
+  "toiles": [
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13099",
+      "coloris": "Ash",
+      "ts": 10,
+      "rs": 8,
+      "as": 82,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.28, "ext": null },
+        "C": { "int": 0.54, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13958",
+      "coloris": "Cinder",
+      "ts": 21,
+      "rs": 38,
+      "as": 41,
+      "tv": 17,
+      "gtot": {
+        "D": { "int": 0.22, "ext": null },
+        "C": { "int": 0.45, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13080",
+      "coloris": "Ebony",
+      "ts": 11,
+      "rs": 3,
+      "as": 86,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.29, "ext": null },
+        "C": { "int": 0.56, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13020",
+      "coloris": "Linen",
+      "ts": 28,
+      "rs": 52,
+      "as": 20,
+      "tv": 24,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": 0.4, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13071",
+      "coloris": "Pearl Grey",
+      "ts": 16,
+      "rs": 26,
+      "as": 58,
+      "tv": 14,
+      "gtot": {
+        "D": { "int": 0.24, "ext": null },
+        "C": { "int": 0.48, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13959",
+      "coloris": "Pebble",
+      "ts": 17,
+      "rs": 31,
+      "as": 52,
+      "tv": 14,
+      "gtot": {
+        "D": { "int": 0.23, "ext": null },
+        "C": { "int": 0.47, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13957",
+      "coloris": "Slate",
+      "ts": 12,
+      "rs": 12,
+      "as": 76,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.53, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13069",
+      "coloris": "Tobacco",
+      "ts": 11,
+      "rs": 5,
+      "as": 84,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.28, "ext": null },
+        "C": { "int": 0.55, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13002",
+      "coloris": "White",
+      "ts": 25,
+      "rs": 64,
+      "as": 11,
+      "tv": 22,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": 0.36, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13220",
+      "coloris": "White Linen",
+      "ts": 27,
+      "rs": 58,
+      "as": 15,
+      "tv": 23,
+      "gtot": {
+        "D": { "int": 0.16, "ext": null },
+        "C": { "int": 0.38, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 350",
+      "ouverture": 10,
+      "ref": "13027",
+      "coloris": "White Pearl",
+      "ts": 23,
+      "rs": 54,
+      "as": 23,
+      "tv": 19,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": 0.4, "ext": null }
+      },
+      "source": "ftd_polyscreen_350_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16099",
+      "coloris": "Ash",
+      "ts": 2,
+      "rs": 8,
+      "as": 90,
+      "tv": 2,
+      "gtot": {
+        "D": { "int": 0.27, "ext": 0.04 },
+        "C": { "int": 0.54, "ext": 0.09 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16958",
+      "coloris": "Cinder",
+      "ts": 11,
+      "rs": 42,
+      "as": 47,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.21, "ext": 0.03 },
+        "C": { "int": 0.43, "ext": 0.11 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16080",
+      "coloris": "Ebony",
+      "ts": 1,
+      "rs": 4,
+      "as": 95,
+      "tv": 1,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.04 },
+        "C": { "int": 0.55, "ext": 0.09 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16020",
+      "coloris": "Linen",
+      "ts": 21,
+      "rs": 57,
+      "as": 22,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": 0.16, "ext": 0.03 },
+        "C": { "int": 0.39, "ext": 0.16 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16959",
+      "coloris": "Pebble",
+      "ts": 6,
+      "rs": 34,
+      "as": 60,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.22, "ext": 0.03 },
+        "C": { "int": 0.46, "ext": 0.1 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16850",
+      "coloris": "Slate",
+      "ts": 3,
+      "rs": 13,
+      "as": 84,
+      "tv": 2,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.04 },
+        "C": { "int": 0.53, "ext": 0.09 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16004",
+      "coloris": "Tobacco",
+      "ts": 2,
+      "rs": 5,
+      "as": 93,
+      "tv": 2,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.04 },
+        "C": { "int": 0.49, "ext": 0.1 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16002",
+      "coloris": "White",
+      "ts": 16,
+      "rs": 73,
+      "as": 11,
+      "tv": 13,
+      "gtot": {
+        "D": { "int": 0.12, "ext": 0.02 },
+        "C": { "int": 0.33, "ext": 0.12 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16021",
+      "coloris": "White Grey",
+      "ts": 8,
+      "rs": 41,
+      "as": 51,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.2, "ext": 0.04 },
+        "C": { "int": 0.39, "ext": 0.1 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16220",
+      "coloris": "White Linen",
+      "ts": 17,
+      "rs": 66,
+      "as": 17,
+      "tv": 13,
+      "gtot": {
+        "D": { "int": 0.14, "ext": 0.02 },
+        "C": { "int": 0.36, "ext": 0.13 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 351",
+      "ouverture": 1,
+      "ref": "16027",
+      "coloris": "White Pearl",
+      "ts": 13,
+      "rs": 60,
+      "as": 27,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.15, "ext": 0.02 },
+        "C": { "int": 0.44, "ext": 0.11 }
+      },
+      "source": "ftd_polyscreen_351_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60008",
+      "coloris": "Ebony Turquoise",
+      "ts": 4,
+      "rs": 9,
+      "as": 87,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.54, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60884",
+      "coloris": "Grey Cherry",
+      "ts": 7,
+      "rs": 20,
+      "as": 73,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": 0.5, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60099",
+      "coloris": "Grey Ebony",
+      "ts": 5,
+      "rs": 11,
+      "as": 84,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.53, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60072",
+      "coloris": "Grey Pearl",
+      "ts": 6,
+      "rs": 34,
+      "as": 60,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": 0.5, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)",
+      "note": "As corrigé (72 sur la fiche, somme ≠ 100 %)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60882",
+      "coloris": "Grey Pistachio",
+      "ts": 7,
+      "rs": 21,
+      "as": 72,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": 0.5, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60076",
+      "coloris": "Grey Sand",
+      "ts": 6,
+      "rs": 19,
+      "as": 75,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": 0.51, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60883",
+      "coloris": "Grey Sky Blue",
+      "ts": 7,
+      "rs": 20,
+      "as": 73,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": 0.5, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60077",
+      "coloris": "Pebble Sand",
+      "ts": 11,
+      "rs": 32,
+      "as": 57,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.23, "ext": null },
+        "C": { "int": 0.47, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60002",
+      "coloris": "White",
+      "ts": 20,
+      "rs": 69,
+      "as": 11,
+      "tv": 17,
+      "gtot": {
+        "D": { "int": 0.13, "ext": null },
+        "C": { "int": 0.35, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60021",
+      "coloris": "White Grey",
+      "ts": 9,
+      "rs": 45,
+      "as": 46,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": 0.42, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60220",
+      "coloris": "White Linen",
+      "ts": 21,
+      "rs": 64,
+      "as": 15,
+      "tv": 17,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": 0.36, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 473",
+      "ouverture": 3,
+      "ref": "60003",
+      "coloris": "White Sand",
+      "ts": 15,
+      "rs": 54,
+      "as": 31,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": 0.39, "ext": null }
+      },
+      "source": "ftd_polyscreen_473_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10099",
+      "coloris": "Ash",
+      "ts": 6,
+      "rs": 7,
+      "as": 87,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.06 },
+        "C": { "int": 0.49, "ext": 0.12 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10958",
+      "coloris": "Cinder",
+      "ts": 11,
+      "rs": 40,
+      "as": 49,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.21, "ext": 0.04 },
+        "C": { "int": 0.47, "ext": 0.12 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10080",
+      "coloris": "Ebony",
+      "ts": 7,
+      "rs": 3,
+      "as": 90,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.06 },
+        "C": { "int": 0.59, "ext": 0.13 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10020",
+      "coloris": "Linen",
+      "ts": 21,
+      "rs": 54,
+      "as": 25,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": 0.17, "ext": 0.05 },
+        "C": { "int": 0.36, "ext": 0.16 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10007",
+      "coloris": "Pearl",
+      "ts": 14,
+      "rs": 43,
+      "as": 43,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.2, "ext": 0.05 },
+        "C": { "int": 0.43, "ext": 0.13 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10071",
+      "coloris": "Pearl Grey",
+      "ts": 11,
+      "rs": 29,
+      "as": 60,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": 0.23, "ext": 0.05 },
+        "C": { "int": 0.48, "ext": 0.1 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10959",
+      "coloris": "Pebble",
+      "ts": 8,
+      "rs": 31,
+      "as": 61,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.23, "ext": 0.04 },
+        "C": { "int": 0.47, "ext": 0.1 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10850",
+      "coloris": "Slate",
+      "ts": 5,
+      "rs": 12,
+      "as": 83,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.27, "ext": 0.05 },
+        "C": { "int": 0.4, "ext": 0.11 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10069",
+      "coloris": "Tobacco",
+      "ts": 5,
+      "rs": 5,
+      "as": 90,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.06 },
+        "C": { "int": 0.49, "ext": 0.12 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10002",
+      "coloris": "White",
+      "ts": 19,
+      "rs": 69,
+      "as": 12,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": 0.13, "ext": 0.04 },
+        "C": { "int": 0.35, "ext": 0.14 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10220",
+      "coloris": "White Linen",
+      "ts": 20,
+      "rs": 63,
+      "as": 17,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": 0.15, "ext": 0.04 },
+        "C": { "int": 0.37, "ext": 0.15 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Polyscreen 550",
+      "ouverture": 5,
+      "ref": "10027",
+      "coloris": "White Pearl",
+      "ts": 16,
+      "rs": 57,
+      "as": 27,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.16, "ext": 0.04 },
+        "C": { "int": 0.38, "ext": 0.13 }
+      },
+      "source": "ftd_polyscreen_550_C.pdf (V. 06/2024)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43851",
+      "coloris": "Blue Grey",
+      "ts": 27,
+      "rs": 27,
+      "as": 46,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.26, "ext": null },
+        "C": { "int": 0.44, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43852",
+      "coloris": "Ebony",
+      "ts": 24,
+      "rs": 24,
+      "as": 52,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.29, "ext": null },
+        "C": { "int": 0.5, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43856",
+      "coloris": "Iron",
+      "ts": 26,
+      "rs": 26,
+      "as": 48,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.44, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43857",
+      "coloris": "Linen",
+      "ts": 42,
+      "rs": 47,
+      "as": 11,
+      "tv": 40,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.42, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43858",
+      "coloris": "Pebble",
+      "ts": 38,
+      "rs": 32,
+      "as": 30,
+      "tv": 25,
+      "gtot": {
+        "D": { "int": 0.28, "ext": null },
+        "C": { "int": 0.47, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43854",
+      "coloris": "Smoke",
+      "ts": 38,
+      "rs": 33,
+      "as": 29,
+      "tv": 24,
+      "gtot": {
+        "D": { "int": 0.26, "ext": null },
+        "C": { "int": 0.43, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015",
+      "ouverture": 4,
+      "ref": "43855",
+      "coloris": "White",
+      "ts": 49,
+      "rs": 36,
+      "as": 15,
+      "tv": 48,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.43, "ext": null }
+      },
+      "source": "ftd_skyline_ignis.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43961",
+      "coloris": "Blue Grey",
+      "ts": 6,
+      "rs": 52,
+      "as": 42,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.26, "ext": null },
+        "C": { "int": 0.4, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43967",
+      "coloris": "Cask",
+      "ts": 8,
+      "rs": 50,
+      "as": 42,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": null },
+        "C": { "int": 0.37, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43962",
+      "coloris": "Ebony",
+      "ts": 8,
+      "rs": 39,
+      "as": 53,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.44, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43963",
+      "coloris": "Ivory",
+      "ts": 11,
+      "rs": 51,
+      "as": 38,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.26, "ext": null },
+        "C": { "int": 0.38, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43964",
+      "coloris": "Smoke",
+      "ts": 8,
+      "rs": 53,
+      "as": 39,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": 0.41, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)"
+    },
+    {
+      "fournisseur": "Bandalux",
+      "gamme": "Skyline 2015 Metal",
+      "ouverture": 4,
+      "ref": "43965",
+      "coloris": "White",
+      "ts": 11,
+      "rs": 58,
+      "as": 31,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.26, "ext": null },
+        "C": { "int": 0.38, "ext": null }
+      },
+      "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)",
+      "note": "As corrigé (51 sur la fiche, somme ≠ 100 %)"
+    }
+  ]
+}
