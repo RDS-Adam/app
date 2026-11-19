@@ -946,6 +946,2870 @@
       },
       "source": "ftd_skyline_ignis_metal.pdf (V. 06/2023)",
       "note": "As corrigé (51 sur la fiche, somme ≠ 100 %)"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2012",
+      "coloris": "Poivre",
+      "ts": 7,
+      "rs": 30,
+      "as": 63,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2043",
+      "coloris": "Bronze",
+      "ts": 4,
+      "rs": 13,
+      "as": 83,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2044",
+      "coloris": "Blanc",
+      "ts": 19,
+      "rs": 68,
+      "as": 13,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": 0.11, "ext": 0.07 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2045",
+      "coloris": "Métal martelé",
+      "ts": 4,
+      "rs": 35,
+      "as": 61,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.22, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2047",
+      "coloris": "Anthracite",
+      "ts": 5,
+      "rs": 8,
+      "as": 87,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2135",
+      "coloris": "Beige sablé",
+      "ts": 11,
+      "rs": 46,
+      "as": 43,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.19, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2149",
+      "coloris": "Coléoptère",
+      "ts": 5,
+      "rs": 16,
+      "as": 79,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.27, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2157",
+      "coloris": "Anis",
+      "ts": 15,
+      "rs": 51,
+      "as": 34,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.2, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2158",
+      "coloris": "Vert mousse",
+      "ts": 7,
+      "rs": 28,
+      "as": 65,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2160",
+      "coloris": "Lagon",
+      "ts": 11,
+      "rs": 36,
+      "as": 53,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2166",
+      "coloris": "Bouton d’or",
+      "ts": 21,
+      "rs": 54,
+      "as": 25,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": 0.19, "ext": 0.07 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2167",
+      "coloris": "Béton",
+      "ts": 6,
+      "rs": 19,
+      "as": 75,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2171",
+      "coloris": "Gris galet",
+      "ts": 8,
+      "rs": 41,
+      "as": 51,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.2, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2175",
+      "coloris": "Champagne",
+      "ts": 19,
+      "rs": 65,
+      "as": 16,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": 0.14, "ext": 0.07 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-8056",
+      "coloris": "Vert tennis",
+      "ts": 2,
+      "rs": 10,
+      "as": 88,
+      "tv": 2,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-8204",
+      "coloris": "Orange",
+      "ts": 21,
+      "rs": 45,
+      "as": 34,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.23, "ext": 0.06 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-8255",
+      "coloris": "Rouge",
+      "ts": 12,
+      "rs": 28,
+      "as": 60,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.27, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50265",
+      "coloris": "Chanvre",
+      "ts": 9,
+      "rs": 49,
+      "as": 42,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.18, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50266",
+      "coloris": "Havane",
+      "ts": 4,
+      "rs": 19,
+      "as": 77,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50272",
+      "coloris": "Nuage",
+      "ts": 12,
+      "rs": 55,
+      "as": 33,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": 0.16, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50273",
+      "coloris": "Or",
+      "ts": 8,
+      "rs": 42,
+      "as": 50,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.21, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50274",
+      "coloris": "Cuivre",
+      "ts": 8,
+      "rs": 35,
+      "as": 57,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50303",
+      "coloris": "Quartz",
+      "ts": 15,
+      "rs": 63,
+      "as": 22,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.15, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50690",
+      "coloris": "Blanc neige",
+      "ts": 17,
+      "rs": 73,
+      "as": 10,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": 0.1, "ext": 0.06 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50843",
+      "coloris": "Karité",
+      "ts": 13,
+      "rs": 62,
+      "as": 25,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.14, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-50850",
+      "coloris": "Taupe",
+      "ts": 5,
+      "rs": 31,
+      "as": 64,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.23, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51176",
+      "coloris": "Noir profond",
+      "ts": 3,
+      "rs": 5,
+      "as": 92,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.29, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51177",
+      "coloris": "Gris foncé",
+      "ts": 3,
+      "rs": 18,
+      "as": 79,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51178",
+      "coloris": "Gris céleste",
+      "ts": 5,
+      "rs": 20,
+      "as": 75,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51179",
+      "coloris": "Vert de gris",
+      "ts": 6,
+      "rs": 29,
+      "as": 65,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51180",
+      "coloris": "Brique",
+      "ts": 6,
+      "rs": 27,
+      "as": 67,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.26, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51181",
+      "coloris": "Rouge profond",
+      "ts": 4,
+      "rs": 17,
+      "as": 79,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-51182",
+      "coloris": "Bleu franc",
+      "ts": 8,
+      "rs": 26,
+      "as": 66,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.27, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2046 A",
+      "coloris": "Grège/Alu — face alu au soleil",
+      "ts": 12,
+      "rs": 46,
+      "as": 42,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": 0.18, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2046 B",
+      "coloris": "Grège/Alu — face couleur au soleil",
+      "ts": 12,
+      "rs": 63,
+      "as": 25,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": 0.14, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2048",
+      "coloris": "Alu/Alu",
+      "ts": 8,
+      "rs": 46,
+      "as": 46,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": 0.18, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2051 A",
+      "coloris": "Blanc/Alu — face alu au soleil",
+      "ts": 12,
+      "rs": 49,
+      "as": 39,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.17, "ext": 0.06 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2051 B",
+      "coloris": "Blanc/Alu — face couleur au soleil",
+      "ts": 12,
+      "rs": 70,
+      "as": 18,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.1, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2068 A",
+      "coloris": "Anthracite/Alu — face alu au soleil",
+      "ts": 4,
+      "rs": 34,
+      "as": 62,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.22, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2068 B",
+      "coloris": "Anthracite/Alu — face couleur au soleil",
+      "ts": 4,
+      "rs": 8,
+      "as": 88,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2074 A",
+      "coloris": "Gris moyen/Alu — face alu au soleil",
+      "ts": 4,
+      "rs": 37,
+      "as": 59,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.21, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 4,
+      "ref": "92-2074 B",
+      "coloris": "Gris moyen/Alu — face couleur au soleil",
+      "ts": 4,
+      "rs": 25,
+      "as": 71,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-1043",
+      "coloris": "Bronze/Alu (opaque)",
+      "ts": 0,
+      "rs": 13,
+      "as": 87,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-1044",
+      "coloris": "Blanc/Alu (opaque)",
+      "ts": 0,
+      "rs": 70,
+      "as": 30,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.1, "ext": 0.01 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-1045",
+      "coloris": "Métal martelé/Alu (opaque)",
+      "ts": 0,
+      "rs": 38,
+      "as": 62,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.19, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-1046",
+      "coloris": "Alu/Alu (opaque)",
+      "ts": 0,
+      "rs": 49,
+      "as": 51,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.17, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-2135",
+      "coloris": "Beige sablé/Alu (opaque)",
+      "ts": 0,
+      "rs": 47,
+      "as": 53,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-2171",
+      "coloris": "Galet/Alu (opaque)",
+      "ts": 0,
+      "rs": 45,
+      "as": 55,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 92",
+      "ouverture": 0,
+      "ref": "B92-51176",
+      "coloris": "Noir profond/Alu (opaque)",
+      "ts": 0,
+      "rs": 6,
+      "as": 94,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.28, "ext": 0.02 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 92 réf. SC92EN 03/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51184",
+      "coloris": "Blanc givre",
+      "ts": 9,
+      "rs": 59,
+      "as": 32,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51185",
+      "coloris": "Edelweiss",
+      "ts": 9,
+      "rs": 50,
+      "as": 41,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51186",
+      "coloris": "Cumulus",
+      "ts": 6,
+      "rs": 37,
+      "as": 57,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51187",
+      "coloris": "Naturel",
+      "ts": 7,
+      "rs": 37,
+      "as": 56,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51188",
+      "coloris": "Macadamia",
+      "ts": 5,
+      "rs": 29,
+      "as": 66,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": null, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51189",
+      "coloris": "Mistral",
+      "ts": 5,
+      "rs": 28,
+      "as": 67,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.03 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51190",
+      "coloris": "Toundra",
+      "ts": 6,
+      "rs": 27,
+      "as": 67,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51191",
+      "coloris": "Terre de lune",
+      "ts": 7,
+      "rs": 18,
+      "as": 75,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51192",
+      "coloris": "Otarie",
+      "ts": 8,
+      "rs": 13,
+      "as": 79,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51193",
+      "coloris": "Oursin",
+      "ts": 6,
+      "rs": 17,
+      "as": 77,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51194",
+      "coloris": "Ombre",
+      "ts": 5,
+      "rs": 7,
+      "as": 88,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51195",
+      "coloris": "Volcan",
+      "ts": 5,
+      "rs": 7,
+      "as": 88,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51196",
+      "coloris": "Santal",
+      "ts": 6,
+      "rs": 10,
+      "as": 84,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51197",
+      "coloris": "Poivre gris",
+      "ts": 5,
+      "rs": 8,
+      "as": 87,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis Veozip",
+      "ouverture": 5,
+      "ref": "7605-51198",
+      "coloris": "Noir graphite",
+      "ts": 5,
+      "rs": 5,
+      "as": 90,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis Veozip réf. SCVEOZIPFR 06/2026"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2011",
+      "coloris": "Gris clair",
+      "ts": 12,
+      "rs": 44,
+      "as": 44,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2044",
+      "coloris": "Blanc",
+      "ts": 23,
+      "rs": 66,
+      "as": 11,
+      "tv": 21,
+      "gtot": {
+        "D": { "int": 0.12, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2047",
+      "coloris": "Anthracite",
+      "ts": 3,
+      "rs": 8,
+      "as": 89,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.28, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2069",
+      "coloris": "Gris moyen",
+      "ts": 6,
+      "rs": 23,
+      "as": 71,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.25, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2135",
+      "coloris": "Beige sablé",
+      "ts": 13,
+      "rs": 43,
+      "as": 44,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-50265",
+      "coloris": "Chanvre",
+      "ts": 15,
+      "rs": 47,
+      "as": 38,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-50301",
+      "coloris": "Écume",
+      "ts": 20,
+      "rs": 61,
+      "as": 19,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-50303",
+      "coloris": "Quartz",
+      "ts": 21,
+      "rs": 59,
+      "as": 20,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": 0.16, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-50305",
+      "coloris": "Argile",
+      "ts": 10,
+      "rs": 38,
+      "as": 52,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.21, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-50690",
+      "coloris": "Blanc neige",
+      "ts": 21,
+      "rs": 68,
+      "as": 11,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": 0.12, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51306 A",
+      "coloris": "Blanc neige/Alu — face alu côté vitre",
+      "ts": 13,
+      "rs": 54,
+      "as": 33,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51306 B",
+      "coloris": "Blanc neige/Alu — face couleur côté vitre",
+      "ts": 13,
+      "rs": 67,
+      "as": 20,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.12, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51307 A",
+      "coloris": "Nashi/Alu — face alu côté vitre",
+      "ts": 14,
+      "rs": 52,
+      "as": 34,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51307 B",
+      "coloris": "Nashi/Alu — face couleur côté vitre",
+      "ts": 14,
+      "rs": 64,
+      "as": 22,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51308 A",
+      "coloris": "Pina colada/Alu — face alu côté vitre",
+      "ts": 13,
+      "rs": 53,
+      "as": 34,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51308 B",
+      "coloris": "Pina colada/Alu — face couleur côté vitre",
+      "ts": 13,
+      "rs": 64,
+      "as": 23,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51309 A",
+      "coloris": "Eau thermale/Alu — face alu côté vitre",
+      "ts": 12,
+      "rs": 53,
+      "as": 35,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51309 B",
+      "coloris": "Eau thermale/Alu — face couleur côté vitre",
+      "ts": 12,
+      "rs": 66,
+      "as": 22,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.12, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51310 A",
+      "coloris": "Arène/Alu — face alu côté vitre",
+      "ts": 11,
+      "rs": 48,
+      "as": 41,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51310 B",
+      "coloris": "Arène/Alu — face couleur côté vitre",
+      "ts": 11,
+      "rs": 45,
+      "as": 44,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.23, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51311 A",
+      "coloris": "Éléphant/Alu — face alu côté vitre",
+      "ts": 4,
+      "rs": 41,
+      "as": 55,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51311 B",
+      "coloris": "Éléphant/Alu — face couleur côté vitre",
+      "ts": 4,
+      "rs": 16,
+      "as": 80,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51312 A",
+      "coloris": "Tahini/Alu — face alu côté vitre",
+      "ts": 14,
+      "rs": 50,
+      "as": 36,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51312 B",
+      "coloris": "Tahini/Alu — face couleur côté vitre",
+      "ts": 14,
+      "rs": 55,
+      "as": 31,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51313 A",
+      "coloris": "Thé vert/Alu — face alu côté vitre",
+      "ts": 13,
+      "rs": 50,
+      "as": 37,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51313 B",
+      "coloris": "Thé vert/Alu — face couleur côté vitre",
+      "ts": 13,
+      "rs": 56,
+      "as": 31,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51314 A",
+      "coloris": "Agami/Alu — face alu côté vitre",
+      "ts": 4,
+      "rs": 40,
+      "as": 56,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.21, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51314 B",
+      "coloris": "Agami/Alu — face couleur côté vitre",
+      "ts": 4,
+      "rs": 15,
+      "as": 81,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51324 A",
+      "coloris": "Ondée/Alu — face alu côté vitre",
+      "ts": 11,
+      "rs": 49,
+      "as": 40,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-51324 B",
+      "coloris": "Ondée/Alu — face couleur côté vitre",
+      "ts": 11,
+      "rs": 50,
+      "as": 39,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52058 A",
+      "coloris": "Gris clair/Alu — face alu côté vitre",
+      "ts": 9,
+      "rs": 47,
+      "as": 44,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52058 B",
+      "coloris": "Gris clair/Alu — face couleur côté vitre",
+      "ts": 9,
+      "rs": 43,
+      "as": 48,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52059",
+      "coloris": "Alu/Alu",
+      "ts": 7,
+      "rs": 47,
+      "as": 46,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52068 A",
+      "coloris": "Anthracite/Alu — face alu côté vitre",
+      "ts": 4,
+      "rs": 40,
+      "as": 56,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.21, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52068 B",
+      "coloris": "Anthracite/Alu — face couleur côté vitre",
+      "ts": 4,
+      "rs": 8,
+      "as": 88,
+      "tv": 3,
+      "gtot": {
+        "D": { "int": 0.29, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550284 A",
+      "coloris": "Écume/Alu — face alu côté vitre",
+      "ts": 10,
+      "rs": 53,
+      "as": 37,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.17, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550284 B",
+      "coloris": "Écume/Alu — face couleur côté vitre",
+      "ts": 10,
+      "rs": 64,
+      "as": 26,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550285 A",
+      "coloris": "Quartz/Alu — face alu côté vitre",
+      "ts": 13,
+      "rs": 51,
+      "as": 36,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550285 B",
+      "coloris": "Quartz/Alu — face couleur côté vitre",
+      "ts": 13,
+      "rs": 60,
+      "as": 27,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": 0.16, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550286 A",
+      "coloris": "Beige sablé/Alu — face alu côté vitre",
+      "ts": 10,
+      "rs": 46,
+      "as": 44,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550286 B",
+      "coloris": "Beige sablé/Alu — face couleur côté vitre",
+      "ts": 10,
+      "rs": 44,
+      "as": 46,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550287 A",
+      "coloris": "Chanvre/Alu — face alu côté vitre",
+      "ts": 8,
+      "rs": 49,
+      "as": 43,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550287 B",
+      "coloris": "Chanvre/Alu — face couleur côté vitre",
+      "ts": 8,
+      "rs": 48,
+      "as": 44,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550288 A",
+      "coloris": "Argile/Alu — face alu côté vitre",
+      "ts": 7,
+      "rs": 46,
+      "as": 47,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550288 B",
+      "coloris": "Argile/Alu — face couleur côté vitre",
+      "ts": 7,
+      "rs": 39,
+      "as": 54,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": 0.21, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550299 A",
+      "coloris": "Fjord/Alu — face alu côté vitre",
+      "ts": 9,
+      "rs": 48,
+      "as": 43,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-550299 B",
+      "coloris": "Fjord/Alu — face couleur côté vitre",
+      "ts": 9,
+      "rs": 47,
+      "as": 44,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.19, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-552073 A",
+      "coloris": "Gris moyen/Alu — face alu côté vitre",
+      "ts": 5,
+      "rs": 42,
+      "as": 53,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-552073 B",
+      "coloris": "Gris moyen/Alu — face couleur côté vitre",
+      "ts": 5,
+      "rs": 24,
+      "as": 71,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": 0.24, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52115 A",
+      "coloris": "Noir/Blanc neige — face blanche côté vitre",
+      "ts": 8,
+      "rs": 65,
+      "as": 27,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": 0.12, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-52115 B",
+      "coloris": "Noir/Blanc neige — face noire côté vitre",
+      "ts": 6,
+      "rs": 6,
+      "as": 88,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": 0.29, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2061E A",
+      "coloris": "Blanc/LowE — face A",
+      "ts": 8,
+      "rs": 71,
+      "as": 21,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.1, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 3,
+      "ref": "99-2061E B",
+      "coloris": "Blanc/LowE — face B",
+      "ts": 8,
+      "rs": 70,
+      "as": 22,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": 0.11, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50284",
+      "coloris": "Écume/Alu (opaque)",
+      "ts": 0,
+      "rs": 62,
+      "as": 38,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.13, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50285",
+      "coloris": "Quartz/Alu (opaque)",
+      "ts": 0,
+      "rs": 60,
+      "as": 40,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.14, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50287",
+      "coloris": "Chanvre/Alu (opaque)",
+      "ts": 0,
+      "rs": 47,
+      "as": 53,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50288",
+      "coloris": "Argile/Alu (opaque)",
+      "ts": 0,
+      "rs": 40,
+      "as": 60,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.2, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50354",
+      "coloris": "Gris moyen/Alu (opaque)",
+      "ts": 0,
+      "rs": 25,
+      "as": 75,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50613",
+      "coloris": "Gris clair/Alu (opaque)",
+      "ts": 0,
+      "rs": 45,
+      "as": 55,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-50614",
+      "coloris": "Anthracite/Alu (opaque)",
+      "ts": 0,
+      "rs": 8,
+      "as": 92,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.27, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-51327",
+      "coloris": "Blanc neige/Alu (opaque)",
+      "ts": 0,
+      "rs": 69,
+      "as": 31,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.11, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B99-51936",
+      "coloris": "Alu/Alu (opaque)",
+      "ts": 0,
+      "rs": 49,
+      "as": 51,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.18, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Serge Ferrari",
+      "gamme": "Soltis 99",
+      "ouverture": 0,
+      "ref": "B990-51328",
+      "coloris": "Blanc neige/Blanc (opaque)",
+      "ts": 0,
+      "rs": 69,
+      "as": 31,
+      "tv": 0,
+      "gtot": {
+        "D": { "int": 0.11, "ext": null },
+        "C": { "int": null, "ext": null }
+      },
+      "source": "Serge Ferrari, nuancier Soltis 99 réf. CT-02210 08/2023"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0202",
+      "coloris": "Blanc",
+      "ts": 21,
+      "rs": 66,
+      "as": 13,
+      "tv": 21,
+      "gtot": {
+        "D": { "int": null, "ext": 0.09 },
+        "C": { "int": null, "ext": 0.16 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0205",
+      "coloris": "Blanc Canari",
+      "ts": 19,
+      "rs": 58,
+      "as": 23,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.14 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "2002",
+      "coloris": "Lin Blanc",
+      "ts": 20,
+      "rs": 56,
+      "as": 24,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": null, "ext": 0.09 },
+        "C": { "int": null, "ext": 0.14 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M36",
+      "coloris": "Blanc Blanc Perle (mélange)",
+      "ts": 19,
+      "rs": 57,
+      "as": 24,
+      "tv": 18,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.14 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0505",
+      "coloris": "Canari",
+      "ts": 20,
+      "rs": 51,
+      "as": 29,
+      "tv": 17,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.15 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "2020",
+      "coloris": "Lin",
+      "ts": 18,
+      "rs": 53,
+      "as": 29,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.13 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0207",
+      "coloris": "Blanc Perle",
+      "ts": 17,
+      "rs": 50,
+      "as": 33,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0702",
+      "coloris": "Perle Blanc",
+      "ts": 17,
+      "rs": 45,
+      "as": 38,
+      "tv": 16,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0210",
+      "coloris": "Blanc Sable",
+      "ts": 17,
+      "rs": 50,
+      "as": 33,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0705",
+      "coloris": "Perle Canari",
+      "ts": 16,
+      "rs": 40,
+      "as": 44,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0720",
+      "coloris": "Perle Lin",
+      "ts": 17,
+      "rs": 41,
+      "as": 42,
+      "tv": 15,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M37",
+      "coloris": "Lin Perle Sable (mélange)",
+      "ts": 16,
+      "rs": 45,
+      "as": 39,
+      "tv": 14,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M45",
+      "coloris": "Perle Blanc Sable (mélange)",
+      "ts": 15,
+      "rs": 41,
+      "as": 44,
+      "tv": 14,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.11 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0707",
+      "coloris": "Perle",
+      "ts": 14,
+      "rs": 38,
+      "as": 48,
+      "tv": 13,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.11 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "1002",
+      "coloris": "Sable Blanc",
+      "ts": 16,
+      "rs": 46,
+      "as": 38,
+      "tv": 13,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.11 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M02",
+      "coloris": "Blanc Turquoise Sable (mélange)",
+      "ts": 17,
+      "rs": 49,
+      "as": 34,
+      "tv": 13,
+      "gtot": {
+        "D": { "int": null, "ext": 0.08 },
+        "C": { "int": null, "ext": 0.12 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M64",
+      "coloris": "Sable Canari Lin (mélange)",
+      "ts": 16,
+      "rs": 43,
+      "as": 41,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.11 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0710",
+      "coloris": "Perle Sable",
+      "ts": 14,
+      "rs": 38,
+      "as": 48,
+      "tv": 12,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M65",
+      "coloris": "Sable Canari Or (mélange)",
+      "ts": 15,
+      "rs": 42,
+      "as": 43,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.11 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0750",
+      "coloris": "Perle Vert",
+      "ts": 14,
+      "rs": 33,
+      "as": 53,
+      "tv": 11,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "1010",
+      "coloris": "Sable",
+      "ts": 13,
+      "rs": 39,
+      "as": 48,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "4949",
+      "coloris": "Aluminium blanc (RAL 9006)",
+      "ts": 11,
+      "rs": 37,
+      "as": 52,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.09 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0201",
+      "coloris": "Blanc Gris",
+      "ts": 12,
+      "rs": 37,
+      "as": 51,
+      "tv": 10,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.09 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0703",
+      "coloris": "Perle Turquoise",
+      "ts": 14,
+      "rs": 38,
+      "as": 48,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "2001",
+      "coloris": "Lin Gris",
+      "ts": 12,
+      "rs": 32,
+      "as": 56,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.09 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0701",
+      "coloris": "Perle Gris",
+      "ts": 11,
+      "rs": 27,
+      "as": 62,
+      "tv": 9,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.08 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M31",
+      "coloris": "Gris Blanc Perle (mélange)",
+      "ts": 10,
+      "rs": 28,
+      "as": 62,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.08 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "1001",
+      "coloris": "Sable Gris",
+      "ts": 10,
+      "rs": 28,
+      "as": 62,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.08 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0740",
+      "coloris": "Perle Outremer",
+      "ts": 13,
+      "rs": 28,
+      "as": 59,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0706",
+      "coloris": "Perle Bronze",
+      "ts": 8,
+      "rs": 18,
+      "as": 74,
+      "tv": 8,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0909",
+      "coloris": "Mandarine",
+      "ts": 18,
+      "rs": 44,
+      "as": 38,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.07 },
+        "C": { "int": null, "ext": 0.13 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0102",
+      "coloris": "Gris Blanc",
+      "ts": 10,
+      "rs": 31,
+      "as": 59,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.08 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0105",
+      "coloris": "Gris Canari",
+      "ts": 9,
+      "rs": 28,
+      "as": 63,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0108",
+      "coloris": "Gris Or",
+      "ts": 11,
+      "rs": 26,
+      "as": 63,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.06 },
+        "C": { "int": null, "ext": 0.08 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0110",
+      "coloris": "Gris Sable",
+      "ts": 10,
+      "rs": 25,
+      "as": 65,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0101",
+      "coloris": "Gris",
+      "ts": 8,
+      "rs": 20,
+      "as": 72,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "1006",
+      "coloris": "Sable Bronze",
+      "ts": 8,
+      "rs": 18,
+      "as": 74,
+      "tv": 7,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0103",
+      "coloris": "Gris Turquoise",
+      "ts": 9,
+      "rs": 26,
+      "as": 65,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0150",
+      "coloris": "Gris Vert",
+      "ts": 9,
+      "rs": 23,
+      "as": 68,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M01",
+      "coloris": "Gris Turquoise Charcoal (mélange)",
+      "ts": 8,
+      "rs": 20,
+      "as": 72,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "M38",
+      "coloris": "Charcoal Gris Lin (mélange)",
+      "ts": 6,
+      "rs": 13,
+      "as": 81,
+      "tv": 6,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.06 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0109",
+      "coloris": "Gris Mandarine",
+      "ts": 9,
+      "rs": 26,
+      "as": 65,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "4040",
+      "coloris": "Outremer",
+      "ts": 14,
+      "rs": 25,
+      "as": 61,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.1 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0140",
+      "coloris": "Gris Outremer",
+      "ts": 8,
+      "rs": 22,
+      "as": 70,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.07 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "1111",
+      "coloris": "Gris souris nacré (RAL 7048)",
+      "ts": 5,
+      "rs": 17,
+      "as": 78,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.06 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "3001",
+      "coloris": "Charcoal Gris",
+      "ts": 5,
+      "rs": 10,
+      "as": 85,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": 0.06 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0130",
+      "coloris": "Gris Charcoal",
+      "ts": 5,
+      "rs": 12,
+      "as": 83,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.06 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "0606",
+      "coloris": "Bronze",
+      "ts": 5,
+      "rs": 7,
+      "as": 88,
+      "tv": 5,
+      "gtot": {
+        "D": { "int": null, "ext": 0.05 },
+        "C": { "int": null, "ext": 0.06 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "3006",
+      "coloris": "Charcoal Bronze",
+      "ts": 4,
+      "rs": 7,
+      "as": 89,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": 0.05 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "5959",
+      "coloris": "Gris Anthracite (RAL 7016)",
+      "ts": 4,
+      "rs": 7,
+      "as": 89,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": 0.05 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "3030",
+      "coloris": "Charcoal",
+      "ts": 4,
+      "rs": 6,
+      "as": 90,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": 0.05 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
+    },
+    {
+      "fournisseur": "Mermet",
+      "gamme": "Satiné 5500",
+      "ouverture": 4,
+      "ref": "6060",
+      "coloris": "Noir foncé (RAL 9005)",
+      "ts": 4,
+      "rs": 4,
+      "as": 92,
+      "tv": 4,
+      "gtot": {
+        "D": { "int": null, "ext": 0.04 },
+        "C": { "int": null, "ext": 0.05 }
+      },
+      "source": "Mermet, fiche Satiné 5500 V5 01/2025 (valeurs face sombre)"
     }
   ]
 }
