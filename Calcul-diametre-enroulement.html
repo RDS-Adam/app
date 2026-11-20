@@ -6,192 +6,204 @@
   <title>Calculateur Diamètre d'Enroulement - Adam</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --rds-bleu: #25737d;
-      --rds-orange: #ff7200;
-      --rds-gris: #fafafa;
-      --rds-text: #1a1a1a;
-      --rds-border: #eeeeee;
+      --bleu: #25737d;
+      --bleu-fonce: #1b5a62;
+      --bleu-clair: #e6f2f3;
+      --orange: #ff7200;
+      --orange-clair: #fff1e6;
+      --rouge: #d64545;
+      --fond: #f1f4f5;
+      --carte: #ffffff;
+      --texte: #16242a;
+      --texte-2: #51636a;
+      --texte-3: #8a999f;
+      --bord: #dfe6e8;
+      --champ: #f7f9fa;
+      --rayon: 16px;
+      --ombre: 0 1px 2px rgba(16,36,42,.04), 0 4px 16px rgba(16,36,42,.06);
     }
-
+    * { box-sizing: border-box; }
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--rds-gris);
-      background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
-      background-size: 24px 24px;
-      color: var(--rds-text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      font-family: 'Poppins', system-ui, sans-serif;
+      background: var(--fond);
+      color: var(--texte);
       margin: 0;
+      padding: 24px 16px 48px;
       -webkit-font-smoothing: antialiased;
+      font-size: 15px;
+    }
+    .container { max-width: 560px; margin: 0 auto; }
+
+    .entete { display: flex; align-items: center; gap: 14px; margin: 4px 4px 22px; }
+    .entete-icone {
+      width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--orange), #ffa04d);
+      display: grid; place-items: center; color: #fff;
+      box-shadow: 0 6px 16px rgba(255,114,0,.28);
+    }
+    .entete h1 { margin: 0; font-size: 1.45rem; font-weight: 600; letter-spacing: -.01em; }
+    .entete p { margin: 2px 0 0; color: var(--texte-2); font-size: .88rem; }
+
+    .carte {
+      background: var(--carte); border-radius: var(--rayon); box-shadow: var(--ombre);
+      padding: 22px 22px 24px; margin-bottom: 16px;
+    }
+    .carte-titre { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 1rem; font-weight: 600; }
+    .etape {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--bleu-clair); color: var(--bleu);
+      display: grid; place-items: center; font-size: .8rem; font-weight: 600; flex-shrink: 0;
     }
 
-    .panneau-calcul {
-      width: 100%;
-      max-width: 380px;
-      padding: 40px;
-      background: #ffffff;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    .champ { margin-bottom: 18px; }
+    .champ:last-child { margin-bottom: 0; }
+    label, .label { display: block; font-size: .85rem; font-weight: 500; color: var(--texte-2); margin-bottom: 8px; }
+    input {
+      width: 100%; height: 50px; padding: 0 16px;
+      border: 1.5px solid var(--bord); border-radius: 12px; background: var(--champ);
+      font: 500 1rem 'Poppins', sans-serif; color: var(--texte);
+      outline: none; transition: border-color .15s, box-shadow .15s, background .15s;
+      -webkit-appearance: none; appearance: none;
     }
+    input:hover { border-color: #c5d0d3; }
+    input:focus { border-color: var(--bleu); background: #fff; box-shadow: 0 0 0 4px rgba(37,115,125,.12); }
+    input::placeholder { color: var(--texte-3); font-weight: 400; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .input-error { border-color: var(--rouge) !important; }
+    .suffixe { position: relative; }
+    .suffixe input { padding-right: 50px; }
+    .suffixe span { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--texte-3); font-weight: 500; pointer-events: none; }
+    .grille-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    h2 { 
-      font-size: 1.1rem;
-      font-weight: 500;
-      text-align: left;
-      color: var(--rds-text);
-      margin: 0 0 40px 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      border-bottom: 1px solid var(--rds-border);
-      padding-bottom: 15px;
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .seg button {
+      border: 1.5px solid var(--bord); background: var(--champ); border-radius: 12px;
+      padding: 11px 14px; text-align: left; cursor: pointer; font-family: inherit; color: var(--texte);
+      transition: all .15s; min-height: 58px;
     }
+    .seg button:hover { border-color: #c5d0d3; }
+    .seg button .t { display: block; font-weight: 600; font-size: .92rem; line-height: 1.25; }
+    .seg button .s { display: block; font-size: .74rem; color: var(--texte-3); line-height: 1.3; }
+    .seg button.actif { border-color: var(--bleu); background: var(--bleu-clair); box-shadow: 0 0 0 3px rgba(37,115,125,.10); }
+    .seg button.actif .s { color: var(--bleu-fonce); }
 
-    .groupe {
-      margin-bottom: 25px;
+    .btn-calc {
+      width: 100%; height: 56px; border: none; border-radius: 14px; cursor: pointer;
+      background: var(--bleu); color: #fff; font: 600 1rem 'Poppins', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 6px 16px rgba(37,115,125,.25); transition: background .15s, transform .1s;
     }
+    .btn-calc:hover { background: var(--bleu-fonce); }
+    .btn-calc:active { transform: scale(.99); }
 
-    label { 
-      display: block; 
-      font-size: 0.7rem;
-      font-weight: 400;
-      color: #999;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
+    #resultat { display: none; animation: apparait .4s ease; }
+    @keyframes apparait { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .gain-badge {
+      text-align: center; background: var(--orange); color: #fff;
+      border-radius: 14px; padding: 16px 18px; font-size: 2.2rem; font-weight: 700; letter-spacing: -.02em;
+      box-shadow: 0 6px 18px rgba(255,114,0,.25);
     }
+    .gain-badge small { display: block; font-size: .8rem; font-weight: 500; opacity: .92; letter-spacing: 0; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 16px; }
+    .stat { background: var(--champ); border-radius: 12px; padding: 12px 14px; }
+    .stat .k { font-size: .76rem; color: var(--texte-2); font-weight: 500; }
+    .stat .v { font-size: 1.25rem; font-weight: 600; margin-top: 2px; }
+    .notice { background: var(--orange-clair); color: #b35000; border-radius: 10px; padding: 10px 14px; font-size: .82rem; margin: 14px 0 0; }
 
-    input, select { 
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px 0;
-      border: none;
-      border-bottom: 1px solid var(--rds-border);
-      background: transparent;
-      font-size: 0.9rem;
-      color: var(--rds-text);
-      outline: none;
-      transition: all 0.3s ease;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    input:focus, select:focus {
-      border-bottom-color: var(--rds-orange);
-    }
-
-    button { 
-      width: 100%;
-      padding: 15px;
-      margin-top: 20px;
-      border: 1px solid var(--rds-text);
-      background: transparent;
-      color: var(--rds-text);
-      font-size: 0.8rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    button:hover {
-      background: var(--rds-text);
-      color: #fff;
-    }
-
-    .zone-resultat {
-      margin-top: 40px;
-      padding-top: 25px;
-      border-top: 1px solid var(--rds-border);
-      display: none; 
-      animation: fadeIn 0.5s ease;
-    }
-
-    .valeur-diametre {
-      display: block;
-      font-size: 2rem;
-      font-weight: 300;
-      color: var(--rds-text);
-      margin: 10px 0;
-    }
-
-    .valeur-diametre span {
-        color: var(--rds-orange);
-        font-weight: 500;
-    }
-
-    .notice {
-      font-size: 0.75rem;
-      line-height: 1.6;
-      color: #999;
-      margin: 15px 0 0 0;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Supprimer les flèches sur les inputs nombre */
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+    @media (max-width: 560px) {
+      body { padding: 16px 12px 40px; }
+      .carte { padding: 18px 16px 20px; }
+      .grille-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+<div class="container">
 
-<div class="panneau-calcul">
-  <h2>Enroulement</h2>
-  
-  <div class="groupe">
-    <label for="tubeEnroulement">Diamètre du tube nu (mm)</label>
-    <input type="number" id="tubeEnroulement" placeholder="Ex: 60, 70, 78..." min="1">
-  </div>
-  
-  <div class="groupe">
-    <label for="qualite">Qualité de toile</label>
-    <select id="qualite">
-      <option value="acrylique">Acrylique (1,6 mm)</option>
-      <option value="soltis">Soltis 92 (0,5 mm)</option>
-    </select>
-  </div>
-  
-  <div class="groupe">
-    <label for="avancee">Avancée totale (cm)</label>
-    <input type="number" id="avancee" placeholder="Ex : 300" min="0">
-  </div>
-  
-  <button type="button" onclick="calculerDiametre()">Calculer</button>
-  
-  <div id="resultat" class="zone-resultat">
-    <label>Diamètre final estimé</label>
-    <span class="valeur-diametre"><span id="valeur-num">--</span> cm</span>
-    <p class="notice">
-      Prévoir une marge de sécurité de +10% dans votre coffre.
-    </p>
-  </div>
+  <header class="entete">
+    <div class="entete-icone">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+    </div>
+    <div>
+      <h1>Enroulement</h1>
+      <p>Diamètre final de la toile enroulée sur le tube</p>
+    </div>
+  </header>
+
+  <section class="carte">
+    <h2 class="carte-titre"><span class="etape">1</span>Tube et toile</h2>
+
+    <div class="champ">
+      <label for="tubeEnroulement">Diamètre du tube nu</label>
+      <div class="suffixe">
+        <input type="number" id="tubeEnroulement" placeholder="Ex : 60, 70, 78…" min="1" inputmode="decimal">
+        <span>mm</span>
+      </div>
+    </div>
+
+    <div class="champ">
+      <span class="label">Qualité de toile</span>
+      <div class="seg" id="segQualite">
+        <button type="button" class="actif" data-val="acrylique"><span class="t">Acrylique</span><span class="s">Épaisseur 1,6 mm</span></button>
+        <button type="button" data-val="soltis"><span class="t">Soltis 92</span><span class="s">Épaisseur 0,5 mm</span></button>
+      </div>
+      <input type="hidden" id="qualite" value="acrylique">
+    </div>
+
+    <div class="champ">
+      <label for="avancee">Avancée totale</label>
+      <div class="suffixe">
+        <input type="number" id="avancee" placeholder="Ex : 300" min="0" inputmode="decimal">
+        <span>cm</span>
+      </div>
+    </div>
+  </section>
+
+  <button type="button" class="btn-calc" onclick="calculerDiametre()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+    Calculer
+  </button>
+
+  <section id="resultat" class="carte" style="margin-top:16px">
+    <h2 class="carte-titre"><span class="etape">2</span>Résultat</h2>
+    <div class="gain-badge"><small>Diamètre final estimé</small><span id="valeur-num">--</span> cm</div>
+    <div class="stats">
+      <div class="stat"><div class="k">Tube nu</div><div class="v" id="statTube">–</div></div>
+      <div class="stat"><div class="k">Épaisseur toile</div><div class="v" id="statEp">–</div></div>
+      <div class="stat"><div class="k">Avancée</div><div class="v" id="statAv">–</div></div>
+    </div>
+    <p class="notice">Prévoir une marge de sécurité de +10 % dans votre coffre.</p>
+  </section>
+
 </div>
 
 <script>
-  function calculerDiametre() {
-    // On récupère la valeur saisie en mm
-    let dTubeMM = parseFloat(document.getElementById('tubeEnroulement').value);
-    let qualite = document.getElementById('qualite').value;
-    let L = parseFloat(document.getElementById('avancee').value);
+  document.querySelectorAll('#segQualite button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#segQualite button').forEach(x => x.classList.toggle('actif', x === b));
+      document.getElementById('qualite').value = b.dataset.val;
+      if (document.getElementById('resultat').style.display === 'block') calculerDiametre();
+    });
+  });
 
-    // Vérification que les champs sont remplis
+  function calculerDiametre() {
+    const inTube = document.getElementById('tubeEnroulement');
+    const inAv = document.getElementById('avancee');
+    let dTubeMM = parseFloat(inTube.value);
+    let qualite = document.getElementById('qualite').value;
+    let L = parseFloat(inAv.value);
+
+    inTube.classList.toggle('input-error', isNaN(dTubeMM) || dTubeMM <= 0);
+    inAv.classList.toggle('input-error', isNaN(L) || L <= 0);
     if (isNaN(dTubeMM) || isNaN(L) || dTubeMM <= 0 || L <= 0) {
       return;
     }
 
     // Conversion du tube en cm pour le calcul (ex: 60mm -> 6cm)
     let dTube = dTubeMM / 10;
-    
+
     // Épaisseur de la toile en cm
     let t = (qualite === "acrylique") ? 0.16 : 0.05;
 
@@ -200,14 +212,19 @@
     dFinal = dFinal.toFixed(1);
 
     document.getElementById('resultat').style.display = 'block';
-    document.getElementById('valeur-num').innerText = dFinal;
+    document.getElementById('valeur-num').innerText = dFinal.replace('.', ',');
+    document.getElementById('statTube').innerText = dTubeMM + ' mm';
+    document.getElementById('statEp').innerText = (t * 10).toFixed(1).replace('.', ',') + ' mm';
+    document.getElementById('statAv').innerText = L + ' cm';
   }
 
+  document.querySelectorAll('input').forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') calculerDiametre(); }));
+
   // Protection Clic Droit & Touches F12
-  document.addEventListener('contextmenu', e => e.preventDefault()); 
-  document.onkeydown = e => { 
-      if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) 
-      return false; 
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.onkeydown = e => {
+      if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85))
+      return false;
   };
 </script>
 
