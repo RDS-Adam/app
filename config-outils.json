@@ -16,7 +16,7 @@
       "order": 2
     },
     "PV_reception.html": {
-      "space": "salarie",
+      "space": "hidden",
       "label": "",
       "order": 3
     },
@@ -46,7 +46,7 @@
       "order": 8
     },
     "Devis-Sotexpro.html": {
-      "space": "adam",
+      "space": "hidden",
       "label": "",
       "order": 9
     },
