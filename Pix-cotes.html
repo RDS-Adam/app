@@ -133,7 +133,7 @@
             <span style="font-size: 2rem;">📂</span>
             <p style="margin: 10px 0 0 0; font-weight: bold; color: var(--secondary);">Charger des photos</p>
             <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #64748b;">(Glissez ou cliquez)</p>
-            <input type="file" id="fileInput" multiple accept="image/*">
+            <input type="file" id="fileInput" multiple accept="image/*,.heic,.heif,image/heic,image/heif">
         </label>
 
         <div class="photo-list-title" id="photoCount">0 photo chargée</div>
@@ -317,26 +317,88 @@
         }
     });
     
+    // --- Support HEIC/HEIF (photos iPhone) ---
+    function isHeicFile(file) {
+        return /image\/hei[cf]/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
+    }
+    function blobToDataUrl(blob) {
+        return new Promise((resolve, reject) => {
+            const r = new FileReader();
+            r.onload = () => resolve(r.result); r.onerror = reject;
+            r.readAsDataURL(blob);
+        });
+    }
+    // 1) Décodage natif (Safari / WebKit savent lire le HEIC), converti en JPEG pour le PDF
+    function nativeHeicToJpeg(file) {
+        return new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const c = document.createElement('canvas');
+                    c.width = img.naturalWidth; c.height = img.naturalHeight;
+                    if (!c.width || !c.height) throw new Error('image vide');
+                    c.getContext('2d').drawImage(img, 0, 0);
+                    resolve(c.toDataURL('image/jpeg', 0.92));
+                } catch (e) { reject(e); } finally { URL.revokeObjectURL(url); }
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('décodage natif impossible')); };
+            img.src = url;
+        });
+    }
+    // 2) Sinon (Chrome, Edge, Firefox…) : convertisseur heic2any chargé à la demande
+    let heic2anyPromise = null;
+    function loadHeic2any() {
+        if (window.heic2any) return Promise.resolve(window.heic2any);
+        if (!heic2anyPromise) {
+            heic2anyPromise = new Promise((resolve, reject) => {
+                const sc = document.createElement('script');
+                sc.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+                sc.onload = () => window.heic2any ? resolve(window.heic2any) : reject(new Error('heic2any absent'));
+                sc.onerror = () => { heic2anyPromise = null; reject(new Error('chargement heic2any impossible')); };
+                document.head.appendChild(sc);
+            });
+        }
+        return heic2anyPromise;
+    }
+    async function heicToJpegDataUrl(file) {
+        try { return await nativeHeicToJpeg(file); } catch (e) { /* on passe au convertisseur */ }
+        const heic2any = await loadHeic2any();
+        let out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+        if (Array.isArray(out)) out = out[0];
+        return blobToDataUrl(out);
+    }
+
     function handleFileSelect(e) {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
         files.forEach(file => {
-            if (!file.type.startsWith('image/')) return; // Sécurité si on drop autre chose
-            const reader = new FileReader();
-            reader.onload = function(event) {
+            const heic = isHeicFile(file);
+            if (!heic && !file.type.startsWith('image/')) return; // Sécurité si on drop autre chose
+            const addPhoto = (dataUrl) => {
                 const img = new Image();
                 img.onload = function() {
                     const newPhoto = {
-                        id: Date.now() + Math.random(), fileUrl: event.target.result, name: file.name.split('.')[0],
+                        id: Date.now() + Math.random(), fileUrl: dataUrl, name: file.name.replace(/\.[^.]+$/, ''),
                         drawings: [], originalWidth: img.width, originalHeight: img.height
                     };
                     photos.push(newPhoto);
                     renderPhotoList();
                     if (photos.length === 1 && currentPhotoIndex === -1) selectPhoto(0);
                 };
-                img.src = event.target.result;
+                img.onerror = () => alert(`Impossible d'ouvrir « ${file.name} » : format d'image non lu par ce navigateur.`);
+                img.src = dataUrl;
             };
+            if (heic) {
+                heicToJpegDataUrl(file).then(addPhoto).catch(err => {
+                    console.error(err);
+                    alert(`Impossible de convertir la photo HEIC « ${file.name} ». Vérifiez la connexion internet (le convertisseur se charge en ligne) ou exportez-la en JPEG.`);
+                });
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => addPhoto(event.target.result);
             reader.readAsDataURL(file);
         });
         
