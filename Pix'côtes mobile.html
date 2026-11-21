@@ -155,7 +155,9 @@
         .cote-field { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
         .cote-field input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 1.4rem; font-weight: 700; outline: none; min-width: 0; }
         .cote-field input:focus { border-color: var(--primary); }
-        .cote-unit { font-weight: 700; color: var(--text-light); font-size: 1.1rem; }
+        .unit-switch { display: flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+        .unit-btn { border: none; background: transparent; padding: 10px 12px; border-radius: 8px; font-weight: 700; font-size: 1rem; color: var(--text-light); cursor: pointer; }
+        .unit-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .link-btn { background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0; margin: -8px 0 12px 0; }
 
         /* Message flottant */
@@ -188,7 +190,8 @@
             h1 { font-size: 1.05rem; }
             .header-left { flex: 1; min-width: 0; flex-wrap: nowrap; }
             #nomClient { flex: 1; min-width: 0; width: auto !important; }
-            .header-actions { flex-wrap: nowrap; gap: 6px; }
+            .header-actions { flex-wrap: nowrap; gap: 6px; flex-shrink: 0; }
+            .header-actions .btn { padding: 8px 10px; }
         }
     </style>
 </head>
@@ -284,7 +287,10 @@
         
         <div class="cote-field" id="coteField">
             <input type="text" id="coteInput" inputmode="decimal" placeholder="ex : 1250" autocomplete="off">
-            <span class="cote-unit">mm</span>
+            <div class="unit-switch">
+                <button type="button" class="unit-btn" data-unit="mm" onclick="setCoteUnit('mm')">mm</button>
+                <button type="button" class="unit-btn" data-unit="cm" onclick="setCoteUnit('cm')">cm</button>
+            </div>
         </div>
         <button class="link-btn" id="coteToTextBtn" onclick="switchToFreeText()">Aa Saisir un texte libre</button>
         <textarea id="textModalInput" placeholder="Saisissez la remarque ou l'instruction..."></textarea>
@@ -310,6 +316,21 @@
 </div>
 
 <script>
+    // Les iPhone en iOS 15 ou moins (et les vieux Android) n'ont pas roundRect : sans lui, le texte des cotes et des notes ne s'affiche pas
+    if (window.CanvasRenderingContext2D && !CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+            r = Array.isArray(r) ? (r[0] || 0) : (r || 0);
+            r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2));
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r);
+            this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        };
+    }
+
     let photos = []; 
     let currentPhotoIndex = -1;
     
@@ -1052,8 +1073,16 @@
     // MODALS EDITIONS
     // ==========================================
     // Une cote « 1250 » ou « 1250 mm » se saisit au pavé numérique ; tout autre texte passe en texte libre
-    const COTE_RE = /^\s*(\d+(?:[.,]\d+)?)\s*(?:mm)?\s*$/i;
+    const COTE_RE = /^\s*(\d+(?:[.,]\d+)?)\s*(mm|cm)?\s*$/i;
     let modalIsCote = false;
+    let coteUnit = 'mm';
+    try { const u = localStorage.getItem('pixcotes-unite'); if (u === 'mm' || u === 'cm') coteUnit = u; } catch (e) {}
+    window.setCoteUnit = function(unit, remember = true) {
+        coteUnit = unit;
+        document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+        document.getElementById('coteInput').placeholder = unit === 'cm' ? 'ex : 125' : 'ex : 1250';
+        if (remember) { try { localStorage.setItem('pixcotes-unite', unit); } catch (e) {} }
+    };
     function setCoteMode(on) {
         modalIsCote = on;
         document.getElementById('coteField').style.display = on ? 'flex' : 'none';
@@ -1062,7 +1091,7 @@
     window.switchToFreeText = function() {
         const v = document.getElementById('coteInput').value.trim();
         const ta = document.getElementById('textModalInput');
-        ta.value = v ? v + ' mm' : '';
+        ta.value = v ? v + ' ' + coteUnit : '';
         setCoteMode(false); ta.style.display = 'block'; ta.focus();
     };
     function openTextModal(title, defaultText, currentSize, currentColor, isEditing, callback, hideText = false, cote = false) {
@@ -1073,6 +1102,7 @@
         const useCote = cote && (!defaultText || !!m);
         setCoteMode(useCote);
         coteInput.value = m ? m[1] : '';
+        if (useCote) setCoteUnit(m && m[2] ? m[2].toLowerCase() : coteUnit, false);
         input.value = defaultText || "";
         input.style.display = (hideText || useCote) ? 'none' : 'block';
         selectedModalColor = currentColor || COLORS[0];
@@ -1096,7 +1126,7 @@
     window.cancelTextModal = function() { document.getElementById('textModal').style.display = 'none'; textModalCallback = null; currentEditingId = null; resetDrawingState(); redrawCanvas(); }
     window.confirmTextModal = function() {
         let txt = document.getElementById('textModalInput').value;
-        if (modalIsCote) { const v = document.getElementById('coteInput').value.trim(); txt = v ? v + ' mm' : ''; }
+        if (modalIsCote) { const v = document.getElementById('coteInput').value.trim(); txt = v ? v + ' ' + coteUnit : ''; }
         if (textModalCallback) textModalCallback(txt, selectedModalSize, selectedModalColor); 
         document.getElementById('textModal').style.display = 'none'; currentEditingId = null;
     }
