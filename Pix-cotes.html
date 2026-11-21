@@ -137,6 +137,7 @@
         </label>
 
         <div class="photo-list-title" id="photoCount">0 photo chargée</div>
+        <div id="loadStatus" style="display:none; margin:0 0 10px 0; padding:8px 10px; border-radius:6px; font-size:0.85rem;"></div>
         <div id="photoList"></div>
     </div>
 
@@ -346,27 +347,36 @@
             img.src = url;
         });
     }
-    // 2) Sinon (Chrome, Edge, Firefox…) : convertisseur heic2any chargé à la demande
-    let heic2anyPromise = null;
-    function loadHeic2any() {
-        if (window.heic2any) return Promise.resolve(window.heic2any);
-        if (!heic2anyPromise) {
-            heic2anyPromise = new Promise((resolve, reject) => {
+    // 2) Sinon (Chrome, Edge, Firefox…) : convertisseur heic-to (libheif récent, compatible photos iPhone actuelles) chargé à la demande
+    let heicToPromise = null;
+    function loadHeicTo() {
+        if (window.HeicTo) return Promise.resolve(window.HeicTo);
+        if (!heicToPromise) {
+            heicToPromise = new Promise((resolve, reject) => {
                 const sc = document.createElement('script');
-                sc.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
-                sc.onload = () => window.heic2any ? resolve(window.heic2any) : reject(new Error('heic2any absent'));
-                sc.onerror = () => { heic2anyPromise = null; reject(new Error('chargement heic2any impossible')); };
+                sc.src = 'https://cdn.jsdelivr.net/npm/heic-to@1.6.7/dist/iife/heic-to.js';
+                sc.onload = () => window.HeicTo ? resolve(window.HeicTo) : reject(new Error('heic-to absent'));
+                sc.onerror = () => { heicToPromise = null; reject(new Error('chargement du convertisseur impossible')); };
                 document.head.appendChild(sc);
             });
         }
-        return heic2anyPromise;
+        return heicToPromise;
     }
     async function heicToJpegDataUrl(file) {
         try { return await nativeHeicToJpeg(file); } catch (e) { /* on passe au convertisseur */ }
-        const heic2any = await loadHeic2any();
-        let out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
-        if (Array.isArray(out)) out = out[0];
-        return blobToDataUrl(out);
+        const HeicTo = await loadHeicTo();
+        const jpeg = await HeicTo({ blob: file, type: 'image/jpeg', quality: 0.92 });
+        return blobToDataUrl(jpeg);
+    }
+    // Message visible dans la page (les alert() peuvent être bloquées dans la boîte à outils)
+    let pendingHeic = 0;
+    function showLoadStatus(msg, isError) {
+        const el = document.getElementById('loadStatus');
+        if (!msg) { el.style.display = 'none'; return; }
+        el.textContent = msg;
+        el.style.display = 'block';
+        el.style.background = isError ? '#fee2e2' : '#e0f2fe';
+        el.style.color = isError ? '#b91c1c' : '#075985';
     }
 
     function handleFileSelect(e) {
@@ -387,13 +397,20 @@
                     renderPhotoList();
                     if (photos.length === 1 && currentPhotoIndex === -1) selectPhoto(0);
                 };
-                img.onerror = () => alert(`Impossible d'ouvrir « ${file.name} » : format d'image non lu par ce navigateur.`);
+                img.onerror = () => showLoadStatus(`Impossible d'ouvrir « ${file.name} » : format d'image non lu par ce navigateur.`, true);
                 img.src = dataUrl;
             };
             if (heic) {
-                heicToJpegDataUrl(file).then(addPhoto).catch(err => {
+                pendingHeic++;
+                showLoadStatus(`Conversion de ${pendingHeic} photo${pendingHeic > 1 ? 's' : ''} HEIC en cours…`);
+                heicToJpegDataUrl(file).then(url => {
+                    addPhoto(url);
+                    if (--pendingHeic === 0) showLoadStatus('');
+                    else showLoadStatus(`Conversion de ${pendingHeic} photo${pendingHeic > 1 ? 's' : ''} HEIC en cours…`);
+                }).catch(err => {
+                    pendingHeic--;
                     console.error(err);
-                    alert(`Impossible de convertir la photo HEIC « ${file.name} ». Vérifiez la connexion internet (le convertisseur se charge en ligne) ou exportez-la en JPEG.`);
+                    showLoadStatus(`Impossible de convertir la photo HEIC « ${file.name} » (${err && err.message ? err.message : err}). Vérifiez la connexion internet ou exportez-la en JPEG.`, true);
                 });
                 return;
             }
