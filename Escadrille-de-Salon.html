@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Escadrille de Salon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +29,7 @@
   --f-display:'Lilita One','Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif;
   --f-body:'Nunito',ui-rounded,system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:dark;
+  --sai-t:env(safe-area-inset-top,0px);--sai-r:env(safe-area-inset-right,0px);--sai-b:env(safe-area-inset-bottom,0px);--sai-l:env(safe-area-inset-left,0px);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -160,8 +163,74 @@ input[type=range]{width:160px;accent-color:var(--sun)}
 
 #noGL{position:fixed;inset:0;display:grid;place-items:center;padding:24px;z-index:20;background:var(--night)}
 #noGL .panel{text-align:left}
-.touch-note{display:none;margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(255,154,60,.14);color:var(--orange);font-weight:700;font-size:.86rem}
-@media (hover:none) and (pointer:coarse){.touch-note{display:block}}
+.touch-note{display:none;margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(95,196,255,.12);color:var(--sky);font-weight:700;font-size:.86rem;line-height:1.45}
+body.touch .touch-note,body.touch .touch-help{display:block}
+.touch-help{display:none;margin-top:16px}
+#gl,#touchUI{touch-action:none;-webkit-touch-callout:none}
+
+/* ---------- Commandes tactiles (téléphone, tablette) ---------- */
+#touchUI{position:fixed;inset:0;z-index:4;pointer-events:none;-webkit-user-select:none;user-select:none}
+#tZone{position:absolute;left:0;top:16%;bottom:0;width:46%;pointer-events:auto;touch-action:none}
+.stick{position:absolute;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .15s}
+.stick.on{opacity:1}
+#stickBase{width:128px;height:128px;margin:-64px 0 0 -64px;border:2px solid rgba(244,236,220,.4);background:rgba(8,14,26,.28)}
+#stickKnob{width:58px;height:58px;margin:-29px 0 0 -29px;background:rgba(244,236,220,.6);box-shadow:0 2px 10px rgba(0,0,0,.4)}
+#stickHint{position:absolute;left:calc(var(--sai-l) + 28px);bottom:calc(var(--sai-b) + 28px);width:110px;height:110px;border-radius:50%;border:2px dashed rgba(244,236,220,.3);display:grid;place-items:center;text-align:center;font:800 .68rem var(--f-body);color:rgba(244,236,220,.6);pointer-events:none;line-height:1.25}
+.tbtn{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;border:2px solid rgba(244,236,220,.42);background:rgba(8,14,26,.5);color:var(--paper);font:900 .74rem var(--f-body);display:grid;place-items:center;text-align:center;line-height:1.05;letter-spacing:.03em;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.tbtn.on{background:rgba(255,194,61,.6);border-color:var(--sun);color:#1a1100}
+.tbtn small{display:block;font-size:.6rem;font-weight:800;opacity:.9;margin-top:2px}
+#tFire{width:94px;height:94px;right:calc(var(--sai-r) + 16px);bottom:calc(var(--sai-b) + 16px);background:rgba(217,74,58,.55);font-size:.92rem}
+#tSpecial{width:66px;height:66px;right:calc(var(--sai-r) + 122px);bottom:calc(var(--sai-b) + 12px)}
+#tSwitch{width:40px;height:40px;right:calc(var(--sai-r) + 135px);bottom:calc(var(--sai-b) + 90px);font-size:1.05rem}
+#tBoost{width:62px;height:62px;right:calc(var(--sai-r) + 32px);bottom:calc(var(--sai-b) + 122px);font-size:.62rem}
+#tBrake{width:52px;height:52px;right:calc(var(--sai-r) + 104px);bottom:calc(var(--sai-b) + 140px);font-size:.6rem}
+#tThrottle{position:absolute;pointer-events:auto;touch-action:none;width:48px;height:min(178px,46vh);right:calc(var(--sai-r) + 204px);bottom:calc(var(--sai-b) + 14px);border-radius:14px;border:2px solid rgba(244,236,220,.42);background:rgba(8,14,26,.5);overflow:hidden}
+#tThrottle i{position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(to top,rgba(95,196,255,.7),rgba(95,196,255,.3))}
+#tThrottle b{position:absolute;left:0;right:0;top:5px;text-align:center;font:900 .72rem var(--f-body);color:var(--paper);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#tThrottle span{position:absolute;left:0;right:0;bottom:4px;text-align:center;font:900 .56rem var(--f-body);letter-spacing:.06em;color:var(--paper);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#tPause,#tView{width:42px;height:42px;top:calc(var(--sai-t) + 8px);font-size:.9rem}
+#tPause{left:50%;margin-left:-48px}
+#tView{left:50%;margin-left:6px;font-size:.58rem}
+body.touch .hud-help,body.touch .hud-br{display:none}
+@media (orientation:portrait){
+  #tZone{width:58%;top:40%}
+  #tThrottle{right:calc(var(--sai-r) + 18px);bottom:calc(var(--sai-b) + 200px);height:130px}
+}
+body.touch .hud-tl{max-width:min(300px,38vw);gap:4px}
+body.touch .hud-mission{font-size:.98rem}
+body.touch .hud-obj{font-size:.74rem}
+body.touch .hud-score{font-size:1.4rem}
+body.touch .hud-bl{position:static;width:100%;margin-top:4px;gap:4px}
+body.touch .gauge{grid-template-columns:64px 1fr 34px;gap:6px}
+body.touch .gauge label{font-size:.58rem}
+body.touch .gauge .num{font-size:.74rem;min-width:0}
+body.touch .bar{height:7px}
+body.touch .hud-msgs{top:15%}
+body.touch .msg{font-size:.82rem;padding:4px 12px}
+body.touch .hud-banner{top:44%}
+body.touch .hud-banner h2{font-size:clamp(1.5rem,6vw,2.2rem)}
+body.touch .hud-banner p.sub{font-size:.86rem}
+body.touch .hud-warn{font-size:1.05rem;top:30%}
+#rotate{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:20px;background:rgba(6,10,20,.82)}
+#rotate .phone{width:46px;height:78px;border:4px solid var(--sun);border-radius:10px;margin:0 0 18px;animation:turn 2.4s ease-in-out infinite}
+@keyframes turn{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (max-height:520px){
+  .screen{padding-top:10px;padding-bottom:10px}
+  .panel{padding:16px 18px 14px;border-radius:16px}
+  h1{font-size:2.1rem;margin-bottom:8px}
+  h2{font-size:1.45rem;margin-bottom:8px}
+  .lede{display:none}
+  .btn{padding:8px 14px;font-size:.92rem}
+  .menu{gap:6px}
+  .card{padding:9px 12px}
+  .card .desc{font-size:.78rem}
+  .cards{gap:7px}
+  .stats{margin:10px 0 4px;gap:5px 12px}
+  .plane-desc{margin:8px 0 10px;font-size:.86rem}
+  .swatches{margin:4px 0 10px}
+  .label{margin:10px 0 6px}
+  .result{margin:4px 0 12px;font-size:.9rem;gap:4px 16px}
+}
 @media (prefers-reduced-motion:reduce){.btn,.card,.msg,.hud-banner{transition:none}.hud-warn{animation:none}}
 </style>
 </head>
@@ -210,7 +279,7 @@ input[type=range]{width:160px;accent-color:var(--sun)}
       <button class="btn" data-act="options">Options</button>
       <button class="btn ghost" data-act="fullscreen">Plein écran <span class="hint">recommandé</span></button>
     </nav>
-    <p class="touch-note">Ce jeu se joue au clavier (ou clavier + trackpad) : ouvrez-le sur votre MacBook.</p>
+    <p class="touch-note">Sur téléphone : tenez l’écran à l’horizontale. Pouce gauche n’importe où à gauche pour piloter, boutons à droite pour tirer et gérer la puissance.</p>
   </div>
 </section>
 
@@ -268,6 +337,17 @@ input[type=range]{width:160px;accent-color:var(--sun)}
         <dt><kbd>Échap</kbd> <kbd>P</kbd></dt><dd>Pause</dd>
       </dl>
     </div>
+    <div class="touch-help">
+      <p class="label">Sur écran tactile</p>
+      <dl class="keys">
+        <dt>Pouce gauche</dt><dd><b>Joystick</b> : posez le pouce n’importe où dans la moitié gauche et glissez pour piloter</dd>
+        <dt>Bouton rouge</dt><dd><b>Mitrailleuses</b> (maintenir)</dd>
+        <dt>Bouton arme</dt><dd><b>Arme spéciale</b> · ⇄ pour en changer</dd>
+        <dt>Manette</dt><dd><b>Puissance</b> : glissez la barre vers le haut ou le bas</dd>
+        <dt>TURBO · FREIN</dt><dd><b>Surpuissance</b> et <b>aérofreins</b> (maintenir)</dd>
+        <dt>❚❚</dt><dd>Pause</dd>
+      </dl>
+    </div>
     <p class="foot">Les touches fonctionnent en AZERTY comme en QWERTY. Option souris / trackpad : déplacez pour piloter, clic pour tirer, clic droit pour l'arme spéciale. Gérez la puissance : à plein régime l’avion monte bien mais tourne large ; réduisez pour serrer les virages dans les petites pièces. Trop peu de puissance en montée et l’avion décroche. La surpuissance fait chauffer le moteur : au-delà du rouge, il se bride le temps de refroidir. Les mitrailleuses chauffent aussi. Les roquettes partent droit, les missiles suivent la cible verrouillée, les bombes tombent sur le repère violet. Cassez les bibelots : certains cachent des bonus.</p>
     <div class="row" style="margin-top:18px"><button class="btn ghost" data-back="1">← Retour</button></div>
   </div>
@@ -283,6 +363,7 @@ input[type=range]{width:160px;accent-color:var(--sun)}
     <div class="opt"><div><b>Souris / trackpad</b><small>Piloter avec la souris (clic sur le jeu pour capturer).</small></div><div class="seg" data-opt="mouse"><button data-v="false">Non</button><button data-v="true">Oui</button></div></div>
     <div class="opt"><div><b>Sensibilité souris</b></div><input type="range" id="optSens" min="0.4" max="2" step="0.1" aria-label="Sensibilité souris"></div>
     <div class="opt"><div><b>Difficulté</b></div><div class="seg" data-opt="difficulty"><button data-v="facile">Facile</button><button data-v="normal">Normal</button><button data-v="difficile">Difficile</button></div></div>
+    <div class="opt"><div><b>Commandes tactiles</b><small>Joystick et boutons à l’écran (automatique sur téléphone et tablette).</small></div><div class="seg" data-opt="touch"><button data-v="auto">Auto</button><button data-v="on">Oui</button><button data-v="off">Non</button></div></div>
     <div class="opt"><div><b>Graphismes</b><small>Baissez si le jeu saccade.</small></div><div class="seg" data-opt="quality"><button data-v="rapide">Rapide</button><button data-v="normale">Normale</button><button data-v="haute">Haute</button></div></div>
     <div class="opt"><div><b>Volume</b></div><input type="range" id="optVol" min="0" max="1" step="0.05" aria-label="Volume"></div>
     <div class="row" style="margin-top:18px"><button class="btn primary" data-back="1">Valider</button></div>
@@ -318,6 +399,22 @@ input[type=range]{width:160px;accent-color:var(--sun)}
   </div>
 </section>
 
+<div id="touchUI" hidden>
+  <div id="tZone"></div>
+  <div id="stickHint">Pouce ici<br>pour piloter</div>
+  <div class="stick" id="stickBase"></div><div class="stick" id="stickKnob"></div>
+  <div id="tThrottle" role="slider" aria-label="Puissance moteur"><i></i><b>60%</b><span>GAZ</span></div>
+  <button class="tbtn" id="tFire" aria-label="Mitrailleuses">FEU</button>
+  <button class="tbtn" id="tSpecial" aria-label="Arme spéciale">ROQ<small>6</small></button>
+  <button class="tbtn" id="tSwitch" aria-label="Changer d'arme spéciale">⇄</button>
+  <button class="tbtn" id="tBoost" aria-label="Surpuissance">TURBO</button>
+  <button class="tbtn" id="tBrake" aria-label="Aérofreins">FREIN</button>
+  <button class="tbtn" id="tPause" aria-label="Pause">❚❚</button>
+  <button class="tbtn" id="tView" aria-label="Changer de vue">VUE</button>
+</div>
+<div id="rotate" hidden><div class="panel" style="text-align:center"><div class="phone" style="margin-left:auto;margin-right:auto"></div><p class="eyebrow">Mode paysage</p><h2>Tournez votre téléphone</h2>
+  <p class="lede" style="display:block;margin-left:auto;margin-right:auto">Le jeu se joue à l’horizontale, un pouce de chaque côté. Si l’écran ne pivote pas, désactivez le verrouillage de la rotation.</p>
+  <button class="btn ghost" id="rotateSkip" style="justify-content:center">Jouer en portrait quand même</button></div></div>
 <div id="noGL" hidden><div class="panel"><p class="eyebrow">Oups</p><h2>Le jeu ne peut pas démarrer</h2><p class="lede" id="noGLmsg"></p></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -352,7 +449,12 @@ const store={
   get(k,d){try{const v=localStorage.getItem('escadrille_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
   set(k,v){try{localStorage.setItem('escadrille_'+k,JSON.stringify(v));}catch(e){}}
 };
-const settings=Object.assign({invertY:true,assist:true,mouse:false,sens:1,volume:0.7,quality:'normale',difficulty:'normal',plane:'faucon',paint:0,engine:'standard'},store.get('settings',{}));
+/* Écran tactile principal (téléphone, tablette) */
+const IS_COARSE=!!(window.matchMedia&&(matchMedia('(pointer:coarse)').matches||(matchMedia('(hover:none)').matches&&navigator.maxTouchPoints>0)));
+const FIRST_RUN=store.get('settings',null)===null;
+const settings=Object.assign({invertY:true,assist:true,mouse:false,sens:1,volume:0.7,quality:IS_COARSE?'rapide':'normale',difficulty:'normal',plane:'faucon',paint:0,engine:'standard',touch:'auto'},store.get('settings',{}));
+if(FIRST_RUN&&IS_COARSE)settings.difficulty='facile';
+const touchMode=()=>settings.touch==='on'||(settings.touch==='auto'&&IS_COARSE);
 const progress=Object.assign({done:{},best:{}},store.get('progress',{}));
 function saveSettings(){store.set('settings',settings);}
 function saveProgress(){store.set('progress',progress);}
@@ -448,6 +550,7 @@ let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}
 catch(e){fail("WebGL n'est pas disponible dans ce navigateur. Essayez Safari ou Chrome à jour.");return;}
 renderer.outputEncoding=THREE.sRGBEncoding;
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('L\u2019appareil a manqué de mémoire graphique. Rechargez la page ; dans Options, choisissez Graphismes : Rapide.');});
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.05;
 renderer.shadowMap.enabled=true;
@@ -471,16 +574,19 @@ sun.shadow.camera.updateProjectionMatrix();
 sun.shadow.bias=-0.0004;sun.shadow.normalBias=1.2;
 /* Lampes : un petit groupe de lumières réutilisées, placées sur les lampes les plus proches */
 const LAMPS=[];
-const lampPool=[];for(let i=0;i<4;i++){const l=new THREE.PointLight(0xffd39c,0,640,1.6);scene.add(l);lampPool.push(l);}
+const lampPool=[];
+function setLampCount(n){while(lampPool.length>n)scene.remove(lampPool.pop());while(lampPool.length<n){const l=new THREE.PointLight(0xffd39c,0,640,1.6);scene.add(l);lampPool.push(l);}lampT=0;}
 const flash=new THREE.PointLight(0xffa050,0,560,2);scene.add(flash);let flashI=0;
 let lampT=0;
+setLampCount(settings.quality==='rapide'?2:4);
 function updateLamps(dt){lampT-=dt;if(lampT>0)return;lampT=0.35;
   const cp=camera.position;const sorted=LAMPS.slice().sort((a,b)=>a.p.distanceToSquared(cp)-b.p.distanceToSquared(cp));
   lampPool.forEach((l,i)=>{const L=sorted[i];if(L){l.position.copy(L.p);l.intensity=L.i;l.distance=L.d;}else l.intensity=0;});}
 
 function applyQuality(){
   const dpr=window.devicePixelRatio||1;
-  const pr=settings.quality==='haute'?Math.min(dpr,2):settings.quality==='rapide'?Math.min(dpr,1):Math.min(dpr,1.5);
+  const pr=settings.quality==='haute'?Math.min(dpr,2):settings.quality==='rapide'?Math.min(dpr,IS_COARSE?1.35:1):Math.min(dpr,1.5);
+  setLampCount(settings.quality==='rapide'?2:4);
   renderer.setPixelRatio(pr);renderer.setSize(innerWidth,innerHeight,false);
   const ms=settings.quality==='haute'?4096:settings.quality==='rapide'?1024:2048;
   if(sun.shadow.mapSize.x!==ms){sun.shadow.mapSize.set(ms,ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
@@ -505,7 +611,7 @@ function heightToNormal(hc,strength){
   g.putImageData(im,0,0);return c;}
 /* paire couleur + hauteur */
 function pair(w,h,hBase){const a=cv(w,h),b=cv(w,h);b[1].fillStyle=`rgb(${hBase},${hBase},${hBase})`;b[1].fillRect(0,0,w,h);return {c:a[0],g:a[1],hc:b[0],hg:b[1],w,h};}
-function mats(p,strength,o={}){const m={map:tex(p.c)};if(p.hc&&strength)m.normalMap=linTex(heightToNormal(p.hc,strength));return Object.assign(m,o);}
+function mats(p,strength,o={}){const m={map:tex(p.c)};if(p.hc&&strength){if(!p.nm){p.nm=heightToNormal(p.hc,strength);p.hc.width=p.hc.height=1;}m.normalMap=linTex(p.nm);}return Object.assign(m,o);}
 function noiseInto(g,w,h,n,a,col,rmin=1,rmax=3){for(let i=0;i<n;i++){g.fillStyle=col.replace('A',(Math.random()*a).toFixed(3));const r=rand(rmin,rmax);g.beginPath();g.arc(Math.random()*w,Math.random()*h,r,0,TAU);g.fill();}}
 const T={};
 /* Parquet de chêne (1024 px = 160 cm) */
@@ -1964,6 +2070,7 @@ function setThrottle(p,v){p.throttle=clamp(v,0,1);}
 /* ---------- Pilotage du joueur ---------- */
 const keys={};
 const input={stickX:0,stickY:0,mouseFire:false,mouseSpecial:false};
+const touch={x:0,y:0,active:false};
 let mouseLocked=false;
 function updatePlayerControl(p,dt){
   const d=p.design;
@@ -1972,6 +2079,7 @@ function updatePlayerControl(p,dt){
   let roll=(keys.right?1:0)-(keys.left?1:0);
   const yaw=(keys.yawR?1:0)-(keys.yawL?1:0);
   if(settings.mouse&&mouseLocked){noseUp+=settings.invertY?input.stickY:-input.stickY;roll+=input.stickX;}
+  if(touch.active){const cx=Math.sign(touch.x)*Math.pow(Math.abs(touch.x),1.35),cyv=Math.sign(touch.y)*Math.pow(Math.abs(touch.y),1.35);noseUp+=settings.invertY?cyv:-cyv;roll+=cx;}
   noseUp=clamp(noseUp,-1,1);roll=clamp(roll,-1,1);
   p.inPitch=lerp(p.inPitch,noseUp,damp(9,dt));p.inRoll=lerp(p.inRoll,roll,damp(10,dt));p.inYaw=lerp(p.inYaw,yaw,damp(6,dt));
   if(keys.thrUp)p.throttle=Math.min(1,p.throttle+dt*0.6);
@@ -2387,6 +2495,8 @@ function updateHudDom(dt){
     HUDEL.hp.style.transform=`scaleX(${hr.toFixed(3)})`;const col=hr>0.5?'var(--good)':hr>0.25?'var(--orange)':'var(--danger)';if(hudCache.hpc!==col){hudCache.hpc=col;HUDEL.hp.style.background=col;}
     setText(HUDEL.hpN,'hp',String(Math.ceil(Math.max(0,p.hp))));
     HUDEL.heat.style.transform=`scaleX(${p.heat.toFixed(3)})`;setText(HUDEL.heatN,'heat',p.overheat?'chaud':'');
+    if(touchMode()){const tf=Math.round(p.throttle*100);TUI.thrFill.style.height=tf+'%';setText(TUI.thrTxt,'thr',tf+'%');
+      const WN={rockets:'ROQ',missiles:'MIS',bombs:'BOM'};const lbl=WN[p.weapon]+'|'+p.ammo[p.weapon];if(hudCache.spec!==lbl){hudCache.spec=lbl;TUI.spec.innerHTML=WN[p.weapon]+'<small>'+p.ammo[p.weapon]+'</small>';}}
     HUDEL.wpns.forEach(el=>{const w=el.dataset.w;const n=String(p.ammo[w]);if(hudCache['w'+w]!==n){hudCache['w'+w]=n;el.querySelector('b').textContent=n;}el.classList.toggle('sel',p.weapon===w);});
     const low=hr<0.25&&p.alive;HUDEL.vig.style.opacity=Math.max(vigT,low?0.35+Math.sin(performance.now()*0.008)*0.15:0).toFixed(3);
     warnT-=dt;if(warnT<=0){warnT=0.1;let w='';
@@ -2432,10 +2542,11 @@ function dial(c,x,y,r,label,frac,text,o={}){
   if(o.marker!=null){const a=a0+(a1-a0)*clamp(o.marker,0,1);c.fillStyle='#5fc4ff';c.beginPath();c.moveTo(Math.cos(a)*(r-2),Math.sin(a)*(r-2));c.lineTo(Math.cos(a-0.09)*(r-12),Math.sin(a-0.09)*(r-12));c.lineTo(Math.cos(a+0.09)*(r-12),Math.sin(a+0.09)*(r-12));c.closePath();c.fill();}
   const a=a0+(a1-a0)*clamp(frac,0,1.05);c.strokeStyle=o.needle||'#ffc23d';c.lineWidth=2.6;c.lineCap='round';c.beginPath();c.moveTo(-Math.cos(a)*6,-Math.sin(a)*6);c.lineTo(Math.cos(a)*(r-9),Math.sin(a)*(r-9));c.stroke();
   c.fillStyle='#f4ecdc';c.beginPath();c.arc(0,0,3,0,TAU);c.fill();
-  c.textAlign='center';c.font='900 9px Nunito, system-ui, sans-serif';c.fillStyle='rgba(244,236,220,.7)';c.fillText(label,0,r*0.42+2);
-  c.font='900 13px Nunito, system-ui, sans-serif';c.fillStyle=o.textCol||'#f4ecdc';c.fillText(text,0,r*0.42+16);c.restore();}
+  const k=Math.max(0.75,r/38);c.textAlign='center';c.font=`900 ${Math.round(9*k)}px Nunito, system-ui, sans-serif`;c.fillStyle='rgba(244,236,220,.7)';c.fillText(label,0,r*0.38+2);
+  c.font=`900 ${Math.round(13*k)}px Nunito, system-ui, sans-serif`;c.fillStyle=o.textCol||'#f4ecdc';c.fillText(text,0,r*0.38+2+12*k);c.restore();}
 function drawGauges(c,p){
-  const r=HW<700?30:38,y=HH-r-(HW<700?14:22),x0=(HW<700?14:22)+r,gap=r*2+10;
+  const T=touchMode();const r=T?23:HW<700?30:38,gap=r*2+(T?8:10);let y,x0;
+  if(T){x0=HW/2-gap;y=HW<HH?SAI.t+150+r:HH-r-10-SAI.b;}else{y=HH-r-(HW<700?14:22);x0=(HW<700?14:22)+r;}
   const d=p.design;
   dial(c,x0,y,r,'VITESSE',p.speed/(d.maxSpeed*1.25),Math.round(p.speed*0.864)+'',{zones:[[0,d.minSpeed/(d.maxSpeed*1.25),'rgba(255,91,77,.8)']]});
   dial(c,x0+gap,y,r,'PUISSANCE',p.rpm/1.12,Math.round(p.rpm*100)+' %',{marker:p.throttle/1.12,zones:[[1/1.12,1,'rgba(255,91,77,.85)']],needle:p.boost?'#ff5b4d':'#ffc23d',textCol:p.boost?'#ff9a3c':'#f4ecdc'});
@@ -2444,10 +2555,13 @@ function drawGauges(c,p){
   const tags=[];if(p.boost)tags.push(['SURPUISSANCE','#ff9a3c']);if(p.brake)tags.push(['AÉROFREINS','#5fc4ff']);if(p.engineOver)tags.push(['MOTEUR BRIDÉ','#ff5b4d']);
   let tx=x0-r;for(const [t,col] of tags){c.fillStyle=col;c.fillText(t,tx,ty);tx+=c.measureText(t).width+12;}
   const z=zoneOf(p.pos);const R2=HW<700?54:72;c.textAlign='center';c.font='800 11px Nunito, system-ui, sans-serif';c.fillStyle='rgba(244,236,220,.85)';
-  c.fillText(FLOOR_NAMES[floorOfY(p.pos.y)]+' · '+ZONES[z].name,HW/2,HH-R2*2-(HW<700?18:30)-8);
+  const zl=FLOOR_NAMES[floorOfY(p.pos.y)]+' · '+ZONES[z].name;
+  if(T){c.font='800 10px Nunito, system-ui, sans-serif';if(HW>=HH)c.fillText(zl,RADAR.x,RADAR.y+RADAR.r+13);else{c.textAlign='right';c.fillText(zl,HW-14-SAI.r,RADAR.y+RADAR.r+13);}}else c.fillText(zl,HW/2,HH-R2*2-(HW<700?18:30)-8);
 }
+const RADAR={x:0,y:0,r:40};
 function drawRadar(c,p){
-  const R=HW<700?54:72,cx=HW/2,cy=HH-R-(HW<700?18:30);
+  const T=touchMode(),land=HW>=HH;const R=T?40:HW<700?54:72;
+  const cx=T?(land?HW-R-14-SAI.r-128:HW-R-14-SAI.r):HW/2,cy=T?(land?SAI.t+8+R:SAI.t+96+R):HH-R-(HW<700?18:30);RADAR.x=cx;RADAR.y=cy;RADAR.r=R;
   c.save();c.beginPath();c.arc(cx,cy,R,0,TAU);c.fillStyle='rgba(8,14,26,.62)';c.fill();c.strokeStyle='rgba(244,236,220,.35)';c.lineWidth=1.5;c.stroke();c.clip();
   const range=1100,k=R/range,hd=Math.atan2(p.fwd.x,p.fwd.z),ch=Math.cos(hd),sh=Math.sin(hd);
   const tr=(x,z)=>{const dx=x-p.pos.x,dz=z-p.pos.z;const f=dx*sh+dz*ch,r=-dx*ch+dz*sh;return [cx+r*k,cy-f*k];};
@@ -2476,7 +2590,7 @@ function renderHangar(dt){
   if(hangar.key!==key){if(hangar.model){hangar.holder.remove(hangar.model.group);disposeTree(hangar.model.group);}const d=DESIGNS[settings.plane];hangar.model=buildPlane(d,d.paints[settings.paint%d.paints.length],0);
     hangar.model.group.traverse(n=>{if(n.isMesh)n.castShadow=true;});hangar.holder.add(hangar.model.group);hangar.key=key;}
   hangar.holder.rotation.y+=dt*0.45;hangar.model.prop.rotation.z+=dt*5;
-  const w=innerWidth,h=innerHeight;hangar.cam.aspect=w/h;if(w>820)hangar.cam.setViewOffset(w,h,-w*0.2,0,w,h);else hangar.cam.clearViewOffset();hangar.cam.updateProjectionMatrix();
+  const w=innerWidth,h=innerHeight;hangar.cam.aspect=w/h;if(w>600&&w>h)hangar.cam.setViewOffset(w,h,-w*(w>820?0.2:0.26),0,w,h);else hangar.cam.clearViewOffset();hangar.cam.updateProjectionMatrix();
   renderer.render(hangar.scene,hangar.cam);
 }
 
@@ -2521,7 +2635,7 @@ function refreshOptions(){
   $('#optSens').value=settings.sens;$('#optVol').value=settings.volume;
 }
 $$('#scrOptions .seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=seg.dataset.opt;let v=b.dataset.v;if(v==='true')v=true;else if(v==='false')v=false;
-  settings[k]=v;saveSettings();refreshOptions();if(k==='quality')applyQuality();}));
+  settings[k]=v;saveSettings();refreshOptions();if(k==='quality')applyQuality();if(k==='touch')applyTouchMode();}));
 $('#optSens').addEventListener('input',e=>{settings.sens=parseFloat(e.target.value);saveSettings();});
 $('#optVol').addEventListener('input',e=>{settings.volume=parseFloat(e.target.value);saveSettings();Sound.setVolume(settings.volume);});
 $('#hangarBack').addEventListener('click',()=>{Sound.click();showScreen(pendingMission&&!pendingMission.free?'scrMissions':'scrTitle');});
@@ -2545,16 +2659,17 @@ function act(a){
 function startGame(def){
   Sound.init();hideScreens();$('#hud').hidden=false;hudCache={};warnTxt='';HUDEL.warn.hidden=true;HUDEL.msgs.innerHTML='';
   startMission(def);mode='play';cam.mode=0;try{canvas.focus({preventScroll:true});}catch(e){}
-  if(settings.mouse)requestLock();
+  if(settings.mouse&&!touchMode())requestLock();
+  setTouchUI(true);
   last=performance.now();
 }
 function clearKeys(){for(const k in keys)keys[k]=false;input.mouseFire=input.mouseSpecial=false;}
 function pauseGame(){if(mode!=='play')return;mode='pause';$('#pauseTitle').textContent=game.mission&&game.mission.free?'Combat en pause':'Mission en pause';
-  clearKeys();Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();showScreen('scrPause');}
-function resume(){hideScreens();mode='play';clearKeys();try{canvas.focus({preventScroll:true});}catch(e){}if(settings.mouse)requestLock();last=performance.now();}
-function quitToMenu(){mode='menu';$('#hud').hidden=true;Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();setupAttract();returnTo='scrTitle';pendingMission=null;showScreen('scrTitle');}
+  clearKeys();setTouchUI(false);Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();showScreen('scrPause');}
+function resume(){hideScreens();mode='play';clearKeys();setTouchUI(true);try{canvas.focus({preventScroll:true});}catch(e){}if(settings.mouse&&!touchMode())requestLock();last=performance.now();}
+function quitToMenu(){mode='menu';setTouchUI(false);$('#hud').hidden=true;Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();setupAttract();returnTo='scrTitle';pendingMission=null;showScreen('scrTitle');}
 function showEnd(){
-  mode='end';Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();
+  mode='end';setTouchUI(false);clearKeys();Sound.engine(false,0,0);if(document.pointerLockElement)document.exitPointerLock();
   const def=game.mission,won=game.won;let bonus=0;
   if(won){bonus=Math.max(0,Math.round(3000-game.time*8))+game.lives*400;game.score+=bonus;progress.done[def.id]=true;}
   const prev=progress.best[def.id]||0,record=game.score>prev;if(record)progress.best[def.id]=game.score;saveProgress();
@@ -2598,12 +2713,49 @@ function onPress(k){
 }
 function requestLock(){try{const r=canvas.requestPointerLock&&canvas.requestPointerLock();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
 document.addEventListener('pointerlockchange',()=>{const was=mouseLocked;mouseLocked=document.pointerLockElement===canvas;if(was&&!mouseLocked&&mode==='play')pauseGame();});
-canvas.addEventListener('mousedown',e=>{if(mode!=='play')return;if(settings.mouse&&!mouseLocked){requestLock();return;}if(e.button===0)input.mouseFire=true;if(e.button===2)input.mouseSpecial=true;});
+canvas.addEventListener('mousedown',e=>{if(mode!=='play'||touchMode())return;if(settings.mouse&&!mouseLocked){requestLock();return;}if(e.button===0)input.mouseFire=true;if(e.button===2)input.mouseSpecial=true;});
 addEventListener('mouseup',e=>{if(e.button===0)input.mouseFire=false;if(e.button===2)input.mouseSpecial=false;});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('mousemove',e=>{if(!mouseLocked||mode!=='play')return;const s=0.0035*settings.sens;input.stickX=clamp(input.stickX+e.movementX*s,-1,1);input.stickY=clamp(input.stickY+e.movementY*s,-1,1);});
 canvas.addEventListener('wheel',e=>{if(mode==='play'&&player){e.preventDefault();setThrottle(player,player.throttle-Math.sign(e.deltaY)*0.05);}},{passive:false});
-addEventListener('resize',applyQuality);
+addEventListener('resize',()=>{readSafe();applyQuality();});
+
+/* =========================================================
+   COMMANDES TACTILES (téléphone, tablette)
+   ========================================================= */
+const TUI={root:$('#touchUI'),zone:$('#tZone'),base:$('#stickBase'),knob:$('#stickKnob'),hint:$('#stickHint'),thr:$('#tThrottle'),thrFill:$('#tThrottle i'),thrTxt:$('#tThrottle b'),spec:$('#tSpecial')};
+const ROT=$('#rotate');
+const SAI={t:0,r:0,b:0,l:0};
+const probe=document.createElement('div');probe.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(probe);
+function readSafe(){const cs=getComputedStyle(probe);SAI.t=parseFloat(cs.paddingTop)||0;SAI.r=parseFloat(cs.paddingRight)||0;SAI.b=parseFloat(cs.paddingBottom)||0;SAI.l=parseFloat(cs.paddingLeft)||0;}
+let portraitOK=false,stickId=null,stickX0=0,stickY0=0,stickUsed=false,thrId=null;
+const STICK_R=54;
+function applyTouchMode(){const on=touchMode();document.body.classList.toggle('touch',on);
+  const bl=$('.hud-bl');(on?$('.hud-tl'):$('#hud')).appendChild(bl);
+  setTouchUI(on&&mode==='play');
+  const de=document.documentElement,fs=$('[data-act="fullscreen"]');if(fs)fs.hidden=!(de.requestFullscreen||de.webkitRequestFullscreen);}
+function releaseStick(){stickId=null;touch.x=touch.y=0;touch.active=false;TUI.base.classList.remove('on');TUI.knob.classList.remove('on');}
+function setTouchUI(v){TUI.root.hidden=!(v&&touchMode());if(!v){releaseStick();thrId=null;for(const b of $$('.tbtn'))b.classList.remove('on');}}
+TUI.zone.addEventListener('pointerdown',e=>{if(stickId!==null||mode!=='play')return;e.preventDefault();stickId=e.pointerId;try{TUI.zone.setPointerCapture(e.pointerId);}catch(_){}
+  stickX0=e.clientX;stickY0=e.clientY;for(const el of [TUI.base,TUI.knob]){el.style.left=stickX0+'px';el.style.top=stickY0+'px';el.classList.add('on');}
+  touch.active=true;touch.x=touch.y=0;if(!stickUsed){stickUsed=true;TUI.hint.hidden=true;}Sound.init();});
+TUI.zone.addEventListener('pointermove',e=>{if(e.pointerId!==stickId)return;e.preventDefault();let dx=e.clientX-stickX0,dy=e.clientY-stickY0;const l=Math.hypot(dx,dy);
+  if(l>STICK_R){dx*=STICK_R/l;dy*=STICK_R/l;}touch.x=dx/STICK_R;touch.y=dy/STICK_R;TUI.knob.style.left=(stickX0+dx)+'px';TUI.knob.style.top=(stickY0+dy)+'px';});
+for(const ev of ['pointerup','pointercancel','lostpointercapture'])TUI.zone.addEventListener(ev,e=>{if(e.pointerId===stickId)releaseStick();});
+function holdBtn(id,key){const b=$(id);
+  b.addEventListener('pointerdown',e=>{e.preventDefault();if(mode!=='play')return;keys[key]=true;b.classList.add('on');try{b.setPointerCapture(e.pointerId);}catch(_){}Sound.init();});
+  const off=()=>{keys[key]=false;b.classList.remove('on');};for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,off);}
+holdBtn('#tFire','fire');holdBtn('#tSpecial','special');holdBtn('#tBoost','boost');holdBtn('#tBrake','brake');
+const tapBtn=(id,fn)=>$(id).addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(mode==='play')fn();});
+tapBtn('#tSwitch',()=>{if(player)cycleWeapon(player);});
+tapBtn('#tPause',()=>{Sound.click();pauseGame();});
+tapBtn('#tView',()=>{cam.mode=1-cam.mode;cam.snap=true;toast(cam.mode?'Vue cockpit':'Vue poursuite','info');});
+function thrSet(e){const r=TUI.thr.getBoundingClientRect();const f=clamp(1-(e.clientY-r.top-10)/(r.height-20),0,1);if(player)setThrottle(player,Math.round(f*20)/20);}
+TUI.thr.addEventListener('pointerdown',e=>{e.preventDefault();if(mode!=='play')return;thrId=e.pointerId;try{TUI.thr.setPointerCapture(e.pointerId);}catch(_){}thrSet(e);});
+TUI.thr.addEventListener('pointermove',e=>{if(e.pointerId===thrId){e.preventDefault();thrSet(e);}});
+for(const ev of ['pointerup','pointercancel','lostpointercapture'])TUI.thr.addEventListener(ev,e=>{if(e.pointerId===thrId)thrId=null;});
+TUI.root.addEventListener('contextmenu',e=>e.preventDefault());
+$('#rotateSkip').addEventListener('click',()=>{portraitOK=true;ROT.hidden=true;});
 
 /* =========================================================
    BOUCLE PRINCIPALE
@@ -2638,7 +2790,8 @@ function loop(now){
   requestAnimationFrame(loop);
   let dt=(now-last)/1000;last=now;if(!(dt>0))return;dt=Math.min(dt,0.05);
   if(screen==='scrHangar'){renderHangar(dt);hctx.setTransform(1,0,0,1,0,0);hctx.clearRect(0,0,hud2d.width,hud2d.height);return;}
-  if(mode==='play'||mode==='menu')update(dt);
+  const needRot=mode==='play'&&touchMode()&&innerHeight>innerWidth&&!portraitOK;if(ROT.hidden===needRot)ROT.hidden=!needRot;
+  if((mode==='play'&&!needRot)||mode==='menu')update(dt);
   particleScale();
   renderer.render(scene,camera);
   drawHUD();
@@ -2648,6 +2801,7 @@ window.__escadrille={get game(){return game;},get player(){return player;},get m
   startMission:id=>startGame(id==='free'?FREE:MISSIONS[id]),keys,auto:v=>{autoPilot=v;},
   look:(p,t)=>{mode='pause';$('#hud').hidden=true;hideScreens();camera.position.set(...p);camera.up.set(0,1,0);camera.lookAt(...t);camera.fov=70;camera.updateProjectionMatrix();},
   sim:(sec,step=1/60)=>{const t0=performance.now();const n=Math.round(sec/step);for(let i=0;i<n&&(mode==='play'||mode==='menu');i++)update(step);return (performance.now()-t0)/n;}};
+readSafe();applyTouchMode();
 applyQuality();
 setupAttract();
 showScreen('scrTitle');
