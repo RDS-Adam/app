@@ -303,6 +303,9 @@ body.touch .hud-warn{font-size:1.05rem;top:30%}
     <p class="plane-desc" id="planeDesc"></p>
     <p class="label">Peinture</p>
     <div class="swatches" id="paintSwatches" role="group" aria-label="Peinture"></div>
+    <p class="label">Difficulté</p>
+    <div class="seg" id="diffSeg" role="group" aria-label="Difficulté"></div>
+    <p class="plane-desc" id="hangarDiff" style="min-height:0;margin-top:10px"></p>
     <p class="label">Préparation moteur</p>
     <div class="seg" id="engineSeg" role="group" aria-label="Moteur"></div>
     <p class="plane-desc" id="engineDesc" style="min-height:0;margin-top:10px"></p>
@@ -362,7 +365,7 @@ body.touch .hud-warn{font-size:1.05rem;top:30%}
     <div class="opt"><div><b>Pilotage assisté</b><small>L'avion se remet à plat quand vous lâchez les flèches.</small></div><div class="seg" data-opt="assist"><button data-v="true">Activé</button><button data-v="false">Libre</button></div></div>
     <div class="opt"><div><b>Souris / trackpad</b><small>Piloter avec la souris (clic sur le jeu pour capturer).</small></div><div class="seg" data-opt="mouse"><button data-v="false">Non</button><button data-v="true">Oui</button></div></div>
     <div class="opt"><div><b>Sensibilité souris</b></div><input type="range" id="optSens" min="0.4" max="2" step="0.1" aria-label="Sensibilité souris"></div>
-    <div class="opt"><div><b>Difficulté</b></div><div class="seg" data-opt="difficulty"><button data-v="facile">Facile</button><button data-v="normal">Normal</button><button data-v="difficile">Difficile</button></div></div>
+    <div class="opt"><div><b>Difficulté</b><small id="diffDesc"></small></div><div class="seg" data-opt="difficulty"><button data-v="debutant">Débutant</button><button data-v="facile">Facile</button><button data-v="normal">Normal</button><button data-v="difficile">Difficile</button></div></div>
     <div class="opt"><div><b>Commandes tactiles</b><small>Joystick et boutons à l’écran (automatique sur téléphone et tablette).</small></div><div class="seg" data-opt="touch"><button data-v="auto">Auto</button><button data-v="on">Oui</button><button data-v="off">Non</button></div></div>
     <div class="opt"><div><b>Graphismes</b><small>Baissez si le jeu saccade.</small></div><div class="seg" data-opt="quality"><button data-v="rapide">Rapide</button><button data-v="normale">Normale</button><button data-v="haute">Haute</button></div></div>
     <div class="opt"><div><b>Volume</b></div><input type="range" id="optVol" min="0" max="1" step="0.05" aria-label="Volume"></div>
@@ -453,15 +456,21 @@ const store={
 const IS_COARSE=!!(window.matchMedia&&(matchMedia('(pointer:coarse)').matches||(matchMedia('(hover:none)').matches&&navigator.maxTouchPoints>0)));
 const FIRST_RUN=store.get('settings',null)===null;
 const settings=Object.assign({invertY:true,assist:true,mouse:false,sens:1,volume:0.7,quality:IS_COARSE?'rapide':'normale',difficulty:'normal',plane:'faucon',paint:0,engine:'standard',touch:'auto'},store.get('settings',{}));
-if(FIRST_RUN&&IS_COARSE)settings.difficulty='facile';
+if(FIRST_RUN)settings.difficulty=IS_COARSE?'debutant':'facile';
 const touchMode=()=>settings.touch==='on'||(settings.touch==='auto'&&IS_COARSE);
 const progress=Object.assign({done:{},best:{}},store.get('progress',{}));
 function saveSettings(){store.set('settings',settings);}
 function saveProgress(){store.set('progress',progress);}
 const DIFF={
-  facile:{acc:0.05,dmg:0.5,turn:0.8,react:0.6,fire:0.7},
-  normal:{acc:0.032,dmg:0.85,turn:1,react:1,fire:1},
-  difficile:{acc:0.018,dmg:1.35,turn:1.12,react:1.35,fire:1.25}
+  /* time : vitesse du jeu · avoid : aide anti-collision · aim : cône de visée assistée (rad) · crash : dégâts des chocs */
+  debutant:{acc:0.1,dmg:0.15,turn:0.7,react:0.35,fire:0.45,cone:0.997,enemyHp:0.55,playerHp:2,lives:9,time:0.7,crash:0.08,avoid:1,aim:0.26,regen:4,stall:false,ammo:2,lock:0.25,waveMax:3,
+    desc:'Aide anti-collision forte, jeu ralenti, ennemis maladroits, avion très solide qui se répare seul, 9 avions.'},
+  facile:{acc:0.075,dmg:0.3,turn:0.78,react:0.5,fire:0.55,cone:0.996,enemyHp:0.7,playerHp:1.5,lives:5,time:0.8,crash:0.2,avoid:0.8,aim:0.18,regen:2,stall:false,ammo:1.5,lock:0.35,waveMax:4,
+    desc:'Aide anti-collision, jeu un peu ralenti, ennemis peu précis, avion solide qui se répare hors combat, 5 avions.'},
+  normal:{acc:0.032,dmg:0.85,turn:1,react:1,fire:1,cone:0.992,enemyHp:1,playerHp:1,lives:3,time:1,crash:1,avoid:0,aim:0.085,regen:0,stall:true,ammo:1,lock:0.55,waveMax:6,
+    desc:'Pas d\u2019aide anti-collision, 3 avions, décrochage possible.'},
+  difficile:{acc:0.018,dmg:1.35,turn:1.12,react:1.35,fire:1.25,cone:0.99,enemyHp:1.2,playerHp:1,lives:3,time:1,crash:1.2,avoid:0,aim:0.06,regen:0,stall:true,ammo:1,lock:0.6,waveMax:6,
+    desc:'Ennemis précis, agressifs et plus résistants.'}
 };
 const diff=()=>DIFF[settings.difficulty]||DIFF.normal;
 /* Préparations moteur (hangar) */
@@ -1890,11 +1899,12 @@ class Plane{
     this.model=buildPlane(d,this.paint,team);this.mesh=this.model.group;scene.add(this.mesh);
     this.pos=new V3();this.q=new Q();this.vel=new V3();this.fwd=new V3(0,0,1);this.up=new V3(0,1,0);this.right=new V3(-1,0,0);
     this.speed=d.cruise;this.throttle=0.55;
-    this.maxHp=d.hp;this.hp=this.maxHp;this.alive=true;this.dying=false;this.gone=false;this.dieT=0;this.spin=0;
+    this.maxHp=d.hp*(team===1?diff().enemyHp:this.isPlayer?diff().playerHp:1);this.hp=this.maxHp;this.hurtT=99;this.alive=true;this.dying=false;this.gone=false;this.dieT=0;this.spin=0;
     this.hitR=d.ace?13:11;this.heat=0;this.overheat=false;this.gunCd=0;this.gunIdx=0;
     this.hitCd=0;this.invuln=0;this.shield=0;this.stall=0;this.inPitch=0;this.inRoll=0;this.inYaw=0;
     this.ammo={rockets:0,missiles:0,bombs:0};this.weapon='rockets';this.specialCd=0;
     this.lock={cand:null,t:0,locked:false,checkT:0};
+    this.avDir=new V3();this.avT=0;this.avOn=false;this.avUrg=0;
     this.rpm=0.6;this.temp=0.45;this.boost=false;this.brake=false;this.engineOver=false;this.exhT=0;
     this.trailT=0;this.vaporT=0;this.name=o.name||d.name;this.points=d.points||150;this.lastHitBy=null;
     this.ai=this.isPlayer?null:{burstT:rand(0,1),burstOn:false,target:null,retarget:0,state:'attack',stateT:0,breakDir:new V3(),avoidT:0,avoidDir:new V3(),probeT:rand(0,0.07),through:0,exit:new V3(),des:new V3(),wp:null,losT:0,los:false};
@@ -1909,7 +1919,7 @@ class Plane{
     if(this.shield>0){fxSparks(this.pos,4,1,0.9,0.3,60);return;}
     if(src&&src.team===1&&this.team===0)a*=diff().dmg;
     if(src&&src!==this&&src.team===this.team)a*=0.3;
-    this.hp-=a;if(src)this.lastHitBy=src;
+    this.hp-=a;this.hurtT=0;if(src)this.lastHitBy=src;
     if(this.isPlayer){hurtFlash(a);camShake(Math.min(3,a*0.3));Sound.hit();}
     else if(src&&src.team!==this.team){const ai=this.ai;
       if(ai.state==='attack'&&Math.random()<0.3*(this.team===1?diff().react:1)){ai.state='evade';ai.stateT=rand(1,1.8);randomJink(this);}
@@ -1935,7 +1945,8 @@ function integrateFlight(p,dt,engine){
   const d=p.design;
   if(!engine)p.speed-=p.fwd.y*150*dt;
   const st=d.minSpeed*0.92;
-  if(p.speed<st){const s=clamp((st-p.speed)/(d.minSpeed*0.5),0,1);_v1.crossVectors(p.fwd,_v2.set(0,-1,0));
+  if(p.isPlayer&&!diff().stall){p.speed=Math.max(p.speed,d.minSpeed*0.95);p.stall=0;}
+  else if(p.speed<st){const s=clamp((st-p.speed)/(d.minSpeed*0.5),0,1);_v1.crossVectors(p.fwd,_v2.set(0,-1,0));
     if(_v1.lengthSq()>1e-6){_v1.normalize();_q1.setFromAxisAngle(_v1,s*1.7*dt);p.q.premultiply(_q1);}p.stall=s;}else p.stall=0;
   p.speed=clamp(p.speed,d.minSpeed*0.6,d.maxSpeed*1.25);
   p.q.normalize();p.updateAxes();
@@ -1952,7 +1963,7 @@ function resolvePlaneWorld(p){
       _v1.copy(p.fwd).addScaledVector(_hit.n,-1.6*vn).normalize();
       _q1.setFromUnitVectors(p.fwd,_v1);p.q.premultiply(_q1).normalize();p.updateAxes();
       const impact=-vn*p.speed;
-      if(p.hitCd<=0&&impact>18){p.hitCd=0.3;const dmg=impact*0.15;DBG.crashes++;if(dmg>8)DBG.hard++;
+      if(p.hitCd<=0&&impact>18){p.hitCd=0.3;const dmg=impact*0.15*(p.isPlayer?diff().crash:1);DBG.crashes++;if(dmg>8)DBG.hard++;
         if(c.ent&&c.ent.alive&&c.ent.damage)c.ent.damage(dmg*1.5,p);
         p.speed*=1-0.45*(-vn);
         fxSparks(p.pos,8,1,0.85,0.5,90);fxPuff(p.pos,3,0.6,0.55,0.5,0.4,8);Sound.thud(p.pos);
@@ -1969,6 +1980,7 @@ function planeVsPlane(){
       if(a.hitCd<=0&&b.hitCd<=0){a.hitCd=b.hitCd=0.5;_v2.addVectors(a.pos,b.pos).multiplyScalar(0.5);fxSparks(_v2,14);Sound.thud(a.pos);a.damage(16,b);b.damage(16,a);}}}
 }
 function planeCommon(p,dt){
+  p.hurtT+=dt;if(p.isPlayer&&diff().regen&&p.hurtT>4&&p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+diff().regen*dt);
   p.hitCd-=dt;p.invuln-=dt;p.shield-=dt;p.gunCd-=dt;p.specialCd-=dt;
   if(p.overheat){p.heat-=dt*0.45;if(p.heat<=0.25)p.overheat=false;}else p.heat=Math.max(0,p.heat-dt*0.38);
   p.model.prop.rotation.z+=dt*(20+(p.isPlayer?p.rpm:p.throttle)*55);p.model.blur.visible=(p.isPlayer?p.rpm:p.throttle)>0.15;
@@ -2032,11 +2044,11 @@ function updateLock(p,dt){
     for(const e of hostiles(p)){_v1.subVectors(e.pos,p.pos);const d=_v1.length();if(d>950||d<20)continue;const a=Math.acos(clamp(_v1.dot(p.fwd)/d,-1,1));
       if(a<bestA&&lineOfSight(p.pos,e.pos,e)){bestA=a;best=e;}}
     if(best!==L.cand){L.cand=best;L.t=0;L.locked=false;}}
-  if(L.cand){if(!L.cand.alive){L.cand=null;L.locked=false;return;}L.t+=dt;if(!L.locked&&L.t>0.55){L.locked=true;Sound.lock();}else if(!L.locked)Sound.beep();}
+  if(L.cand){if(!L.cand.alive){L.cand=null;L.locked=false;return;}L.t+=dt;if(!L.locked&&L.t>diff().lock){L.locked=true;Sound.lock();}else if(!L.locked)Sound.beep();}
 }
 const _aim=new V3();
 function aimAssist(p){
-  if(!settings.assist)return null;let found=false,bestA=0.085;
+  if(!settings.assist)return null;let found=false,bestA=diff().aim;
   for(const e of hostiles(p)){_v1.subVectors(e.pos,p.pos);const dist=_v1.length();if(dist>640)continue;
     const t=dist/(BULLET_SPEED+p.speed*0.6);_v2.copy(e.pos);if(e.vel)_v2.addScaledVector(e.vel,t);_v2.sub(p.pos).normalize();
     const a=Math.acos(clamp(_v2.dot(p.fwd),-1,1));if(a<bestA){bestA=a;_aim.copy(_v2);found=true;}}
@@ -2067,6 +2079,20 @@ function updateEngine(p,dt){
   if(p.brake&&p.speed>90&&Sound.gate('brk',400))fxPuff(_v2.copy(p.pos).addScaledVector(p.fwd,-6),2,0.9,0.9,0.9,0.25,5);
 }
 function setThrottle(p,v){p.throttle=clamp(v,0,1);}
+/* ---------- Aide anti-collision (modes Débutant et Facile) ---------- */
+function playerAvoid(p,dt){
+  const df=diff();if(!df.avoid)return;
+  p.avT-=dt;
+  if(p.avT<=0){p.avT=0.05;const look=40+p.speed*0.8;
+    _v3.copy(p.fwd).multiplyScalar(look);const t0=rayWorld(p.pos,_v3,PR+4).t;p.avOn=false;
+    if(t0>=0){let bestS=-Infinity;
+      for(const [a,phi] of CAND){_v4.copy(p.up).multiplyScalar(Math.cos(phi)).addScaledVector(p.right,Math.sin(phi));_v5.copy(p.fwd).multiplyScalar(Math.cos(a)).addScaledVector(_v4,Math.sin(a));
+        const tt=rayWorld(p.pos,_v3.copy(_v5).multiplyScalar(look),PR+4).t;const s=(tt<0?2:tt)-a*0.35+(_v5.y>0?0.08:0);if(s>bestS){bestS=s;p.avDir.copy(_v5);}}
+      p.avOn=true;p.avUrg=1-t0;}}
+  if(p.avOn){const k=df.avoid*(0.7+1.1*p.avUrg);const ang=Math.acos(clamp(p.fwd.dot(p.avDir),-1,1));
+    if(ang>1e-3){_v1.crossVectors(p.fwd,p.avDir);if(_v1.lengthSq()>1e-8){_v1.normalize();_q1.setFromAxisAngle(_v1,Math.min(ang,2.4*k*dt));p.q.premultiply(_q1);p.updateAxes();}}
+    if(p.avUrg>0.6&&p.speed>p.design.cruise)p.speed-=60*df.avoid*dt;}
+}
 /* ---------- Pilotage du joueur ---------- */
 const keys={};
 const input={stickX:0,stickY:0,mouseFire:false,mouseSpecial:false};
@@ -2097,6 +2123,7 @@ function updatePlayerControl(p,dt){
   _q1.setFromAxisAngle(AY,-p.inYaw*d.yawRate*dt);p.q.multiply(_q1);
   p.updateAxes();
   _q1.setFromAxisAngle(UP,p.right.y*d.turnRate*eff*dt);p.q.premultiply(_q1);
+  playerAvoid(p,dt);
   updateEngine(p,dt);
   integrateFlight(p,dt,true);
   if(keys.fire||input.mouseFire)fireGuns(p,aimAssist(p),0.004);
@@ -2142,7 +2169,7 @@ function updateAI(p,dt){
         if(dd<240&&_v3.dot(e.fwd)/dd>0.95){ai.state='evade';ai.stateT=rand(1.2,2.2);randomJink(p);break;}}}
       ai.losT-=dt;if(ai.losT<=0){ai.losT=0.25;ai.los=lineOfSight(p.pos,tg.pos);}
       ai.burstT-=dt;if(ai.burstT<=0){ai.burstOn=!ai.burstOn;ai.burstT=ai.burstOn?rand(0.5,0.9):rand(0.5,1.3)/df.react;}
-      const dn=des.length();if((ai.burstOn||p.team===0)&&dist<540&&ai.los&&p.fwd.dot(des)/dn>0.992)fireGuns(p,null,df.acc*(p.ace?0.6:1));
+      const dn=des.length();if((ai.burstOn||p.team===0)&&dist<540&&ai.los&&p.fwd.dot(des)/dn>(p.team===1?df.cone:0.992))fireGuns(p,null,df.acc*(p.ace?0.6:1));
       wantSpeed=dist>320?d.maxSpeed*0.95:clamp(tg.speed+15,d.minSpeed*1.1,d.maxSpeed);
     }else{
       des.copy(ai.breakDir);ai.stateT-=dt;if(ai.stateT<=0)ai.state='attack';wantSpeed=d.maxSpeed*0.9;
@@ -2231,7 +2258,7 @@ class Ground{
       this.cols.push(addCollider(x-44,y,z+44,x+44,y+69,z+56,this),addCollider(x-44,y,z-56,x+44,y+69,z-44,this),addCollider(x-66,y,z-34,x-54,y+69,z+34,this),addCollider(x+54,y,z-34,x+66,y+69,z+34,this),addCollider(x-22,y,z-22,x+22,y+92,z+22,this));
       this.pos.set(x,y+45,z);
     }
-    this.maxHp=this.hp;grounds.push(this);
+    this.hp*=diff().enemyHp;this.maxHp=this.hp;grounds.push(this);
   }
   update(dt){
     if(!this.alive){if(this.wreckT>0){this.wreckT-=dt;this.smokeT-=dt;if(this.smokeT<=0){this.smokeT=0.08;smoke.spawn(this.pos.x+rand(-4,4),this.pos.y+12,this.pos.z+rand(-4,4),rand(-3,3),rand(14,24),rand(-3,3),rand(1.5,2.5),6,26,0.15,0.14,0.13,0.6,-4,0.6);}}return;}
@@ -2339,12 +2366,12 @@ function spawnPlayer(){
   player=new Plane(d.id,0,{player:true,paint});
   player.place(new V3(...def.start.p),new V3(...def.start.d));
   player.throttle=0.65;player.rpm=0.65;player.temp=0.5;player.speed=d.cruise;player.invuln=2.5;
-  Object.assign(player.ammo,def.ammo);player.weapon=nextWeaponWithAmmo(player)||'rockets';
+  for(const k in def.ammo)player.ammo[k]=Math.round(def.ammo[k]*diff().ammo);player.weapon=nextWeaponWithAmmo(player)||'rockets';
   cam.snap=true;
 }
 function startMission(def){
   resetWorld();
-  Object.assign(game,{active:true,mission:def,time:0,score:0,lives:3,stats:{shots:0,hits:0,props:0,ground:0,planes:0,myKills:0},kills:{},waveIdx:0,lastWaveT:0,waveNum:0,over:false,won:false,endT:0,respawnT:0,tutorialStep:0,freeWave:0,nextWaveT:2,aceSpawned:false});
+  Object.assign(game,{active:true,mission:def,time:0,score:0,lives:diff().lives,maxLives:diff().lives,stats:{shots:0,hits:0,props:0,ground:0,planes:0,myKills:0},kills:{},waveIdx:0,lastWaveT:0,waveNum:0,over:false,won:false,endT:0,respawnT:0,tutorialStep:0,freeWave:0,nextWaveT:2,aceSpawned:false});
   spawnPlayer();
   (def.allies||[]).forEach((id,i)=>{const a=new Plane(id,0,{name:i?'Ailier Bourrasque':'Ailier Pinson',paint:DESIGNS[id].paints[(i+1)%3]});
     _v1.set(...def.start.p);_v2.set(...def.start.d).normalize();_v3.crossVectors(UP,_v2).normalize();a.place(_v1.clone().addScaledVector(_v3,i?-45:45).addScaledVector(_v2,-35).add(_v4.set(0,i?-12:12,0)),_v2);});
@@ -2390,7 +2417,7 @@ function updateWaves(){
   if(def.free){
     if(enemyPlanesAlive()>0){game.nextWaveT=game.time+3;return;}
     if(game.time<game.nextWaveT)return;
-    game.freeWave++;const n=game.freeWave;const ids=[];for(let i=0;i<Math.min(1+n,6);i++)ids.push('corbeau');if(n%4===0)ids[0]='rouille';
+    game.freeWave++;const n=game.freeWave;const ids=[];for(let i=0;i<Math.min(1+Math.floor(n*(diff().waveMax>4?1:0.5)),diff().waveMax);i++)ids.push('corbeau');if(n%4===0)ids[0]='rouille';
     spawnWave({zone:pick(FREE_ZONES),planes:ids});toast('Vague '+n,'warn');refreshObjectives(true);return;}
   const waves=def.waves||[];
   if(game.waveIdx>=waves.length){const lw=waves[waves.length-1];if(lw&&lw.repeat&&!missionDone()&&enemyPlanesAlive()===0&&game.time-game.lastWaveT>8)spawnWave(lw);return;}
@@ -2486,7 +2513,7 @@ function refreshObjectives(force){
 }
 function updateHudDom(dt){
   setText(HUDEL.score,'score',String(game.score));
-  const lv=Math.max(0,game.lives);if(hudCache.lives!==lv){hudCache.lives=lv;HUDEL.lives.innerHTML='<i></i><i></i><i></i>'.split('</i>').slice(0,3).map((s,i)=>`<i class="${i<lv?'':'off'}"></i>`).join('');}
+  const lv=Math.max(0,game.lives),ml=game.maxLives||3;if(hudCache.lives!==lv){hudCache.lives=lv;HUDEL.lives.innerHTML=ml<=5?Array.from({length:ml},(_,i)=>`<i class="${i<lv?'':'off'}"></i>`).join(''):`<i></i><b style="font-weight:900;margin-left:4px">× ${lv}</b>`;}
   const t=Math.floor(game.time);setText(HUDEL.time,'time',Math.floor(t/60)+':'+String(t%60).padStart(2,'0'));
   objT-=dt;if(objT<=0){objT=0.3;refreshObjectives(false);}
   vigT=Math.max(0,vigT-dt*1.6);
@@ -2621,6 +2648,10 @@ function refreshHangar(){
   const d=DESIGNS[settings.plane];
   $('#planeStats').innerHTML=['Vitesse','Maniabilité','Blindage','Puissance de feu'].map((l,i)=>`<span>${l}</span><div class="pips">${[0,1,2,3,4].map(k=>`<i class="${k<d.stats[i]?'on':''}"></i>`).join('')}</div>`).join('');
   $('#planeDesc').textContent=d.desc;
+  const ds=$('#diffSeg');ds.innerHTML='';
+  [['debutant','Débutant'],['facile','Facile'],['normal','Normal'],['difficile','Difficile']].forEach(([id,name])=>{const b=document.createElement('button');b.type='button';b.textContent=name;b.setAttribute('aria-pressed',String(settings.difficulty===id));
+    b.addEventListener('click',()=>{Sound.click();settings.difficulty=id;saveSettings();refreshHangar();});ds.appendChild(b);});
+  $('#hangarDiff').textContent=diff().desc;
   const es=$('#engineSeg');es.innerHTML='';
   Object.keys(ENGINES).forEach(id=>{const b=document.createElement('button');b.type='button';b.textContent=ENGINES[id].name;b.setAttribute('aria-pressed',String(settings.engine===id));
     b.addEventListener('click',()=>{Sound.click();settings.engine=id;saveSettings();refreshHangar();});es.appendChild(b);});
@@ -2632,6 +2663,7 @@ function refreshHangar(){
 }
 function refreshOptions(){
   $$('#scrOptions .seg').forEach(seg=>{const k=seg.dataset.opt;seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(String(settings[k])===b.dataset.v)));});
+  $('#diffDesc').textContent=diff().desc;
   $('#optSens').value=settings.sens;$('#optVol').value=settings.volume;
 }
 $$('#scrOptions .seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=seg.dataset.opt;let v=b.dataset.v;if(v==='true')v=true;else if(v==='false')v=false;
@@ -2791,14 +2823,14 @@ function loop(now){
   let dt=(now-last)/1000;last=now;if(!(dt>0))return;dt=Math.min(dt,0.05);
   if(screen==='scrHangar'){renderHangar(dt);hctx.setTransform(1,0,0,1,0,0);hctx.clearRect(0,0,hud2d.width,hud2d.height);return;}
   const needRot=mode==='play'&&touchMode()&&innerHeight>innerWidth&&!portraitOK;if(ROT.hidden===needRot)ROT.hidden=!needRot;
-  if((mode==='play'&&!needRot)||mode==='menu')update(dt);
+  if(mode==='play'&&!needRot)update(dt*(game.active?diff().time:1));else if(mode==='menu')update(dt);
   particleScale();
   renderer.render(scene,camera);
   drawHUD();
 }
 /* Point d'entrée de test (console) */
 window.__escadrille={get game(){return game;},get player(){return player;},get mode(){return mode;},planes,grounds,props,colliders,renderer,DBG,scene,camera,
-  startMission:id=>startGame(id==='free'?FREE:MISSIONS[id]),keys,auto:v=>{autoPilot=v;},
+  startMission:id=>startGame(id==='free'?FREE:MISSIONS[id]),keys,settings,diff,auto:v=>{autoPilot=v;},
   look:(p,t)=>{mode='pause';$('#hud').hidden=true;hideScreens();camera.position.set(...p);camera.up.set(0,1,0);camera.lookAt(...t);camera.fov=70;camera.updateProjectionMatrix();},
   sim:(sec,step=1/60)=>{const t0=performance.now();const n=Math.round(sec/step);for(let i=0;i<n&&(mode==='play'||mode==='menu');i++)update(step);return (performance.now()-t0)/n;}};
 readSafe();applyTouchMode();
