@@ -124,6 +124,11 @@
       "space": "salarie",
       "label": "RDSign",
       "order": 24
+    },
+    "planning-journee.html": {
+      "space": "adam",
+      "label": "Planning de la journée",
+      "order": 25
     }
   }
 }
