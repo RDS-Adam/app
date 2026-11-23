@@ -262,7 +262,7 @@ body.touch .hud-warn{font-size:1.05rem;top:30%}
   <div class="hud-warn" id="hudWarn" hidden></div>
   <div class="hud-banner" id="hudBanner" hidden><p class="eyebrow" id="banEyebrow"></p><h2 id="banTitle"></h2><p class="sub" id="banSub"></p></div>
   <div class="hud-vig" id="hudVig"></div>
-  <div class="hud-help">Flèches : piloter · Espace : tirer · Z/S ou 1…0 : puissance · Maj : surpuissance · F : aérofreins · Échap : pause</div>
+  <div class="hud-help">Flèches : piloter · Espace : tirer · Z/S ou 1…0 : puissance · Maj : surpuissance · F : freins · Échap : pause</div>
 </div>
 
 <!-- Écran titre -->
@@ -272,7 +272,7 @@ body.touch .hud-warn{font-size:1.05rem;top:30%}
     <h1>Escadrille<br>de Salon</h1>
     <p class="lede">Pilotez une maquette d'avion dans une grande maison sur trois niveaux : du salon au grenier, chaque pièce est devenue un champ de bataille.</p>
     <nav class="menu">
-      <button class="btn primary" data-go="scrMissions">Missions <span class="hint">6 opérations</span></button>
+      <button class="btn primary" data-go="scrMissions">Missions <span class="hint">7 opérations</span></button>
       <button class="btn" data-act="free">Combat libre <span class="hint" id="freeBest">vagues sans fin</span></button>
       <button class="btn" data-act="hangar">Hangar <span class="hint" id="hangarHint">Faucon</span></button>
       <button class="btn" data-go="scrControls">Commandes</button>
@@ -351,6 +351,7 @@ body.touch .hud-warn{font-size:1.05rem;top:30%}
         <dt>❚❚</dt><dd>Pause</dd>
       </dl>
     </div>
+    <p class="foot"><b>Décollage et retour :</b> chaque mission part de la piste de l’atelier. Mettez les gaz, prenez de la vitesse puis cabrez pour décoller (en Débutant et Facile, l’avion décolle seul). Le repère vert montre le chemin. Objectif accompli : revenez par la porte de la cuisine, passez dans les anneaux verts, réduisez la puissance et posez-vous dans l’axe, puis freinez avec F. En Débutant et Facile, l’atterrissage se fait tout seul près de l’atelier. Se poser en cours de mission répare et réarme l’avion.</p>
     <p class="foot">Les touches fonctionnent en AZERTY comme en QWERTY. Option souris / trackpad : déplacez pour piloter, clic pour tirer, clic droit pour l'arme spéciale. Gérez la puissance : à plein régime l’avion monte bien mais tourne large ; réduisez pour serrer les virages dans les petites pièces. Trop peu de puissance en montée et l’avion décroche. La surpuissance fait chauffer le moteur : au-delà du rouge, il se bride le temps de refroidir. Les mitrailleuses chauffent aussi. Les roquettes partent droit, les missiles suivent la cible verrouillée, les bombes tombent sur le repère violet. Cassez les bibelots : certains cachent des bonus.</p>
     <div class="row" style="margin-top:18px"><button class="btn ghost" data-back="1">← Retour</button></div>
   </div>
@@ -463,13 +464,13 @@ function saveSettings(){store.set('settings',settings);}
 function saveProgress(){store.set('progress',progress);}
 const DIFF={
   /* time : vitesse du jeu · avoid : aide anti-collision · aim : cône de visée assistée (rad) · crash : dégâts des chocs */
-  debutant:{acc:0.1,dmg:0.15,turn:0.7,react:0.35,fire:0.45,cone:0.997,enemyHp:0.55,playerHp:2,lives:9,time:0.7,crash:0.08,avoid:1,aim:0.26,regen:4,stall:false,ammo:2,lock:0.25,waveMax:3,
+  debutant:{acc:0.1,dmg:0.15,turn:0.7,react:0.35,fire:0.45,cone:0.997,enemyHp:0.55,playerHp:2,lives:9,time:0.7,crash:0.08,avoid:1,aim:0.26,regen:4,stall:false,ammo:2,lock:0.25,waveMax:3,landVy:9999,landSpd:9,landAlign:-1,landBank:9,landWide:220,autoland:true,autoTO:true,
     desc:'Aide anti-collision forte, jeu ralenti, ennemis maladroits, avion très solide qui se répare seul, 9 avions.'},
-  facile:{acc:0.075,dmg:0.3,turn:0.78,react:0.5,fire:0.55,cone:0.996,enemyHp:0.7,playerHp:1.5,lives:5,time:0.8,crash:0.2,avoid:0.8,aim:0.18,regen:2,stall:false,ammo:1.5,lock:0.35,waveMax:4,
+  facile:{acc:0.075,dmg:0.3,turn:0.78,react:0.5,fire:0.55,cone:0.996,enemyHp:0.7,playerHp:1.5,lives:5,time:0.8,crash:0.2,avoid:0.8,aim:0.18,regen:2,stall:false,ammo:1.5,lock:0.35,waveMax:4,landVy:150,landSpd:1.2,landAlign:0.5,landBank:0.75,landWide:60,autoland:true,autoTO:true,
     desc:'Aide anti-collision, jeu un peu ralenti, ennemis peu précis, avion solide qui se répare hors combat, 5 avions.'},
-  normal:{acc:0.032,dmg:0.85,turn:1,react:1,fire:1,cone:0.992,enemyHp:1,playerHp:1,lives:3,time:1,crash:1,avoid:0,aim:0.085,regen:0,stall:true,ammo:1,lock:0.55,waveMax:6,
+  normal:{acc:0.032,dmg:0.85,turn:1,react:1,fire:1,cone:0.992,enemyHp:1,playerHp:1,lives:3,time:1,crash:1,avoid:0,aim:0.085,regen:0,stall:true,ammo:1,lock:0.55,waveMax:6,landVy:80,landSpd:0.92,landAlign:0.85,landBank:0.42,landWide:12,autoland:false,autoTO:false,
     desc:'Pas d\u2019aide anti-collision, 3 avions, décrochage possible.'},
-  difficile:{acc:0.018,dmg:1.35,turn:1.12,react:1.35,fire:1.25,cone:0.99,enemyHp:1.2,playerHp:1,lives:3,time:1,crash:1.2,avoid:0,aim:0.06,regen:0,stall:true,ammo:1,lock:0.6,waveMax:6,
+  difficile:{acc:0.018,dmg:1.35,turn:1.12,react:1.35,fire:1.25,cone:0.99,enemyHp:1.2,playerHp:1,lives:3,time:1,crash:1.2,avoid:0,aim:0.06,regen:0,stall:true,ammo:1,lock:0.6,waveMax:6,landVy:60,landSpd:0.82,landAlign:0.9,landBank:0.32,landWide:6,autoland:false,autoTO:false,
     desc:'Ennemis précis, agressifs et plus résistants.'}
 };
 const diff=()=>DIFF[settings.difficulty]||DIFF.normal;
@@ -820,9 +821,9 @@ function addCollider(x0,y0,z0,x1,y1,z1,ent){const c={min:new V3(Math.min(x0,x1),
 /* Pente : espace libre du côté de la normale n, solide derrière le plan n·p = d, limité à une boîte */
 function addSlope(n,d,x0,y0,z0,x1,y1,z1){const c=addCollider(x0,y0,z0,x1,y1,z1);c.slope={n:n.clone().normalize(),d};return c;}
 const _hit={n:new V3(),depth:0,c:null};
-function sphereVsWorld(pos,r,out){
+function sphereVsWorld(pos,r,out,ignore){
   let best=0,hit=null;const px=pos.x,py=pos.y,pz=pos.z;
-  for(let i=0;i<colliders.length;i++){const c=colliders[i];if(!c.alive)continue;const mn=c.min,mx=c.max;
+  for(let i=0;i<colliders.length;i++){const c=colliders[i];if(!c.alive||c===ignore)continue;const mn=c.min,mx=c.max;
     if(px+r<mn.x||px-r>mx.x||py+r<mn.y||py-r>mx.y||pz+r<mn.z||pz-r>mx.z)continue;
     if(c.slope){const s=c.slope;const dist=s.n.x*px+s.n.y*py+s.n.z*pz-s.d;if(dist>=r)continue;const depth=r-dist;
       if(depth>best){best=depth;hit=c;if(out){out.n.copy(s.n);out.depth=depth;out.c=c;}}continue;}
@@ -1012,6 +1013,9 @@ const NEXT=(()=>{const n=ZONES.length;const adj=Array.from({length:n},()=>[]);PO
     while(qd.length){const u=qd.shift();for(const [v,pi] of adj[u]){if(seen[v])continue;seen[v]=true;first[v]=u===s?pi:first[u];qd.push(v);}}tbl[s]=first;}
   return tbl;})();
 const SPOT={};
+let GROUND_COL=null;
+/* Piste de la base (atelier) : axe nord-sud, alignée sur la porte de la cuisine */
+const RUNWAY={x:700,z0:110,z1:665,w:110,y:0};
 
 /* ---------- Objets cassables ---------- */
 const props=[];
@@ -1038,6 +1042,13 @@ function paintingTex(kind){const [c,g]=cv(256,192);
     g.fillStyle='#4d6b3f';g.beginPath();g.moveTo(0,192);g.lineTo(0,160);g.quadraticCurveTo(120,140,256,170);g.lineTo(256,192);g.fill();}
   return c;}
 MAT.woodRed=std(0xb5533c,{roughness:0.45});
+MAT.runway=std(0xffffff,{roughness:0.85,map:tex((()=>{const [c,g]=cv(128,640);g.fillStyle='#3b3e43';g.fillRect(0,0,128,640);noiseInto(g,128,640,2500,0.18,'rgba(0,0,0,A)',0.5,1.6);noiseInto(g,128,640,1500,0.08,'rgba(255,255,255,A)',0.5,1.2);
+  g.fillStyle='#f1efe6';g.fillRect(6,0,4,640);g.fillRect(118,0,4,640);for(let y=90;y<560;y+=52)g.fillRect(62,y,4,30);
+  for(const y0 of [10,592])for(let i=0;i<8;i++)g.fillRect(14+i*13.5,y0,8,38);
+  for(const y0 of [120,480])for(const x of [24,92])g.fillRect(x,y0,12,40);
+  g.font='900 26px Arial Black, Arial, sans-serif';g.textAlign='center';g.save();g.translate(64,74);g.fillText('36',0,0);g.restore();g.save();g.translate(64,570);g.rotate(Math.PI);g.fillText('18',0,0);g.restore();return c;})())});
+MAT.rwyLight=new THREE.MeshBasicMaterial({color:0xfff2c8});MAT.rwyRed=new THREE.MeshBasicMaterial({color:0xff4a3a});MAT.rwyGreen=new THREE.MeshBasicMaterial({color:0x4cff7a});
+MAT.hangar=std(0xb7c0c8,{roughness:0.4,metalness:0.6,side:THREE.DoubleSide});
 const DECO={p:[0,1,2,3].map(k=>std(0xffffff,{map:tex(paintingTex(k)),roughness:0.6})),frame:std(0xa07a3a,{roughness:0.3,metalness:0.6})};
 DECO.tv=new THREE.MeshBasicMaterial({map:tex((()=>{const [c,g]=cv(256,144);const gr=g.createLinearGradient(0,0,0,144);gr.addColorStop(0,'#2b6fd1');gr.addColorStop(1,'#8fd3ff');g.fillStyle=gr;g.fillRect(0,0,256,144);
   g.fillStyle='#ffd34d';g.beginPath();g.arc(200,40,20,0,TAU);g.fill();g.fillStyle='#46a35a';g.beginPath();g.ellipse(70,150,120,50,0,0,TAU);g.fill();g.fillStyle='#2f7d45';g.beginPath();g.ellipse(210,155,110,45,0,0,TAU);g.fill();
@@ -1131,7 +1142,7 @@ function buildHouse(){
   ce(-200,400,-700,-300,CEIL1);ce(400,1000,-700,0,CEIL1);ce(400,1000,0,700,CEIL1);ce(-1000,-200,200,700,CEIL1);
   const kb=[-200,1000,-700,700];fl(-200,-120,-700,700,L2,MAT.boards,120,kb);fl(120,1000,-700,700,L2,MAT.boards,120,kb);fl(-120,120,-700,-240,L2,MAT.boards,120,kb);fl(-120,120,0,700,L2,MAT.boards,120,kb);
   /* dalles (collisions) */
-  addCollider(-1150,-100,-850,1150,0,850);
+  GROUND_COL=addCollider(-1150,-100,-850,1150,0,850);
   for(const r of [[-200,1000,-700,250],[-200,0,250,650],[300,1000,250,650],[-200,1000,650,700],[-1000,-200,200,700]])addCollider(r[0],CEIL0,r[2],r[1],L1,r[3]);
   for(const r of [[-1000,1000,-700,-240],[-1000,-120,-240,0],[120,1000,-240,0],[-1000,1000,0,700]])addCollider(r[0],CEIL1,r[2],r[1],L2,r[3]);
   /* nez de dalle visibles (trémies) */
@@ -1354,8 +1365,20 @@ function buildHouse(){
     bx(420,0,10,600,200,52,MAT.darkMetal,{col:false});for(const y of [4,66,128,192])bx(420,y,10,600,y+3,52,MAT.metal,{col:false});addCollider(420,0,10,600,200,52);
     for(let i=0;i<5;i++){const x=430+i*32;bx(x,70,16,x+24,70+rand(14,40),46,MAT.cardboard,{col:false,uv:40});}
     for(let i=0;i<5;i++)cy(440+i*34,7,30,9,rand(14,24),pick([MAT.red,MAT.blue,MAT.yellow,MAT.green,MAT.metal]),{col:false});
-    for(let i=0;i<3;i++){const t=new THREE.TorusGeometry(28,10,10,24);t.rotateX(Math.PI/2);gm(t,470,10+i*20,620,MAT.black);}colBox(432,0,582,508,60,658);
-    frame(640,0,420,1,()=>{bx(-45,6,-28,45,30,28,MAT.red,{round:6});bx(-25,28,-20,15,48,20,MAT.red,{round:5});for(const sx of [-1,1])for(const sz of [-1,1])cy(sx*30,0,sz*28,9,6,MAT.black,{rz:Math.PI/2,col:false});});
+    for(let i=0;i<3;i++){const t=new THREE.TorusGeometry(28,10,10,24);t.rotateX(Math.PI/2);gm(t,930,10+i*20,612,MAT.black);}colBox(892,0,574,968,60,650);
+    /* piste */
+    {const rg=new THREE.PlaneGeometry(RUNWAY.w,RUNWAY.z1-RUNWAY.z0);rg.rotateX(-Math.PI/2);rg.translate(RUNWAY.x,0.7,(RUNWAY.z0+RUNWAY.z1)/2);addStatic(rg,MAT.runway,false,true);
+      for(let z=RUNWAY.z0+6;z<RUNWAY.z1;z+=45)for(const s of [-1,1]){const lg=new THREE.BoxGeometry(3,2.2,3);lg.translate(RUNWAY.x+s*(RUNWAY.w/2+4),1.1,z);addStatic(lg,MAT.rwyLight,false,false);}
+      for(let x=RUNWAY.x-50;x<=RUNWAY.x+50;x+=12.5){for(const [z,m] of [[RUNWAY.z0-4,MAT.rwyRed],[RUNWAY.z1+3,MAT.rwyGreen]]){const lg=new THREE.BoxGeometry(3,2.2,3);lg.translate(x,1.1,z);addStatic(lg,m,false,false);}}}
+    /* tour de contrôle */
+    bx(482,0,92,518,96,128,MAT.whiteWood,{round:1});bx(476,96,86,524,120,134,MAT.glass,{col:false,cast:false});bx(472,120,82,528,126,138,MAT.red,{col:false});colBox(472,0,82,528,126,138);
+    cy(500,126,110,0.8,30,MAT.metal,{col:false});sp(500,157,110,2,MAT.ember,{col:false});
+    /* manche à air */
+    cy(815,0,645,1.2,120,MAT.metal);{const wg=new THREE.ConeGeometry(7,30,12,1,true);wg.rotateX(Math.PI/2);gm(wg,815,112,628,MAT.orange,{});}
+    /* hangar demi-cylindre (on peut passer dessous) */
+    {const hg=new THREE.CylinderGeometry(72,72,150,28,1,true,0,Math.PI);hg.rotateZ(Math.PI/2);hg.translate(525,0,515);addStatic(hg,MAT.hangar,true,true);
+      addCollider(450,52,445,600,74,585);addCollider(450,0,443,600,52,458);addCollider(450,0,572,600,52,587);}
+    for(let i=0;i<3;i++)cy(430+i*22,0,660,10,30,i===1?MAT.red:MAT.darkMetal);
     tubeLight(550,750,200,CEIL0);tubeLight(550,750,500,CEIL0);
     prop([920,92,180,960,112,215],{name:'Boîte de maquette',msg:'Boîte de maquette éventrée',hp:8,points:80,mat:'paper',colors:[0x1d3557,0xe63946,0xa8dadc],drop:'missiles'},g=>bx(920,92,180,960,112,215,DECO.kit,{group:g}));
     for(const [z,c,dr] of [[260,0xd94a3a,'rockets'],[285,0x3a6fd9,null],[310,0xf2c23a,'bombs']])prop([926,92,z-7,940,106,z+7],{name:'Pot de peinture',msg:'Pot de peinture renversé',hp:5,points:50,mat:'paint',colors:[c],drop:dr},g=>{cy(933,92,z,6.5,13,MAT.metal,{group:g});cy(933,104.5,z,6.6,1.2,std(c,{roughness:0.2}),{group:g});});
@@ -1905,6 +1928,7 @@ class Plane{
     this.ammo={rockets:0,missiles:0,bombs:0};this.weapon='rockets';this.specialCd=0;
     this.lock={cand:null,t:0,locked:false,checkT:0};
     this.avDir=new V3();this.avT=0;this.avOn=false;this.avUrg=0;
+    this.ground=false;this.gh=0;this.noFloorT=0;this.stopped=false;this.rearmed=true;this.autoBrake=false;this.alignAssist=false;this.autoland=false;this.alIdx=0;
     this.rpm=0.6;this.temp=0.45;this.boost=false;this.brake=false;this.engineOver=false;this.exhT=0;
     this.trailT=0;this.vaporT=0;this.name=o.name||d.name;this.points=d.points||150;this.lastHitBy=null;
     this.ai=this.isPlayer?null:{burstT:rand(0,1),burstOn:false,target:null,retarget:0,state:'attack',stateT:0,breakDir:new V3(),avoidT:0,avoidDir:new V3(),probeT:rand(0,0.07),through:0,exit:new V3(),des:new V3(),wp:null,losT:0,los:false};
@@ -1955,8 +1979,10 @@ function integrateFlight(p,dt,engine){
   resolvePlaneWorld(p);
 }
 function resolvePlaneWorld(p){
+  const ign=(p.ground||p.noFloorT>0)?GROUND_COL:null;
   for(let it=0;it<3;it++){
-    const c=sphereVsWorld(p.pos,PR,_hit);if(!c)break;
+    const c=sphereVsWorld(p.pos,PR,_hit,ign);if(!c)break;
+    if(c===GROUND_COL&&p.isPlayer&&!p.ground&&overRunway(p.pos)&&tryLand(p))break;
     p.pos.addScaledVector(_hit.n,_hit.depth+0.05);
     const vn=p.fwd.dot(_hit.n);
     if(vn<0){
@@ -1980,7 +2006,7 @@ function planeVsPlane(){
       if(a.hitCd<=0&&b.hitCd<=0){a.hitCd=b.hitCd=0.5;_v2.addVectors(a.pos,b.pos).multiplyScalar(0.5);fxSparks(_v2,14);Sound.thud(a.pos);a.damage(16,b);b.damage(16,a);}}}
 }
 function planeCommon(p,dt){
-  p.hurtT+=dt;if(p.isPlayer&&diff().regen&&p.hurtT>4&&p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+diff().regen*dt);
+  p.noFloorT-=dt;p.hurtT+=dt;if(p.isPlayer&&diff().regen&&p.hurtT>4&&p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+diff().regen*dt);
   p.hitCd-=dt;p.invuln-=dt;p.shield-=dt;p.gunCd-=dt;p.specialCd-=dt;
   if(p.overheat){p.heat-=dt*0.45;if(p.heat<=0.25)p.overheat=false;}else p.heat=Math.max(0,p.heat-dt*0.38);
   p.model.prop.rotation.z+=dt*(20+(p.isPlayer?p.rpm:p.throttle)*55);p.model.blur.visible=(p.isPlayer?p.rpm:p.throttle)>0.15;
@@ -2082,6 +2108,7 @@ function setThrottle(p,v){p.throttle=clamp(v,0,1);}
 /* ---------- Aide anti-collision (modes Débutant et Facile) ---------- */
 function playerAvoid(p,dt){
   const df=diff();if(!df.avoid)return;
+  if(overRunway(p.pos)&&p.pos.y<90&&p.throttle<0.4){p.avOn=false;return;}
   p.avT-=dt;
   if(p.avT<=0){p.avT=0.05;const look=40+p.speed*0.8;
     _v3.copy(p.fwd).multiplyScalar(look);const t0=rayWorld(p.pos,_v3,PR+4).t;p.avOn=false;
@@ -2110,6 +2137,8 @@ function updatePlayerControl(p,dt){
   p.inPitch=lerp(p.inPitch,noseUp,damp(9,dt));p.inRoll=lerp(p.inRoll,roll,damp(10,dt));p.inYaw=lerp(p.inYaw,yaw,damp(6,dt));
   if(keys.thrUp)p.throttle=Math.min(1,p.throttle+dt*0.6);
   if(keys.thrDown)p.throttle=Math.max(0,p.throttle-dt*0.6);
+  if(p.ground){updateGround(p,dt,noseUp,clamp(roll+yaw,-1,1));if(keys.fire||input.mouseFire)fireGuns(p,null,0.004);updateLock(p,dt);return;}
+  if(autoLandStep(p,dt)){if(keys.fire||input.mouseFire)fireGuns(p,aimAssist(p),0.004);return;}
   const eff=clamp(p.speed/d.cruise,0.45,1.15);
   _q1.setFromAxisAngle(AX,-p.inPitch*d.pitchRate*eff*dt);p.q.multiply(_q1);
   p.updateAxes();
@@ -2320,6 +2349,12 @@ const MISSIONS=[
     objectives:[{type:'ground',label:'Chars et DCA détruits'}],
     ground:[['tank','island',-50,0,1],['tank','island',50,0,3],['tank','table',0,0,0],['tank',[300,0,-200],0,0,2],['dca','fridge',0,0,0],['dca','cabinet',0,0,0]],
     waves:[{when:'start',planes:['corbeau'],zone:2},{when:30,planes:['corbeau','corbeau'],zone:2}]},
+  {id:'m7',name:'Raid sur le QG du salon',room:'Salon',level:2,
+    brief:'L\u2019ennemi a installé son quartier général devant la télé : un fort, des dépôts de carburant et des canons. Allez le bombarder, puis rentrez vous poser.',
+    start:{p:[0,0,0],d:[0,0,-1]},ammo:{rockets:6,missiles:2,bombs:10},
+    objectives:[{type:'ground',label:'QG ennemi détruit'}],
+    ground:[['fort',[-600,0,100]],['dca',[-660,100,150]],['dca',[-540,100,50]],['fuel',[-420,0,40]],['fuel',[-880,0,-60]],['dca','piano'],['tank',[-350,0,-300],0,0,3],['tank',[-420,0,-560],0,0,0]],
+    waves:[{when:'start',planes:['corbeau','corbeau'],zone:0},{when:'clear',planes:['corbeau','corbeau'],zone:0,repeat:true}]},
   {id:'m3',name:'Le Fort de la Salle de jeux',room:'Salle de jeux',level:2,
     brief:'L\u2019ennemi a bâti un fort en cubes au milieu de la salle de jeux. Les bombes font des merveilles sur ses murs.',
     start:{p:[-680,150,-150],d:[0,0,1]},ammo:{rockets:6,missiles:2,bombs:8},
@@ -2346,9 +2381,9 @@ const MISSIONS=[
 ];
 const FREE={id:'free',name:'Combat libre',room:'Toute la maison',free:true,brief:'Des vagues de Corbeaux arrivent sans fin, à tous les étages. Tenez le plus longtemps possible.',
   start:{p:[-900,200,0],d:[1,0,0]},ammo:{rockets:6,missiles:2,bombs:2},objectives:[]};
-const FREE_ZONES=[0,0,2,3,4,5,7,8,10];
+const FREE_ZONES=[0,0,2,3,5,7,8,10];
 const PICKUP_MIX=['repair','rockets','missiles','repair','bombs','rockets','missiles','repair','rockets','bombs','missiles','repair','rockets'];
-const TUTORIAL=[[1.2,'← → : inclinez l\u2019avion pour virer'],[5,()=>(settings.invertY?'↓':'↑')+' : cabrer pour monter · '+(settings.invertY?'↑':'↓')+' : piquer'],[9.5,'Espace : mitrailleuses (relâchez quand elles chauffent)'],[14,'Z / S : puissance moteur · 1 à 0 : régimes préréglés'],[19,'Maj : surpuissance (le moteur chauffe) · F : aérofreins'],[24,'X : roquettes · cassez les bibelots pour trouver des bonus']];
+const TUTORIAL=[[1.5,'← → : inclinez l\u2019avion pour virer'],[5.5,()=>(settings.invertY?'↓':'↑')+' : cabrer pour monter · '+(settings.invertY?'↑':'↓')+' : piquer'],[10,'Espace : mitrailleuses (relâchez quand elles chauffent)'],[14.5,'Z / S : puissance · F : freins'],[19,'Maj : surpuissance (le moteur chauffe)'],[24,'Suivez le repère vert : il montre le chemin vers l\u2019ennemi']];
 
 const game={active:false,mission:null,time:0,score:0,lives:3,stats:{},kills:{},waveIdx:0,lastWaveT:0,waveNum:0,over:false,won:false,endT:0,respawnT:0,timers:[],tutorialStep:0,freeWave:0,nextWaveT:0,aceSpawned:false};
 function later(t,fn){game.timers.push({t,fn});}
@@ -2359,22 +2394,25 @@ function resetWorld(){
   for(const p of planes.slice())p.remove();
   for(const g of grounds)g.dispose();grounds.length=0;
   clearProjectiles();clearBullets();clearPickups();clearDebris();fire.clear();smoke.clear();resetProps();
-  game.timers.length=0;player=null;shieldMesh.visible=false;bombMarker.visible=false;flashI=0;
+  game.timers.length=0;player=null;shieldMesh.visible=false;if(typeof approachRings!=='undefined')approachRings.visible=false;bombMarker.visible=false;flashI=0;
 }
-function spawnPlayer(){
+function spawnPlayer(onRunwayStart){
   const def=game.mission;const d=DESIGNS[settings.plane]||DESIGNS.faucon;const paint=d.paints[settings.paint%d.paints.length];
   player=new Plane(d.id,0,{player:true,paint});
-  player.place(new V3(...def.start.p),new V3(...def.start.d));
-  player.throttle=0.65;player.rpm=0.65;player.temp=0.5;player.speed=d.cruise;player.invuln=2.5;
+  if(onRunwayStart){player.speed=0;player.ground=true;player.gh=Math.PI;player.pos.set(RUNWAY.x,RUNWAY.y+gearH(player),RUNWAY.z1-28);setGroundPose(player);player.syncMesh();
+    player.throttle=0;player.rpm=0.05;player.temp=0.35;player.stopped=true;player.rearmed=true;}
+  else{const ret=game.phase==='return';player.place(ret?new V3(700,130,-260):new V3(700,140,520),ret?new V3(0,0,1):new V3(0,0,-1));
+    player.throttle=0.6;player.rpm=0.6;player.temp=0.5;player.speed=d.cruise*0.9;player.invuln=2.5;}
   for(const k in def.ammo)player.ammo[k]=Math.round(def.ammo[k]*diff().ammo);player.weapon=nextWeaponWithAmmo(player)||'rockets';
   cam.snap=true;
 }
 function startMission(def){
   resetWorld();
   Object.assign(game,{active:true,mission:def,time:0,score:0,lives:diff().lives,maxLives:diff().lives,stats:{shots:0,hits:0,props:0,ground:0,planes:0,myKills:0},kills:{},waveIdx:0,lastWaveT:0,waveNum:0,over:false,won:false,endT:0,respawnT:0,tutorialStep:0,freeWave:0,nextWaveT:2,aceSpawned:false});
-  spawnPlayer();
+  game.phase='takeoff';game.toTime=null;game.tipTO=false;game.landBonus=0;approachRings.visible=false;
+  spawnPlayer(true);
   (def.allies||[]).forEach((id,i)=>{const a=new Plane(id,0,{name:i?'Ailier Bourrasque':'Ailier Pinson',paint:DESIGNS[id].paints[(i+1)%3]});
-    _v1.set(...def.start.p);_v2.set(...def.start.d).normalize();_v3.crossVectors(UP,_v2).normalize();a.place(_v1.clone().addScaledVector(_v3,i?-45:45).addScaledVector(_v2,-35).add(_v4.set(0,i?-12:12,0)),_v2);});
+    _v1.set(...def.start.p);_v2.set(...def.start.d).normalize();_v3.crossVectors(UP,_v2).normalize();a.place(new V3(i?760:640,150+i*25,470+i*40),new V3(0,0,-1));});
   for(const gd of def.ground||[]){const at=typeof gd[1]==='string'?SPOT[gd[1]]:new V3(...gd[1]);new Ground(gd[0],at.x+(gd[2]||0),at.y,at.z+(gd[3]||0),(gd[4]||0)*Math.PI/2);}
   let k=0;for(let z=0;z<ZONES.length;z++){const n=z===0?4:z===10?3:2;for(let i=0;i<n;i++){spawnPickup(PICKUP_MIX[k++%PICKUP_MIX.length],randomPointInZone(z,30),true);}}
   const first=def.free?'Survivez aux vagues de Corbeaux':def.objectives.map(o=>o.type==='planes'?`Abattre ${o.count} Corbeaux`:o.type==='ace'?'Abattre le Commandant Rouille':o.label.replace(' détruits','').replace(' détruite','')+' : tout détruire').join(' · ');
@@ -2414,6 +2452,7 @@ function spawnWave(w){
 }
 function updateWaves(){
   const def=game.mission;
+  if(game.phase==='takeoff'||game.phase==='return'||game.phase==='done')return;
   if(def.free){
     if(enemyPlanesAlive()>0){game.nextWaveT=game.time+3;return;}
     if(game.time<game.nextWaveT)return;
@@ -2431,12 +2470,92 @@ function updateMission(dt){
   game.time+=dt;
   if(game.over){game.endT-=dt;if(game.endT<=0)showEnd();return;}
   updateWaves();
-  if(game.mission.tutorial&&game.tutorialStep<TUTORIAL.length&&game.time>TUTORIAL[game.tutorialStep][0]){{const m=TUTORIAL[game.tutorialStep][1];toast(typeof m==='function'?m():m,'info');}game.tutorialStep++;}
-  if(missionDone()){game.over=true;game.won=true;game.endT=3;banner('Bravo','Mission accomplie !','',2.8);Sound.fanfare();return;}
+  tutorialTick();
+  if(game.phase==='attack'&&missionDone()){game.phase='return';approachRings.visible=true;banner('Objectif accompli','Rentrez à la base','Suivez le repère vert jusqu\u2019à la piste de l\u2019atelier',3.6);Sound.fanfare();
+    later(3.8,()=>{if(game.phase==='return')toast(diff().autoland?'Près de la porte de l\u2019atelier, l\u2019atterrissage automatique prendra le relais':'Passez dans les anneaux verts, réduisez la puissance et posez-vous dans l\u2019axe','info');});refreshObjectives(true);}
   if(player&&player.gone){
-    if(game.lives>0){game.respawnT-=dt;if(game.respawnT<=0){spawnPlayer();toast('Nouvel avion prêt : '+game.lives+(game.lives>1?' avions restants':' avion restant'),'info');}}
+    if(game.lives>0){game.respawnT-=dt;if(game.respawnT<=0){spawnPlayer(false);toast('Nouvel avion prêt : '+game.lives+(game.lives>1?' avions restants':' avion restant'),'info');}}
+    else if(game.phase==='return'){game.over=true;game.won=true;game.endT=2.4;banner('Objectif accompli','Mission accomplie','Mais votre dernier avion n\u2019est pas rentré',2.4);}
     else{game.over=true;game.won=false;game.endT=2.4;banner('',game.mission.free?'Fin du combat':'Mission échouée',game.mission.free?'Score : '+game.score:'Tous vos avions sont tombés.',2.4);Sound.sad();}
   }
+}
+
+/* =========================================================
+   BASE AÉRIENNE : roulage, décollage, atterrissage
+   ========================================================= */
+const GPITCH=0.16;
+function gearH(p){return (p.design.kind==='bourdon'?6.2:p.design.kind==='hirondelle'?5.3:5.4)*p.mesh.scale.x;}
+function overRunway(pos){const m=diff().landWide||10;return Math.abs(pos.x-RUNWAY.x)<RUNWAY.w/2+m&&pos.z>RUNWAY.z0-15&&pos.z<RUNWAY.z1+5;}
+function setGroundPose(p){_q2.setFromAxisAngle(AX,-GPITCH);p.q.setFromAxisAngle(UP,p.gh).multiply(_q2);p.updateAxes();}
+function updateGround(p,dt,noseUp,steer){
+  const d=p.design,df=diff();
+  if(p.autoBrake)p.throttle=Math.max(0,p.throttle-dt*1.5);
+  updateEngine(p,dt);p.speed+=160*p.fwd.y*dt;
+  if(p.speed>0)p.speed=Math.max(0,p.speed-(14+(p.brake||p.autoBrake?190:0))*dt);
+  if(p.speed>3)p.gh-=steer*0.9*dt;
+  if(p.alignAssist){const tg=Math.abs(wrapA(p.gh-Math.PI))<Math.PI/2?Math.PI:0;p.gh+=clamp(wrapA(tg-p.gh),-dt,dt);p.pos.x+=clamp(RUNWAY.x-p.pos.x,-25*dt,25*dt);}
+  setGroundPose(p);p.stall=0;
+  p.pos.x+=Math.sin(p.gh)*p.speed*dt;p.pos.z+=Math.cos(p.gh)*p.speed*dt;p.pos.y=RUNWAY.y+gearH(p);
+  p.vel.set(Math.sin(p.gh)*p.speed,0,Math.cos(p.gh)*p.speed);
+  resolvePlaneWorld(p);p.pos.y=RUNWAY.y+gearH(p);
+  if(p.speed>d.minSpeed&&!p.autoBrake&&(noseUp>0.3||(df.autoTO&&p.throttle>0.45)))liftoff(p);
+  else if(p.speed<9&&!p.stopped){p.stopped=true;p.autoBrake=false;p.alignAssist=false;onStopped(p);}
+  if(p.speed>20)p.stopped=false;
+}
+function liftoff(p){
+  p.ground=false;p.noFloorT=0.9;p.autoBrake=false;p.alignAssist=false;p.rearmed=false;p.autoland=false;
+  _q2.setFromAxisAngle(AX,-0.24);p.q.setFromAxisAngle(UP,p.gh).multiply(_q2);p.updateAxes();
+  if(game.phase==='takeoff'){game.phase='attack';game.toTime=game.time;toast('Décollage réussi ! Suivez le repère vert','good');refreshObjectives(true);}
+  else toast('Décollage !','good');
+}
+function tryLand(p){
+  const df=diff(),d=p.design;const vy=p.speed*p.fwd.y;const hz=Math.hypot(p.fwd.x,p.fwd.z)||1;const align=Math.abs(p.fwd.z)/hz;const bank=Math.abs(p.right.y);
+  if(vy>-df.landVy&&p.speed<d.maxSpeed*df.landSpd&&align>df.landAlign&&bank<df.landBank){
+    p.ground=true;p.gh=Math.atan2(p.fwd.x,p.fwd.z);p.pos.y=RUNWAY.y+gearH(p);p.speed*=0.9;p.stopped=false;p.autoland=false;
+    p.autoBrake=!!df.autoland||game.phase==='return'&&df.landAlign<0.8;p.alignAssist=df.landAlign<0.8;setGroundPose(p);
+    Sound.thud(p.pos);fxPuff(p.pos,8,0.8,0.78,0.74,0.4,8);toast(game.phase==='return'?'Toucher des roues ! Freinez (F)':'Posé sur la piste : arrêtez-vous pour réparer et réarmer','good');return true;}
+  p.damage(25*df.crash,null);p.pos.y=RUNWAY.y+gearH(p)+7;_v1.copy(p.fwd);_v1.y=Math.abs(_v1.y)*0.4+0.12;_v1.normalize();_q1.setFromUnitVectors(p.fwd,_v1);p.q.premultiply(_q1).normalize();p.updateAxes();p.speed*=0.75;
+  toast(vy<=-df.landVy?'Atterrissage trop brutal : descendez plus doucement':align<=df.landAlign?'Alignez-vous sur l\u2019axe de la piste':bank>=df.landBank?'Remettez les ailes à plat':'Trop vite : réduisez la puissance','bad');Sound.thud(p.pos);return true;
+}
+function onStopped(p){
+  if(game.phase==='return'){game.phase='done';game.over=true;game.won=true;game.endT=2.8;game.landBonus=600;addScore(600);refreshObjectives(true);
+    banner('Bienvenue à la base','Mission accomplie !','Atterrissage réussi  +600',2.8);Sound.fanfare();return;}
+  if(!p.rearmed){p.rearmed=true;p.hp=p.maxHp;p.heat=0;p.overheat=false;p.temp=Math.min(p.temp,0.45);p.engineOver=false;
+    for(const k in game.mission.ammo)p.ammo[k]=Math.max(p.ammo[k],Math.round(game.mission.ammo[k]*diff().ammo));if(!p.ammo[p.weapon])p.weapon=nextWeaponWithAmmo(p)||p.weapon;
+    toast('Ravitaillement : avion réparé et réarmé','good');Sound.pickup();}
+}
+/* Atterrissage automatique (Débutant, Facile) : approche par la porte de la cuisine */
+const AL=[new V3(700,110,-130),new V3(700,70,100),new V3(700,-20,330)];
+function autoLandStep(p,dt){
+  const df=diff();if(!(game.phase==='return'&&df.autoland))return false;
+  if(!p.autoland){const z=zoneOf(p.pos);if((z===2||z===4)&&p.pos.distanceTo(_v1.set(700,113,0))<480&&p.pos.y<240){p.autoland=true;p.alIdx=z===2?0:(p.fwd.z>0.4&&p.pos.z<240?1:0);toast('Atterrissage automatique : lâchez les commandes','good');}else return false;}
+  let tg=AL[p.alIdx];if(p.alIdx<2&&(p.pos.distanceTo(tg)<60||(p.alIdx===1&&p.pos.z>tg.z&&Math.abs(p.pos.x-700)<60)))p.alIdx++;tg=AL[p.alIdx];
+  _v2.subVectors(tg,p.pos).normalize();const ang=Math.acos(clamp(p.fwd.dot(_v2),-1,1));
+  if(ang>1e-4){_v1.crossVectors(p.fwd,_v2);if(_v1.lengthSq()>1e-8){_v1.normalize();_q1.setFromAxisAngle(_v1,Math.min(ang,1.8*dt));p.q.premultiply(_q1);}}
+  p.updateAxes();const wb=clamp(_v2.dot(p.right)*2.4,-1,1);const bank=Math.atan2(-p.right.y,p.up.y);_q1.setFromAxisAngle(AZ,clamp(wrapA(wb-bank)*4,-3,3)*dt);p.q.multiply(_q1);p.updateAxes();
+  p.throttle=p.alIdx===2?0.3:0.5;p.inPitch=0;p.inRoll=0;
+  updateEngine(p,dt);integrateFlight(p,dt,true);return true;
+}
+const approachRings=new THREE.Group();
+for(const [x,y,z] of [[700,105,-50],[700,78,60],[700,48,160]]){const r=new THREE.Mesh(new THREE.TorusGeometry(28,1.6,8,36),new THREE.MeshBasicMaterial({color:0x6fdc8c,transparent:true,opacity:0.8,toneMapped:false,depthWrite:false}));r.position.set(x,y,z);approachRings.add(r);}
+approachRings.visible=false;scene.add(approachRings);
+/* Repère d'itinéraire : prochaine porte ou trémie vers l'objectif, ou vers la base au retour */
+const _nav=new V3();
+function navGoal(){
+  const p=player;if(!p||!p.alive||p.ground||!game.active||game.phase==='done')return null;const pz=zoneOf(p.pos);let gz;
+  if(game.phase==='return'){if(pz===4)return {pos:_nav.set(700,25,250),label:'PISTE'};if(pz===2)return {pos:_nav.set(700,110,-120),label:'APPROCHE'};gz=2;}
+  else{let best=null,bd=Infinity;for(const g of grounds)if(g.alive&&g.objective){const dd=g.pos.distanceTo(p.pos);if(dd<bd){bd=dd;best=g;}}
+    for(const e of planes)if(e.alive&&e.team===1){const dd=e.pos.distanceTo(p.pos)*1.2;if(dd<bd){bd=dd;best=e;}}
+    if(!best)return null;gz=zoneOf(best.pos);if(gz===pz)return null;}
+  const pi=NEXT[pz][gz];if(pi<0)return null;const P=PORTALS[pi];
+  return {pos:P.c,label:P.axis?(p.pos.y<P.c.y?'MONTER':'DESCENDRE'):(game.phase==='return'?'BASE':'ITINÉRAIRE')};
+}
+function tutorialTick(){
+  const df=diff();
+  if(game.phase==='takeoff'&&!game.tipTO){game.tipTO=true;toast(touchMode()?'Montez la barre GAZ pour rouler sur la piste':'Mettez les gaz : Z (ou 0 pour 100 %)','info');
+    later(2.6,()=>{if(game.phase==='takeoff')toast(df.autoTO?'L\u2019avion décollera tout seul en prenant de la vitesse':'Au-dessus de 90 km/h, cabrez ('+(settings.invertY?'↓':'↑')+') pour décoller','info');});}
+  if(game.mission.tutorial&&game.toTime!=null&&game.tutorialStep<TUTORIAL.length&&game.time-game.toTime>TUTORIAL[game.tutorialStep][0]){const m=TUTORIAL[game.tutorialStep][1];toast(typeof m==='function'?m():m,'info');game.tutorialStep++;}
+  if(approachRings.visible){const t=performance.now()*0.004;approachRings.children.forEach((r,i)=>{r.material.opacity=0.45+0.4*Math.max(0,Math.sin(t-i*0.9));});}
 }
 
 /* Mode démo derrière le menu */
@@ -2509,6 +2628,8 @@ function refreshObjectives(force){
   let html;
   if(def.free){html=`<li>Vague ${game.freeWave||1}</li><li>Corbeaux en vol : ${enemyPlanesAlive()}</li><li>Abattus : ${game.stats.planes}</li>`;}
   else html=def.objectives.map(o=>{const s=objectiveState(o);return `<li class="${s.done?'ok':''}">${s.text}</li>`;}).join('');
+  if(game.phase==='takeoff')html='<li>Décollez de la piste de l\u2019atelier</li>'+html;
+  if(!def.free&&(game.phase==='return'||game.phase==='done'))html+=`<li class="${game.phase==='done'?'ok':''}">Retour à la base : posez-vous sur la piste</li>`;
   if(force||hudCache.obj!==html){hudCache.obj=html;HUDEL.obj.innerHTML=html;}
 }
 function updateHudDom(dt){
@@ -2527,7 +2648,7 @@ function updateHudDom(dt){
     HUDEL.wpns.forEach(el=>{const w=el.dataset.w;const n=String(p.ammo[w]);if(hudCache['w'+w]!==n){hudCache['w'+w]=n;el.querySelector('b').textContent=n;}el.classList.toggle('sel',p.weapon===w);});
     const low=hr<0.25&&p.alive;HUDEL.vig.style.opacity=Math.max(vigT,low?0.35+Math.sin(performance.now()*0.008)*0.15:0).toFixed(3);
     warnT-=dt;if(warnT<=0){warnT=0.1;let w='';
-      if(p.alive){if(p.stall>0.15)w='DÉCROCHAGE : remettez de la puissance';else if(p.engineOver)w='MOTEUR EN SURCHAUFFE';else{_v1.copy(p.fwd).multiplyScalar(p.speed*0.55);const r=rayWorld(p.pos,_v1,PR);if(r.t>=0&&p.invuln<=0)w='ATTENTION : OBSTACLE';}}
+      if(p.alive){if(p.stall>0.15)w='DÉCROCHAGE : remettez de la puissance';else if(p.engineOver)w='MOTEUR EN SURCHAUFFE';else if(p.ground||p.noFloorT>0||(overRunway(p.pos)&&p.pos.y<70)){}else{_v1.copy(p.fwd).multiplyScalar(p.speed*0.55);const r=rayWorld(p.pos,_v1,PR);if(r.t>=0&&p.invuln<=0)w='ATTENTION : OBSTACLE';}}
       if(w!==warnTxt){warnTxt=w;HUDEL.warn.hidden=!w;HUDEL.warn.textContent=w;}if(w==='ATTENTION : OBSTACLE')Sound.alarm();}
   }else{HUDEL.vig.style.opacity='0';if(warnTxt){warnTxt='';HUDEL.warn.hidden=true;}}
 }
@@ -2555,7 +2676,11 @@ function drawHUD(){
       const rx=HW/2-46,ry=HH/2-46;const x=HW/2+Math.cos(a)*rx,y=HH/2+Math.sin(a)*ry;c.save();c.translate(x,y);c.rotate(a);c.fillStyle=color;c.beginPath();c.moveTo(12,0);c.lineTo(-6,-8);c.lineTo(-6,8);c.closePath();c.fill();c.restore();}
   };
   for(const e of planes){if(e===p||!e.alive)continue;if(e.team===1)mark(e,e.ace?'#ff3b30':'#ff6a5c',true,e.ace?'COMMANDANT ROUILLE':null);else mark(e,'#5fc4ff',false,e.name.replace('Ailier ',''));}
-  for(const g of grounds){if(!g.alive)continue;mark(g,'#ff9a3c',true,g.kind==='fort'?'FORT':null);}
+  for(const g of grounds){if(!g.alive)continue;mark(g,'#ff9a3c',true,g.kind==='fort'?'FORT':g.kind==='fuel'?'CARBURANT':null);}
+  const ng=navGoal();if(ng){proj(ng.pos,S2);const dist=ng.pos.distanceTo(camera.position);const on=S2.z<1&&S2.x>20&&S2.x<HW-20&&S2.y>20&&S2.y<HH-20;c.fillStyle='#6fdc8c';c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=1;
+    if(on){c.beginPath();c.moveTo(S2.x,S2.y-11);c.lineTo(S2.x+11,S2.y);c.lineTo(S2.x,S2.y+11);c.lineTo(S2.x-11,S2.y);c.closePath();c.fill();c.stroke();c.font='900 11px Nunito, system-ui, sans-serif';c.textAlign='center';c.fillText(ng.label+'  '+(dist/100).toFixed(1)+' m',S2.x,S2.y-17);}
+    else{_v1.copy(ng.pos).applyMatrix4(camera.matrixWorldInverse);let ax=_v1.x,ay=-_v1.y;if(Math.abs(ax)+Math.abs(ay)<1e-3)ay=1;const a=Math.atan2(ay,ax);const x=HW/2+Math.cos(a)*(HW/2-70),y=HH/2+Math.sin(a)*(HH/2-70);
+      c.save();c.translate(x,y);c.rotate(a);c.beginPath();c.moveTo(18,0);c.lineTo(-8,-12);c.lineTo(-2,0);c.lineTo(-8,12);c.closePath();c.fill();c.restore();c.font='900 10px Nunito, system-ui, sans-serif';c.textAlign='center';c.fillText(ng.label,x,y+(Math.sin(a)>0?-18:26));}}
   if(p&&p.alive&&p.lock.cand&&p.lock.cand.alive){proj(p.lock.cand.pos,S2);if(S2.z<1){const L=p.lock.locked;const s=L?20:20+(1-Math.min(1,p.lock.t/0.55))*30;
     c.strokeStyle=L?'#ff3b30':'#ffc23d';c.lineWidth=2.5;c.strokeRect(S2.x-s,S2.y-s,s*2,s*2);if(L){c.font='900 12px Nunito, system-ui, sans-serif';c.fillStyle='#ff3b30';c.textAlign='center';c.fillText('VERROUILLÉ',S2.x,S2.y-s-6);}}}
   if(p&&!p.gone){drawRadar(c,p);drawGauges(c,p);}
@@ -2593,6 +2718,7 @@ function drawRadar(c,p){
   const range=1100,k=R/range,hd=Math.atan2(p.fwd.x,p.fwd.z),ch=Math.cos(hd),sh=Math.sin(hd);
   const tr=(x,z)=>{const dx=x-p.pos.x,dz=z-p.pos.z;const f=dx*sh+dz*ch,r=-dx*ch+dz*sh;return [cx+r*k,cy-f*k];};
   c.strokeStyle='rgba(244,236,220,.12)';c.lineWidth=1;c.beginPath();c.arc(cx,cy,R*0.5,0,TAU);c.stroke();
+  if(floorOfY(p.pos.y)===0){const a=tr(RUNWAY.x-RUNWAY.w/2,RUNWAY.z0),b=tr(RUNWAY.x+RUNWAY.w/2,RUNWAY.z0),c2=tr(RUNWAY.x+RUNWAY.w/2,RUNWAY.z1),d2=tr(RUNWAY.x-RUNWAY.w/2,RUNWAY.z1);c.fillStyle='rgba(111,220,140,.35)';c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(c2[0],c2[1]);c.lineTo(d2[0],d2[1]);c.closePath();c.fill();}
   c.strokeStyle='rgba(244,236,220,.45)';c.lineWidth=1.6;c.beginPath();const fm=1<<floorOfY(p.pos.y);for(const w of wallLines){if(!(w.m&fm))continue;const l=w.l;const a=tr(l[0],l[1]),b=tr(l[2],l[3]);c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);}c.stroke();
   for(const pk of pickups){if(!pk.alive)continue;const s=tr(pk.pos.x,pk.pos.z);c.fillStyle='#'+PICKUP_TYPES[pk.type].color.toString(16).padStart(6,'0');c.fillRect(s[0]-1.5,s[1]-1.5,3,3);}
   for(const g of grounds){if(!g.alive)continue;const s=tr(g.pos.x,g.pos.z);c.fillStyle='#ff9a3c';const z=g.kind==='fort'?5:3;c.fillRect(s[0]-z,s[1]-z,z*2,z*2);}
@@ -2710,6 +2836,7 @@ function showEnd(){
   const tm=Math.floor(game.time),acc=game.stats.shots?Math.round(game.stats.hits/game.stats.shots*100):0;
   const rows=[['Temps',Math.floor(tm/60)+' min '+String(tm%60).padStart(2,'0')+' s'],['Avions abattus par vous',game.stats.myKills],['Cibles au sol détruites',game.stats.ground],['Objets cassés',game.stats.props],['Précision',acc+' %']];
   if(def.free)rows.splice(1,0,['Vagues atteintes',game.freeWave]);
+  if(game.landBonus)rows.push(['Retour à la base','+'+game.landBonus]);
   if(won)rows.push(['Bonus (temps et avions restants)','+'+bonus]);
   $('#endStats').innerHTML=rows.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')+`<span>Score${record?' · nouveau record !':''}</span><b class="total">${game.score}</b>`;
   const i=MISSIONS.indexOf(def);const nx=$('#endNext');nx.hidden=!(won&&i>=0&&i<MISSIONS.length-1);
@@ -2830,7 +2957,7 @@ function loop(now){
 }
 /* Point d'entrée de test (console) */
 window.__escadrille={get game(){return game;},get player(){return player;},get mode(){return mode;},planes,grounds,props,colliders,renderer,DBG,scene,camera,
-  startMission:id=>startGame(id==='free'?FREE:MISSIONS[id]),keys,settings,diff,auto:v=>{autoPilot=v;},
+  startMission:id=>startGame(id==='free'?FREE:MISSIONS[id]),keys,settings,diff,navGoal,auto:v=>{autoPilot=v;},
   look:(p,t)=>{mode='pause';$('#hud').hidden=true;hideScreens();camera.position.set(...p);camera.up.set(0,1,0);camera.lookAt(...t);camera.fov=70;camera.updateProjectionMatrix();},
   sim:(sec,step=1/60)=>{const t0=performance.now();const n=Math.round(sec/step);for(let i=0;i<n&&(mode==='play'||mode==='menu');i++)update(step);return (performance.now()-t0)/n;}};
 readSafe();applyTouchMode();
