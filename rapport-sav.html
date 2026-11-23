@@ -100,6 +100,17 @@ input.err, textarea.err { border-color: var(--bad); background: var(--bad-soft);
 .btn.ghost { background: transparent; }
 .btn.small { padding: 7px 10px; font-size: 14px; }
 .btn:disabled { opacity: .55; cursor: default; }
+.dictee { border: 1px dashed var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 12px; display: grid; gap: 10px; }
+.dictee-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.dictee-head b { font-family: var(--f-display); font-size: 18px; letter-spacing: .02em; }
+.dictee-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn.rec { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn.rec .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; animation: recblink 1s infinite; }
+@keyframes recblink { 50% { opacity: .2; } }
+.dictee textarea { min-height: 90px; background: var(--card); }
+.dictee .dmsg { font-size: 14px; color: var(--muted); margin: 0; }
+.dictee .dmsg.ok { color: var(--ok); } .dictee .dmsg.bad { color: var(--bad); }
+.dictee .dtime { font-family: var(--f-mono); font-size: 14px; color: var(--bad); }
 input.file { display: none; }
 
 .grid-media { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
@@ -214,6 +225,17 @@ img { max-width: 100%; }
     <div class="f" role="group" aria-label="Urgence">
       <label class="f" style="pointer-events:none"><span>Urgence</span></label>
       <div class="chips" id="urg"></div>
+    </div>
+    <div class="dictee" id="dictee">
+      <div class="dictee-head"><b>Dicter le rapport</b><span class="dtime" id="dTime" hidden></span></div>
+      <p class="hint" style="margin:0" id="dHint">Touche <b>Dicter</b> et raconte l'intervention : ce que dit le client, ce que tu constates, ce que tu as fait, les pièces à commander. Puis touche <b>Résumer avec l'IA</b> : la description, les actions réalisées et la suite à donner se remplissent toutes seules.</p>
+      <textarea id="dText" placeholder="Le texte dicté s'affiche ici. Tu peux le corriger avant de lancer le résumé."></textarea>
+      <div class="dictee-btns">
+        <button class="btn" type="button" id="dMic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Dicter</button>
+        <button class="btn primary" type="button" id="dAi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>Résumer avec l'IA</button>
+      </div>
+      <p class="dmsg" id="dMsg" aria-live="polite" hidden></p>
+      <button class="btn small ghost" type="button" id="dUndo" hidden>Annuler le remplissage</button>
     </div>
     <label class="f"><span>Description du problème <i>*</i></span><textarea id="problem" placeholder="Ce que le client signale, ce que tu constates sur place…"></textarea></label>
   </section>
@@ -356,6 +378,7 @@ img { max-width: 100%; }
     $("repNo").textContent = state.no;
     $("repDate").textContent = new Date(state.date).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
     TEXT_IDS.forEach(id => { $(id).value = state.fields[id] || ""; });
+    $("dText").value = state.fields.dictee || ""; $("dUndo").hidden = true; $("dMsg").hidden = true;
     document.querySelectorAll('#cats input').forEach(i => i.checked = state.cats.includes(i.value));
     document.querySelectorAll('#urg input').forEach(i => i.checked = state.urg === i.value);
     document.querySelectorAll('#stat input').forEach(i => i.checked = state.stat === i.value);
@@ -450,6 +473,95 @@ img { max-width: 100%; }
       setUpl(m, "bad", `Envoi impossible (étape ${step} : ${err && err.message || err}). Colle le lien Google Drive à la main ci-dessous.`);
     }
   }
+
+  // ---------- dictée vocale + résumé par l'IA ----------
+  // La reconnaissance vocale est celle du navigateur (gratuite, en direct). Le texte part ensuite
+  // vers le script Google (action "resume"), qui appelle l'IA et renvoie les 3 champs remplis.
+  (() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const box = $("dText"), mic = $("dMic"), ai = $("dAi"), msg = $("dMsg"), undo = $("dUndo"), timer = $("dTime");
+    let rec = null, on = false, base = "", t0 = 0, tick = null, before = null;
+    const say = (kind, text) => { msg.hidden = !text; msg.className = "dmsg " + (kind || ""); msg.textContent = text || ""; };
+    const keepDraft = () => { state.fields.dictee = box.value; save(); };
+    box.addEventListener("input", keepDraft);
+
+    if (!SR) {
+      mic.hidden = true;
+      ai.parentNode.style.gridTemplateColumns = "1fr";
+      $("dHint").innerHTML = "Sur ce téléphone, touche la zone ci-dessous puis le <b>micro du clavier</b> pour dicter. Ensuite, touche <b>Résumer avec l'IA</b> : la description, les actions réalisées et la suite à donner se remplissent toutes seules.";
+    }
+
+    function setMic(rec) {
+      mic.classList.toggle("rec", rec);
+      mic.innerHTML = rec ? '<span class="dot"></span>Arrêter' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Dicter';
+      timer.hidden = !rec;
+    }
+    function startSession() {
+      rec = new SR();
+      rec.lang = "fr-FR"; rec.continuous = true; rec.interimResults = true;
+      const sessionBase = base;
+      rec.onresult = ev => {
+        let fin = "", tmp = "";
+        for (let i = 0; i < ev.results.length; i++) {
+          const r = ev.results[i];
+          if (r.isFinal) fin += r[0].transcript; else tmp += r[0].transcript;
+        }
+        const join = (a, b) => (a && b ? a.replace(/\s+$/, "") + " " + b.replace(/^\s+/, "") : a + b);
+        base = join(sessionBase, fin.trim());
+        box.value = join(base, tmp.trim());
+      };
+      rec.onerror = ev => {
+        if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { stop(); say("bad", "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur, ou utilise le micro du clavier."); }
+        else if (ev.error === "network") { stop(); say("bad", "La dictée a besoin d'internet. Utilise le micro du clavier si le réseau est faible."); }
+      };
+      // le navigateur coupe après un silence : on relance tant que le technicien n'a pas touché « Arrêter »
+      rec.onend = () => { if (on) { try { startSession(); } catch (e) { stop(); } } else { box.value = base; keepDraft(); } };
+      rec.start();
+    }
+    function start() {
+      base = box.value.trim(); on = true; setMic(true); say("", "Je t'écoute… parle normalement, touche « Arrêter » quand tu as fini.");
+      t0 = Date.now(); timer.textContent = "0:00";
+      tick = setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); timer.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }, 500);
+      try { startSession(); } catch (e) { stop(); say("bad", "Impossible de lancer la dictée. Utilise le micro du clavier."); }
+    }
+    function stop() {
+      on = false; clearInterval(tick); setMic(false);
+      try { rec && rec.stop(); } catch (e) {}
+      if (!msg.className.includes("bad")) say("", box.value.trim() ? "Dictée terminée. Vérifie le texte puis touche « Résumer avec l'IA »." : "");
+    }
+    mic.onclick = () => on ? stop() : start();
+
+    ai.onclick = async () => {
+      if (on) stop();
+      const text = box.value.trim();
+      if (!text) { say("bad", "Dicte d'abord l'intervention."); return; }
+      if (!UPLOAD_URL) { say("bad", "Le résumé par l'IA n'est pas configuré (adresse du script manquante)."); return; }
+      ai.disabled = mic.disabled = true; undo.hidden = true;
+      say("", "L'IA prépare le résumé… (quelques secondes)");
+      try {
+        const r = await post({ action: "resume", text, context: { product: $("product").value.trim(), cats: state.cats } });
+        if (!r || !r.ok) throw new Error((r && r.error) || "réponse vide");
+        before = { problem: $("problem").value, actions: $("actions").value, next: $("next").value };
+        let n = 0;
+        ["problem", "actions", "next"].forEach(id => {
+          const v = (r[id] || "").trim(); if (!v) return;
+          const el = $(id), old = el.value.trim();
+          el.value = old ? old + "\n" + v : v; // on complète, on n'écrase jamais ce qui est déjà saisi
+          state.fields[id] = el.value; el.classList.remove("err"); n++;
+        });
+        save();
+        if (n) { say("ok", "Rapport rempli ✓ — relis la description, les actions réalisées et la suite à donner."); undo.hidden = false; }
+        else say("bad", "L'IA n'a rien trouvé à mettre dans le rapport. Complète la dictée et réessaie.");
+      } catch (err) {
+        say("bad", "Résumé impossible (" + (err && err.message || err) + "). Ton texte dicté est gardé : réessaie, ou recopie-le dans les champs.");
+      } finally { ai.disabled = mic.disabled = false; }
+    };
+    undo.onclick = () => {
+      if (!before) return;
+      Object.entries(before).forEach(([id, v]) => { $(id).value = v; state.fields[id] = v; });
+      save(); before = null; undo.hidden = true; say("", "Remplissage annulé.");
+    };
+  })();
 
   function shrinkImage(file) {
     return new Promise((res, rej) => {
