@@ -116,6 +116,7 @@
         .seg button svg { flex-shrink: 0; color: var(--texte-3); }
         .seg button .t { display: block; font-weight: 600; font-size: .92rem; line-height: 1.25; }
         .seg button .s { display: block; font-size: .74rem; color: var(--texte-3); line-height: 1.3; }
+        #segVitrage { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
         .seg button.actif { border-color: var(--bleu); background: var(--bleu-clair); box-shadow: 0 0 0 3px rgba(37,115,125,.10); }
         .seg button.actif svg { color: var(--bleu); }
         .seg button.actif .s { color: var(--bleu-fonce); }
@@ -296,16 +297,28 @@
         <div class="champ">
             <span class="label">Type de vitrage</span>
             <div class="seg" id="segVitrage">
+                <button type="button" data-val="A" onclick="choisirSeg('glassType', this)">
+                    <span><span class="t">Vitrage A · simple</span><span class="s">Simple clair, g 0,85</span></span>
+                </button>
+                <button type="button" data-val="B" onclick="choisirSeg('glassType', this)">
+                    <span><span class="t">Vitrage B · double</span><span class="s">Double clair, g 0,70</span></span>
+                </button>
                 <button type="button" data-val="C" class="actif" onclick="choisirSeg('glassType', this)">
-                    <span><span class="t">Vitrage C · standard</span><span class="s">Double vitrage, g 0,59</span></span>
+                    <span><span class="t">Vitrage C (F) · standard</span><span class="s">Double faible émissivité, g 0,59</span></span>
                 </button>
                 <button type="button" data-val="D" onclick="choisirSeg('glassType', this)">
-                    <span><span class="t">Vitrage D · contrôle solaire</span><span class="s">Double vitrage, g 0,32</span></span>
+                    <span><span class="t">Vitrage D (G) · contrôle solaire</span><span class="s">Double contrôle solaire, g 0,32</span></span>
+                </button>
+                <button type="button" data-val="E" onclick="choisirSeg('glassType', this)">
+                    <span><span class="t">Vitrage E (H) · triple</span><span class="s">Triple faible émissivité, g 0,55</span></span>
                 </button>
             </div>
             <select id="glassType" class="cache" onchange="majInfoToile()">
-                <option value="C" selected>Vitrage C · standard (g 0,59)</option>
-                <option value="D">Vitrage D · contrôle solaire (g 0,32)</option>
+                <option value="A">Vitrage A · simple clair (g 0,85)</option>
+                <option value="B">Vitrage B · double clair (g 0,70)</option>
+                <option value="C" selected>Vitrage C (F) · double faible émissivité (g 0,59)</option>
+                <option value="D">Vitrage D (G) · double contrôle solaire (g 0,32)</option>
+                <option value="E">Vitrage E (H) · triple faible émissivité (g 0,55)</option>
             </select>
         </div>
         <div class="champ" style="max-width: 220px;">
@@ -376,7 +389,25 @@
     //           choisie. Pour une toile de la liste, on prend le gtot publié.
     //   D : calibrés sur 21 toiles (tableau fournisseur officiel).
     //   C : calibrés sur les 59 toiles Bandalux de toiles.json (11/2026).
+    //   A, B, E : aucune fiche fournisseur → coefficients de la méthode
+    //           simplifiée EN ISO 52022-1 (ext : G1=5, G2=10 ; int : G2=30),
+    //           calculés avec g et Ug du vitrage. Vérif. sur C : 0,662/0/0,088
+    //           en ext contre 0,641/0,006/0,089 pour la régression → cohérent.
     const VITRAGES = {
+        "A": {
+            court: "Vitrage A",
+            label: "Vitrage A (EN 14501) — simple vitrage clair, 4 mm, g=0,85 / Ug=5,8 W/m²K",
+            g: 0.85, simplifie: true,
+            ext: { ts: 0.913510, rs: 0, as: 0.211701 },
+            int: { ts: 0.850000, rs: 0.127500, as: 0.712269 }
+        },
+        "B": {
+            court: "Vitrage B",
+            label: "Vitrage B (EN 14501) — double vitrage clair, 4-12-4 air, g=0,70 / Ug=2,9 W/m²K",
+            g: 0.70, simplifie: true,
+            ext: { ts: 0.793057, rs: 0, as: 0.155095 },
+            int: { ts: 0.700000, rs: 0.210000, as: 0.638350 }
+        },
         "C": {
             court: "Vitrage C",
             label: "Vitrage C (EN 14501) — double vitrage faiblement émissif, 4-16-4 argon, g=0,59 / Ug=1,2 W/m²K",
@@ -390,6 +421,13 @@
             g: 0.32,
             ext: { ts: 0.201037, rs: 0.032093, as: 0.020672 },
             int: { ts: 0.635136, rs: -0.032373, as: 0.321353 }
+        },
+        "E": {
+            court: "Vitrage E",
+            label: "Vitrage E (EN 14501) — triple vitrage faiblement émissif, 4-12-4-12-4 argon, g=0,55 / Ug=0,6 W/m²K",
+            g: 0.55, simplifie: true,
+            ext: { ts: 0.595763, rs: 0, as: 0.050847 },
+            int: { ts: 0.550000, rs: 0.247500, as: 0.539194 }
         }
     };
 
@@ -634,14 +672,14 @@
         document.getElementById('cVit2').innerText = g_verre.toFixed(2);
         document.getElementById('cVitLabel').innerText = vitrage.label;
         document.getElementById('cGtotSource').innerText = estime
-            ? "estimé par régression calibrée sur fiches fournisseur (Ts × " + coef.ts.toFixed(3) + " + Rs × " + coef.rs.toFixed(3) + " + As × " + coef.as.toFixed(3) + ")."
+            ? (vitrage.simplifie ? "estimé par la méthode simplifiée EN ISO 52022-1" : "estimé par régression calibrée sur fiches fournisseur") + " (Ts × " + coef.ts.toFixed(3) + " + Rs × " + coef.rs.toFixed(3) + " + As × " + coef.as.toFixed(3) + ")."
             : "valeur publiée sur la fiche technique fournisseur (" + toileChoisie.source + ").";
         const le = document.getElementById('ligneEstime');
         if (toileChoisie && estime) {
             le.innerText = "Valeur estimée : la fiche ne publie pas le gtot de cette toile en pose " + (posCle === "ext" ? "extérieure" : "intérieure") + " pour ce vitrage.";
             le.style.display = "block";
         } else { le.style.display = "none"; }
-        document.getElementById('clauseTexte').innerText = "Facteur solaire total (gtot) selon EN 14501 / ISO 52022, " + vitrage.label.replace(/^Vitrage (.) \(EN 14501\) — /, "vitrage de référence $1 (") + ")" + (estime ? ", estimé à partir de Ts / Rs / As par régression calibrée sur données fournisseur réelles." : ", valeur publiée par le fabricant de la toile.");
+        document.getElementById('clauseTexte').innerText = "Facteur solaire total (gtot) selon EN 14501 / ISO 52022, " + vitrage.label.replace(/^Vitrage (.) \(EN 14501\) — /, "vitrage de référence $1 (") + ")" + (estime ? (vitrage.simplifie ? ", estimé à partir de Ts / Rs / As par la méthode simplifiée EN ISO 52022-1." : ", estimé à partir de Ts / Rs / As par régression calibrée sur données fournisseur réelles.") : ", valeur publiée par le fabricant de la toile.");
         document.getElementById('cGtot').innerText = gtot.toFixed(3);
         document.getElementById('cSans').innerText = tempSans.toFixed(1);
         document.getElementById('cAvec').innerText = tempAvec.toFixed(1);
