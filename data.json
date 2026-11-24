@@ -887,6 +887,28 @@
           "to": "14:00"
         }
       ]
+    },
+    {
+      "id": 1795533428273,
+      "user": "Clarisse",
+      "lastname": "Guai",
+      "email": "clarisse.guai@ruedustore.fr",
+      "start": "2026-12-11",
+      "end": "2026-12-11",
+      "days": 0,
+      "type": "Autorisation d'absence",
+      "note": "rdv",
+      "status": "En attente",
+      "date_demande": "2026-11-24",
+      "startTime": "16:45",
+      "endTime": "17:30",
+      "rattrapage": [
+        {
+          "date": "2026-12-11",
+          "from": "12:30",
+          "to": "13:15"
+        }
+      ]
     }
   ],
   "soldes": {
@@ -998,6 +1020,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1795533428273,
+      "date": "2026-11-24",
+      "heure": "16:17",
+      "type": "demande",
+      "actor": "Clarisse Guai",
+      "label": "Nouvelle demande soumise",
+      "detail": "Autorisation d'absence — rdv · Du 11/12/2026 à 16h45 au 11/12/2026 à 17h30 (0 j) · Rattrapage : 11/12/2026 de 12h30 à 13h15"
+    },
     {
       "ts": 1795533246609,
       "date": "2026-11-24",
@@ -2379,6 +2410,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1795533428504,
+      "ts": 1795533428273,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Clarisse Guai</strong> a déposé une demande : Autorisation d'absence — rdv · Du 11/12/2026 à 16h45 au 11/12/2026 à 17h30 (0 j) · Rattrapage : 11/12/2026 de 12h30 à 13h15",
+      "reqId": 1795533428273
+    },
     {
       "id": 1795533246611,
       "ts": 1795533246609,
