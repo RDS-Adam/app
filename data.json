@@ -812,6 +812,21 @@
       "decidedBy": "Nicolas",
       "fromN1": 0.5,
       "fromN": 0
+    },
+    {
+      "id": 1795507022541,
+      "user": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr",
+      "start": "2026-12-08",
+      "end": "2026-12-08",
+      "days": 0,
+      "type": "Autorisation d'absence",
+      "note": "Rendez-vous maitresse Ecole",
+      "status": "En attente",
+      "date_demande": "2026-11-24",
+      "startTime": "16:30",
+      "endTime": "18:00"
     }
   ],
   "soldes": {
@@ -923,6 +938,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1795507022541,
+      "date": "2026-11-24",
+      "heure": "08:57",
+      "type": "demande",
+      "actor": "Cindy Masson",
+      "label": "Nouvelle demande soumise",
+      "detail": "Autorisation d'absence — Rendez-vous maitresse Ecole · Du 08/12/2026 à 16h30 au 08/12/2026 à 18h00 (0 j)"
+    },
     {
       "ts": 1794584733327,
       "date": "2026-11-13",
@@ -2268,6 +2292,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1795507023144,
+      "ts": 1795507022541,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "demande",
+      "text": "📥 <strong>Cindy Masson</strong> a déposé une demande : Autorisation d'absence — Rendez-vous maitresse Ecole · Du 08/12/2026 à 16h30 au 08/12/2026 à 18h00 (0 j)",
+      "reqId": 1795507022541
+    },
     {
       "id": 1794584733438,
       "ts": 1794584733327,
