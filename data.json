@@ -846,6 +846,25 @@
       "reason": "",
       "fromN1": 0,
       "fromN": 0
+    },
+    {
+      "id": 1795507079313,
+      "user": "Cindy",
+      "lastname": "Masson",
+      "email": "cindy.masson@ruedustore.fr",
+      "start": "2026-12-03",
+      "end": "2026-12-03",
+      "days": 1,
+      "type": "Télétravail",
+      "note": "",
+      "status": "En attente",
+      "date_demande": "2026-11-24",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "telework": true,
+      "reason": "",
+      "fromN1": 0,
+      "fromN": 0
     }
   ],
   "soldes": {
@@ -957,6 +976,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1795507079313,
+      "date": "2026-11-24",
+      "heure": "08:57",
+      "type": "tt",
+      "actor": "Cindy Masson",
+      "label": "Télétravail demandé",
+      "detail": "Du 03/12/2026 à 09h00 au 03/12/2026 à 18h00 (1 j)"
+    },
     {
       "ts": 1795507061609,
       "date": "2026-11-24",
@@ -2320,6 +2348,16 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1795507079719,
+      "ts": 1795507079313,
+      "to": [
+        "Nicolas"
+      ],
+      "kind": "tt",
+      "text": "💻 <strong>Cindy Masson</strong> demande à être en télétravail du 03/12/2026 à 09h00 au 03/12/2026 à 18h00 (1 j) · à valider",
+      "reqId": 1795507079313
+    },
     {
       "id": 1795507062400,
       "ts": 1795507061609,
