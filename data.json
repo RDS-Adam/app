@@ -876,7 +876,7 @@
       "days": 0,
       "type": "Autorisation d'absence",
       "note": "rdv",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-11-24",
       "startTime": "14:15",
       "endTime": "15:00",
@@ -886,7 +886,11 @@
           "from": "13:15",
           "to": "14:00"
         }
-      ]
+      ],
+      "reason": "",
+      "date_decision": "2026-11-25",
+      "decidedBy": "Nicolas",
+      "treatment": "recover"
     },
     {
       "id": 1795533428273,
@@ -1024,6 +1028,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1795627401192,
+      "date": "2026-11-25",
+      "heure": "18:23",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Clarisse Guai · Autorisation d'absence · Du 08/12/2026 à 14h15 au 08/12/2026 à 15h00 (0 j) · à récupérer"
+    },
     {
       "ts": 1795627384204,
       "date": "2026-11-25",
@@ -2423,6 +2436,26 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1795627401350,
+      "ts": 1795627401192,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Clarisse Guai</strong> : Autorisation d'absence · Du 08/12/2026 à 14h15 au 08/12/2026 à 15h00 (0 j)",
+      "reqId": 1795533246609
+    },
+    {
+      "id": 1795627401905,
+      "ts": 1795627401192,
+      "to": [
+        "Clarisse"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 08/12/2026 à 14h15 au 08/12/2026 à 15h00 (Autorisation d'absence) a été <strong>validée</strong> par Nicolas — absence à récupérer. L'autorisation signée est disponible en PDF dans votre historique.",
+      "reqId": 1795533246609
+    },
     {
       "id": 1795627385163,
       "ts": 1795627384204,
