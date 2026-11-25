@@ -823,10 +823,14 @@
       "days": 0,
       "type": "Autorisation d'absence",
       "note": "Rendez-vous maitresse Ecole",
-      "status": "En attente",
+      "status": "Validé",
       "date_demande": "2026-11-24",
       "startTime": "16:30",
-      "endTime": "18:00"
+      "endTime": "18:00",
+      "reason": "",
+      "date_decision": "2026-11-25",
+      "decidedBy": "Nicolas",
+      "treatment": "paid"
     },
     {
       "id": 1795507061609,
@@ -1032,6 +1036,15 @@
     }
   },
   "logs": [
+    {
+      "ts": 1795627445100,
+      "date": "2026-11-25",
+      "heure": "18:24",
+      "type": "validation",
+      "actor": "Nicolas",
+      "label": "Demande validée",
+      "detail": "Cindy Masson · Autorisation d'absence · Du 08/12/2026 à 16h30 au 08/12/2026 à 18h00 (0 j) · rémunérée, sans décompte"
+    },
     {
       "ts": 1795627438850,
       "date": "2026-11-25",
@@ -2458,6 +2471,26 @@
     "Camille": 0
   },
   "notifications": [
+    {
+      "id": 1795627445188,
+      "ts": 1795627445100,
+      "to": [
+        "Camille"
+      ],
+      "kind": "decision",
+      "text": "✅ <strong>Nicolas</strong> a validé la demande de <strong>Cindy Masson</strong> : Autorisation d'absence · Du 08/12/2026 à 16h30 au 08/12/2026 à 18h00 (0 j)",
+      "reqId": 1795507022541
+    },
+    {
+      "id": 1795627445149,
+      "ts": 1795627445100,
+      "to": [
+        "Cindy"
+      ],
+      "kind": "decision",
+      "text": "✅ Votre demande du 08/12/2026 à 16h30 au 08/12/2026 à 18h00 (Autorisation d'absence) a été <strong>validée</strong> par Nicolas — absence rémunérée, sans décompte. L'autorisation signée est disponible en PDF dans votre historique.",
+      "reqId": 1795507022541
+    },
     {
       "id": 1795627439005,
       "ts": 1795627438850,
