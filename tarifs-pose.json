@@ -725,17 +725,21 @@
       ]
     },
     "cat_mucf3c5ef0": {
-      "Tabliers sous face PVC": [
-        0,
-        0
+      "Tablier réno / bloc baie / tunnel ≤ 250 cm": [
+        60,
+        80
       ],
-      "Tabliers Coffre réno ext": [
-        0,
-        0
+      "Tablier réno / bloc baie / tunnel > 250 cm": [
+        100,
+        130
       ],
-      "Tablier coffre bois intérieur": [
-        0,
-        0
+      "Tablier coffre bois intérieur ≤ 250 cm": [
+        100,
+        130
+      ],
+      "Tablier coffre bois intérieur > 250 cm": [
+        140,
+        190
       ]
     },
     "film_solaire": {
